@@ -29,9 +29,10 @@ namespace data_frame {
  * @param num_rows Number of rows in the data frame.
  * @param has_row_names Whether the data frame contains row names.
  * @param columns Details about the expected columns of the data frame, in order.
- * @param version Version of the specification.
+ * @param df_version Version of the `data_frame` format.
+ * @param hdf5_version Version of the `hdf5_data_frame` format.
  */
-inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int version = 2) {
+inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int df_version = 2, int hdf5_version = 2) {
     constexpr hsize_t buffer_size = 10000;
     const char* missing_attr = "missing-value-placeholder";
 
@@ -115,7 +116,7 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
             if (xhandle.getTypeClass() != H5T_FLOAT) {
                 throw std::runtime_error("expected column " + dset_name + " to be a floating-point dataset");
             }
-            if (version > 1 && xhandle.attrExists(missing_attr)) {
+            if (hdf5_version > 1 && xhandle.attrExists(missing_attr)) {
                 ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr, dset_name.c_str());
             }
 
@@ -124,7 +125,7 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
                 throw std::runtime_error("expected column " + dset_name + " to be an integer dataset");
             }
             ritsuko::hdf5::forbid_large_integers(xhandle, 32, dset_name.c_str());
-            if (version > 1 && xhandle.attrExists(missing_attr)) {
+            if (hdf5_version > 1 && xhandle.attrExists(missing_attr)) {
                 ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr, dset_name.c_str());
             }
 
@@ -174,7 +175,7 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
             }
 
         } else if (curcol.type == data_frame::ColumnType::FACTOR) {
-            if (version == 1) {
+            if (df_version <= 1) {
                 if (xhandle.getTypeClass() != H5T_STRING) {
                     throw std::runtime_error("expected column " + dset_name + " to be a string dataset");
                 }
@@ -201,17 +202,20 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
                     }
                 );
 
-            } else if (version > 1) {
+            } else if (df_version > 1) {
                 if (xhandle.getTypeClass() != H5T_INTEGER) {
                     throw std::runtime_error("expected column " + dset_name + " to be an integer dataset");
                 }
                 ritsuko::hdf5::forbid_large_integers(xhandle, 32, dset_name.c_str());
 
-                int32_t placeholder = 0;
-                bool has_missing = xhandle.attrExists(missing_attr);
-                if (has_missing) {
-                    auto attr = ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr, dset_name.c_str());
-                    attr.read(H5::PredType::NATIVE_INT32, &placeholder);
+                int32_t placeholder = -2147483648;
+                bool has_missing = true;
+                if (hdf5_version > 1) {
+                    has_missing = xhandle.attrExists(missing_attr);
+                    if (has_missing) {
+                        auto attr = ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr, dset_name.c_str());
+                        attr.read(H5::PredType::NATIVE_INT32, &placeholder);
+                    }
                 }
 
                 int32_t num_levels = curcol.factor_levels.size();
@@ -259,12 +263,13 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
  * @param num_rows Number of rows in the data frame.
  * @param has_row_names Whether the data frame contains row names.
  * @param columns Details about the expected columns of the data frame, in order.
- * @param version Version of the specification.
+ * @param df_version Version of the `data_frame` format.
+ * @param hdf5_version Version of the `hdf5_data_frame` format.
  */
-inline void validate_hdf5(const std::string& path, const std::string& name, hsize_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int version = 2) {
+inline void validate_hdf5(const std::string& path, const std::string& name, hsize_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int df_version = 2, int hdf5_version = 2) {
     H5::H5File handle(path, H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup(name);
-    validate_hdf5(ghandle, num_rows, has_row_names, columns, version);
+    validate_hdf5(ghandle, num_rows, has_row_names, columns, df_version, hdf5_version);
 }
 
 }
