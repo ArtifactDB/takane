@@ -193,7 +193,7 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
                     buffer_size,
                     [&](hsize_t, const char* p, size_t len) {
                         std::string x(p, p + len);
-                        if (has_missing && x != missing_string) {
+                        if (has_missing && x == missing_string) {
                             return;
                         } else if (allowed.find(x) == allowed.end()) {
                             throw std::runtime_error("column " + dset_name + " contains '" + x + "' that is not present in factor levels");
@@ -228,7 +228,7 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
                                 continue;
                             }
                             if (buffer[i] < 0) {
-                                throw std::runtime_error("expected factor indices to be positive in column " + dset_name);
+                                throw std::runtime_error("expected factor indices to be non-negative in column " + dset_name);
                             }
                             if (buffer[i] >= num_levels) {
                                 throw std::runtime_error("expected factor indices to less than the number of levels in column " + dset_name);

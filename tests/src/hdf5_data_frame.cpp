@@ -86,12 +86,13 @@ static void create_hdf5_data_frame(const H5::Group& handle, hsize_t num_rows, bo
         } else if (curcol.type == takane::data_frame::ColumnType::FACTOR) {
             if (version == 1) {
                 std::vector<std::string> choices(curcol.factor_levels.begin(), curcol.factor_levels.end());
-                std::vector<std::string> dump(num_rows);
+                std::vector<const char*> dump(num_rows);
                 for (hsize_t i = 0; i < num_rows; ++i) {
-                    dump[i] = choices[i % choices.size()];
+                    dump[i] = choices[i % choices.size()].c_str();
                 }
-                auto dhandle = ghandle.createDataSet(colname, H5::PredType::NATIVE_INT8, dspace);
-                dhandle.write(dump.data(), H5::PredType::NATIVE_INT);
+                H5::StrType stype(0, H5T_VARIABLE);
+                auto dhandle = ghandle.createDataSet(colname, stype, dspace);
+                dhandle.write(dump.data(), stype);
 
             } else {
                 int nchoices = curcol.factor_levels.size();
@@ -460,7 +461,7 @@ TEST(Hdf5DataFrame, String) {
         xhandle.removeAttr("missing-value-placeholder");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-    expect_error("same type as", path, name, nrows, false, columns);
+    expect_error("same type class as", path, name, nrows, false, columns);
 }
 
 TEST(Hdf5DataFrame, StringDate) {
@@ -559,4 +560,118 @@ TEST(Hdf5DataFrame, StringDateTime) {
         ahandle.write(stype, std::string(violator));
     }
     takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+}
+
+TEST(Hdf5DataFrame, FactorVersion1) {
+    std::string path = "TEST-hdf5_data_frame.h5";
+    std::string name = "df";
+
+    std::vector<takane::data_frame::ColumnDetails> columns(1);
+    columns[0].name = "Aaron";
+    columns[0].type = takane::data_frame::ColumnType::FACTOR;
+    std::vector<std::string> levels{ "kanon", "chisato", "sumire", "ren", "keke" };
+    columns[0].factor_levels.insert(levels.begin(), levels.end());
+    hsize_t nrows = 32;
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup(name);
+        create_hdf5_data_frame(ghandle, nrows, false, columns, /* version = */ 1);
+    }
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* version = */ 1);
+    columns[0].factor_levels.erase("chisato");
+    expect_error("contains 'chisato'", path, name, nrows, false, columns, /* version = */ 1);
+
+    H5::DataSpace dspace(1, &nrows);
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+        dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
+    }
+    expect_error("string dataset", path, name, nrows, false, columns, /* version = */ 1);
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+
+        H5::StrType stype(0, H5T_VARIABLE);
+        auto xhandle = dhandle.createDataSet("0", stype, dspace);
+        const char* missing = "chisato";
+        std::vector<const char*> dump(nrows, missing);
+        xhandle.write(dump.data(), stype);
+
+        auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
+        ahandle.write(stype, std::string(missing));
+    }
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* version = */ 1); // rescues the missing values.
+}
+
+TEST(Hdf5DataFrame, FactorVersion2) {
+    std::string path = "TEST-hdf5_data_frame.h5";
+    std::string name = "df";
+
+    std::vector<takane::data_frame::ColumnDetails> columns(1);
+    columns[0].name = "Aaron";
+    columns[0].type = takane::data_frame::ColumnType::FACTOR;
+    columns[0].factor_levels.insert("kanon");
+    columns[0].factor_levels.insert("chisato");
+    columns[0].factor_levels.insert("sumire");
+    columns[0].factor_levels.insert("ren");
+    columns[0].factor_levels.insert("keke");
+    hsize_t nrows = 32;
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup(name);
+        create_hdf5_data_frame(ghandle, nrows, false, columns);
+    }
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    columns[0].factor_levels.erase("chisato");
+    expect_error("less than the number of levels", path, name, nrows, false, columns);
+
+    H5::DataSpace dspace(1, &nrows);
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+        dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
+    }
+    expect_error("integer dataset", path, name, nrows, false, columns);
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+        dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, dspace);
+    }
+    expect_error("exceeds the range", path, name, nrows, false, columns);
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+
+        auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT16, dspace);
+        std::vector<int> replacement(nrows, -1);
+        xhandle.write(replacement.data(), H5::PredType::NATIVE_INT);
+    }
+    expect_error("non-negative", path, name, nrows, false, columns);
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        auto xhandle = dhandle.openDataSet("0");
+        auto ahandle = xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT16, H5S_SCALAR);
+        int val = -1;
+        ahandle.write(H5::PredType::NATIVE_INT, &val); 
+    }
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns); // rescues the negative values.
 }
