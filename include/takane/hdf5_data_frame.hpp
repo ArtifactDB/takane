@@ -250,6 +250,23 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
     }
 }
 
+/**
+ * Checks if a HDF5 data frame is correctly formatted.
+ * An error is raised if the file does not meet the specifications.
+ *
+ * @param path Path to the HDF5 file.
+ * @param name Name of the group containing the data frame contents.
+ * @param num_rows Number of rows in the data frame.
+ * @param has_row_names Whether the data frame contains row names.
+ * @param columns Details about the expected columns of the data frame, in order.
+ * @param version Version of the specification.
+ */
+inline void validate_hdf5(const std::string& path, const std::string& name, hsize_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int version = 2) {
+    H5::H5File handle(path, H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup(name);
+    validate_hdf5(ghandle, num_rows, has_row_names, columns, version);
+}
+
 }
 
 }
