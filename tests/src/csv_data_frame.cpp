@@ -8,14 +8,13 @@
 #include <vector>
 #include <fstream>
 
-template<typename ... Args_>
-static void validate(const std::string& buffer, Args_&& ... args) {
+static void validate(const std::string& buffer, size_t num_rows, bool has_row_names, const std::vector<takane::data_frame::ColumnDetails>& columns, int df_version = 2) {
     std::string path = "TEST-csv_data_frame.csv";
     {
         std::ofstream ohandle(path);
         ohandle << buffer;
     }
-    takane::data_frame::validate_csv(path.c_str(), std::forward<Args_>(args)...);
+    takane::data_frame::validate_csv(path.c_str(), num_rows, has_row_names, columns, comservatory::ReadOptions(), df_version);
 }
 
 template<typename ... Args_>
@@ -181,3 +180,10 @@ TEST(CsvDataFrame, FactorVersion2) {
     }
 }
 
+TEST(CsvDataFrame, FromReader) {
+    std::vector<takane::data_frame::ColumnDetails> columns(1);
+    columns[0].name = "aaron";
+    std::string buffer = "\"rows\",\"aaron\"\n\"mizuki\",54\n\"fumika\",21\n\"aiko\",55\n";
+    byteme::RawBufferReader reader(reinterpret_cast<const unsigned char*>(buffer.c_str()), buffer.size());
+    takane::data_frame::validate_csv(reader, 3, true, columns, comservatory::ReadOptions());
+}
