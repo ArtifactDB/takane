@@ -91,10 +91,10 @@ $(function() {
 <li><b>For <code>data_frame.version &gt;= 2</code>:</b> A factor column is represented by a integer HDF5 dataset. Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer. Each integer is an index into the array of factor levels, found in the <code>data_frame.columns.levels</code> property. Each integer should be non-negative and less than the total number of levels, or equal to the missing value placeholder (see below).</li>
 <li><b>For <code>data_frame.version = 1</code>:</b> A factor column is represented by any string dataset. Each entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).</li>
 <li>Floating-point columns can be represented by any floating-point datatype at the discretion of the data generator. IEEE special values like Inf and NaN are allowed.</li>
-<li>String columns can be represented by any string datatype (fixed or variable, ASCII or UTF-8) at the discretion of the data generator. The character encoding specified in the dataset's type should be respected. Strings may be associated with further format constraints based on the <code>data_frame.columns.format</code> property, which may be one of the following:<ul>
+<li>String columns can be represented by any string datatype (fixed or variable, ASCII or UTF-8) at the discretion of the data generator. The character encoding specified in the dataset's type should be respected. Non-missing strings may be associated with further format constraints based on the <code>data_frame.columns.format</code> property, which may be one of the following:<ul>
 <li>No format constraints.</li>
 <li>String must be a <code>YYYY-MM-DD</code> date.</li>
-<li>String must be an Internet date/time complying with the RFC3339 specification. Note that strings equal to the missing value placeholder are not subject to these constraints.</li>
+<li>String must be an Internet date/time complying with the RFC3339 specification.</li>
 </ul>
 </li>
 </ul>
@@ -145,6 +145,28 @@ $(function() {
 </li>
 </ul>
 <p >For non-atomic columns, a placeholder column should be present in the CSV. This placeholder may be of any type as it will be ignored by readers.</p>
+<details >
+<p ><summary>Example usage</summary></p>
+<p >Here we validate a CSV data frame with columns of different types and row names:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
+<div class="line"> </div>
+<div class="line">std::vector&lt;takane::data_frame::ColumnDetails&gt; expected_columns(5);</div>
+<div class="line">expected_columns[0].type = takane::data_frame::ColumnType::INTEGER;</div>
+<div class="line">expected_columns[1].type = takane::data_frame::ColumnType::STRING;</div>
+<div class="line">expected_columns[2].type = takane::data_frame::ColumnType::STRING;</div>
+<div class="line">expected_columns[2].format = takane::data_frame::StringFormat::DATETIME;</div>
+<div class="line">expected_columns[3].type = takane::data_frame::ColumnType::FACTOR;</div>
+<div class="line">expected_columns[3].add_factor_level(<span class="stringliteral">&quot;foo&quot;</span>); <span class="comment">// taken from &#39;data_frame.columns[3].levels&#39;</span></div>
+<div class="line">expected_columns[3].add_factor_level(<span class="stringliteral">&quot;bar&quot;</span>);</div>
+<div class="line">expected_columns[4].type = takane::data_frame::ColumnType::NUMBER;</div>
+<div class="line"> </div>
+<div class="line">takane::data_frame::validate_csv(</div>
+<div class="line">    path, </div>
+<div class="line">    <span class="comment">/* num_rows = */</span> 9876, </div>
+<div class="line">    <span class="comment">/* has_row_names = */</span> <span class="keyword">true</span>, </div>
+<div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
+<div class="line">);</div>
+</div><!-- fragment --> </details>
 <h1>Building projects</h1>
 <h2>CMake with <code>FetchContent</code></h2>
 <p >If you're using CMake, you just need to add something like this to your <code>CMakeLists.txt</code>:</p>
