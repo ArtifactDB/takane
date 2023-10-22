@@ -77,6 +77,15 @@ TEST(CsvDataFrame, General) {
         expect_error("duplicate column name", buffer, 3, false, columns);
         columns[1].name = "Barry";
     }
+
+    {
+        columns[0].type = takane::data_frame::ColumnType::OTHER;
+        validate(buffer, 3, false, columns);
+        columns[1].type = takane::data_frame::ColumnType::OTHER;
+        validate(buffer, 3, false, columns);
+        columns[0].type = takane::data_frame::ColumnType::STRING;
+        columns[1].type = takane::data_frame::ColumnType::NUMBER;
+    }
 }
 
 TEST(CsvDataFrame, Integer) {
