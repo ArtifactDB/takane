@@ -6,8 +6,7 @@
 
 #include "data_frame.hpp"
 
-#include <cstdint>
-#include <vector>
+#include <unordered_set>
 #include <string>
 #include <stdexcept>
 
@@ -23,31 +22,26 @@ namespace data_frame {
 /**
  * @cond
  */
-struct TakaneStringField : public comservatory::StringField {
-    TakaneStringField(size_t n = 0) : nrecords(n) {}
+struct TakaneRowNamesField : public comservatory::DummyStringField {
+    void add_missing() {
+        throw std::runtime_error("missing values should not be present in the row names column");
+    }
+};
+
+struct TakaneDateField : public comservatory::StringField {
+    TakaneDateField(size_t n = 0, int id = 0) : nrecords(n), column_id(id) {}
 
     size_t nrecords = 0;
-    bool potential_date = true;
-    bool potential_date_time = true;
+    int column_id = 0;
 
     size_t size() const {
         return nrecords;
     }
 
     void push_back(std::string x) {
-        if (potential_date || potential_datetime) {
-            potential_date = false;
-            potential_rfc3339 = false;
-
-            if (ritsuko::is_date_prefix(x.c_str(), x.size())) {
-                if (x.size() == 10) {
-                    potential_date = true;
-                } else if (ritsuko::is_rfc3339_suffix(x.c_str() + 10, x.size() - 10)) {
-                    potential_rfc3339 = true;
-                }
-            }
+        if (!ritsuko::is_date(x.c_str(), x.size())) {
+            throw std::runtime_error("expected a date in column '" + std::to_string(column_id + 1) + ", got '" + x + "' instead");
         }
-
         ++nrecords;
         return;
     }
@@ -62,36 +56,51 @@ struct TakaneStringField : public comservatory::StringField {
     }
 };
 
-struct TakaneNumberField : public comservatory::StringField {
-    TakaneStringField(size_t n = 0) : nrecords(n) {}
+struct TakaneDateTimeField : public comservatory::StringField {
+    TakaneDateTimeField(size_t n = 0, int id = 0) : nrecords(n), column_id(id) {}
 
     size_t nrecords = 0;
-    bool potential_integer = true;
-    bool has_negative_integer = false;
-    size_t max_integer = 0;
+    int column_id = 0;
+
+    size_t size() const {
+        return nrecords;
+    }
+
+    void push_back(std::string x) {
+        if (!ritsuko::is_rfc3339(x.c_str(), x.size())) {
+            throw std::runtime_error("expected an Internet date/time in column '" + std::to_string(column_id + 1) + ", got '" + x + "' instead");
+        }
+        ++nrecords;
+        return;
+    }
+
+    void add_missing() {
+        ++nrecords;
+        return;
+    }
+
+    bool filled() const { 
+        return false;
+    }
+};
+
+struct TakaneIntegerField : public comservatory::NumberField {
+    TakaneIntegerField(size_t n = 0, int id = 0) : nrecords(n), column_id(id) {}
+
+    size_t nrecords = 0;
+    int column_id = 0;
 
     size_t size() const {
         return nrecords;
     }
 
     void push_back(double x) {
-        if (potential_integer) {
-            potential_integer = false;
-
-            if (x >= -2147483648 && x < 2147483647) { // constrain within limits.
-                if (x == std::floor(x)) {
-                    potential_integer = true;
-
-                    if (x < 0) {
-                        has_negative_integer = true;
-                    }
-                    if (x > max_integer) {
-                        max_integer = x;
-                    }
-                }
-            }
+        if (x < -2147483648 && x > 2147483647) { // constrain within limits.
+            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not fit inside a 32-bit signed integer");
         }
-
+        if (x != std::floor(x)) {
+            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " is not an integer");
+        }
         ++nrecords;
         return;
     }
@@ -106,65 +115,81 @@ struct TakaneNumberField : public comservatory::StringField {
     }
 };
 
-struct TakaneFieldCreator : public comservatory::FieldCreator {
-    Field* create(Type observed, size_t n, bool dummy) const {
-        Field* ptr;
+struct TakaneFactorV1Field : public TakaneStringField {
+    TakaneFactorV2Field(size_t n = 0, int id = 0, const std::set<std::string>* l = NULL) : nrecords(n), column_id(id), levels(l) {}
 
-        switch (observed) {
-            case STRING:
-                if (dummy || validate_only) {
-                    ptr = new DummyStringField(n);
-                } else {
-                    ptr = new TakaneStringField(n);
-                }
-                break;
-            case NUMBER:
-                if (dummy || validate_only) {
-                    ptr = new DummyNumberField(n);
-                } else {
-                    ptr = new TakaneNumberField(n);
-                }
-                break;
-            case BOOLEAN:
-                // Not much extra to do with booleans.
-                ptr = new DummyBooleanField(n);
-                break;
-            case COMPLEX:
-                throw std::runtime_error("complex columns are not currently supported by takane");
-            default:
-                throw std::runtime_error("unrecognized type during field creation");
-        }
+    size_t nrecords = 0;
+    int column_id = 0;
+    const std::set<std::string>* levels = NULL;
 
-        return ptr;
+    size_t size() const {
+        return nrecords;
     }
 
+    void push_back(std::string x) {
+        if (levels->find(x) == levels->end()) {
+            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not refer to a valid level");
+        }
+        ++nrecords;
+        return;
+    }
+
+    void add_missing() {
+        ++nrecords;
+        return;
+    }
+
+    bool filled() const { 
+        return false;
+    }
+};
+
+struct TakaneFactorV2Field : public TakaneIntegerField {
+    TakaneFactorV2Field(size_t n = 0, int id = 0, int l = 0) : nrecords(n), column_id(id), nlevels(l) {
+        if (nlevels > 2147483647) {
+            throw std::runtime_error("number of levels must fit into a 32-bit signed integer");
+        }
+    }
+
+    size_t nrecords = 0;
+    int column_id = 0;
+    double nlevels = 0; // casting for an easier comparison.
+
+    size_t size() const {
+        return nrecords;
+    }
+
+    void push_back(double x) {
+        if (x < 0 && x >= nlevels) {
+            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not refer to a valid level");
+        }
+        if (x != std::floor(x)) {
+            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " is not an integer");
+        }
+        ++nrecords;
+        return;
+    }
+
+    void add_missing() {
+        ++nrecords;
+        return;
+    }
+
+    bool filled() const { 
+        return false;
+    }
 };
 /**
  * @endcond
  */
 
 inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int version = 2) {
-    TakaneFieldCreator creator;
-    comservatory::ReadCsv reader;
-    reader.creator = &creator;
-    auto parsed = reader.read(path);
-
-    if (parsed.num_records() != num_rows) {
-        throw std::runtime_error("number of records in the CSV file does not match the expected number of rows");
-    }
-    size_t ncol = columns.size();
-    if (parsed.num_fields() != ncol + has_row_names) {
-        throw std::runtime_error("number of fields in the CSV file does not match the expected number of columns");
-    }
-
-    size_t idx = 0;
+    comservatory::Contents contents;
     if (has_row_names) {
-        idx = 1;
-        if (parsed[0].type() != STRING) {
-            throw std::runtime_error("first column should contain strings for the row names");
-        }
+        contents.fields.emplace_back(new TakaneRowNamesField);
     }
 
+    size_t ncol = columns.size();
     std::set<std::string> present;
     for (size_t c = 0; c < ncol; ++c) {
         const auto& col = columns[c];
@@ -173,66 +198,49 @@ inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, 
         }
         present.insert(col.name);
 
-        if (col.name != parsed.names[idx]) {
-            throw std::runtime_error("difference in the expected and observed column names ('" + col.name + "' vs '" + parsed.names[idx] + "'");
-        }
-
-        if (col.type == OTHER) {
-            // Always valid for everything.
-            continue;
-        }
-
-        auto base_ptr = parsed.fields[idx].get();
-        if (base_ptr->type() == comservatory::UNKNOWN) {
-            // Always valid for everything.
-            continue;
-        }
-
         if (col.type == ColumnType::INTEGER) {
-            if (base_ptr->type() == comservatory::NUMBER) {
-                throw std::runtime_error("expected numbers in the CSV for column '" + col.name + "'");
-            }
-            if (base_ptr->filled()) {
-                auto converted = static_cast<TakaneNumberField*>(base_ptr);
-                if (!converted->potential_integer) {
-                    throw std::runtime_error("expected integers in the CSV for column '" + col.name + "'");
-                }
-            }
+            contents.fields.emplace_back(new TakaneIntegerField(0, c));
 
         } else if (col.type == ColumnType::NUMBER) {
-            if (base_ptr->type() == comservatory::NUMBER) {
-                throw std::runtime_error("expected numbers in the CSV for column '" + col.name + "'");
-            }
+            contents.fields.emplace_back(new comservatory::DummyNumberField);
 
         } else if (col.type == ColumnType::STRING) {
-            if (base_ptr->type() == comservatory::STRING) {
-                throw std::runtime_error("expected strings in the CSV for column '" + col.name + "'");
-            }
-            if (base_ptr->filled()) {
-                auto converted = static_cast<TakaneNumberField*>(base_ptr);
-                if (col.format == StringFormat::DATE) {
-                    if (!converted->potential_date) {
-                        throw std::runtime_error("expected date-formatted strings in the CSV for column '" + col.name + "'");
-                    }
-                } else if (col.format == StringFormat::DATE_TIME) {
-                    if (!converted->potential_rfc3339) {
-                        throw std::runtime_error("expected Internet date/time-formatted strings in the CSV for column '" + col.name + "'");
-                    }
-                }
+            if (col.format == StringFormat::DATE) {
+                contents.fields.emplace_back(new TakaneDateField(0, c));
+            } else if (col.format == StringFormat::DATE_TIME) {
+                contents.fields.emplace_back(new TakaneDateTimeField(0, c));
+            } else {
+                contents.fields.emplace_back(new comservatory::DummyStringField);
             }
 
         } else if (col.type == ColumnType::BOOLEAN) {
-            if (base_ptr->type() == comservatory::BOOLEAN) {
-                throw std::runtime_error("expected booleans in the CSV for column '" + col.name + "'");
-            }
+            contents.fields.emplace_back(new comservatory::DummyBooleanField);
 
         } else if (col.type == ColumnType::FACTOR) {
+            if (version == 1) {
+                contents.fields.emplace_back(new TakaneFactorV1Field(0, c, &(col.factor_levels)));
+            } else {
+                contents.fields.emplace_back(new TakaneFactorV2Field(0, c, col.factor_levels.size()));
+            }
+        } else if (col.type == OTHER) {
+            contents.fields.emplace_back(new comservatory::UnknownField); // This can be anything.
 
+        } else {
+            throw std::runtime_error("unknown code for the expected column type");
         }
-
-        ++idx;
     }
 
+    auto parsed = comservatory::read_file(path, contents);
+    if (parsed.num_records() != num_rows) {
+        throw std::runtime_error("number of records in the CSV file does not match the expected number of rows");
+    }
+
+    for (size_t c = 0; c < ncol; ++c) {
+        const auto& col = columns[c];
+        if (col.name != parsed.names[c]) {
+            throw std::runtime_error("observed and expected header names do not match");
+        }
+    }
 }
 
 }
