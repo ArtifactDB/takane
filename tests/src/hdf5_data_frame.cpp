@@ -279,6 +279,15 @@ TEST(Hdf5DataFrame, Data) {
         dhandle.createGroup("foo");
     }
     expect_error("more objects present", path, name, nrows, false, columns);
+
+    columns[0].type = takane::data_frame::ColumnType::OTHER;
+    columns[1].type = takane::data_frame::ColumnType::OTHER;
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup(name);
+        create_hdf5_data_frame(ghandle, nrows, false, columns);
+    }
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
 }
 
 TEST(Hdf5DataFrame, Integer) {
