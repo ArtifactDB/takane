@@ -38,11 +38,10 @@ The type of each atomic column is determined from the corresponding `data_frame.
   IEEE special values like Inf and NaN are allowed.
 - String columns can be represented by any string datatype (fixed or variable, ASCII or UTF-8) at the discretion of the data generator.
   The character encoding specified in the dataset's type should be respected.
-  Strings may be associated with further format constraints based on the `data_frame.columns.format` property, which may be one of the following:
+  Non-missing strings may be associated with further format constraints based on the `data_frame.columns.format` property, which may be one of the following:
     - No format constraints.
     - String must be a `YYYY-MM-DD` date.
     - String must be an Internet date/time complying with the RFC3339 specification.
-  Note that strings equal to the missing value placeholder are not subject to these constraints.
 
 **For `hdf5_data_frame.version >= 2`:** Each dataset may have a `missing-value-placeholder` attribute, containing a scalar value of the same exact type.
 Any value in the dataset equal to this placeholder should be treated as missing.
@@ -114,6 +113,34 @@ The type of each column is determined from the corresponding `data_frame.columns
 
 For non-atomic columns, a placeholder column should be present in the CSV.
 This placeholder may be of any type as it will be ignored by readers.
+
+<details>
+<summary>Example usage</summary>
+
+Here we validate a CSV data frame with columns of different types and row names:
+
+```cpp
+#include "takane/takane.hpp"
+
+std::vector<takane::data_frame::ColumnDetails> expected_columns(5);
+expected_columns[0].type = takane::data_frame::ColumnType::INTEGER;
+expected_columns[1].type = takane::data_frame::ColumnType::STRING;
+expected_columns[2].type = takane::data_frame::ColumnType::STRING;
+expected_columns[2].format = takane::data_frame::StringFormat::DATETIME;
+expected_columns[3].type = takane::data_frame::ColumnType::FACTOR;
+expected_columns[3].add_factor_level("foo"); // taken from 'data_frame.columns[3].levels'
+expected_columns[3].add_factor_level("bar");
+expected_columns[4].type = takane::data_frame::ColumnType::NUMBER;
+
+takane::data_frame::validate_csv(
+    path, 
+    /* num_rows = */ 9876, 
+    /* has_row_names = */ true, 
+    /* columns = */ expected_columns
+);
+```
+</details>
+
 
 ## Building projects
 
