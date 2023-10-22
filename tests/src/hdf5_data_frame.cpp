@@ -578,9 +578,9 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns, /* version = */ 1);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* version = */ 1);
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* version = */ 1, /* hdf5_version = */ 1);
     columns[0].factor_levels.erase("chisato");
-    expect_error("contains 'chisato'", path, name, nrows, false, columns, /* version = */ 1);
+    expect_error("contains 'chisato'", path, name, nrows, false, columns, /* version = */ 1, /* hdf5_version = */ 1);
 
     H5::DataSpace dspace(1, &nrows);
     {
@@ -590,7 +590,7 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("string dataset", path, name, nrows, false, columns, /* version = */ 1);
+    expect_error("string dataset", path, name, nrows, false, columns, /* version = */ 1, /* hdf5_version = */ 1);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -604,10 +604,10 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         std::vector<const char*> dump(nrows, missing);
         xhandle.write(dump.data(), stype);
 
-        auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
+        auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR); // rescues the missing values.
         ahandle.write(stype, std::string(missing));
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* version = */ 1); // rescues the missing values.
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* df_version = */ 1, /* hdf5_version = */ 1); 
 }
 
 TEST(Hdf5DataFrame, FactorVersion2) {
@@ -652,6 +652,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
     }
     expect_error("exceeds the range", path, name, nrows, false, columns);
 
+    // Using -1 as a placeholder value.
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
@@ -674,4 +675,18 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         ahandle.write(H5::PredType::NATIVE_INT, &val); 
     }
     takane::data_frame::validate_hdf5(path, name, nrows, false, columns); // rescues the negative values.
+
+    // Using -2^31 as the placeholder, to check legacy loaders.
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+
+        auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT32, dspace);
+        std::vector<int> replacement(nrows, -2147483648);
+        xhandle.write(replacement.data(), H5::PredType::NATIVE_INT);
+    }
+    expect_error("non-negative", path, name, nrows, false, columns);
+    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* df_version = */ 2, /* hdf5_version = */ 1);
 }
