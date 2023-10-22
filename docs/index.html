@@ -125,6 +125,26 @@ $(function() {
 <div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
 <div class="line">);</div>
 </div><!-- fragment --> </details>
+<h2>CSV data frame</h2>
+<p >A data frame object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json"><code>csv_data_frame</code></a> schema, of which several properties are worth noting:</p>
+<ul>
+<li>The <code>data_frame.version</code> property has a maximum value of 2.</li>
+</ul>
+<p >The type of each column is determined from the corresponding <code>data_frame.columns.type</code> property in the schema:</p>
+<ul>
+<li>Boolean columns are stored as <b>comservatory</b> boolean columns.</li>
+<li>Number columns are stored as <b>comservatory</b> number columns.</li>
+<li>An integer column is stored as a <b>comservatory</b> integer column, where all (non-missing) values must be representable by a 32-bit signed integer.</li>
+<li><b>For <code>data_frame.version &gt;= 2</code>:</b> A factor column is represented as a <b>comservatory</b> integer column where all (non-missing) values are non-negative and less than the total number of levels.</li>
+<li><b>For <code>data_frame.version = 1</code>:</b> A factor column is represented as a <b>comservatory</b> string dataset. Each (non-missing) entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).</li>
+<li>String columns are stored as <b>comservatory</b> string columns. Strings may be associated with further format constraints based on the <code>data_frame.columns.format</code> property, which may be one of the following:<ul>
+<li>No format constraints.</li>
+<li>String must be a <code>YYYY-MM-DD</code> date.</li>
+<li>String must be an Internet date/time complying with the RFC3339 specification.</li>
+</ul>
+</li>
+</ul>
+<p >For non-atomic columns, a placeholder column should be present in the CSV. This placeholder may be of any type as it will be ignored by readers.</p>
 <h1>Building projects</h1>
 <h2>CMake with <code>FetchContent</code></h2>
 <p >If you're using CMake, you just need to add something like this to your <code>CMakeLists.txt</code>:</p>
