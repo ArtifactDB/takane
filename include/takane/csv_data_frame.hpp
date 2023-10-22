@@ -11,7 +11,7 @@
 #include <stdexcept>
 
 /**
- * @file hdf5_data_frame.hpp
+ * @file csv_data_frame.hpp
  * @brief Validation for CSV data frames.
  */
 
@@ -183,7 +183,17 @@ struct TakaneFactorV2Field : public comservatory::NumberField {
  * @endcond
  */
 
-inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int version = 2) {
+/**
+ * Checks if a CSV data frame is correctly formatted.
+ * An error is raised if the file does not meet the specifications.
+ *
+ * @param path Path to the CSV file.
+ * @param num_rows Number of rows in the data frame.
+ * @param has_row_names Whether the data frame contains row names.
+ * @param columns Details about the expected columns of the data frame, in order.
+ * @param df_version Version of the `data_frame` format.
+ */
+inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int df_version = 2) {
     comservatory::Contents contents;
     if (has_row_names) {
         contents.fields.emplace_back(new TakaneRowNamesField);
@@ -217,7 +227,7 @@ inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, 
             contents.fields.emplace_back(new comservatory::DummyBooleanField);
 
         } else if (col.type == ColumnType::FACTOR) {
-            if (version == 1) {
+            if (df_version == 1) {
                 contents.fields.emplace_back(new TakaneFactorV1Field(0, c, &(col.factor_levels)));
             } else {
                 contents.fields.emplace_back(new TakaneFactorV2Field(0, c, col.factor_levels.size()));
