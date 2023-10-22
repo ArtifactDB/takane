@@ -108,14 +108,17 @@ Include dependency graph for csv_data_frame.hpp:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aad2891e976554ba3f649575971d80ddd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="csv__data__frame_8hpp.html#aad2891e976554ba3f649575971d80ddd">takane::data_frame::validate_csv</a> (const char *path, size_t num_rows, bool has_row_names, const std::vector&lt; ColumnDetails &gt; &amp;columns, int df_version=2)</td></tr>
-<tr class="separator:aad2891e976554ba3f649575971d80ddd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cf196659784cf5b89530901bcadea65"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
+<tr class="memitem:a7cf196659784cf5b89530901bcadea65"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="csv__data__frame_8hpp.html#a7cf196659784cf5b89530901bcadea65">takane::data_frame::validate_csv</a> (Reader &amp;reader, size_t num_rows, bool has_row_names, const std::vector&lt; ColumnDetails &gt; &amp;columns, const comservatory::ReadOptions &amp;options, int df_version=2)</td></tr>
+<tr class="separator:a7cf196659784cf5b89530901bcadea65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8796353be30b1b0da2e073344ba4ac7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="csv__data__frame_8hpp.html#a8796353be30b1b0da2e073344ba4ac7a">takane::data_frame::validate_csv</a> (const char *path, size_t num_rows, bool has_row_names, const std::vector&lt; ColumnDetails &gt; &amp;columns, const comservatory::ReadOptions &amp;options, int df_version=2)</td></tr>
+<tr class="separator:a8796353be30b1b0da2e073344ba4ac7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for CSV data frames. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="aad2891e976554ba3f649575971d80ddd" name="aad2891e976554ba3f649575971d80ddd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aad2891e976554ba3f649575971d80ddd">&#9670;&#160;</a></span>validate_csv()</h2>
+<a id="a8796353be30b1b0da2e073344ba4ac7a" name="a8796353be30b1b0da2e073344ba4ac7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8796353be30b1b0da2e073344ba4ac7a">&#9670;&#160;</a></span>validate_csv() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -150,6 +153,12 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const comservatory::ReadOptions &amp;&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>df_version</em> = <code>2</code>&#160;</td>
         </tr>
@@ -172,6 +181,79 @@ Functions</h2></td></tr>
     <tr><td class="paramname">num_rows</td><td>Number of rows in the data frame. </td></tr>
     <tr><td class="paramname">has_row_names</td><td>Whether the data frame contains row names. </td></tr>
     <tr><td class="paramname">columns</td><td>Details about the expected columns of the data frame, in order. </td></tr>
+    <tr><td class="paramname">options</td><td>Reading options. </td></tr>
+    <tr><td class="paramname">df_version</td><td>Version of the <code>data_frame</code> format. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a7cf196659784cf5b89530901bcadea65" name="a7cf196659784cf5b89530901bcadea65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cf196659784cf5b89530901bcadea65">&#9670;&#160;</a></span>validate_csv() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Reader &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void takane::data_frame::validate_csv </td>
+          <td>(</td>
+          <td class="paramtype">Reader &amp;&#160;</td>
+          <td class="paramname"><em>reader</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_rows</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>has_row_names</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structtakane_1_1data__frame_1_1ColumnDetails.html">ColumnDetails</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>columns</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const comservatory::ReadOptions &amp;&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>df_version</em> = <code>2</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Checks if a CSV data frame is correctly formatted. An error is raised if the file does not meet the specifications.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Reader</td><td>A <b>byteme</b> reader class.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
+    <tr><td class="paramname">num_rows</td><td>Number of rows in the data frame. </td></tr>
+    <tr><td class="paramname">has_row_names</td><td>Whether the data frame contains row names. </td></tr>
+    <tr><td class="paramname">columns</td><td>Details about the expected columns of the data frame, in order. </td></tr>
+    <tr><td class="paramname">options</td><td>Reading options. </td></tr>
     <tr><td class="paramname">df_version</td><td>Version of the <code>data_frame</code> format. </td></tr>
   </table>
   </dd>
