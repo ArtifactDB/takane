@@ -1,3 +1,4 @@
 *.swp
+*.csv
 *.h5
 build/

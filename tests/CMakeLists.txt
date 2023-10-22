@@ -18,6 +18,7 @@ enable_testing()
 add_executable(
     libtest 
     src/hdf5_data_frame.cpp
+    src/csv_data_frame.cpp
 )
 
 target_link_libraries(

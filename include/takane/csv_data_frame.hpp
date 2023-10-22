@@ -95,7 +95,7 @@ struct TakaneIntegerField : public comservatory::NumberField {
     }
 
     void push_back(double x) {
-        if (x < -2147483648 && x > 2147483647) { // constrain within limits.
+        if (x < -2147483648 || x > 2147483647) { // constrain within limits.
             throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not fit inside a 32-bit signed integer");
         }
         if (x != std::floor(x)) {
@@ -115,8 +115,8 @@ struct TakaneIntegerField : public comservatory::NumberField {
     }
 };
 
-struct TakaneFactorV1Field : public TakaneStringField {
-    TakaneFactorV2Field(size_t n = 0, int id = 0, const std::set<std::string>* l = NULL) : nrecords(n), column_id(id), levels(l) {}
+struct TakaneFactorV1Field : public comservatory::StringField {
+    TakaneFactorV1Field(size_t n = 0, int id = 0, const std::set<std::string>* l = NULL) : nrecords(n), column_id(id), levels(l) {}
 
     size_t nrecords = 0;
     int column_id = 0;
@@ -144,7 +144,7 @@ struct TakaneFactorV1Field : public TakaneStringField {
     }
 };
 
-struct TakaneFactorV2Field : public TakaneIntegerField {
+struct TakaneFactorV2Field : public comservatory::NumberField {
     TakaneFactorV2Field(size_t n = 0, int id = 0, int l = 0) : nrecords(n), column_id(id), nlevels(l) {
         if (nlevels > 2147483647) {
             throw std::runtime_error("number of levels must fit into a 32-bit signed integer");
@@ -160,7 +160,7 @@ struct TakaneFactorV2Field : public TakaneIntegerField {
     }
 
     void push_back(double x) {
-        if (x < 0 && x >= nlevels) {
+        if (x < 0 || x >= nlevels) {
             throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not refer to a valid level");
         }
         if (x != std::floor(x)) {
@@ -222,7 +222,7 @@ inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, 
             } else {
                 contents.fields.emplace_back(new TakaneFactorV2Field(0, c, col.factor_levels.size()));
             }
-        } else if (col.type == OTHER) {
+        } else if (col.type == ColumnType::OTHER) {
             contents.fields.emplace_back(new comservatory::UnknownField); // This can be anything.
 
         } else {
@@ -230,14 +230,14 @@ inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, 
         }
     }
 
-    auto parsed = comservatory::read_file(path, contents);
-    if (parsed.num_records() != num_rows) {
+    comservatory::read_file(path, contents, comservatory::ReadOptions());
+    if (contents.num_records() != num_rows) {
         throw std::runtime_error("number of records in the CSV file does not match the expected number of rows");
     }
 
     for (size_t c = 0; c < ncol; ++c) {
         const auto& col = columns[c];
-        if (col.name != parsed.names[c]) {
+        if (col.name != contents.names[c + has_row_names]) {
             throw std::runtime_error("observed and expected header names do not match");
         }
     }
