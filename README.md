@@ -90,6 +90,31 @@ takane::data_frame::validate_hdf5(
 ```
 </details>
 
+### CSV data frame
+
+A data frame object stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
+This corresponds to the [`csv_data_frame`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json) schema,
+of which several properties are worth noting:
+
+- The `data_frame.version` property has a maximum value of 2.
+
+The type of each column is determined from the corresponding `data_frame.columns.type` property in the schema:
+
+- Boolean columns are stored as **comservatory** boolean columns. 
+- Number columns are stored as **comservatory** number columns. 
+- An integer column is stored as a **comservatory** integer column, where all (non-missing) values must be representable by a 32-bit signed integer.
+- **For `data_frame.version >= 2`:** A factor column is represented as a **comservatory** integer column where all (non-missing) values are non-negative and less than the total number of levels.
+- **For `data_frame.version = 1`:** A factor column is represented as a **comservatory** string dataset.
+  Each (non-missing) entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).
+- String columns are stored as **comservatory** string columns. 
+  Strings may be associated with further format constraints based on the `data_frame.columns.format` property, which may be one of the following:
+    - No format constraints.
+    - String must be a `YYYY-MM-DD` date.
+    - String must be an Internet date/time complying with the RFC3339 specification.
+
+For non-atomic columns, a placeholder column should be present in the CSV.
+This placeholder may be of any type as it will be ignored by readers.
+
 ## Building projects
 
 ### CMake with `FetchContent`

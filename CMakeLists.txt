@@ -20,9 +20,10 @@ if(TAKANE_FETCH_EXTERN)
     add_subdirectory(extern)
 else()
     find_package(artifactdb_ritsuko CONFIG REQUIRED)
+    find_package(artifactdb_comservatory CONFIG REQUIRED)
 endif()
 
-target_link_libraries(takane INTERFACE artifactdb::ritsuko)
+target_link_libraries(takane INTERFACE artifactdb::ritsuko artifactdb::comservatory)
 
 option(TAKANE_FIND_HDF5 "Try to find and link to HDF5 for takane." ON)
 if(TAKANE_FIND_HDF5)
