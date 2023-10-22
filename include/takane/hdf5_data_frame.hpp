@@ -80,7 +80,7 @@ inline void validate_hdf5(const H5::Group& handle, hsize_t num_rows, bool has_ro
             }
         );
 
-        std::set<std::string> column_names;
+        std::unordered_set<std::string> column_names;
         for (const auto& col : columns) {
             if (column_names.find(col.name) != column_names.end()) {
                 throw std::runtime_error("duplicated column name '" + col.name + "'");

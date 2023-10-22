@@ -1,7 +1,7 @@
 #ifndef TAKANE_DATA_FRAME_HPP
 #define TAKANE_DATA_FRAME_HPP
 
-#include <set>
+#include <unordered_set>
 #include <string>
 
 /**
@@ -67,7 +67,7 @@ struct ColumnDetails {
     /**
      * Unique factor levels, only used if `type == ColumnType::FACTOR`.
      */
-    std::set<std::string> factor_levels;
+    std::unordered_set<std::string> factor_levels;
 
     /**
      * Add a unique level to `factor_levels`, throwing an error if it already exists.

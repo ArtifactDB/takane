@@ -116,11 +116,11 @@ struct TakaneIntegerField : public comservatory::NumberField {
 };
 
 struct TakaneFactorV1Field : public comservatory::StringField {
-    TakaneFactorV1Field(size_t n = 0, int id = 0, const std::set<std::string>* l = NULL) : nrecords(n), column_id(id), levels(l) {}
+    TakaneFactorV1Field(size_t n = 0, int id = 0, const std::unordered_set<std::string>* l = NULL) : nrecords(n), column_id(id), levels(l) {}
 
     size_t nrecords = 0;
     int column_id = 0;
-    const std::set<std::string>* levels = NULL;
+    const std::unordered_set<std::string>* levels = NULL;
 
     size_t size() const {
         return nrecords;
@@ -200,7 +200,7 @@ inline void validate_csv(const char* path, size_t num_rows, bool has_row_names, 
     }
 
     size_t ncol = columns.size();
-    std::set<std::string> present;
+    std::unordered_set<std::string> present;
     for (size_t c = 0; c < ncol; ++c) {
         const auto& col = columns[c];
         if (present.find(col.name) != present.end()) {

@@ -147,7 +147,7 @@ TEST(CsvDataFrame, FactorVersion1) {
     std::vector<takane::data_frame::ColumnDetails> columns(1);
     columns[0].name = "Omega";
     columns[0].type = takane::data_frame::ColumnType::FACTOR;
-    columns[0].factor_levels = std::set<std::string>{ "hiori", "mano", "meguru", "kiriko" };
+    columns[0].factor_levels = std::unordered_set<std::string>{ "hiori", "mano", "meguru", "kiriko" };
 
     {
         std::string buffer = "\"Omega\"\n\"hiori\"\n\"meguru\"\n\"hiori\"\n\"kiriko\"\n\"mano\"\n\"meguru\"\n";
@@ -164,7 +164,7 @@ TEST(CsvDataFrame, FactorVersion2) {
     std::vector<takane::data_frame::ColumnDetails> columns(1);
     columns[0].name = "Omega";
     columns[0].type = takane::data_frame::ColumnType::FACTOR;
-    columns[0].factor_levels = std::set<std::string>{ "hiori", "mano", "meguru", "kiriko" };
+    columns[0].factor_levels = std::unordered_set<std::string>{ "hiori", "mano", "meguru", "kiriko" };
 
     {
         std::string buffer = "\"Omega\"\n2\n1\n3\n0\n0\n1\n2\n2\n";
