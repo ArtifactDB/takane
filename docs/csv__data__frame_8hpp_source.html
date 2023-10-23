@@ -112,7 +112,7 @@ $(function() {
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">void</span> push_back(std::string x) {</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="keywordflow">if</span> (!ritsuko::is_date(x.c_str(), x.size())) {</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a date in column &#39;&quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot;, got &#39;&quot;</span> + x + <span class="stringliteral">&quot;&#39; instead&quot;</span>);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a date in column &quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot;, got &#39;&quot;</span> + x + <span class="stringliteral">&quot;&#39; instead&quot;</span>);</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        }</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        ++nrecords;</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keywordflow">return</span>;</div>
@@ -140,7 +140,7 @@ $(function() {
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">void</span> push_back(std::string x) {</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        <span class="keywordflow">if</span> (!ritsuko::is_rfc3339(x.c_str(), x.size())) {</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected an Internet date/time in column &#39;&quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot;, got &#39;&quot;</span> + x + <span class="stringliteral">&quot;&#39; instead&quot;</span>);</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected an Internet date/time in column &quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot;, got &#39;&quot;</span> + x + <span class="stringliteral">&quot;&#39; instead&quot;</span>);</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        }</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        ++nrecords;</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keywordflow">return</span>;</div>
@@ -168,10 +168,10 @@ $(function() {
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">void</span> push_back(<span class="keywordtype">double</span> x) {</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        <span class="keywordflow">if</span> (x &lt; -2147483648 || x &gt; 2147483647) { <span class="comment">// constrain within limits.</span></div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &#39;&quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; does not fit inside a 32-bit signed integer&quot;</span>);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; does not fit inside a 32-bit signed integer&quot;</span>);</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        }</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        <span class="keywordflow">if</span> (x != std::floor(x)) {</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &#39;&quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; is not an integer&quot;</span>);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; is not an integer&quot;</span>);</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        }</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        ++nrecords;</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        <span class="keywordflow">return</span>;</div>
@@ -200,7 +200,7 @@ $(function() {
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">void</span> push_back(std::string x) {</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        <span class="keywordflow">if</span> (levels-&gt;find(x) == levels-&gt;end()) {</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &#39;&quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; does not refer to a valid level&quot;</span>);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; does not refer to a valid level&quot;</span>);</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        }</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>        ++nrecords;</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>        <span class="keywordflow">return</span>;</div>
@@ -233,10 +233,10 @@ $(function() {
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keywordtype">void</span> push_back(<span class="keywordtype">double</span> x) {</div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        <span class="keywordflow">if</span> (x &lt; 0 || x &gt;= nlevels) {</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &#39;&quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; does not refer to a valid level&quot;</span>);</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; does not refer to a valid level&quot;</span>);</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>        }</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        <span class="keywordflow">if</span> (x != std::floor(x)) {</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &#39;&quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; is not an integer&quot;</span>);</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;value in column &quot;</span> + std::to_string(column_id + 1) + <span class="stringliteral">&quot; is not an integer&quot;</span>);</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        }</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        ++nrecords;</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        <span class="keywordflow">return</span>;</div>
