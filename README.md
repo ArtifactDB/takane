@@ -30,7 +30,7 @@ The type of each atomic column is determined from the corresponding `data_frame.
   Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer.
 - **For `data_frame.version >= 2`:** A factor column is represented by a integer HDF5 dataset.
   Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer.
-  Each integer is an index into the array of factor levels, found in the `data_frame.columns.levels` property.
+  Each integer is a 0-based index into the array of factor levels, found in the `data_frame.columns.levels` property.
   Each integer should be non-negative and less than the total number of levels, or equal to the missing value placeholder (see below).
 - **For `data_frame.version = 1`:** A factor column is represented by any string dataset.
   Each entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).
@@ -102,7 +102,8 @@ The type of each column is determined from the corresponding `data_frame.columns
 - Boolean columns are stored as **comservatory** boolean columns. 
 - Number columns are stored as **comservatory** number columns. 
 - An integer column is stored as a **comservatory** integer column, where all (non-missing) values must be representable by a 32-bit signed integer.
-- **For `data_frame.version >= 2`:** A factor column is represented as a **comservatory** integer column where all (non-missing) values are non-negative and less than the total number of levels.
+- **For `data_frame.version >= 2`:** A factor column is represented as a **comservatory** integer column containing 0-based indices into the array of levels.
+  All (non-missing) values are non-negative and less than the total number of levels.
 - **For `data_frame.version = 1`:** A factor column is represented as a **comservatory** string dataset.
   Each (non-missing) entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).
 - String columns are stored as **comservatory** string columns. 
