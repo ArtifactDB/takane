@@ -40,7 +40,7 @@ struct TakaneDateField : public comservatory::StringField {
 
     void push_back(std::string x) {
         if (!ritsuko::is_date(x.c_str(), x.size())) {
-            throw std::runtime_error("expected a date in column '" + std::to_string(column_id + 1) + ", got '" + x + "' instead");
+            throw std::runtime_error("expected a date in column " + std::to_string(column_id + 1) + ", got '" + x + "' instead");
         }
         ++nrecords;
         return;
@@ -68,7 +68,7 @@ struct TakaneDateTimeField : public comservatory::StringField {
 
     void push_back(std::string x) {
         if (!ritsuko::is_rfc3339(x.c_str(), x.size())) {
-            throw std::runtime_error("expected an Internet date/time in column '" + std::to_string(column_id + 1) + ", got '" + x + "' instead");
+            throw std::runtime_error("expected an Internet date/time in column " + std::to_string(column_id + 1) + ", got '" + x + "' instead");
         }
         ++nrecords;
         return;
@@ -96,10 +96,10 @@ struct TakaneIntegerField : public comservatory::NumberField {
 
     void push_back(double x) {
         if (x < -2147483648 || x > 2147483647) { // constrain within limits.
-            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not fit inside a 32-bit signed integer");
+            throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " does not fit inside a 32-bit signed integer");
         }
         if (x != std::floor(x)) {
-            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " is not an integer");
+            throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " is not an integer");
         }
         ++nrecords;
         return;
@@ -128,7 +128,7 @@ struct TakaneFactorV1Field : public comservatory::StringField {
 
     void push_back(std::string x) {
         if (levels->find(x) == levels->end()) {
-            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not refer to a valid level");
+            throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " does not refer to a valid level");
         }
         ++nrecords;
         return;
@@ -161,10 +161,10 @@ struct TakaneFactorV2Field : public comservatory::NumberField {
 
     void push_back(double x) {
         if (x < 0 || x >= nlevels) {
-            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " does not refer to a valid level");
+            throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " does not refer to a valid level");
         }
         if (x != std::floor(x)) {
-            throw std::runtime_error("value in column '" + std::to_string(column_id + 1) + " is not an integer");
+            throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " is not an integer");
         }
         ++nrecords;
         return;
