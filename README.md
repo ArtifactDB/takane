@@ -192,6 +192,39 @@ takane::genomic_ranges::validate(
 ```
 </details>
 
+### Sequence information
+
+A `Seqinfo` object stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
+This corresponds to the [`sequence_information`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/sequence_information/v1.json) schema.
+We expect the columns in the following type and order:
+
+- A string column named `seqnames`, containing the reference sequence (e.g., chromosome) name.
+  All strings should be non-missing and unique.
+- An integer column named `seqlengths`, containing the length of each reference sequence.
+  All values should be non-negative and fit inside a 32-bit signed integer.
+  Missing values are allowed.
+- A boolean column named `isCircular`, specifying whether the reference sequence is circular.
+  Missing values are allowed.
+- A string column named `genome`, containing the genome of origin for each sequence.
+  Missing values are allowed.
+  
+<details>
+<summary>Example usage</summary>
+
+```cpp
+#include "takane/takane.hpp"
+
+auto output = takane::sequence_information::validate(
+    path, 
+    /* num_ranges = */ 192, 
+    /* has_names = */ true, 
+    /* seqnames = */ allowed
+);
+```
+
+The value of `output.seqnames` can be used to define the set of allowed sequence names in `genomic_ranges::validate()`.
+</details>
+
 ## Building projects
 
 ### CMake with `FetchContent`
