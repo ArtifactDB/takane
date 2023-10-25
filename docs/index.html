@@ -145,6 +145,7 @@ $(function() {
 </li>
 </ul>
 <p >For non-atomic columns, a placeholder column should be present in the CSV. This placeholder may be of any type as it will be ignored by readers.</p>
+<p >If row names are present, they should be present in the first column of the CSV as strings. All row names should be non-missing.</p>
 <details >
 <p ><summary>Example usage</summary></p>
 <p >Here we validate a CSV data frame with columns of different types and row names:</p>
@@ -166,7 +167,8 @@ $(function() {
 <div class="line">    <span class="comment">/* has_row_names = */</span> <span class="keyword">true</span>, </div>
 <div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
 <div class="line">);</div>
-</div><!-- fragment --> </details>
+</div><!-- fragment --><p >Note that the row name column does not need to be considered in the set of <code>expected_columns</code>; it is handled separately by the <code>has_row_names = true</code> argument. </p>
+</details>
 <h2>Genomic ranges</h2>
 <p >A <code>GenomicRanges</code> object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json"><code>genomic_ranges</code></a> schema. We expect the columns in the following type and order:</p>
 <ul>
@@ -190,10 +192,9 @@ $(function() {
 <div class="line">    <span class="comment">/* seqnames = */</span> allowed,</div>
 <div class="line">    <span class="comment">/* options = */</span> comservatory::ReadOptions()</div>
 <div class="line">);</div>
-</div><!-- fragment --><h1>Building projects</h1>
-<p ></p>
+</div><!-- fragment --> </details>
+<h1>Building projects</h1>
 <h2>CMake with <code>FetchContent</code></h2>
-<p ></p>
 <p >If you're using CMake, you just need to add something like this to your <code>CMakeLists.txt</code>:</p>
 <div class="fragment"><div class="line">include(FetchContent)</div>
 <div class="line"> </div>
@@ -211,7 +212,6 @@ $(function() {
 <div class="line"># For libaries</div>
 <div class="line">target_link_libraries(mylib INTERFACE takane)</div>
 </div><!-- fragment --><h2>CMake with <code>find_package()</code></h2>
-<p ></p>
 <p >You can install the library by cloning a suitable version of this repository and running the following commands:</p>
 <div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
 <div class="line">cmake .. -DTAKANE_TESTS=OFF</div>
@@ -220,9 +220,10 @@ $(function() {
 <div class="fragment"><div class="line">find_package(artifactdb_takane CONFIG REQUIRED)</div>
 <div class="line">target_link_libraries(mylib INTERFACE artifactdb::takane)</div>
 </div><!-- fragment --><h2>Manual</h2>
-<p ></p>
-<p >If you're not using CMake, the simple approach is to just copy the files in the <code>include/</code> subdirectory - either directly or with Git submodules - and include their path during compilation with, e.g., GCC's <code>-I</code>. You will also need to link to the dependencies listed in the <a href="extern/CMakeLists.txt"><code>extern/CMakeLists.txt</code></a> directory along with the HDF5 library. </p>
-</details>
+<p >If you're not using CMake, the simple approach is to just copy the files in the <code>include/</code> subdirectory - either directly or with Git submodules - and include their path during compilation with, e.g., GCC's <code>-I</code>. You will also need to link to the dependencies listed in the <a href="extern/CMakeLists.txt"><code>extern/CMakeLists.txt</code></a> directory along with the HDF5 library.</p>
+<h1>Further comments</h1>
+<p >This library is named after <a href="https://myanimelist.net/character/40012/Takane_Shijou">Takane Shijou</a>, continuing my trend of naming C++ libraries after <a href="https://myanimelist.net/anime/10278/The_iDOLMSTER">iDOLM@STER</a> characters.</p>
+<p ><img src="https://64.media.tumblr.com/17ecbb29ab7ed3328ed854c1b02e0eec/tumblr_o49c7i4jUu1th93f0o1_540.gif" alt="Takane GIF" class="inline"/> </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
