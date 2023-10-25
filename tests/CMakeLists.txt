@@ -19,6 +19,7 @@ add_executable(
     libtest 
     src/hdf5_data_frame.cpp
     src/csv_data_frame.cpp
+    src/genomic_ranges.cpp
 )
 
 target_link_libraries(
