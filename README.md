@@ -142,6 +142,46 @@ takane::data_frame::validate_csv(
 ```
 </details>
 
+### Genomic ranges
+
+A `GenomicRanges` object stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
+This corresponds to the [`genomic_ranges`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json) schema.
+We expect the columns in the following type and order:
+
+- (optional) a column of strings containing names for each genomic range.
+  This may have any column name.
+  All strings should be non-missing.
+- A column named `seqnames`, containing strings with the reference sequence (e.g., chromosome) name for each genomic range.
+  All strings should be non-missing and belong to the set of known sequences in the corresponding `sequence_information` object.
+- A column named `start`, containing the 1-based start position of each range on its reference sequence.
+  All values are represented by 32-bit signed integers; negative values are allowed.
+  No values should be missing.
+- A column named `end`, containing the 1-based end position (inclusive) of each range.
+  All values are represented by 32-bit signed integers; negative values are allowed.
+  No values should be missing.
+  The `end` value for each range should be greater than or equal to `start - 1`.
+- A column named `strand`, containing the strand of each range.
+  This should be one of the following strings: `+`, `-` or `*`.
+  No values should be missing.
+  
+<details>
+<summary>Example usage</summary>
+
+Here we validate a `genomic_ranges`:
+
+```cpp
+#include "takane/takane.hpp"
+
+std::unordered_set<std::string> allowed{ "chrA", "chrB" };
+
+takane::genomic_ranges::validate(
+    path, 
+    /* num_ranges = */ 192, 
+    /* has_names = */ true, 
+    /* seqnames = */ allowed,
+    /* options = */ comservatory::ReadOptions()
+);
+```
 
 ## Building projects
 
