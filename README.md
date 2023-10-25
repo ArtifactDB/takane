@@ -84,7 +84,8 @@ takane::data_frame::validate_hdf5(
     name, 
     /* num_rows = */ 9876, 
     /* has_row_names = */ true, 
-    /* columns = */ expected_columns
+    /* columns = */ expected_columns,
+    /* options = */ comservatory::ReadOptions()
 );
 ```
 </details>
@@ -115,6 +116,9 @@ The type of each column is determined from the corresponding `data_frame.columns
 For non-atomic columns, a placeholder column should be present in the CSV.
 This placeholder may be of any type as it will be ignored by readers.
 
+If row names are present, they should be present in the first column of the CSV as strings.
+All row names should be non-missing.
+
 <details>
 <summary>Example usage</summary>
 
@@ -137,9 +141,13 @@ takane::data_frame::validate_csv(
     path, 
     /* num_rows = */ 9876, 
     /* has_row_names = */ true, 
-    /* columns = */ expected_columns
+    /* columns = */ expected_columns,
+    /* options = */ comservatory::ReadOptions()
 );
 ```
+
+Note that the row name column does not need to be considered in the set of `expected_columns`;
+it is handled separately by the `has_row_names = true` argument.
 </details>
 
 ### Genomic ranges
@@ -182,6 +190,7 @@ takane::genomic_ranges::validate(
     /* options = */ comservatory::ReadOptions()
 );
 ```
+</details>
 
 ## Building projects
 
@@ -233,3 +242,10 @@ target_link_libraries(mylib INTERFACE artifactdb::takane)
 If you're not using CMake, the simple approach is to just copy the files in the `include/` subdirectory - 
 either directly or with Git submodules - and include their path during compilation with, e.g., GCC's `-I`.
 You will also need to link to the dependencies listed in the [`extern/CMakeLists.txt`](extern/CMakeLists.txt) directory along with the HDF5 library.
+
+## Further comments
+
+This library is named after [Takane Shijou](https://myanimelist.net/character/40012/Takane_Shijou),
+continuing my trend of naming C++ libraries after [iDOLM@STER](https://myanimelist.net/anime/10278/The_iDOLMSTER) characters.
+
+![Takane GIF](https://64.media.tumblr.com/17ecbb29ab7ed3328ed854c1b02e0eec/tumblr_o49c7i4jUu1th93f0o1_540.gif)
