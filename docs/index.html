@@ -167,8 +167,33 @@ $(function() {
 <div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
 <div class="line">);</div>
 </div><!-- fragment --> </details>
-<h1>Building projects</h1>
+<h2>Genomic ranges</h2>
+<p >A <code>GenomicRanges</code> object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json"><code>genomic_ranges</code></a> schema. We expect the columns in the following type and order:</p>
+<ul>
+<li>(optional) a column of strings containing names for each genomic range. This may have any column name. All strings should be non-missing.</li>
+<li>A column named <code>seqnames</code>, containing strings with the reference sequence (e.g., chromosome) name for each genomic range. All strings should be non-missing and belong to the set of known sequences in the corresponding <code>sequence_information</code> object.</li>
+<li>A column named <code>start</code>, containing the 1-based start position of each range on its reference sequence. All values are represented by 32-bit signed integers; negative values are allowed. No values should be missing.</li>
+<li>A column named <code>end</code>, containing the 1-based end position (inclusive) of each range. All values are represented by 32-bit signed integers; negative values are allowed. No values should be missing. The <code>end</code> value for each range should be greater than or equal to <code>start - 1</code>.</li>
+<li>A column named <code>strand</code>, containing the strand of each range. This should be one of the following strings: <code>+</code>, <code>-</code> or <code>*</code>. No values should be missing.</li>
+</ul>
+<details >
+<p ><summary>Example usage</summary></p>
+<p >Here we validate a <code>genomic_ranges</code>:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
+<div class="line"> </div>
+<div class="line">std::unordered_set&lt;std::string&gt; allowed{ <span class="stringliteral">&quot;chrA&quot;</span>, <span class="stringliteral">&quot;chrB&quot;</span> };</div>
+<div class="line"> </div>
+<div class="line">takane::genomic_ranges::validate(</div>
+<div class="line">    path, </div>
+<div class="line">    <span class="comment">/* num_ranges = */</span> 192, </div>
+<div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">true</span>, </div>
+<div class="line">    <span class="comment">/* seqnames = */</span> allowed,</div>
+<div class="line">    <span class="comment">/* options = */</span> comservatory::ReadOptions()</div>
+<div class="line">);</div>
+</div><!-- fragment --><h1>Building projects</h1>
+<p ></p>
 <h2>CMake with <code>FetchContent</code></h2>
+<p ></p>
 <p >If you're using CMake, you just need to add something like this to your <code>CMakeLists.txt</code>:</p>
 <div class="fragment"><div class="line">include(FetchContent)</div>
 <div class="line"> </div>
@@ -186,6 +211,7 @@ $(function() {
 <div class="line"># For libaries</div>
 <div class="line">target_link_libraries(mylib INTERFACE takane)</div>
 </div><!-- fragment --><h2>CMake with <code>find_package()</code></h2>
+<p ></p>
 <p >You can install the library by cloning a suitable version of this repository and running the following commands:</p>
 <div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
 <div class="line">cmake .. -DTAKANE_TESTS=OFF</div>
@@ -194,7 +220,9 @@ $(function() {
 <div class="fragment"><div class="line">find_package(artifactdb_takane CONFIG REQUIRED)</div>
 <div class="line">target_link_libraries(mylib INTERFACE artifactdb::takane)</div>
 </div><!-- fragment --><h2>Manual</h2>
+<p ></p>
 <p >If you're not using CMake, the simple approach is to just copy the files in the <code>include/</code> subdirectory - either directly or with Git submodules - and include their path during compilation with, e.g., GCC's <code>-I</code>. You will also need to link to the dependencies listed in the <a href="extern/CMakeLists.txt"><code>extern/CMakeLists.txt</code></a> directory along with the HDF5 library. </p>
+</details>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
