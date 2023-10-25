@@ -84,8 +84,7 @@ takane::data_frame::validate_hdf5(
     name, 
     /* num_rows = */ 9876, 
     /* has_row_names = */ true, 
-    /* columns = */ expected_columns,
-    /* options = */ comservatory::ReadOptions()
+    /* columns = */ expected_columns
 );
 ```
 </details>
@@ -141,8 +140,7 @@ takane::data_frame::validate_csv(
     path, 
     /* num_rows = */ 9876, 
     /* has_row_names = */ true, 
-    /* columns = */ expected_columns,
-    /* options = */ comservatory::ReadOptions()
+    /* columns = */ expected_columns
 );
 ```
 
@@ -153,7 +151,7 @@ it is handled separately by the `has_row_names = true` argument.
 ### Genomic ranges
 
 A `GenomicRanges` object stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
-This corresponds to the [`genomic_ranges`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json) schema.
+This corresponds to the [`genomic_ranges`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/genomic_ranges/v1.json) schema.
 We expect the columns in the following type and order:
 
 - (optional) a column of strings containing names for each genomic range.
@@ -171,7 +169,7 @@ We expect the columns in the following type and order:
 - A column named `strand`, containing the strand of each range.
   This should be one of the following strings: `+`, `-` or `*`.
   No values should be missing.
-  
+
 <details>
 <summary>Example usage</summary>
 
@@ -186,8 +184,7 @@ takane::genomic_ranges::validate(
     path, 
     /* num_ranges = */ 192, 
     /* has_names = */ true, 
-    /* seqnames = */ allowed,
-    /* options = */ comservatory::ReadOptions()
+    /* seqnames = */ allowed
 );
 ```
 </details>
@@ -207,7 +204,7 @@ We expect the columns in the following type and order:
   Missing values are allowed.
 - A string column named `genome`, containing the genome of origin for each sequence.
   Missing values are allowed.
-  
+
 <details>
 <summary>Example usage</summary>
 

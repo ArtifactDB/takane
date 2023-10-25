@@ -10,6 +10,11 @@
 #include <string>
 #include <stdexcept>
 
+/**
+ * @file genomic_ranges.hpp
+ * @brief Validation for genomic ranges.
+ */
+
 namespace takane {
 
 namespace genomic_ranges {
@@ -171,7 +176,7 @@ void validate_base(
  *
  * @param reader A stream of bytes from the CSV file.
  * @param num_ranges Number of genomic ranges in this object.
- * @param has_ranges Whether the ranges are named.
+ * @param has_names Whether the ranges are named.
  * @param seqnames Universe of sequence names for this object.
  * @param options Parsing options.
  */
@@ -198,7 +203,7 @@ void validate(
  *
  * @param path Path to the CSV file.
  * @param num_ranges Number of genomic ranges in this object.
- * @param has_ranges Whether the ranges are named.
+ * @param has_names Whether the ranges are named.
  * @param seqnames Universe of sequence names for this object.
  * @param options Parsing options.
  */

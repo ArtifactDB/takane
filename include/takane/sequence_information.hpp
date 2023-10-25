@@ -10,6 +10,11 @@
 #include <string>
 #include <stdexcept>
 
+/**
+ * @file sequence_information.hpp
+ * @brief Validation for sequence information.
+ */
+
 namespace takane {
 
 namespace sequence_information {
