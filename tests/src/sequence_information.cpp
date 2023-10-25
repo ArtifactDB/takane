@@ -53,7 +53,11 @@ TEST(SequenceInformation, Seqnames) {
     buffer += "\"chrA\",4,TRUE,\"hg19\"\n";
     buffer += "\"chrB\",9,FALSE,\"mm10\"\n";
     buffer += "\"chrA\",19,TRUE,\"hg38\"\n";
-    expect_error("duplicated sequence name", buffer, 10);
+    expect_error("duplicated sequence name", buffer, 3);
+
+    buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
+    buffer += "NA,4,TRUE,\"hg19\"\n";
+    expect_error("missing value", buffer, 1);
 
     buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
     buffer += "\"chrA\",4,TRUE,\"hg19\"\n";
