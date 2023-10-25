@@ -17,7 +17,22 @@
 
 namespace takane {
 
-namespace data_frame {
+namespace csv_data_frame {
+
+/**
+ * @brief Options for parsing the CSV data frame.
+ */
+struct Options {
+    /**
+     * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
+     */
+    bool parallel = false;
+
+    /**
+     * Version of the `data_frame` format.
+     */
+    int df_version = 2;
+};
 
 /**
  * @cond
@@ -181,7 +196,7 @@ struct TakaneFactorV2Field : public comservatory::NumberField {
 };
 
 template<class ParseCommand>
-void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, const std::vector<ColumnDetails>& columns, int df_version = 2) {
+void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, const std::vector<data_frame::ColumnDetails>& columns, const Options& options) {
     comservatory::Contents contents;
     if (has_row_names) {
         contents.fields.emplace_back(new TakaneRowNamesField);
@@ -196,31 +211,31 @@ void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, cons
         }
         present.insert(col.name);
 
-        if (col.type == ColumnType::INTEGER) {
+        if (col.type == data_frame::ColumnType::INTEGER) {
             contents.fields.emplace_back(new TakaneIntegerField(0, c));
 
-        } else if (col.type == ColumnType::NUMBER) {
+        } else if (col.type == data_frame::ColumnType::NUMBER) {
             contents.fields.emplace_back(new comservatory::DummyNumberField);
 
-        } else if (col.type == ColumnType::STRING) {
-            if (col.format == StringFormat::DATE) {
+        } else if (col.type == data_frame::ColumnType::STRING) {
+            if (col.format == data_frame::StringFormat::DATE) {
                 contents.fields.emplace_back(new TakaneDateField(0, c));
-            } else if (col.format == StringFormat::DATE_TIME) {
+            } else if (col.format == data_frame::StringFormat::DATE_TIME) {
                 contents.fields.emplace_back(new TakaneDateTimeField(0, c));
             } else {
                 contents.fields.emplace_back(new comservatory::DummyStringField);
             }
 
-        } else if (col.type == ColumnType::BOOLEAN) {
+        } else if (col.type == data_frame::ColumnType::BOOLEAN) {
             contents.fields.emplace_back(new comservatory::DummyBooleanField);
 
-        } else if (col.type == ColumnType::FACTOR) {
-            if (df_version == 1) {
+        } else if (col.type == data_frame::ColumnType::FACTOR) {
+            if (options.df_version == 1) {
                 contents.fields.emplace_back(new TakaneFactorV1Field(0, c, &(col.factor_levels)));
             } else {
                 contents.fields.emplace_back(new TakaneFactorV2Field(0, c, col.factor_levels.size()));
             }
-        } else if (col.type == ColumnType::OTHER) {
+        } else if (col.type == data_frame::ColumnType::OTHER) {
             contents.fields.emplace_back(new comservatory::UnknownField); // This can be anything.
 
         } else {
@@ -228,7 +243,9 @@ void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, cons
         }
     }
 
-    parse(contents);
+    comservatory::ReadOptions opt;
+    opt.parallel = options.parallel;
+    parse(contents, opt);
     if (contents.num_records() != num_rows) {
         throw std::runtime_error("number of records in the CSV file does not match the expected number of rows");
     }
@@ -254,24 +271,22 @@ void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, cons
  * @param num_rows Number of rows in the data frame.
  * @param has_row_names Whether the data frame contains row names.
  * @param columns Details about the expected columns of the data frame, in order.
- * @param options Reading options.
- * @param df_version Version of the `data_frame` format.
+ * @param options Parsing options.
  */
 template<class Reader>
-void validate_csv(
+void validate(
     Reader& reader, 
     size_t num_rows, 
     bool has_row_names, 
-    const std::vector<ColumnDetails>& columns, 
-    const comservatory::ReadOptions& options,
-    int df_version = 2)
+    const std::vector<data_frame::ColumnDetails>& columns, 
+    Options options = Options())
 {
     validate_base(
-        [&](comservatory::Contents& contents) -> void { comservatory::read(reader, contents, options); },
+        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read(reader, contents, opt); },
         num_rows,
         has_row_names,
         columns,
-        df_version
+        options
     );
 }
 
@@ -283,23 +298,21 @@ void validate_csv(
  * @param num_rows Number of rows in the data frame.
  * @param has_row_names Whether the data frame contains row names.
  * @param columns Details about the expected columns of the data frame, in order.
- * @param options Reading options.
- * @param df_version Version of the `data_frame` format.
+ * @param options Parsing options.
  */
-inline void validate_csv(
+inline void validate(
     const char* path, 
     size_t num_rows, 
     bool has_row_names, 
-    const std::vector<ColumnDetails>& columns, 
-    const comservatory::ReadOptions& options,
-    int df_version = 2)
+    const std::vector<data_frame::ColumnDetails>& columns, 
+    Options options = Options())
 {
     validate_base(
-        [&](comservatory::Contents& contents) -> void { comservatory::read_file(path, contents, options); },
+        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read_file(path, contents, opt); },
         num_rows,
         has_row_names,
         columns,
-        df_version
+        options
     );
 }
 

@@ -113,7 +113,7 @@ static void expect_error(const std::string& msg, const std::string& path, const 
     auto ghandle = handle.openGroup(name);
     EXPECT_ANY_THROW({
         try {
-            takane::data_frame::validate_hdf5(ghandle, std::forward<Args_>(args)...);
+            takane::hdf5_data_frame::validate(ghandle, std::forward<Args_>(args)...);
         } catch (std::exception& e) {
             EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
             throw;
@@ -132,14 +132,14 @@ TEST(Hdf5DataFrame, Rownames) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, true, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, true, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, true, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.unlink("row_names");
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
     expect_error("expected a 'row_names' dataset", path, name, nrows, true, columns);
 
     {
@@ -184,7 +184,7 @@ TEST(Hdf5DataFrame, Colnames) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
     
     auto old = columns[1].name;
     columns[1].name = "Charlie";
@@ -287,7 +287,7 @@ TEST(Hdf5DataFrame, Data) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 }
 
 TEST(Hdf5DataFrame, Integer) {
@@ -305,7 +305,7 @@ TEST(Hdf5DataFrame, Integer) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -334,7 +334,7 @@ TEST(Hdf5DataFrame, Integer) {
         auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT16, dspace);
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT16, H5S_SCALAR);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -361,7 +361,7 @@ TEST(Hdf5DataFrame, Boolean) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -389,7 +389,7 @@ TEST(Hdf5DataFrame, Number) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -409,7 +409,7 @@ TEST(Hdf5DataFrame, Number) {
         auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -437,7 +437,7 @@ TEST(Hdf5DataFrame, String) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -460,7 +460,7 @@ TEST(Hdf5DataFrame, String) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string("asdasd"));
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -497,7 +497,7 @@ TEST(Hdf5DataFrame, StringDate) {
         auto xhandle = dhandle.createDataSet("0", stype, dspace);
         xhandle.write(dump.data(), stype);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     const char* violator = "asdasd";
     {
@@ -519,7 +519,7 @@ TEST(Hdf5DataFrame, StringDate) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string(violator));
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 }
 
 TEST(Hdf5DataFrame, StringDateTime) {
@@ -546,7 +546,7 @@ TEST(Hdf5DataFrame, StringDateTime) {
         auto xhandle = dhandle.createDataSet("0", stype, dspace);
         xhandle.write(dump.data(), stype);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 
     const char* violator = "asdasd";
     {
@@ -568,7 +568,7 @@ TEST(Hdf5DataFrame, StringDateTime) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string(violator));
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
 }
 
 TEST(Hdf5DataFrame, FactorVersion1) {
@@ -587,9 +587,12 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns, /* version = */ 1);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* version = */ 1, /* hdf5_version = */ 1);
+    takane::hdf5_data_frame::Options opt;
+    opt.df_version = 1;
+    opt.hdf5_version = 1;
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns, opt);
     columns[0].factor_levels.erase("chisato");
-    expect_error("contains 'chisato'", path, name, nrows, false, columns, /* version = */ 1, /* hdf5_version = */ 1);
+    expect_error("contains 'chisato'", path, name, nrows, false, columns, opt);
 
     H5::DataSpace dspace(1, &nrows);
     {
@@ -599,7 +602,7 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("string dataset", path, name, nrows, false, columns, /* version = */ 1, /* hdf5_version = */ 1);
+    expect_error("string dataset", path, name, nrows, false, columns, opt);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -616,7 +619,7 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR); // rescues the missing values.
         ahandle.write(stype, std::string(missing));
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* df_version = */ 1, /* hdf5_version = */ 1); 
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns, opt);
 }
 
 TEST(Hdf5DataFrame, FactorVersion2) {
@@ -638,7 +641,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, nrows, false, columns);
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns);
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns);
     columns[0].factor_levels.erase("chisato");
     expect_error("less than the number of levels", path, name, nrows, false, columns);
 
@@ -683,7 +686,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         int val = -1;
         ahandle.write(H5::PredType::NATIVE_INT, &val); 
     }
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns); // rescues the negative values.
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns); // rescues the negative values.
 
     // Using -2^31 as the placeholder, to check legacy loaders.
     {
@@ -697,5 +700,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         xhandle.write(replacement.data(), H5::PredType::NATIVE_INT);
     }
     expect_error("non-negative", path, name, nrows, false, columns);
-    takane::data_frame::validate_hdf5(path, name, nrows, false, columns, /* df_version = */ 2, /* hdf5_version = */ 1);
+    takane::hdf5_data_frame::Options opt;
+    opt.hdf5_version = 1;
+    takane::hdf5_data_frame::validate(path, name, nrows, false, columns, opt);
 }

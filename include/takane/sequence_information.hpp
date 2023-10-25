@@ -40,7 +40,7 @@ struct Options {
     bool save_seqnames = true;
 
     /**
-     * Version of the sequence information file.
+     * Version of the `sequence_information` format.
      */
     int version = 1;
 };

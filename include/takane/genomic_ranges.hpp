@@ -15,6 +15,21 @@ namespace takane {
 namespace genomic_ranges {
 
 /**
+ * @brief Options for parsing the genomic ranges file.
+ */
+struct Options {
+    /**
+     * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
+     */
+    bool parallel = false;
+
+    /**
+     * Version of the `genomic_ranges` format.
+     */
+    int version = 1;
+};
+
+/**
  * @cond
  */
 struct NamesField : public comservatory::DummyStringField {
@@ -101,7 +116,7 @@ void validate_base(
     size_t num_ranges, 
     bool has_names, 
     const std::unordered_set<std::string>& seqnames, 
-    int /* version */ = 1)
+    const Options& options)
 {
     comservatory::Contents contents;
     if (has_names) {
@@ -124,7 +139,9 @@ void validate_base(
 
     contents.fields.emplace_back(new StrandField);
 
-    parse(contents);
+    comservatory::ReadOptions opt;
+    opt.parallel = options.parallel;
+    parse(contents, opt);
     if (contents.num_records() != num_ranges) {
         throw std::runtime_error("number of records in the CSV file does not match the expected number of ranges");
     }
@@ -156,8 +173,7 @@ void validate_base(
  * @param num_ranges Number of genomic ranges in this object.
  * @param has_ranges Whether the ranges are named.
  * @param seqnames Universe of sequence names for this object.
- * @param options Reading options.
- * @param version Version of the `genomic_ranges` format.
+ * @param options Parsing options.
  */
 template<class Reader>
 void validate(
@@ -165,15 +181,14 @@ void validate(
     size_t num_ranges, 
     bool has_names, 
     const std::unordered_set<std::string>& seqnames, 
-    const comservatory::ReadOptions& options,
-    int version = 1)
+    Options options = Options())
 {
     validate_base(
-        [&](comservatory::Contents& contents) -> void { comservatory::read(reader, contents, options); },
+        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read(reader, contents, opt); },
         num_ranges,
         has_names,
         seqnames,
-        version
+        options
     );
 }
 
@@ -185,23 +200,21 @@ void validate(
  * @param num_ranges Number of genomic ranges in this object.
  * @param has_ranges Whether the ranges are named.
  * @param seqnames Universe of sequence names for this object.
- * @param options Reading options.
- * @param df_version Version of the `genomic_ranges` format.
+ * @param options Parsing options.
  */
 inline void validate(
     const char* path, 
     size_t num_ranges, 
     bool has_names, 
     const std::unordered_set<std::string>& seqnames, 
-    const comservatory::ReadOptions& options,
-    int version = 1)
+    Options options = Options())
 {
     validate_base(
-        [&](comservatory::Contents& contents) -> void { comservatory::read_file(path, contents, options); },
+        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read_file(path, contents, opt); },
         num_ranges,
         has_names,
         seqnames,
-        version
+        options
     );
 }
 
