@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['factor_5flevels_0',['factor_levels',['../structtakane_1_1data__frame_1_1ColumnDetails.html#a1da608f167850a020b9ef8daa99a0194',1,'takane::data_frame::ColumnDetails']]],
-  ['format_1',['format',['../structtakane_1_1data__frame_1_1ColumnDetails.html#a2ce87b640816dcded292d3a1aa761db0',1,'takane::data_frame::ColumnDetails']]]
+  ['buffer_5fsize_0',['buffer_size',['../structtakane_1_1hdf5__data__frame_1_1Options.html#a9d61df87f9f5a592250fc5e96e7db08b',1,'takane::hdf5_data_frame::Options']]]
 ];

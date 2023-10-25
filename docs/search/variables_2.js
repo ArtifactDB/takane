@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['parallel_0',['parallel',['../structtakane_1_1sequence__information_1_1Options.html#a3a27d61735dddff64b9ccf8a5d5566e8',1,'takane::sequence_information::Options']]]
+  ['factor_5flevels_0',['factor_levels',['../structtakane_1_1data__frame_1_1ColumnDetails.html#a1da608f167850a020b9ef8daa99a0194',1,'takane::data_frame::ColumnDetails']]],
+  ['format_1',['format',['../structtakane_1_1data__frame_1_1ColumnDetails.html#a2ce87b640816dcded292d3a1aa761db0',1,'takane::data_frame::ColumnDetails']]]
 ];

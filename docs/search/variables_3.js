@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['save_5fseqnames_0',['save_seqnames',['../structtakane_1_1sequence__information_1_1Options.html#a3f1c3f3f14b43b8a101c759ba73fdd6c',1,'takane::sequence_information::Options']]],
-  ['seqnames_1',['seqnames',['../structtakane_1_1sequence__information_1_1Summary.html#aa1331c7d0be0773edbc5d3dd6eda166d',1,'takane::sequence_information::Summary']]]
+  ['hdf5_5fversion_0',['hdf5_version',['../structtakane_1_1hdf5__data__frame_1_1Options.html#ac263323b3585fa4c9b9052590ee90088',1,'takane::hdf5_data_frame::Options']]]
 ];

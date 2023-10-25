@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['miscellaneous_20validators_20for_20artifactdb_0',['Miscellaneous validators for ArtifactDB',['../index.html',1,'']]]
+  ['genomic_5franges_2ehpp_0',['genomic_ranges.hpp',['../genomic__ranges_8hpp.html',1,'']]]
 ];

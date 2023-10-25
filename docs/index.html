@@ -122,8 +122,7 @@ $(function() {
 <div class="line">    name, </div>
 <div class="line">    <span class="comment">/* num_rows = */</span> 9876, </div>
 <div class="line">    <span class="comment">/* has_row_names = */</span> <span class="keyword">true</span>, </div>
-<div class="line">    <span class="comment">/* columns = */</span> expected_columns,</div>
-<div class="line">    <span class="comment">/* options = */</span> comservatory::ReadOptions()</div>
+<div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
 <div class="line">);</div>
 </div><!-- fragment --> </details>
 <h2>CSV data frame</h2>
@@ -166,13 +165,12 @@ $(function() {
 <div class="line">    path, </div>
 <div class="line">    <span class="comment">/* num_rows = */</span> 9876, </div>
 <div class="line">    <span class="comment">/* has_row_names = */</span> <span class="keyword">true</span>, </div>
-<div class="line">    <span class="comment">/* columns = */</span> expected_columns,</div>
-<div class="line">    <span class="comment">/* options = */</span> comservatory::ReadOptions()</div>
+<div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
 <div class="line">);</div>
 </div><!-- fragment --><p >Note that the row name column does not need to be considered in the set of <code>expected_columns</code>; it is handled separately by the <code>has_row_names = true</code> argument. </p>
 </details>
 <h2>Genomic ranges</h2>
-<p >A <code>GenomicRanges</code> object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json"><code>genomic_ranges</code></a> schema. We expect the columns in the following type and order:</p>
+<p >A <code>GenomicRanges</code> object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/genomic_ranges/v1.json"><code>genomic_ranges</code></a> schema. We expect the columns in the following type and order:</p>
 <ul>
 <li>(optional) a column of strings containing names for each genomic range. This may have any column name. All strings should be non-missing.</li>
 <li>A column named <code>seqnames</code>, containing strings with the reference sequence (e.g., chromosome) name for each genomic range. All strings should be non-missing and belong to the set of known sequences in the corresponding <code>sequence_information</code> object.</li>
@@ -191,8 +189,7 @@ $(function() {
 <div class="line">    path, </div>
 <div class="line">    <span class="comment">/* num_ranges = */</span> 192, </div>
 <div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">true</span>, </div>
-<div class="line">    <span class="comment">/* seqnames = */</span> allowed,</div>
-<div class="line">    <span class="comment">/* options = */</span> comservatory::ReadOptions()</div>
+<div class="line">    <span class="comment">/* seqnames = */</span> allowed</div>
 <div class="line">);</div>
 </div><!-- fragment --> </details>
 <h2>Sequence information</h2>

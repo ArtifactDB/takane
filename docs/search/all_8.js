@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['parallel_0',['parallel',['../structtakane_1_1sequence__information_1_1Options.html#a3a27d61735dddff64b9ccf8a5d5566e8',1,'takane::sequence_information::Options']]]
+  ['name_0',['name',['../structtakane_1_1data__frame_1_1ColumnDetails.html#abcf44f1458bbf7106606531afc065957',1,'takane::data_frame::ColumnDetails']]]
 ];

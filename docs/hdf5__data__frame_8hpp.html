@@ -76,6 +76,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">hdf5_data_frame.hpp File Reference</div></div>
 </div><!--header-->
@@ -111,18 +112,24 @@ Include dependency graph for hdf5_data_frame.hpp:</div>
 </div>
 <p><a href="hdf5__data__frame_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__data__frame_1_1Options.html">takane::hdf5_data_frame::Options</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1hdf5__data__frame_1_1Options.html" title="Options for parsing the HDF5 data frame.">Options</a> for parsing the HDF5 data frame.  <a href="structtakane_1_1hdf5__data__frame_1_1Options.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a183f3468b8e3e2a0a7ada6355052b819"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#a183f3468b8e3e2a0a7ada6355052b819">takane::data_frame::validate_hdf5</a> (const H5::Group &amp;handle, hsize_t num_rows, bool has_row_names, const std::vector&lt; ColumnDetails &gt; &amp;columns, int df_version=2, int hdf5_version=2)</td></tr>
-<tr class="separator:a183f3468b8e3e2a0a7ada6355052b819"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89e856974d5c3574a68e2d2ca6698f04"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#a89e856974d5c3574a68e2d2ca6698f04">takane::data_frame::validate_hdf5</a> (const std::string &amp;path, const std::string &amp;name, hsize_t num_rows, bool has_row_names, const std::vector&lt; ColumnDetails &gt; &amp;columns, int df_version=2, int hdf5_version=2)</td></tr>
-<tr class="separator:a89e856974d5c3574a68e2d2ca6698f04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57f9a7a1846cd5947872b6df310f09dd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#a57f9a7a1846cd5947872b6df310f09dd">takane::hdf5_data_frame::validate</a> (const H5::Group &amp;handle, hsize_t num_rows, bool has_row_names, const std::vector&lt; data_frame::ColumnDetails &gt; &amp;columns, Options options=Options())</td></tr>
+<tr class="separator:a57f9a7a1846cd5947872b6df310f09dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a705774a21c82a7292f3ea0b88a98703a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#a705774a21c82a7292f3ea0b88a98703a">takane::hdf5_data_frame::validate</a> (const std::string &amp;path, const std::string &amp;name, hsize_t num_rows, bool has_row_names, const std::vector&lt; data_frame::ColumnDetails &gt; &amp;columns, Options options=Options())</td></tr>
+<tr class="separator:a705774a21c82a7292f3ea0b88a98703a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for HDF5 data frames. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a183f3468b8e3e2a0a7ada6355052b819" name="a183f3468b8e3e2a0a7ada6355052b819"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a183f3468b8e3e2a0a7ada6355052b819">&#9670;&#160;</a></span>validate_hdf5() <span class="overload">[1/2]</span></h2>
+<a id="a57f9a7a1846cd5947872b6df310f09dd" name="a57f9a7a1846cd5947872b6df310f09dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57f9a7a1846cd5947872b6df310f09dd">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -131,7 +138,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void takane::data_frame::validate_hdf5 </td>
+          <td class="memname">void takane::hdf5_data_frame::validate </td>
           <td>(</td>
           <td class="paramtype">const H5::Group &amp;&#160;</td>
           <td class="paramname"><em>handle</em>, </td>
@@ -151,20 +158,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::vector&lt; <a class="el" href="structtakane_1_1data__frame_1_1ColumnDetails.html">ColumnDetails</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structtakane_1_1data__frame_1_1ColumnDetails.html">data_frame::ColumnDetails</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>columns</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>df_version</em> = <code>2</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>hdf5_version</em> = <code>2</code>&#160;</td>
+          <td class="paramtype"><a class="el" href="structtakane_1_1hdf5__data__frame_1_1Options.html">Options</a>&#160;</td>
+          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1hdf5__data__frame_1_1Options.html">Options</a>()</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -185,16 +186,15 @@ Functions</h2></td></tr>
     <tr><td class="paramname">num_rows</td><td>Number of rows in the data frame. </td></tr>
     <tr><td class="paramname">has_row_names</td><td>Whether the data frame contains row names. </td></tr>
     <tr><td class="paramname">columns</td><td>Details about the expected columns of the data frame, in order. </td></tr>
-    <tr><td class="paramname">df_version</td><td>Version of the <code>data_frame</code> format. </td></tr>
-    <tr><td class="paramname">hdf5_version</td><td>Version of the <code>hdf5_data_frame</code> format. </td></tr>
+    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="a89e856974d5c3574a68e2d2ca6698f04" name="a89e856974d5c3574a68e2d2ca6698f04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89e856974d5c3574a68e2d2ca6698f04">&#9670;&#160;</a></span>validate_hdf5() <span class="overload">[2/2]</span></h2>
+<a id="a705774a21c82a7292f3ea0b88a98703a" name="a705774a21c82a7292f3ea0b88a98703a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a705774a21c82a7292f3ea0b88a98703a">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -203,7 +203,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void takane::data_frame::validate_hdf5 </td>
+          <td class="memname">void takane::hdf5_data_frame::validate </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
@@ -229,20 +229,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::vector&lt; <a class="el" href="structtakane_1_1data__frame_1_1ColumnDetails.html">ColumnDetails</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structtakane_1_1data__frame_1_1ColumnDetails.html">data_frame::ColumnDetails</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>columns</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>df_version</em> = <code>2</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>hdf5_version</em> = <code>2</code>&#160;</td>
+          <td class="paramtype"><a class="el" href="structtakane_1_1hdf5__data__frame_1_1Options.html">Options</a>&#160;</td>
+          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1hdf5__data__frame_1_1Options.html">Options</a>()</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -264,8 +258,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">num_rows</td><td>Number of rows in the data frame. </td></tr>
     <tr><td class="paramname">has_row_names</td><td>Whether the data frame contains row names. </td></tr>
     <tr><td class="paramname">columns</td><td>Details about the expected columns of the data frame, in order. </td></tr>
-    <tr><td class="paramname">df_version</td><td>Version of the <code>data_frame</code> format. </td></tr>
-    <tr><td class="paramname">hdf5_version</td><td>Version of the <code>hdf5_data_frame</code> format. </td></tr>
+    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
   </table>
   </dd>
 </dl>

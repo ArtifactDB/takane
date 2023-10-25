@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['save_5fseqnames_0',['save_seqnames',['../structtakane_1_1sequence__information_1_1Options.html#a3f1c3f3f14b43b8a101c759ba73fdd6c',1,'takane::sequence_information::Options']]],
-  ['seqnames_1',['seqnames',['../structtakane_1_1sequence__information_1_1Summary.html#aa1331c7d0be0773edbc5d3dd6eda166d',1,'takane::sequence_information::Summary']]],
-  ['stringformat_2',['StringFormat',['../data__frame_8hpp.html#ae9316d06d2cc382804fa777f595f34e9',1,'takane::data_frame']]],
-  ['summary_3',['Summary',['../structtakane_1_1sequence__information_1_1Summary.html',1,'takane::sequence_information']]]
+  ['options_0',['Options',['../structtakane_1_1csv__data__frame_1_1Options.html',1,'takane::csv_data_frame::Options'],['../structtakane_1_1genomic__ranges_1_1Options.html',1,'takane::genomic_ranges::Options'],['../structtakane_1_1hdf5__data__frame_1_1Options.html',1,'takane::hdf5_data_frame::Options'],['../structtakane_1_1sequence__information_1_1Options.html',1,'takane::sequence_information::Options']]]
 ];
