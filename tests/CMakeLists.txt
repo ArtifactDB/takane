@@ -20,6 +20,7 @@ add_executable(
     src/hdf5_data_frame.cpp
     src/csv_data_frame.cpp
     src/genomic_ranges.cpp
+    src/sequence_information.cpp
 )
 
 target_link_libraries(
