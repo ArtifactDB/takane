@@ -195,6 +195,26 @@ $(function() {
 <div class="line">    <span class="comment">/* options = */</span> comservatory::ReadOptions()</div>
 <div class="line">);</div>
 </div><!-- fragment --> </details>
+<h2>Sequence information</h2>
+<p >A <code>Seqinfo</code> object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/sequence_information/v1.json"><code>sequence_information</code></a> schema. We expect the columns in the following type and order:</p>
+<ul>
+<li>A string column named <code>seqnames</code>, containing the reference sequence (e.g., chromosome) name. All strings should be non-missing and unique.</li>
+<li>An integer column named <code>seqlengths</code>, containing the length of each reference sequence. All values should be non-negative and fit inside a 32-bit signed integer. Missing values are allowed.</li>
+<li>A boolean column named <code>isCircular</code>, specifying whether the reference sequence is circular. Missing values are allowed.</li>
+<li>A string column named <code>genome</code>, containing the genome of origin for each sequence. Missing values are allowed.</li>
+</ul>
+<details >
+<p ><summary>Example usage</summary></p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">auto</span> output = takane::sequence_information::validate(</div>
+<div class="line">    path, </div>
+<div class="line">    <span class="comment">/* num_ranges = */</span> 192, </div>
+<div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">true</span>, </div>
+<div class="line">    <span class="comment">/* seqnames = */</span> allowed</div>
+<div class="line">);</div>
+</div><!-- fragment --><p >The value of <code>output.seqnames</code> can be used to define the set of allowed sequence names in <code>genomic_ranges::validate()</code>. </p>
+</details>
 <h1>Building projects</h1>
 <h2>CMake with <code>FetchContent</code></h2>
 <p >If you're using CMake, you just need to add something like this to your <code>CMakeLists.txt</code>:</p>
