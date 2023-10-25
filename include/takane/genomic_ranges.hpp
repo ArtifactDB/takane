@@ -29,7 +29,7 @@ struct SeqnamesField : public comservatory::DummyStringField {
     }
 
     void push_back(std::string x) {
-        if (all_seqnames->find(x) != all_seqnames->end()) {
+        if (all_seqnames->find(x) == all_seqnames->end()) {
             throw std::runtime_error("unknown sequence name '" + x + "'");
         }
         comservatory::DummyStringField::push_back(std::move(x));
@@ -75,7 +75,7 @@ struct EndField : public comservatory::DummyNumberField {
             throw std::runtime_error("'start' and 'end' validator fields are out of sync");
         }
         if (x + 1 < start->last) {
-            throw std::runtime_error("'end' coordinate must be equal to or greater than 'start - 1'");
+            throw std::runtime_error("'end' coordinate must be greater than or equal to 'start - 1'");
         }
     }
 
