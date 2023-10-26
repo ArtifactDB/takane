@@ -43,4 +43,8 @@ TEST(Factor, Basics) {
     buffer = "\"values\"\n";
     buffer += "-1\n";
     expect_error("should not be negative", buffer, 1, 3, false);
+
+    buffer = "\"values\"\n";
+    buffer += "1.5\n";
+    expect_error("not an integer", buffer, 1, 3, false);
 }

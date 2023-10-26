@@ -51,6 +51,14 @@ TEST(CompressedList, Basics) {
     expect_error("should not be negative", buffer, 3, 9, false);
 
     buffer = "\"number\"\n";
+    buffer += "1.5\n";
+    expect_error("not an integer", buffer, 1, 2, false);
+
+    buffer = "\"number\"\n";
+    buffer += "15000000000\n";
+    expect_error("does not fit", buffer, 1, 2, false);
+
+    buffer = "\"number\"\n";
     buffer += "NA\n";
     expect_error("should not be missing", buffer, 1, 9, false);
 }
