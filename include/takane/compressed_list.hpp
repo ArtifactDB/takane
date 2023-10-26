@@ -1,5 +1,5 @@
-#ifndef TAKANE_ATOMIC_VECTOR_HPP
-#define TAKANE_ATOMIC_VECTOR_HPP
+#ifndef TAKANE_COMPRESSED_LIST_HPP
+#define TAKANE_COMPRESSED_LIST_HPP
 
 #include "utils.hpp"
 #include "comservatory/comservatory.hpp"
@@ -7,16 +7,26 @@
 #include <stdexcept>
 
 /**
- * @file atomic_vector.hpp
- * @brief Validation for atomic vectors.
+ * @file compressed_list.hpp
+ * @brief Validation for compressed lists.
  */
 
 namespace takane {
 
-namespace atomic_vector {
+namespace compressed_list {
 
 /**
- * @brief Options for parsing the string vector file.
+ * @brief Summary of the compressed list parsing.
+ */
+struct Summary {
+    /**
+     * Expected length of the concatenated object.
+     */
+    size_t concatenated_length;
+};
+
+/**
+ * @brief Options for parsing the compressed list file.
  */
 struct Options {
     /**
@@ -25,34 +35,29 @@ struct Options {
     bool parallel = false;
 
     /**
-     * Version of the `atomic_vector` format.
+     * Version of the `compressed_list` format.
      */
     int version = 1;
 };
 
 /**
- * Type of the atomic vector.
- *
- * - `INTEGER`: a number that can be represented by a 32-bit signed integer.
- * - `NUMBER`: a number that can be represented by a double-precision float.
- * - `STRING`: a string.
- * - `BOOLEAN`: a boolean.
- */
-enum class Type {
-    INTEGER,
-    NUMBER,
-    STRING,
-    BOOLEAN
-};
-
-/**
  * @cond
  */
+struct KnownCompressedLengthField : public KnownNonNegativeIntegerField {
+    KnownCompressedLengthField(int cid) : KnownNonNegativeIntegerField(cid) {}
+
+    void push_back(double x) {
+        KnownNonNegativeIntegerField::push_back(x);
+        total += static_cast<size_t>(x);
+    }
+
+    size_t total = 0;
+};
+
 template<class ParseCommand>
-void validate_base(
+Summary validate_base(
     ParseCommand parse,
     size_t length,
-    Type type,
     bool has_names,
     const Options& options)
 {
@@ -61,20 +66,9 @@ void validate_base(
         contents.fields.emplace_back(new KnownNameField(false));
     }
 
-    switch(type) {
-        case INTEGER:
-            contents.fields.emplace_back(new KnownIntegerField(has_names));
-            break;
-        case NUMBER:
-            contents.fields.emplace_back(new comservatory::DummyNumberField);
-            break;
-        case STRING:
-            contents.fields.emplace_back(new comservatory::DummyStringField);
-            break;
-        case Boolean:
-            contents.fields.emplace_back(new comservatory::DummyBooleanField);
-            break;
-    }
+    auto ptr = new KnownCompressedLengthField(static_cast<int>(has_names));
+    contents.fields.emplace_back(ptr);
+ * @param num_levels Number of compressed list levels.
 
     comservatory::ReadOptions opt;
     opt.parallel = options.parallel;
@@ -83,62 +77,59 @@ void validate_base(
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
 
-    return;
+    Summary output;
+    output.concatenated_length = ptr->total;
+    return output;
 }
 /**
  * @endcond
  */
 
 /**
- * Checks if a CSV is correctly formatted for the `atomic_vector` format.
+ * Checks if a CSV is correctly formatted for the `compressed_list` format.
  * An error is raised if the file does not meet the specifications.
  *
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param length Length of the atomic vector.
- * @param type Type of the atomic vector.
- * @param has_names Whether the vector is named.
+ * @param length Length of the compressed list.
+ * @param has_names Whether the compressed list is named.
  * @param options Parsing options.
  */
 template<class Reader>
-void validate(
+Summary validate(
     Reader& reader,
     size_t length,
-    Type type,
     bool has_names,
     Options options = Options())
 {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
         length,
-        type,
+        num_levels,
         has_names,
         options
     );
 }
 
 /**
- * Checks if a CSV is correctly formatted for the `atomic_vector` format.
+ * Checks if a CSV is correctly formatted for the `compressed_list` format.
  * An error is raised if the file does not meet the specifications.
  *
  * @param path Path to the CSV file.
- * @param length Length of the atomic vector.
- * @param type Type of the atomic vector.
- * @param has_names Whether the vector is named.
+ * @param length Length of the compressed list.
+ * @param has_names Whether the compressed list is named.
  * @param options Parsing options.
  */
-inline void validate(
+inline Summary validate(
     const char* path,
     size_t length,
-    Type type,
     bool has_names,
     Options options = Options())
 {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
         length,
-        type,
         has_names,
         options
     );

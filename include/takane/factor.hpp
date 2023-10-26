@@ -6,6 +6,11 @@
 
 #include <stdexcept>
 
+/**
+ * @file factor.hpp
+ * @brief Validation for factors.
+ */
+
 namespace takane {
 
 namespace factor {
@@ -101,7 +106,7 @@ void validate(
     bool has_names,
     Options options = Options())
 {
-    return validate_base(
+    validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
         length,
         num_levels,
@@ -127,7 +132,7 @@ inline void validate(
     bool has_names,
     Options options = Options())
 {
-    return validate_base(
+    validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
         length,
         num_levels,

@@ -38,7 +38,6 @@ struct KnownIntegerField : public comservatory::DummyNumberField {
             throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " is not an integer");
         }
         comservatory::DummyNumberField::push_back(x);
-        return;
     }
 
     int column_id;
@@ -58,7 +57,6 @@ struct KnownNonNegativeIntegerField : public comservatory::DummyNumberField {
             throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " is not an integer");
         }
         comservatory::DummyNumberField::push_back(x);
-        return;
     }
 
     int column_id;
