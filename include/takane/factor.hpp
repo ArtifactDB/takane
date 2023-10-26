@@ -51,7 +51,6 @@ struct KnownFactorField : public comservatory::DummyNumberField {
             throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " is not an integer");
         }
         comservatory::DummyNumberField::push_back(x);
-        return;
     }
 
     int column_id;
@@ -70,7 +69,6 @@ void validate_base(
     if (has_names) {
         contents.fields.emplace_back(new KnownNameField(false));
     }
-
     contents.fields.emplace_back(new KnownFactorField(static_cast<int>(has_names), num_levels)); 
 
     comservatory::ReadOptions opt;
@@ -79,8 +77,6 @@ void validate_base(
     if (contents.num_records() != length) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
-
-    return;
 }
 /**
  * @endcond

@@ -82,8 +82,6 @@ void validate_base(
     if (contents.num_records() != length) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
-
-    return;
 }
 /**
  * @endcond
