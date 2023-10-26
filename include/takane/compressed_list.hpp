@@ -36,6 +36,10 @@ struct Options {
 struct KnownCompressedLengthField : public KnownNonNegativeIntegerField {
     KnownCompressedLengthField(int cid) : KnownNonNegativeIntegerField(cid) {}
 
+    void add_missing() {
+        throw std::runtime_error("lengths should not be missing");
+    }
+
     void push_back(double x) {
         KnownNonNegativeIntegerField::push_back(x);
         total += static_cast<size_t>(x);

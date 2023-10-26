@@ -222,6 +222,110 @@ auto output = takane::sequence_information::validate(
 The value of `output.seqnames` can be used to define the set of allowed sequence names in `genomic_ranges::validate()`.
 </details>
 
+### Atomic vector
+
+An atomic vector stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
+This corresponds to the [`atomic_vector`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/atomic_vector/v1.json) schema.
+We expect the columns in the following type and order:
+
+- (optional) A string column containing the name of each element.
+  All strings should be non-missing.
+  This column can have any name that not conflict with subsequent columns.
+- A column named `values`, containing the contents of the atomic vector.
+  This can be a string, integer, number or boolean column, and may contain missing values.
+  For integer columns, all (non-missing) values must be representable by a 32-bit signed integer.
+
+<details>
+<summary>Example usage</summary>
+
+```cpp
+#include "takane/takane.hpp"
+
+takane::atomic_vector::validate(
+    path, 
+    /* length = */ 99, 
+    /* has_names = */ true
+);
+```
+</details>
+
+### Factor
+
+An abstract factor stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
+This corresponds to the [`factor`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/atomic_vector/v1.json) schema.
+We expect the columns in the following type and order:
+
+- (optional) A string column containing the name of each element.
+  All strings should be non-missing.
+  This column can have any name that not conflict with subsequent columns.
+- An integer column named `values`, containing the codes for the factor.
+  Missing values are allowed.
+  All (non-missing) values must be non-negative, less than the total number of levels, and representable by a 32-bit signed integer.
+
+<details>
+<summary>Example usage</summary>
+
+```cpp
+#include "takane/takane.hpp"
+
+takane::factor::validate(
+    path, 
+    /* length = */ 99, 
+    /* num_levels = */ 20, 
+    /* has_names = */ false
+);
+```
+</details>
+
+### String factor
+
+A factor with string levels, corresponding to the [`string_factor`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/atomic_vector/v1.json) schema.
+The file at `path` can be validated as described for [abstract factor](#Factor).
+The levels at `string_factor.levels` should be stored inside a CSV file, 
+formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
+We expect a single string column containing unique and non-missing levels.
+
+<details>
+<summary>Example usage</summary>
+
+```cpp
+#include "takane/takane.hpp"
+
+takane::string_factor::validate_levels(
+    levels_path, 
+    /* length = */ 99
+);
+```
+</details>
+
+### Compressed list
+
+An abstract compressed list stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
+This corresponds to the [`atomic_vector`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/compressed_list/v1.json) schema.
+We expect the columns in the following type and order:
+
+- (optional) A string column containing the name of each element.
+  All strings should be non-missing.
+  This column can have any name that not conflict with subsequent columns.
+- An integer column named `number`, containing the length of each entry of the list.
+  All values must be non-negative, non-missing, and representable by a 32-bit signed integer.
+  The sum of values should be equal to the total length of the concatenated object.
+
+<details>
+<summary>Example usage</summary>
+
+```cpp
+#include "takane/takane.hpp"
+
+takane::compressed_list::validate_levels(
+    levels_path, 
+    /* length = */ 99,
+    /* concatenated = */ 1191,
+    /* has_names = */ false 
+);
+```
+</details>
+
 ## Building projects
 
 ### CMake with `FetchContent`

@@ -49,4 +49,8 @@ TEST(CompressedList, Basics) {
     buffer += "5\n";
     buffer += "2\n";
     expect_error("should not be negative", buffer, 3, 9, false);
+
+    buffer = "\"number\"\n";
+    buffer += "NA\n";
+    expect_error("should not be missing", buffer, 1, 9, false);
 }
