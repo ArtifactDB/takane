@@ -54,7 +54,7 @@ struct KnownFactorField : public comservatory::DummyNumberField {
     }
 
     int column_id;
-    double nl;
+    double num_levels;
 };
 
 template<class ParseCommand>
@@ -69,6 +69,7 @@ void validate_base(
     if (has_names) {
         contents.fields.emplace_back(new KnownNameField(false));
     }
+
     contents.fields.emplace_back(new KnownFactorField(static_cast<int>(has_names), num_levels)); 
 
     comservatory::ReadOptions opt;
@@ -76,6 +77,10 @@ void validate_base(
     parse(contents, opt);
     if (contents.num_records() != length) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
+    }
+
+    if (contents.names.back() != "values") {
+        throw std::runtime_error("column containing vector contents should be named 'values'");
     }
 }
 /**

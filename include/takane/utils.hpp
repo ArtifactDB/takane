@@ -7,7 +7,7 @@
 
 namespace takane {
 
-struct KnownNameField : public comservatory::KnownStringField {
+struct KnownNameField : public comservatory::DummyStringField {
     KnownNameField(bool ar) : as_rownames(ar) {}
 
     void add_missing() {

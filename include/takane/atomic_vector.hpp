@@ -62,16 +62,16 @@ void validate_base(
     }
 
     switch(type) {
-        case INTEGER:
+        case Type::INTEGER:
             contents.fields.emplace_back(new KnownIntegerField(has_names));
             break;
-        case NUMBER:
+        case Type::NUMBER:
             contents.fields.emplace_back(new comservatory::DummyNumberField);
             break;
-        case STRING:
+        case Type::STRING:
             contents.fields.emplace_back(new comservatory::DummyStringField);
             break;
-        case Boolean:
+        case Type::BOOLEAN:
             contents.fields.emplace_back(new comservatory::DummyBooleanField);
             break;
     }
@@ -81,6 +81,10 @@ void validate_base(
     parse(contents, opt);
     if (contents.num_records() != length) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
+    }
+
+    if (contents.names.back() != "values") {
+        throw std::runtime_error("column containing vector contents should be named 'values'");
     }
 }
 /**

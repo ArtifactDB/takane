@@ -36,24 +36,23 @@ struct Options {
  * @cond
  */
 struct KnownLevelField : public comservatory::DummyStringField {
-    KnownLevelField(int cid) : column_id(cid) {}
-
     void push_back(std::string x) {
         if (levels.find(x) != levels.end()) {
-            throw std::runtime_error("detected a duplicated level '" + x + "' in column " + std::to_string(column_id + 1));
+            throw std::runtime_error("detected a duplicated level '" + x + "' in column 0");
         }
         levels.insert(x);
         comservatory::DummyStringField::push_back(std::move(x));
     }
 
-    int column_id;
     std::unordered_set<std::string> levels;
 };
 
 template<class ParseCommand>
-void validate_base(ParseCommand parse, size_t length, const Options& options) {
+void validate_levels_base(ParseCommand parse, size_t length, const Options& options) {
     comservatory::Contents contents;
-    contents.fields.emplace_back(new KnownLevelField(static_cast<int>(has_names)));
+    contents.fields.emplace_back(new KnownLevelField);
+    contents.names.push_back("values");
+
     comservatory::ReadOptions opt;
     opt.parallel = options.parallel;
     parse(contents, opt);
@@ -76,8 +75,8 @@ void validate_base(ParseCommand parse, size_t length, const Options& options) {
  * @param options Parsing options.
  */
 template<class Reader>
-void validate(Reader& reader, size_t length, Options options = Options()) {
-    validate_base(
+void validate_levels(Reader& reader, size_t length, Options options = Options()) {
+    validate_levels_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
         length,
         options
@@ -92,8 +91,8 @@ void validate(Reader& reader, size_t length, Options options = Options()) {
  * @param length Number of levels.
  * @param options Parsing options.
  */
-inline void validate(const char* path, size_t length, Options options = Options()) {
-    validate_base(
+inline void validate_levels(const char* path, size_t length, Options options = Options()) {
+    validate_levels_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
         length,
         options

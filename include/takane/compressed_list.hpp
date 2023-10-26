@@ -16,16 +16,6 @@ namespace takane {
 namespace compressed_list {
 
 /**
- * @brief Summary of the compressed list parsing.
- */
-struct Summary {
-    /**
-     * Expected length of the concatenated object.
-     */
-    size_t concatenated_length;
-};
-
-/**
  * @brief Options for parsing the compressed list file.
  */
 struct Options {
@@ -55,9 +45,10 @@ struct KnownCompressedLengthField : public KnownNonNegativeIntegerField {
 };
 
 template<class ParseCommand>
-Summary validate_base(
+void validate_base(
     ParseCommand parse,
     size_t length,
+    size_t concatenated,
     bool has_names,
     const Options& options)
 {
@@ -68,7 +59,6 @@ Summary validate_base(
 
     auto ptr = new KnownCompressedLengthField(static_cast<int>(has_names));
     contents.fields.emplace_back(ptr);
- * @param num_levels Number of compressed list levels.
 
     comservatory::ReadOptions opt;
     opt.parallel = options.parallel;
@@ -77,9 +67,13 @@ Summary validate_base(
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
 
-    Summary output;
-    output.concatenated_length = ptr->total;
-    return output;
+    if (concatenated != ptr->total) {
+        throw std::runtime_error("sum of lengths in the compressed list did not equal the expected concatenated total");
+    }
+
+    if (contents.names.back() != "number") {
+        throw std::runtime_error("column containing the compressed list lengths should be named 'number'");
+    }
 }
 /**
  * @endcond
@@ -93,20 +87,22 @@ Summary validate_base(
  *
  * @param reader A stream of bytes from the CSV file.
  * @param length Length of the compressed list.
+ * @param concatenated Total length of the concatenated elements.
  * @param has_names Whether the compressed list is named.
  * @param options Parsing options.
  */
 template<class Reader>
-Summary validate(
+void validate(
     Reader& reader,
     size_t length,
+    size_t concatenated,
     bool has_names,
     Options options = Options())
 {
-    return validate_base(
+    validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
         length,
-        num_levels,
+        concatenated,
         has_names,
         options
     );
@@ -118,18 +114,21 @@ Summary validate(
  *
  * @param path Path to the CSV file.
  * @param length Length of the compressed list.
+ * @param concatenated Total length of the concatenated elements.
  * @param has_names Whether the compressed list is named.
  * @param options Parsing options.
  */
-inline Summary validate(
+inline void validate(
     const char* path,
     size_t length,
+    size_t concatenated,
     bool has_names,
     Options options = Options())
 {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
         length,
+        concatenated,
         has_names,
         options
     );
