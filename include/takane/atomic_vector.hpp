@@ -93,6 +93,7 @@ void validate_base(
  * @param reader A stream of bytes from the CSV file.
  * @param length Length of the atomic vector.
  * @param type Type of the atomic vector.
+ * @param has_names Whether the vector is named.
  * @param options Parsing options.
  */
 template<class Reader>
@@ -119,6 +120,7 @@ void validate(
  * @param path Path to the CSV file.
  * @param length Length of the atomic vector.
  * @param type Type of the atomic vector.
+ * @param has_names Whether the vector is named.
  * @param options Parsing options.
  */
 inline void validate(

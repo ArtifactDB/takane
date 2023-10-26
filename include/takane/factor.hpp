@@ -29,7 +29,7 @@ struct Options {
  * @cond
  */
 struct KnownFactorField : public comservatory::DummyNumberField {
-    KnownNonNegativeIntegerField(int cid, size_t nl) : column_id(cid), num_levels(nl) {
+    KnownFactorField(int cid, size_t nl) : column_id(cid), num_levels(nl) {
         if (num_levels > upper_integer_limit<double>()) {
             throw std::runtime_error("number of levels does not fit inside a 32-bit signed integer");
         }
@@ -39,7 +39,7 @@ struct KnownFactorField : public comservatory::DummyNumberField {
         if (x < 0) {
             throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " should not be negative");
         }
-        if (x > num_levels) {
+        if (x >= num_levels) {
             throw std::runtime_error("value in column " + std::to_string(column_id + 1) + " should be less than the number of levels");
         }
         if (x != std::floor(x)) {
@@ -89,19 +89,23 @@ void validate_base(
  *
  * @param reader A stream of bytes from the CSV file.
  * @param length Length of the factor.
- * @param type Type of the factor.
+ * @param num_levels Number of factor levels.
+ * @param has_names Whether the factor is named.
  * @param options Parsing options.
  */
 template<class Reader>
 void validate(
     Reader& reader,
     size_t length,
+    size_t num_levels,
+    bool has_names,
     Options options = Options())
 {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
         length,
-        type,
+        num_levels,
+        has_names,
         options
     );
 }
@@ -112,18 +116,22 @@ void validate(
  *
  * @param path Path to the CSV file.
  * @param length Length of the factor.
+ * @param num_levels Number of factor levels.
+ * @param has_names Whether the factor is named.
  * @param options Parsing options.
  */
 inline void validate(
     const char* path,
     size_t length,
-    Type type,
+    size_t num_levels,
+    bool has_names,
     Options options = Options())
 {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
         length,
-        type,
+        num_levels,
+        has_names,
         options
     );
 }
