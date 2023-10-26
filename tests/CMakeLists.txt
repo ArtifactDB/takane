@@ -21,6 +21,10 @@ add_executable(
     src/csv_data_frame.cpp
     src/genomic_ranges.cpp
     src/sequence_information.cpp
+    src/atomic_vector.cpp
+    src/factor.cpp
+    src/string_factor.cpp
+    src/compressed_list.cpp
 )
 
 target_link_libraries(
