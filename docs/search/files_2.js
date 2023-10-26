@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['genomic_5franges_2ehpp_0',['genomic_ranges.hpp',['../genomic__ranges_8hpp.html',1,'']]]
+  ['data_5fframe_2ehpp_0',['data_frame.hpp',['../data__frame_8hpp.html',1,'']]]
 ];
