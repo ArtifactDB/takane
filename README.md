@@ -252,7 +252,7 @@ takane::atomic_vector::validate(
 ### Factor
 
 An abstract factor stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
-This corresponds to the [`factor`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/atomic_vector/v1.json) schema.
+This corresponds to the [`factor`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/factor/v1.json) schema.
 We expect the columns in the following type and order:
 
 - (optional) A string column containing the name of each element.
@@ -279,8 +279,8 @@ takane::factor::validate(
 
 ### String factor
 
-A factor with string levels, corresponding to the [`string_factor`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/atomic_vector/v1.json) schema.
-The file at `path` can be validated as described for [abstract factor](#Factor).
+A factor with string levels, corresponding to the [`string_factor`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/string_factor/v1.json) schema.
+The file at `path` can be validated as described for the [Factor](#Factor).
 The levels at `string_factor.levels` should be stored inside a CSV file, 
 formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
 We expect a single string column containing unique and non-missing levels.
@@ -301,7 +301,7 @@ takane::string_factor::validate_levels(
 ### Compressed list
 
 An abstract compressed list stored inside a CSV file, formatted as described in the [**comservatory** specification (version 1.0)](https://github.com/ArtifactDB/comservatory).
-This corresponds to the [`atomic_vector`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/compressed_list/v1.json) schema.
+This corresponds to the [`compressed_list`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/compressed_list/v1.json) schema.
 We expect the columns in the following type and order:
 
 - (optional) A string column containing the name of each element.
