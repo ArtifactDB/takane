@@ -104,23 +104,23 @@ Include dependency graph for compressed_list.hpp:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1compressed__list_1_1Options.html">takane::compressed_list::Options</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1compressed__list_1_1Options.html" title="Options for parsing the compressed list file.">Options</a> for parsing the compressed list file.  <a href="structtakane_1_1compressed__list_1_1Options.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1compressed__list_1_1Parameters.html">takane::compressed_list::Parameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1compressed__list_1_1Parameters.html" title="Parameters for validating the compressed list file.">Parameters</a> for validating the compressed list file.  <a href="structtakane_1_1compressed__list_1_1Parameters.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aeacf47e635124fc79652efd225464ff5"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:aeacf47e635124fc79652efd225464ff5"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="compressed__list_8hpp.html#aeacf47e635124fc79652efd225464ff5">takane::compressed_list::validate</a> (Reader &amp;reader, size_t length, size_t concatenated, bool has_names, Options options=Options())</td></tr>
-<tr class="separator:aeacf47e635124fc79652efd225464ff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98c6036e1723ccad73f0e6c48fd81a2e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="compressed__list_8hpp.html#a98c6036e1723ccad73f0e6c48fd81a2e">takane::compressed_list::validate</a> (const char *path, size_t length, size_t concatenated, bool has_names, Options options=Options())</td></tr>
-<tr class="separator:a98c6036e1723ccad73f0e6c48fd81a2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa33565a488e8187a4e786e5e136241a0"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
+<tr class="memitem:aa33565a488e8187a4e786e5e136241a0"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="compressed__list_8hpp.html#aa33565a488e8187a4e786e5e136241a0">takane::compressed_list::validate</a> (Reader &amp;reader, const Parameters &amp;params)</td></tr>
+<tr class="separator:aa33565a488e8187a4e786e5e136241a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5589529b0843c8d5d6aee9f6fd1ea299"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="compressed__list_8hpp.html#a5589529b0843c8d5d6aee9f6fd1ea299">takane::compressed_list::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
+<tr class="separator:a5589529b0843c8d5d6aee9f6fd1ea299"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for compressed lists. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a98c6036e1723ccad73f0e6c48fd81a2e" name="a98c6036e1723ccad73f0e6c48fd81a2e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a98c6036e1723ccad73f0e6c48fd81a2e">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="a5589529b0843c8d5d6aee9f6fd1ea299" name="a5589529b0843c8d5d6aee9f6fd1ea299"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5589529b0843c8d5d6aee9f6fd1ea299">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -137,26 +137,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>length</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>concatenated</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>has_names</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1compressed__list_1_1Options.html">Options</a>&#160;</td>
-          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1compressed__list_1_1Options.html">Options</a>()</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1compressed__list_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -170,22 +152,19 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Checks if a CSV is correctly formatted for the <code>compressed_list</code> format. An error is raised if the file does not meet the specifications.</p>
+<p >Overload of <code>compressed_list::validate()</code> that accepts a file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the CSV file. </td></tr>
-    <tr><td class="paramname">length</td><td>Length of the compressed list. </td></tr>
-    <tr><td class="paramname">concatenated</td><td>Total length of the concatenated elements. </td></tr>
-    <tr><td class="paramname">has_names</td><td>Whether the compressed list is named. </td></tr>
-    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
+    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="aeacf47e635124fc79652efd225464ff5" name="aeacf47e635124fc79652efd225464ff5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeacf47e635124fc79652efd225464ff5">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+<a id="aa33565a488e8187a4e786e5e136241a0" name="aa33565a488e8187a4e786e5e136241a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa33565a488e8187a4e786e5e136241a0">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -201,26 +180,8 @@ template&lt;class Reader &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>length</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>concatenated</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>has_names</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1compressed__list_1_1Options.html">Options</a>&#160;</td>
-          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1compressed__list_1_1Options.html">Options</a>()</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1compressed__list_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -239,10 +200,7 @@ template&lt;class Reader &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
-    <tr><td class="paramname">length</td><td>Length of the compressed list. </td></tr>
-    <tr><td class="paramname">concatenated</td><td>Total length of the concatenated elements. </td></tr>
-    <tr><td class="paramname">has_names</td><td>Whether the compressed list is named. </td></tr>
-    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
+    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
   </table>
   </dd>
 </dl>

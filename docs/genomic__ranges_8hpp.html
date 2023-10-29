@@ -86,7 +86,7 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
 <code>#include &quot;comservatory/comservatory.hpp&quot;</code><br />
-<code>#include &quot;<a class="el" href="data__frame_8hpp_source.html">data_frame.hpp</a>&quot;</code><br />
+<code>#include &quot;WrappedOption.hpp&quot;</code><br />
 <code>#include &lt;unordered_set&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
@@ -95,13 +95,14 @@ Include dependency graph for genomic_ranges.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="genomic__ranges_8hpp__incl.png" border="0" usemap="#atakane_2genomic__ranges_8hpp" alt=""/></div>
 <map name="atakane_2genomic__ranges_8hpp" id="atakane_2genomic__ranges_8hpp">
-<area shape="rect" title="Validation for genomic ranges." alt="" coords="357,5,541,31"/>
+<area shape="rect" title="Validation for genomic ranges." alt="" coords="436,5,620,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,133,104"/>
 <area shape="rect" title=" " alt="" coords="158,79,365,104"/>
-<area shape="rect" href="data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="441,79,551,104"/>
-<area shape="rect" title=" " alt="" coords="392,152,496,177"/>
-<area shape="rect" title=" " alt="" coords="541,152,595,177"/>
-<area shape="rect" title=" " alt="" coords="627,79,706,104"/>
+<area shape="rect" href="WrappedOption_8hpp_source.html" title=" " alt="" coords="389,79,523,104"/>
+<area shape="rect" title=" " alt="" coords="548,79,652,104"/>
+<area shape="rect" title=" " alt="" coords="677,79,731,104"/>
+<area shape="rect" title=" " alt="" coords="755,79,834,104"/>
+<area shape="rect" title=" " alt="" coords="422,152,490,177"/>
 </map>
 </div>
 </div>
@@ -109,23 +110,23 @@ Include dependency graph for genomic_ranges.hpp:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1genomic__ranges_1_1Options.html">takane::genomic_ranges::Options</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1genomic__ranges_1_1Options.html" title="Options for parsing the genomic ranges file.">Options</a> for parsing the genomic ranges file.  <a href="structtakane_1_1genomic__ranges_1_1Options.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">takane::genomic_ranges::Parameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html" title="Parameters for validating the genomic ranges file.">Parameters</a> for validating the genomic ranges file.  <a href="structtakane_1_1genomic__ranges_1_1Parameters.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab0122696cdf5a73432826dc2d98eb905"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:ab0122696cdf5a73432826dc2d98eb905"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="genomic__ranges_8hpp.html#ab0122696cdf5a73432826dc2d98eb905">takane::genomic_ranges::validate</a> (Reader &amp;reader, size_t num_ranges, bool has_names, const std::unordered_set&lt; std::string &gt; &amp;seqnames, Options options=Options())</td></tr>
-<tr class="separator:ab0122696cdf5a73432826dc2d98eb905"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9f8f96577927b0dccb88fa24089a851"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="genomic__ranges_8hpp.html#aa9f8f96577927b0dccb88fa24089a851">takane::genomic_ranges::validate</a> (const char *path, size_t num_ranges, bool has_names, const std::unordered_set&lt; std::string &gt; &amp;seqnames, Options options=Options())</td></tr>
-<tr class="separator:aa9f8f96577927b0dccb88fa24089a851"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a983c2b1db337ffc972139015dc340ecc"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
+<tr class="memitem:a983c2b1db337ffc972139015dc340ecc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="genomic__ranges_8hpp.html#a983c2b1db337ffc972139015dc340ecc">takane::genomic_ranges::validate</a> (Reader &amp;reader, const Parameters &amp;params)</td></tr>
+<tr class="separator:a983c2b1db337ffc972139015dc340ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45ca6ee1074db860322c838eb77a43f4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="genomic__ranges_8hpp.html#a45ca6ee1074db860322c838eb77a43f4">takane::genomic_ranges::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
+<tr class="separator:a45ca6ee1074db860322c838eb77a43f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for genomic ranges. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="aa9f8f96577927b0dccb88fa24089a851" name="aa9f8f96577927b0dccb88fa24089a851"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9f8f96577927b0dccb88fa24089a851">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="a45ca6ee1074db860322c838eb77a43f4" name="a45ca6ee1074db860322c838eb77a43f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45ca6ee1074db860322c838eb77a43f4">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -142,26 +143,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>num_ranges</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>has_names</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::unordered_set&lt; std::string &gt; &amp;&#160;</td>
-          <td class="paramname"><em>seqnames</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1genomic__ranges_1_1Options.html">Options</a>&#160;</td>
-          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1genomic__ranges_1_1Options.html">Options</a>()</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -179,9 +162,6 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the CSV file. </td></tr>
-    <tr><td class="paramname">num_ranges</td><td>Number of genomic ranges in this object. </td></tr>
-    <tr><td class="paramname">has_names</td><td>Whether the ranges are named. </td></tr>
-    <tr><td class="paramname">seqnames</td><td>Universe of sequence names for this object. </td></tr>
     <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
   </table>
   </dd>
@@ -189,8 +169,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab0122696cdf5a73432826dc2d98eb905" name="ab0122696cdf5a73432826dc2d98eb905"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0122696cdf5a73432826dc2d98eb905">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+<a id="a983c2b1db337ffc972139015dc340ecc" name="a983c2b1db337ffc972139015dc340ecc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a983c2b1db337ffc972139015dc340ecc">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -206,26 +186,8 @@ template&lt;class Reader &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>num_ranges</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>has_names</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::unordered_set&lt; std::string &gt; &amp;&#160;</td>
-          <td class="paramname"><em>seqnames</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1genomic__ranges_1_1Options.html">Options</a>&#160;</td>
-          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1genomic__ranges_1_1Options.html">Options</a>()</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -244,10 +206,7 @@ template&lt;class Reader &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
-    <tr><td class="paramname">num_ranges</td><td>Number of genomic ranges in this object. </td></tr>
-    <tr><td class="paramname">has_names</td><td>Whether the ranges are named. </td></tr>
-    <tr><td class="paramname">seqnames</td><td>Universe of sequence names for this object. </td></tr>
-    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
+    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
   </table>
   </dd>
 </dl>

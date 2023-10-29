@@ -99,9 +99,11 @@ Include dependency graph for sequence_information.hpp:</div>
 <area shape="rect" title=" " alt="" coords="5,79,133,104"/>
 <area shape="rect" title=" " alt="" coords="158,79,365,104"/>
 <area shape="rect" href="data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="441,79,551,104"/>
-<area shape="rect" title=" " alt="" coords="392,152,496,177"/>
-<area shape="rect" title=" " alt="" coords="541,152,595,177"/>
+<area shape="rect" title=" " alt="" coords="300,152,404,177"/>
+<area shape="rect" title=" " alt="" coords="587,152,642,177"/>
 <area shape="rect" title=" " alt="" coords="627,79,706,104"/>
+<area shape="rect" href="WrappedOption_8hpp_source.html" title=" " alt="" coords="429,152,563,177"/>
+<area shape="rect" title=" " alt="" coords="462,225,530,251"/>
 </map>
 </div>
 </div>
@@ -112,23 +114,23 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1sequence__information_1_1Summary.html">takane::sequence_information::Summary</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1sequence__information_1_1Summary.html" title="Summary of the sequence information file.">Summary</a> of the sequence information file.  <a href="structtakane_1_1sequence__information_1_1Summary.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1sequence__information_1_1Options.html">takane::sequence_information::Options</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1sequence__information_1_1Options.html" title="Options for parsing the sequence information file.">Options</a> for parsing the sequence information file.  <a href="structtakane_1_1sequence__information_1_1Options.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">takane::sequence_information::Parameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html" title="Parameters for validating the sequence information file.">Parameters</a> for validating the sequence information file.  <a href="structtakane_1_1sequence__information_1_1Parameters.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ad9cb780bed7f0db403a9b6f3d36ae6e1"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:ad9cb780bed7f0db403a9b6f3d36ae6e1"><td class="memTemplItemLeft" align="right" valign="top">Summary&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="sequence__information_8hpp.html#ad9cb780bed7f0db403a9b6f3d36ae6e1">takane::sequence_information::validate</a> (Reader &amp;reader, size_t num_sequences, Options options=Options())</td></tr>
-<tr class="separator:ad9cb780bed7f0db403a9b6f3d36ae6e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af16268655e2b6a8e0c8556caac922214"><td class="memItemLeft" align="right" valign="top">Summary&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sequence__information_8hpp.html#af16268655e2b6a8e0c8556caac922214">takane::sequence_information::validate</a> (const char *path, size_t num_sequences, Options options=Options())</td></tr>
-<tr class="separator:af16268655e2b6a8e0c8556caac922214"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30d86c7472cd760c175c30a837eefad3"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
+<tr class="memitem:a30d86c7472cd760c175c30a837eefad3"><td class="memTemplItemLeft" align="right" valign="top">Summary&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="sequence__information_8hpp.html#a30d86c7472cd760c175c30a837eefad3">takane::sequence_information::validate</a> (Reader &amp;reader, const Parameters &amp;params)</td></tr>
+<tr class="separator:a30d86c7472cd760c175c30a837eefad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dc83cc0e0ab8b9d7448e47b1e0961ba"><td class="memItemLeft" align="right" valign="top">Summary&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sequence__information_8hpp.html#a7dc83cc0e0ab8b9d7448e47b1e0961ba">takane::sequence_information::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
+<tr class="separator:a7dc83cc0e0ab8b9d7448e47b1e0961ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for sequence information. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="af16268655e2b6a8e0c8556caac922214" name="af16268655e2b6a8e0c8556caac922214"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af16268655e2b6a8e0c8556caac922214">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="a7dc83cc0e0ab8b9d7448e47b1e0961ba" name="a7dc83cc0e0ab8b9d7448e47b1e0961ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dc83cc0e0ab8b9d7448e47b1e0961ba">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -145,14 +147,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>num_sequences</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1sequence__information_1_1Options.html">Options</a>&#160;</td>
-          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1sequence__information_1_1Options.html">Options</a>()</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -166,20 +162,19 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Checks if a CSV data frame is correctly formatted for sequence information. An error is raised if the file does not meet the specifications.</p>
+<p >Overload of <code>sequence_information::validate()</code> that accepts a file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the CSV file. </td></tr>
-    <tr><td class="paramname">num_sequences</td><td>Number of sequences in this object. </td></tr>
-    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
+    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="ad9cb780bed7f0db403a9b6f3d36ae6e1" name="ad9cb780bed7f0db403a9b6f3d36ae6e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad9cb780bed7f0db403a9b6f3d36ae6e1">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+<a id="a30d86c7472cd760c175c30a837eefad3" name="a30d86c7472cd760c175c30a837eefad3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30d86c7472cd760c175c30a837eefad3">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -195,14 +190,8 @@ template&lt;class Reader &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>num_sequences</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1sequence__information_1_1Options.html">Options</a>&#160;</td>
-          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1sequence__information_1_1Options.html">Options</a>()</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -221,8 +210,7 @@ template&lt;class Reader &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
-    <tr><td class="paramname">num_sequences</td><td>Number of sequences in this object. </td></tr>
-    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
+    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
   </table>
   </dd>
 </dl>

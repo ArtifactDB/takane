@@ -1,9 +1,10 @@
 <map id="takane/genomic_ranges.hpp" name="takane/genomic_ranges.hpp">
-<area shape="rect" id="node1" title="Validation for genomic ranges." alt="" coords="357,5,541,31"/>
+<area shape="rect" id="node1" title="Validation for genomic ranges." alt="" coords="436,5,620,31"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,79,133,104"/>
 <area shape="rect" id="node3" title=" " alt="" coords="158,79,365,104"/>
-<area shape="rect" id="node4" href="$data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="441,79,551,104"/>
-<area shape="rect" id="node5" title=" " alt="" coords="392,152,496,177"/>
-<area shape="rect" id="node6" title=" " alt="" coords="541,152,595,177"/>
-<area shape="rect" id="node7" title=" " alt="" coords="627,79,706,104"/>
+<area shape="rect" id="node4" href="$WrappedOption_8hpp_source.html" title=" " alt="" coords="389,79,523,104"/>
+<area shape="rect" id="node6" title=" " alt="" coords="548,79,652,104"/>
+<area shape="rect" id="node7" title=" " alt="" coords="677,79,731,104"/>
+<area shape="rect" id="node8" title=" " alt="" coords="755,79,834,104"/>
+<area shape="rect" id="node5" title=" " alt="" coords="422,152,490,177"/>
 </map>

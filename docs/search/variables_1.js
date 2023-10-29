@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['dataset_0',['dataset',['../structtakane_1_1hdf5__dense__array_1_1Parameters.html#a3611f1541fd9ae69e74c0daf05ca7888',1,'takane::hdf5_dense_array::Parameters']]],
-  ['df_5fversion_1',['df_version',['../structtakane_1_1csv__data__frame_1_1Options.html#a414a2d968839fea9c66813ae7d18ced0',1,'takane::csv_data_frame::Options::df_version()'],['../structtakane_1_1hdf5__data__frame_1_1Options.html#a91a77f82045e524d1aa1e5bbd49ca5d1',1,'takane::hdf5_data_frame::Options::df_version()']]],
-  ['dimensions_2',['dimensions',['../structtakane_1_1hdf5__dense__array_1_1Parameters.html#a61842571565a2210dfeaf2bd26f4b90c',1,'takane::hdf5_dense_array::Parameters']]],
-  ['dimnames_5fgroup_3',['dimnames_group',['../structtakane_1_1hdf5__dense__array_1_1Parameters.html#a69a06ed0314d17e5f30838e2b1b1d8a7',1,'takane::hdf5_dense_array::Parameters']]]
+  ['columns_0',['columns',['../structtakane_1_1csv__data__frame_1_1Parameters.html#a12ea767e74941368f99df94ecb09844b',1,'takane::csv_data_frame::Parameters::columns()'],['../structtakane_1_1hdf5__data__frame_1_1Parameters.html#a5646b75b9312c62ada2e3a5db28de584',1,'takane::hdf5_data_frame::Parameters::columns()']]],
+  ['concatenated_1',['concatenated',['../structtakane_1_1compressed__list_1_1Parameters.html#aae7198b9f5ce8c35ca421eb954229404',1,'takane::compressed_list::Parameters']]]
 ];

@@ -1,9 +1,11 @@
 <map id="takane/csv_data_frame.hpp" name="takane/csv_data_frame.hpp">
-<area shape="rect" id="node1" title="Validation for CSV data frames." alt="" coords="358,5,541,31"/>
+<area shape="rect" id="node1" title="Validation for CSV data frames." alt="" coords="362,5,545,31"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,79,133,104"/>
 <area shape="rect" id="node3" title=" " alt="" coords="158,79,365,104"/>
-<area shape="rect" id="node4" href="$data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="441,79,551,104"/>
-<area shape="rect" id="node5" title=" " alt="" coords="392,152,496,177"/>
-<area shape="rect" id="node6" title=" " alt="" coords="541,152,595,177"/>
-<area shape="rect" id="node7" title=" " alt="" coords="627,79,706,104"/>
+<area shape="rect" id="node4" href="$WrappedOption_8hpp_source.html" title=" " alt="" coords="330,152,465,177"/>
+<area shape="rect" id="node6" href="$data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="491,79,602,104"/>
+<area shape="rect" id="node7" title=" " alt="" coords="489,152,593,177"/>
+<area shape="rect" id="node8" title=" " alt="" coords="618,152,673,177"/>
+<area shape="rect" id="node9" title=" " alt="" coords="678,79,757,104"/>
+<area shape="rect" id="node5" title=" " alt="" coords="363,225,431,251"/>
 </map>

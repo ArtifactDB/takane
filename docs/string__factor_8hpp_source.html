@@ -92,51 +92,51 @@ $(function() {
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">namespace </span>string_factor {</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="structtakane_1_1string__factor_1_1Options.html">   23</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structtakane_1_1string__factor_1_1Options.html">Options</a> {</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="structtakane_1_1string__factor_1_1Options.html#a869f46b37d3174ba3554ce7ed9f20f18">   27</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1string__factor_1_1Options.html#a869f46b37d3174ba3554ce7ed9f20f18">parallel</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="structtakane_1_1string__factor_1_1LevelParameters.html">   23</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structtakane_1_1string__factor_1_1LevelParameters.html">LevelParameters</a> {</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="structtakane_1_1string__factor_1_1LevelParameters.html#a40775e1a477bfd1998b73a4e25e6bdb6">   27</a></span>    <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structtakane_1_1string__factor_1_1LevelParameters.html#a40775e1a477bfd1998b73a4e25e6bdb6">num_levels</a> = 0;</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="structtakane_1_1string__factor_1_1Options.html#a326f5178566de100668b6499690cc5bd">   32</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structtakane_1_1string__factor_1_1Options.html#a326f5178566de100668b6499690cc5bd">version</a> = 1;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>};</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keyword">struct </span>KnownLevelField : <span class="keyword">public</span> comservatory::DummyStringField {</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordtype">void</span> push_back(std::string x) {</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        <span class="keywordflow">if</span> (levels.find(x) != levels.end()) {</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;detected a duplicated level &#39;&quot;</span> + x + <span class="stringliteral">&quot;&#39; in column 0&quot;</span>);</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        }</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        levels.insert(x);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        comservatory::DummyStringField::push_back(std::move(x));</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    }</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    std::unordered_set&lt;std::string&gt; levels;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>};</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> ParseCommand&gt;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keywordtype">void</span> validate_levels_base(ParseCommand parse, <span class="keywordtype">size_t</span> length, <span class="keyword">const</span> Options&amp; options) {</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    comservatory::Contents contents;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    contents.fields.emplace_back(<span class="keyword">new</span> KnownLevelField);</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    contents.names.push_back(<span class="stringliteral">&quot;values&quot;</span>);</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    comservatory::ReadOptions opt;</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    opt.parallel = options.parallel;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    parse(contents, opt);</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">if</span> (contents.num_records() != length) {</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;number of records in the CSV file does not match the expected length&quot;</span>);</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    }</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>}</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> Reader&gt;</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="string__factor_8hpp.html#a13bc824a055bac6c3bf45f5a4dc208c7">   78</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="string__factor_8hpp.html#a13bc824a055bac6c3bf45f5a4dc208c7">validate_levels</a>(Reader&amp; reader, <span class="keywordtype">size_t</span> length, <a class="code hl_struct" href="structtakane_1_1string__factor_1_1Options.html">Options</a> options = <a class="code hl_struct" href="structtakane_1_1string__factor_1_1Options.html">Options</a>()) {</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    validate_levels_base(</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read(reader, contents, opts); },</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        length,</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        options</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    );</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>}</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno"><a class="line" href="string__factor_8hpp.html#ad9ef94ebba44b081f1f5caebf92e693f">   94</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="string__factor_8hpp.html#a13bc824a055bac6c3bf45f5a4dc208c7">validate_levels</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* path, <span class="keywordtype">size_t</span> length, <a class="code hl_struct" href="structtakane_1_1string__factor_1_1Options.html">Options</a> options = <a class="code hl_struct" href="structtakane_1_1string__factor_1_1Options.html">Options</a>()) {</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    validate_levels_base(</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read_file(path, contents, opts); },</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        length,</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        options</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="structtakane_1_1string__factor_1_1LevelParameters.html#a3cac4291ac5e84fac2d49c5216c69684">   32</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1string__factor_1_1LevelParameters.html#a3cac4291ac5e84fac2d49c5216c69684">parallel</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="structtakane_1_1string__factor_1_1LevelParameters.html#a51aca0fab2ca75c526071cb33fd4e889">   37</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structtakane_1_1string__factor_1_1LevelParameters.html#a51aca0fab2ca75c526071cb33fd4e889">version</a> = 1;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>};</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">struct </span>KnownLevelField : <span class="keyword">public</span> comservatory::DummyStringField {</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordtype">void</span> push_back(std::string x) {</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="keywordflow">if</span> (levels.find(x) != levels.end()) {</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;detected a duplicated level &#39;&quot;</span> + x + <span class="stringliteral">&quot;&#39; in column 0&quot;</span>);</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        }</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        levels.insert(x);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        comservatory::DummyStringField::push_back(std::move(x));</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    }</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    std::unordered_set&lt;std::string&gt; levels;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>};</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> ParseCommand&gt;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keywordtype">void</span> validate_levels_base(ParseCommand parse, <span class="keyword">const</span> LevelParameters&amp; params) {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    comservatory::Contents contents;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    contents.fields.emplace_back(<span class="keyword">new</span> KnownLevelField);</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    contents.names.push_back(<span class="stringliteral">&quot;values&quot;</span>);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    comservatory::ReadOptions opt;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    opt.parallel = params.parallel;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    parse(contents, opt);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> (contents.num_records() != params.num_levels) {</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;number of records in the CSV file does not match the expected length&quot;</span>);</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    }</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>}</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> Reader&gt;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="string__factor_8hpp.html#a0995763a5b76b2a5e15945b52420a934">   82</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="string__factor_8hpp.html#a0995763a5b76b2a5e15945b52420a934">validate_levels</a>(Reader&amp; reader, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1string__factor_1_1LevelParameters.html">LevelParameters</a>&amp; params) {</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    validate_levels_base(</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read(reader, contents, opts); },</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        params</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    );</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>}</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="string__factor_8hpp.html#a1645c81069ced651281b4a470d2363c4">   95</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="string__factor_8hpp.html#a0995763a5b76b2a5e15945b52420a934">validate_levels</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1string__factor_1_1LevelParameters.html">LevelParameters</a>&amp; params) {</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    validate_levels_base(</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read_file(path, contents, opts); },</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        params</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    );</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>}</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
@@ -145,10 +145,11 @@ $(function() {
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>}</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="astring__factor_8hpp_html_a13bc824a055bac6c3bf45f5a4dc208c7"><div class="ttname"><a href="string__factor_8hpp.html#a13bc824a055bac6c3bf45f5a4dc208c7">takane::string_factor::validate_levels</a></div><div class="ttdeci">void validate_levels(Reader &amp;reader, size_t length, Options options=Options())</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:78</div></div>
-<div class="ttc" id="astructtakane_1_1string__factor_1_1Options_html"><div class="ttname"><a href="structtakane_1_1string__factor_1_1Options.html">takane::string_factor::Options</a></div><div class="ttdoc">Options for parsing the factor file.</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:23</div></div>
-<div class="ttc" id="astructtakane_1_1string__factor_1_1Options_html_a326f5178566de100668b6499690cc5bd"><div class="ttname"><a href="structtakane_1_1string__factor_1_1Options.html#a326f5178566de100668b6499690cc5bd">takane::string_factor::Options::version</a></div><div class="ttdeci">int version</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:32</div></div>
-<div class="ttc" id="astructtakane_1_1string__factor_1_1Options_html_a869f46b37d3174ba3554ce7ed9f20f18"><div class="ttname"><a href="structtakane_1_1string__factor_1_1Options.html#a869f46b37d3174ba3554ce7ed9f20f18">takane::string_factor::Options::parallel</a></div><div class="ttdeci">bool parallel</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:27</div></div>
+<div class="ttc" id="astring__factor_8hpp_html_a0995763a5b76b2a5e15945b52420a934"><div class="ttname"><a href="string__factor_8hpp.html#a0995763a5b76b2a5e15945b52420a934">takane::string_factor::validate_levels</a></div><div class="ttdeci">void validate_levels(Reader &amp;reader, const LevelParameters &amp;params)</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:82</div></div>
+<div class="ttc" id="astructtakane_1_1string__factor_1_1LevelParameters_html"><div class="ttname"><a href="structtakane_1_1string__factor_1_1LevelParameters.html">takane::string_factor::LevelParameters</a></div><div class="ttdoc">Parameters for validating the level file.</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:23</div></div>
+<div class="ttc" id="astructtakane_1_1string__factor_1_1LevelParameters_html_a3cac4291ac5e84fac2d49c5216c69684"><div class="ttname"><a href="structtakane_1_1string__factor_1_1LevelParameters.html#a3cac4291ac5e84fac2d49c5216c69684">takane::string_factor::LevelParameters::parallel</a></div><div class="ttdeci">bool parallel</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:32</div></div>
+<div class="ttc" id="astructtakane_1_1string__factor_1_1LevelParameters_html_a40775e1a477bfd1998b73a4e25e6bdb6"><div class="ttname"><a href="structtakane_1_1string__factor_1_1LevelParameters.html#a40775e1a477bfd1998b73a4e25e6bdb6">takane::string_factor::LevelParameters::num_levels</a></div><div class="ttdeci">size_t num_levels</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:27</div></div>
+<div class="ttc" id="astructtakane_1_1string__factor_1_1LevelParameters_html_a51aca0fab2ca75c526071cb33fd4e889"><div class="ttname"><a href="structtakane_1_1string__factor_1_1LevelParameters.html#a51aca0fab2ca75c526071cb33fd4e889">takane::string_factor::LevelParameters::version</a></div><div class="ttdeci">int version</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:37</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

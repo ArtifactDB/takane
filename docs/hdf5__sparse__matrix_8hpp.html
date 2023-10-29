@@ -87,17 +87,21 @@ $(function() {
 <div class="textblock"><code>#include &quot;utils.hpp&quot;</code><br />
 <code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
 <code>#include &quot;array.hpp&quot;</code><br />
+<code>#include &lt;array&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for hdf5_sparse_matrix.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="hdf5__sparse__matrix_8hpp__incl.png" border="0" usemap="#atakane_2hdf5__sparse__matrix_8hpp" alt=""/></div>
 <map name="atakane_2hdf5__sparse__matrix_8hpp" id="atakane_2hdf5__sparse__matrix_8hpp">
-<area shape="rect" title="Validation for HDF5 sparse matrices." alt="" coords="337,5,473,45"/>
+<area shape="rect" title="Validation for HDF5 sparse matrices." alt="" coords="417,5,553,45"/>
 <area shape="rect" href="utils_8hpp_source.html" title=" " alt="" coords="232,93,303,119"/>
 <area shape="rect" title=" " alt="" coords="323,167,465,192"/>
 <area shape="rect" href="array_8hpp_source.html" title=" " alt="" coords="405,93,479,119"/>
-<area shape="rect" title=" " alt="" coords="504,93,583,119"/>
+<area shape="rect" title=" " alt="" coords="503,93,554,119"/>
+<area shape="rect" title=" " alt="" coords="579,93,657,119"/>
+<area shape="rect" title=" " alt="" coords="681,93,736,119"/>
 <area shape="rect" title=" " alt="" coords="5,167,212,192"/>
 <area shape="rect" title=" " alt="" coords="237,167,298,192"/>
 <area shape="rect" title=" " alt="" coords="490,167,562,192"/>
@@ -108,23 +112,66 @@ Include dependency graph for hdf5_sparse_matrix.hpp:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Options.html">takane::hdf5_sparse_matrix::Options</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Options.html" title="Options for parsing the HDF5 sparse matrix file.">Options</a> for parsing the HDF5 sparse matrix file.  <a href="structtakane_1_1hdf5__sparse__matrix_1_1Options.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html" title="Parameters for validating a HDF5 sparse matrix file.">Parameters</a> for validating a HDF5 sparse matrix file.  <a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab737122c17070e0e50b7b4026be3d24e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__sparse__matrix_8hpp.html#ab737122c17070e0e50b7b4026be3d24e">takane::hdf5_sparse_matrix::validate</a> (const H5::H5File &amp;handle, const std::string &amp;group, const std::vector&lt; size_t &gt; &amp;dimensions, bool has_dimnames, const std::string &amp;dimnames_group, Options options=Options())</td></tr>
-<tr class="separator:ab737122c17070e0e50b7b4026be3d24e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a893f17d5148bff4892f9c5de5fb69b5f"><td class="memTemplParams" colspan="2">template&lt;typename... Args_&gt; </td></tr>
-<tr class="memitem:a893f17d5148bff4892f9c5de5fb69b5f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="hdf5__sparse__matrix_8hpp.html#a893f17d5148bff4892f9c5de5fb69b5f">takane::hdf5_sparse_matrix::validate</a> (const std::string &amp;path, Args_ &amp;&amp;... args)</td></tr>
-<tr class="separator:a893f17d5148bff4892f9c5de5fb69b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56a4ca611382b9671625d2d8d202beb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__sparse__matrix_8hpp.html#a56a4ca611382b9671625d2d8d202beb0">takane::hdf5_sparse_matrix::validate</a> (const H5::H5File &amp;handle, const Parameters &amp;params)</td></tr>
+<tr class="separator:a56a4ca611382b9671625d2d8d202beb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a6f11265c5317d74663b4fdf949cd9a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__sparse__matrix_8hpp.html#a5a6f11265c5317d74663b4fdf949cd9a">takane::hdf5_sparse_matrix::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
+<tr class="separator:a5a6f11265c5317d74663b4fdf949cd9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for HDF5 sparse matrices. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ab737122c17070e0e50b7b4026be3d24e" name="ab737122c17070e0e50b7b4026be3d24e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab737122c17070e0e50b7b4026be3d24e">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="a5a6f11265c5317d74663b4fdf949cd9a" name="a5a6f11265c5317d74663b4fdf949cd9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a6f11265c5317d74663b4fdf949cd9a">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void takane::hdf5_sparse_matrix::validate </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Overload for <code>hdf5_sparse_matrix::validate()</code> that accepts a file path.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to the HDF5 file. </td></tr>
+    <tr><td class="paramname">params</td><td>Parameters for validation. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a56a4ca611382b9671625d2d8d202beb0" name="a56a4ca611382b9671625d2d8d202beb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56a4ca611382b9671625d2d8d202beb0">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -141,32 +188,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>group</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; size_t &gt; &amp;&#160;</td>
-          <td class="paramname"><em>dimensions</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>has_dimnames</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>dimnames_group</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Options.html">Options</a>&#160;</td>
-          <td class="paramname"><em>options</em> = <code><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Options.html">Options</a>()</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -184,55 +207,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">handle</td><td>Handle to the HDF5 file containing the matrix. </td></tr>
-    <tr><td class="paramname">group</td><td>Group containing the matrix data. </td></tr>
-    <tr><td class="paramname">dimensions</td><td>Vector containing the matrix dimensions. </td></tr>
-    <tr><td class="paramname">has_dimnames</td><td>Whether the matrix contains dimnames. </td></tr>
-    <tr><td class="paramname">dimnames_group</td><td>Group containing the dimnames, if <code>has_dimnames = true</code>. </td></tr>
-    <tr><td class="paramname">options</td><td>Parsing options. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a893f17d5148bff4892f9c5de5fb69b5f" name="a893f17d5148bff4892f9c5de5fb69b5f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a893f17d5148bff4892f9c5de5fb69b5f">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename... Args_&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void takane::hdf5_sparse_matrix::validate </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Args_ &amp;&amp;...&#160;</td>
-          <td class="paramname"><em>args</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Overload for <code>hdf5_sparse_matrix::validate()</code> that accepts a file path.</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">Args_</td><td>Arguments to be forwarded.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the HDF5 file. </td></tr>
-    <tr><td class="paramname">args</td><td>Further arguments, passed to other <code>validate()</code> method. </td></tr>
+    <tr><td class="paramname">params</td><td>Parameters for validation. </td></tr>
   </table>
   </dd>
 </dl>

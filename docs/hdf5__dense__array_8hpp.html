@@ -87,15 +87,21 @@ $(function() {
 <div class="textblock"><code>#include &quot;H5Cpp.h&quot;</code><br />
 <code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
 <code>#include &quot;array.hpp&quot;</code><br />
+<code>#include &lt;vector&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;stdexcept&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for hdf5_dense_array.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="hdf5__dense__array_8hpp__incl.png" border="0" usemap="#atakane_2hdf5__dense__array_8hpp" alt=""/></div>
 <map name="atakane_2hdf5__dense__array_8hpp" id="atakane_2hdf5__dense__array_8hpp">
-<area shape="rect" title="Validation for HDF5 dense arrays." alt="" coords="13,5,203,31"/>
+<area shape="rect" title="Validation for HDF5 dense arrays." alt="" coords="121,5,311,31"/>
 <area shape="rect" title=" " alt="" coords="5,152,77,177"/>
 <area shape="rect" title=" " alt="" coords="106,152,249,177"/>
 <area shape="rect" href="array_8hpp_source.html" title=" " alt="" coords="71,79,145,104"/>
+<area shape="rect" title=" " alt="" coords="220,79,279,104"/>
+<area shape="rect" title=" " alt="" coords="303,79,358,104"/>
+<area shape="rect" title=" " alt="" coords="382,79,461,104"/>
 </map>
 </div>
 </div>
@@ -111,14 +117,58 @@ Classes</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a96348087c0c895d61860a3af253311a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__dense__array_8hpp.html#a96348087c0c895d61860a3af253311a8">takane::hdf5_dense_array::validate</a> (const H5::H5File &amp;handle, const Parameters &amp;params)</td></tr>
 <tr class="separator:a96348087c0c895d61860a3af253311a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af7e81db430229a089d03b847ad679848"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__dense__array_8hpp.html#af7e81db430229a089d03b847ad679848">takane::hdf5_dense_array::validate</a> (const std::string &amp;path, const Parameters &amp;params)</td></tr>
-<tr class="separator:af7e81db430229a089d03b847ad679848"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a944983ec7af1488e1bcd0fda52f85c7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__dense__array_8hpp.html#a944983ec7af1488e1bcd0fda52f85c7a">takane::hdf5_dense_array::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
+<tr class="separator:a944983ec7af1488e1bcd0fda52f85c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for HDF5 dense arrays. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a944983ec7af1488e1bcd0fda52f85c7a" name="a944983ec7af1488e1bcd0fda52f85c7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a944983ec7af1488e1bcd0fda52f85c7a">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void takane::hdf5_dense_array::validate </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Overload for <code>hdf5_dense_array::validate()</code> that accepts a file path.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to the file. </td></tr>
+    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a96348087c0c895d61860a3af253311a8" name="a96348087c0c895d61860a3af253311a8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a96348087c0c895d61860a3af253311a8">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a96348087c0c895d61860a3af253311a8">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -150,54 +200,10 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Validate a file containing a HDF5 dense array.</p>
+<p >Validate a file containing a HDF5 dense array. An error is raised if the file does not meet the specifications.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">handle</td><td>Handle to the file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="af7e81db430229a089d03b847ad679848" name="af7e81db430229a089d03b847ad679848"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af7e81db430229a089d03b847ad679848">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void takane::hdf5_dense_array::validate </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Validate a file containing a HDF5 dense array.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the file. </td></tr>
     <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
   </table>
   </dd>
