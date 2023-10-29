@@ -4,6 +4,8 @@
 #include "utils.hpp"
 #include "ritsuko/hdf5/hdf5.hpp"
 
+#include "array.hpp"
+
 #include <stdexcept>
 
 /**
@@ -194,32 +196,8 @@ inline void validate(
         );
     }
 
-    // Finally, checking the names.
     if (has_dimnames) {
-        if (!handle.exists(dimnames_group) || handle.childObjType(dimnames_group) != H5O_TYPE_GROUP) {
-            throw std::runtime_error("expected a '" + dimnames_group + "' group");
-        }
-        auto nhandle = handle.openGroup(dimnames_group);
-
-        for (size_t i = 0; i < 2; ++i) {
-            std::string dim_name = std::to_string(i);
-            if (!nhandle.exists(dim_name)) {
-                continue;
-            }
-
-            auto dset_name = dimnames_group + "/" + dim_name;
-            if (nhandle.childObjType(dim_name) != H5O_TYPE_DATASET) {
-                throw std::runtime_error("expected '" + dset_name + "' to be a dataset");
-            }
-            auto dnhandle = nhandle.openDataSet(dim_name);
-
-            if (dnhandle.getTypeClass() != H5T_STRING) {
-                throw std::runtime_error("expected '" + dset_name + "' to be a string dataset");
-            }
-            if (ritsuko::hdf5::get_1d_length(dnhandle.getSpace(), false, dset_name.c_str()) != dimensions[i]) {
-                throw std::runtime_error("expected '" + dset_name + "' to have length equal to the corresponding dimension");
-            }
-        }
+        array::check_dimnames(handle, dimnames_group, dimensions);
     }
 }
 

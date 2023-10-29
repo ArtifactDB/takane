@@ -26,6 +26,7 @@ add_executable(
     src/string_factor.cpp
     src/compressed_list.cpp
     src/hdf5_sparse_matrix.cpp
+    src/hdf5_dense_array.cpp
 )
 
 target_link_libraries(
