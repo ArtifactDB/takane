@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['summary_0',['Summary',['../structtakane_1_1sequence__information_1_1Summary.html',1,'takane::sequence_information']]]
+  ['parameters_0',['Parameters',['../structtakane_1_1hdf5__dense__array_1_1Parameters.html',1,'takane::hdf5_dense_array']]]
 ];
