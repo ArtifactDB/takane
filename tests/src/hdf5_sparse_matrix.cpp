@@ -64,7 +64,7 @@ template<typename ... Args_>
 static void expect_error(const std::string& msg, const std::string& path, Args_&& ... args) {
     EXPECT_ANY_THROW({
         try {
-            takane::hdf5_sparse_matrix::validate(path, std::forward<Args_>(args)...);
+            takane::hdf5_sparse_matrix::validate(path.c_str(), std::forward<Args_>(args)...);
         } catch (std::exception& e) {
             EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
             throw;
@@ -88,7 +88,7 @@ TEST(Hdf5SparseMatrix, Success) {
             { 0, 0, 2, 3, 3, 5, 7, 7, 9, 10, 10, 10, 11, 14, 15, 17, 17, 17, 17, 19, 20 }
         );
     }
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ 10, 20 }, false, "");
+    takane::hdf5_sparse_matrix::validate(path.c_str(), takane::hdf5_sparse_matrix::Parameters(name, { 10, 20 }));
 
     // No zero-length columns.
     {
@@ -103,7 +103,7 @@ TEST(Hdf5SparseMatrix, Success) {
             true
         );
     }
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ 20, 10 }, false, "");
+    takane::hdf5_sparse_matrix::validate(path.c_str(), takane::hdf5_sparse_matrix::Parameters(name, {20, 10}));
 
     // Has a missing value.
     {
@@ -129,13 +129,13 @@ TEST(Hdf5SparseMatrix, BasicFails) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
     }
-    expect_error("expected a 'matrix' group", path, name, std::vector<size_t>{ 10, 20 }, false, "");
+    expect_error("expected a 'matrix' group", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         handle.createDataSet(name, H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error("expected a 'matrix' group", path, name, std::vector<size_t>{ 10, 20 }, false, "");
+    expect_error("expected a 'matrix' group", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 }
 
 TEST(Hdf5SparseMatrix, ShapeFails) {
@@ -148,14 +148,14 @@ TEST(Hdf5SparseMatrix, ShapeFails) {
         create_hdf5_sparse_matrix(ghandle);
         ghandle.unlink("shape");
     }
-    expect_error("expected a 'matrix/shape' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/shape' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.createGroup("shape");
     }
-    expect_error("expected a 'matrix/shape' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/shape' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -163,7 +163,7 @@ TEST(Hdf5SparseMatrix, ShapeFails) {
         ghandle.unlink("shape");
         ghandle.createDataSet("shape", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
-    expect_error("to be integer", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("to be integer", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -173,7 +173,7 @@ TEST(Hdf5SparseMatrix, ShapeFails) {
         H5::DataSpace dspace(1, &dims);
         ghandle.createDataSet("shape", H5::PredType::NATIVE_INT, dspace);
     }
-    expect_error("length 2", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("length 2", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -185,8 +185,8 @@ TEST(Hdf5SparseMatrix, ShapeFails) {
         std::vector<int> shape { 10, 20 };
         shandle.write(shape.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("first entry", path, name, std::vector<size_t>{ 12, 18 }, false, "");
-    expect_error("second entry", path, name, std::vector<size_t>{ 10, 18 }, false, "");
+    expect_error("first entry", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
+    expect_error("second entry", path, takane::hdf5_sparse_matrix::Parameters(name, {10, 18}));
 }
 
 TEST(Hdf5SparseMatrix, DataFails) {
@@ -199,14 +199,14 @@ TEST(Hdf5SparseMatrix, DataFails) {
         create_hdf5_sparse_matrix(ghandle);
         ghandle.unlink("data");
     }
-    expect_error("expected a 'matrix/data' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/data' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.createGroup("data");
     }
-    expect_error("expected a 'matrix/data' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/data' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -216,7 +216,7 @@ TEST(Hdf5SparseMatrix, DataFails) {
         auto dspace = H5::DataSpace(1, &dim);
         ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
     }
-    expect_error("to be integer or float", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("to be integer or float", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -227,7 +227,7 @@ TEST(Hdf5SparseMatrix, DataFails) {
         auto dhandle = ghandle.createDataSet("data", H5::PredType::NATIVE_INT, dspace);
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
-    expect_error("missing-value-placeholder", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("missing-value-placeholder", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 }
 
 TEST(Hdf5SparseMatrix, IndptrFails) {
@@ -240,14 +240,14 @@ TEST(Hdf5SparseMatrix, IndptrFails) {
         create_hdf5_sparse_matrix(ghandle);
         ghandle.unlink("indptr");
     }
-    expect_error("expected a 'matrix/indptr' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/indptr' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.createGroup("indptr");
     }
-    expect_error("expected a 'matrix/indptr' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/indptr' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -257,7 +257,7 @@ TEST(Hdf5SparseMatrix, IndptrFails) {
         auto dspace = H5::DataSpace(1, &dim);
         ghandle.createDataSet("indptr", H5::StrType(0, H5T_VARIABLE), dspace);
     }
-    expect_error("to be integer", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("to be integer", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -267,7 +267,7 @@ TEST(Hdf5SparseMatrix, IndptrFails) {
         auto dspace = H5::DataSpace(1, &dim);
         ghandle.createDataSet("indptr", H5::PredType::NATIVE_INT, dspace);
     }
-    expect_error("should have length", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("should have length", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     hsize_t dim = 19;
     std::vector<int> new_indptrs(dim);
@@ -281,7 +281,7 @@ TEST(Hdf5SparseMatrix, IndptrFails) {
         std::fill(new_indptrs.begin(), new_indptrs.end(), 1);
         dhandle.write(new_indptrs.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("first entry", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("first entry", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -290,7 +290,7 @@ TEST(Hdf5SparseMatrix, IndptrFails) {
         std::fill(new_indptrs.begin(), new_indptrs.end(), 0);
         dhandle.write(new_indptrs.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("last entry", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("last entry", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -302,7 +302,7 @@ TEST(Hdf5SparseMatrix, IndptrFails) {
         new_indptrs.back() = 43;
         dhandle.write(new_indptrs.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("sorted in increasing order", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("sorted in increasing order", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 }
 
 
@@ -316,14 +316,14 @@ TEST(Hdf5SparseMatrix, IndicesFails) {
         create_hdf5_sparse_matrix(ghandle);
         ghandle.unlink("indices");
     }
-    expect_error("expected a 'matrix/indices' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/indices' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.createGroup("indices");
     }
-    expect_error("expected a 'matrix/indices' dataset", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("expected a 'matrix/indices' dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -334,7 +334,7 @@ TEST(Hdf5SparseMatrix, IndicesFails) {
         auto dspace = H5::DataSpace(1, &dim);
         ghandle.createDataSet("indices", H5::PredType::NATIVE_INT, dspace);
     }
-    expect_error("should have the same length", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("should have the same length", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     hsize_t dim = 43;
     std::vector<int> indices(dim);
@@ -347,7 +347,7 @@ TEST(Hdf5SparseMatrix, IndicesFails) {
         auto dhandle = ghandle.createDataSet("indices", H5::PredType::NATIVE_INT, dspace);
         dhandle.write(indices.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("should be strictly increasing", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("should be strictly increasing", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -359,7 +359,7 @@ TEST(Hdf5SparseMatrix, IndicesFails) {
         indices[1] = 12;
         dhandle.write(indices.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("out-of-range", path, name, std::vector<size_t>{ 12, 18 }, false, "");
+    expect_error("out-of-range", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
 }
     
 TEST(Hdf5SparseMatrix, IndicesBlocked) {
@@ -395,17 +395,17 @@ TEST(Hdf5SparseMatrix, IndicesBlocked) {
     }
 
     // Now checking that we do the right thing at each buffer size.
-    takane::hdf5_sparse_matrix::Options opt;
-    opt.buffer_size = 10;
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ nr, nc }, false, "", opt);
-    opt.buffer_size = 50;
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ nr, nc }, false, "", opt);
-    opt.buffer_size = 100;
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ nr, nc }, false, "", opt);
-    opt.buffer_size = 1000;
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ nr, nc }, false, "", opt);
-    opt.buffer_size = 10000;
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ nr, nc }, false, "", opt);
+    takane::hdf5_sparse_matrix::Parameters params(name, { nr, nc });
+    params.buffer_size = 10;
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
+    params.buffer_size = 50;
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
+    params.buffer_size = 100;
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
+    params.buffer_size = 1000;
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
+    params.buffer_size = 10000;
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
 }
 
 TEST(Hdf5SparseMatrix, NameCheck) {
@@ -413,13 +413,17 @@ TEST(Hdf5SparseMatrix, NameCheck) {
     std::string name = "matrix";
     std::string dname = "dimnames";
 
+    takane::hdf5_sparse_matrix::Parameters params(name, {12, 18});
+    params.has_dimnames = true;
+    params.dimnames_group = dname;
+
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         create_hdf5_sparse_matrix(ghandle);
         handle.createGroup(dname);
     }
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ 12, 18 }, true, dname);
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -428,7 +432,7 @@ TEST(Hdf5SparseMatrix, NameCheck) {
         H5::DataSpace dspace(1, &dim);
         nhandle.createDataSet("1", H5::StrType(0, H5T_VARIABLE), dspace);
     }
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ 12, 18 }, true, dname);
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -437,20 +441,20 @@ TEST(Hdf5SparseMatrix, NameCheck) {
         H5::DataSpace dspace(1, &dim);
         nhandle.createDataSet("0", H5::StrType(0, H5T_VARIABLE), dspace);
     }
-    takane::hdf5_sparse_matrix::validate(path, name, std::vector<size_t>{ 12, 18 }, true, dname);
+    takane::hdf5_sparse_matrix::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         handle.unlink(dname);
     }
-    expect_error("expected a 'dimnames' group", path, name, std::vector<size_t>{ 12, 18 }, true, dname);
+    expect_error("expected a 'dimnames' group", path, params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.createGroup(dname);
         ghandle.createGroup("0");
     }
-    expect_error("expected 'dimnames/0' to be a dataset", path, name, std::vector<size_t>{ 12, 18 }, true, dname);
+    expect_error("expected 'dimnames/0' to be a dataset", path, params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -458,7 +462,7 @@ TEST(Hdf5SparseMatrix, NameCheck) {
         ghandle.unlink("0");
         ghandle.createDataSet("0", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error("expected 'dimnames/0' to be a string dataset", path, name, std::vector<size_t>{ 12, 18 }, true, dname);
+    expect_error("expected 'dimnames/0' to be a string dataset", path, params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -468,5 +472,5 @@ TEST(Hdf5SparseMatrix, NameCheck) {
         H5::DataSpace dspace(1, &dim);
         ghandle.createDataSet("0", H5::StrType(0, H5T_VARIABLE), dspace);
     }
-    expect_error("expected 'dimnames/0' to have length", path, name, std::vector<size_t>{ 12, 18 }, true, dname);
+    expect_error("expected 'dimnames/0' to have length", path, params);
 }

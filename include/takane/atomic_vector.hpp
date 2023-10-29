@@ -16,21 +16,6 @@ namespace takane {
 namespace atomic_vector {
 
 /**
- * @brief Options for parsing the string vector file.
- */
-struct Options {
-    /**
-     * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
-     */
-    bool parallel = false;
-
-    /**
-     * Version of the `atomic_vector` format.
-     */
-    int version = 1;
-};
-
-/**
  * Type of the atomic vector.
  *
  * - `INTEGER`: a number that can be represented by a 32-bit signed integer.
@@ -46,24 +31,48 @@ enum class Type {
 };
 
 /**
+ * @brief Parameters for validating the atomic vector file.
+ */
+struct Parameters {
+    /**
+     * Length of the atomic vector.
+     */
+    size_t length = 0;
+
+    /** 
+     * Type of the atomic vector.
+     */
+    Type type = Type::INTEGER;
+
+    /**
+     * Whether the vector is named.
+     */
+    bool has_names = false;
+
+    /**
+     * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
+     */
+    bool parallel = false;
+
+    /**
+     * Version of the `atomic_vector` format.
+     */
+    int version = 1;
+};
+
+/**
  * @cond
  */
 template<class ParseCommand>
-void validate_base(
-    ParseCommand parse,
-    size_t length,
-    Type type,
-    bool has_names,
-    const Options& options)
-{
+void validate_base(ParseCommand parse, const Parameters& params) {
     comservatory::Contents contents;
-    if (has_names) {
+    if (params.has_names) {
         contents.fields.emplace_back(new KnownNameField(false));
     }
 
-    switch(type) {
+    switch(params.type) {
         case Type::INTEGER:
-            contents.fields.emplace_back(new KnownIntegerField(has_names));
+            contents.fields.emplace_back(new KnownIntegerField(static_cast<int>(params.has_names)));
             break;
         case Type::NUMBER:
             contents.fields.emplace_back(new comservatory::DummyNumberField);
@@ -77,9 +86,9 @@ void validate_base(
     }
 
     comservatory::ReadOptions opt;
-    opt.parallel = options.parallel;
+    opt.parallel = params.parallel;
     parse(contents, opt);
-    if (contents.num_records() != length) {
+    if (contents.num_records() != params.length) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
 
@@ -98,51 +107,26 @@ void validate_base(
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param length Length of the atomic vector.
- * @param type Type of the atomic vector.
- * @param has_names Whether the vector is named.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 template<class Reader>
-void validate(
-    Reader& reader,
-    size_t length,
-    Type type,
-    bool has_names,
-    Options options = Options())
-{
+void validate(Reader& reader, const Parameters& parameters) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        length,
-        type,
-        has_names,
-        options
+        parameters
     );
 }
 
 /**
- * Checks if a CSV is correctly formatted for the `atomic_vector` format.
- * An error is raised if the file does not meet the specifications.
+ * Overload of `atomic_vector::validate()` that takes a file path.
  *
  * @param path Path to the CSV file.
- * @param length Length of the atomic vector.
- * @param type Type of the atomic vector.
- * @param has_names Whether the vector is named.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
-inline void validate(
-    const char* path,
-    size_t length,
-    Type type,
-    bool has_names,
-    Options options = Options())
-{
+inline void validate(const char* path, const Parameters& params) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        length,
-        type,
-        has_names,
-        options
+        params
     );
 }
 

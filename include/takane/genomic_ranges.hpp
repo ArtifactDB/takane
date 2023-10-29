@@ -4,7 +4,7 @@
 #include "ritsuko/ritsuko.hpp"
 #include "comservatory/comservatory.hpp"
 
-#include "data_frame.hpp"
+#include "WrappedOption.hpp"
 
 #include <unordered_set>
 #include <string>
@@ -20,9 +20,24 @@ namespace takane {
 namespace genomic_ranges {
 
 /**
- * @brief Options for parsing the genomic ranges file.
+ * @brief Parameters for validating the genomic ranges file.
  */
-struct Options {
+struct Parameters {
+    /** 
+     * Number of genomic ranges in this object.
+     */
+    size_t num_ranges;
+
+    /** 
+     * Whether the ranges are named.
+     */
+    bool has_names;
+
+    /** 
+     * Universe of sequence names for this object.
+     */
+    WrappedOption<std::unordered_set<std::string> > seqnames;
+
     /**
      * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
      */
@@ -116,21 +131,15 @@ struct StrandField : public comservatory::DummyStringField {
 };
 
 template<class ParseCommand>
-void validate_base(
-    ParseCommand parse, 
-    size_t num_ranges, 
-    bool has_names, 
-    const std::unordered_set<std::string>& seqnames, 
-    const Options& options)
-{
+void validate_base(ParseCommand parse, const Parameters& params) {
     comservatory::Contents contents;
-    if (has_names) {
+    if (params.has_names) {
         contents.fields.emplace_back(new NamesField);
     }
 
     {
         auto ptr = new SeqnamesField;
-        ptr->all_seqnames = &seqnames;
+        ptr->all_seqnames = params.seqnames.get();
         contents.fields.emplace_back(ptr);
     }
         
@@ -145,22 +154,22 @@ void validate_base(
     contents.fields.emplace_back(new StrandField);
 
     comservatory::ReadOptions opt;
-    opt.parallel = options.parallel;
+    opt.parallel = params.parallel;
     parse(contents, opt);
-    if (contents.num_records() != num_ranges) {
+    if (contents.num_records() != params.num_ranges) {
         throw std::runtime_error("number of records in the CSV file does not match the expected number of ranges");
     }
 
-    if (contents.names[0 + has_names] != "seqnames") {
+    if (contents.names[0 + params.has_names] != "seqnames") {
         throw std::runtime_error("expected the first (non-name) column to be 'seqnames'");
     }
-    if (contents.names[1 + has_names] != "start") {
+    if (contents.names[1 + params.has_names] != "start") {
         throw std::runtime_error("expected the second (non-name) column to be 'start'");
     }
-    if (contents.names[2 + has_names] != "end") {
+    if (contents.names[2 + params.has_names] != "end") {
         throw std::runtime_error("expected the third (non-name) column to be 'end'");
     }
-    if (contents.names[3 + has_names] != "strand") {
+    if (contents.names[3 + params.has_names] != "strand") {
         throw std::runtime_error("expected the fourth (non-name) column to be 'strand'");
     }
 }
@@ -175,25 +184,13 @@ void validate_base(
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param num_ranges Number of genomic ranges in this object.
- * @param has_names Whether the ranges are named.
- * @param seqnames Universe of sequence names for this object.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 template<class Reader>
-void validate(
-    Reader& reader, 
-    size_t num_ranges, 
-    bool has_names, 
-    const std::unordered_set<std::string>& seqnames, 
-    Options options = Options())
-{
+void validate(Reader& reader, const Parameters& params) {
     validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read(reader, contents, opt); },
-        num_ranges,
-        has_names,
-        seqnames,
-        options
+        params
     );
 }
 
@@ -202,24 +199,12 @@ void validate(
  * An error is raised if the file does not meet the specifications.
  *
  * @param path Path to the CSV file.
- * @param num_ranges Number of genomic ranges in this object.
- * @param has_names Whether the ranges are named.
- * @param seqnames Universe of sequence names for this object.
  * @param options Parsing options.
  */
-inline void validate(
-    const char* path, 
-    size_t num_ranges, 
-    bool has_names, 
-    const std::unordered_set<std::string>& seqnames, 
-    Options options = Options())
-{
+inline void validate(const char* path, const Parameters& params) {
     validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read_file(path, contents, opt); },
-        num_ranges,
-        has_names,
-        seqnames,
-        options
+        params
     );
 }
 

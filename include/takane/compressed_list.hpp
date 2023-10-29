@@ -16,9 +16,24 @@ namespace takane {
 namespace compressed_list {
 
 /**
- * @brief Options for parsing the compressed list file.
+ * @brief Parameters for validating the compressed list file.
  */
-struct Options {
+struct Parameters {
+    /**
+     * Length of the compressed list.
+     */
+    size_t length = 0;
+ 
+    /**
+     * Total length of the concatenated elements.
+     */
+    size_t concatenated = 0;
+
+    /**
+     * Whether the compressed list is named.
+     */
+    bool has_names = false;
+
     /**
      * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
      */
@@ -49,29 +64,23 @@ struct KnownCompressedLengthField : public KnownNonNegativeIntegerField {
 };
 
 template<class ParseCommand>
-void validate_base(
-    ParseCommand parse,
-    size_t length,
-    size_t concatenated,
-    bool has_names,
-    const Options& options)
-{
+void validate_base(ParseCommand parse, const Parameters& params) {
     comservatory::Contents contents;
-    if (has_names) {
+    if (params.has_names) {
         contents.fields.emplace_back(new KnownNameField(false));
     }
 
-    auto ptr = new KnownCompressedLengthField(static_cast<int>(has_names));
+    auto ptr = new KnownCompressedLengthField(static_cast<int>(params.has_names));
     contents.fields.emplace_back(ptr);
 
     comservatory::ReadOptions opt;
-    opt.parallel = options.parallel;
+    opt.parallel = params.parallel;
     parse(contents, opt);
-    if (contents.num_records() != length) {
+    if (contents.num_records() != params.length) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
 
-    if (concatenated != ptr->total) {
+    if (params.concatenated != ptr->total) {
         throw std::runtime_error("sum of lengths in the compressed list did not equal the expected concatenated total");
     }
 
@@ -90,51 +99,26 @@ void validate_base(
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param length Length of the compressed list.
- * @param concatenated Total length of the concatenated elements.
- * @param has_names Whether the compressed list is named.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 template<class Reader>
-void validate(
-    Reader& reader,
-    size_t length,
-    size_t concatenated,
-    bool has_names,
-    Options options = Options())
-{
+void validate(Reader& reader, const Parameters& params) {
     validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        length,
-        concatenated,
-        has_names,
-        options
+        params
     );
 }
 
 /**
- * Checks if a CSV is correctly formatted for the `compressed_list` format.
- * An error is raised if the file does not meet the specifications.
+ * Overload of `compressed_list::validate()` that accepts a file path.
  *
  * @param path Path to the CSV file.
- * @param length Length of the compressed list.
- * @param concatenated Total length of the concatenated elements.
- * @param has_names Whether the compressed list is named.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
-inline void validate(
-    const char* path,
-    size_t length,
-    size_t concatenated,
-    bool has_names,
-    Options options = Options())
-{
+inline void validate(const char* path, const Parameters& params) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        length,
-        concatenated,
-        has_names,
-        options
+        params
     );
 }
 

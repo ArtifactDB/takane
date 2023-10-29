@@ -16,9 +16,24 @@ namespace takane {
 namespace factor {
 
 /**
- * @brief Options for parsing the factor file.
+ * @brief Parameters for validating the factor file.
  */
-struct Options {
+struct Parameters {
+    /**
+     * Length of the factor.
+     */
+    size_t length = 0;
+
+    /**
+     * Number of levels.
+     */
+    size_t num_levels = 0;
+
+    /**
+     * Whether the factor has names.
+     */
+    bool has_names = false;
+
     /**
      * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
      */
@@ -58,24 +73,18 @@ struct KnownFactorField : public comservatory::DummyNumberField {
 };
 
 template<class ParseCommand>
-void validate_base(
-    ParseCommand parse,
-    size_t length,
-    size_t num_levels,
-    bool has_names,
-    const Options& options)
-{
+void validate_base(ParseCommand parse, const Parameters& params) {
     comservatory::Contents contents;
-    if (has_names) {
+    if (params.has_names) {
         contents.fields.emplace_back(new KnownNameField(false));
     }
 
-    contents.fields.emplace_back(new KnownFactorField(static_cast<int>(has_names), num_levels)); 
+    contents.fields.emplace_back(new KnownFactorField(static_cast<int>(params.has_names), params.num_levels)); 
 
     comservatory::ReadOptions opt;
-    opt.parallel = options.parallel;
+    opt.parallel = params.parallel;
     parse(contents, opt);
-    if (contents.num_records() != length) {
+    if (contents.num_records() != params.length) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
 
@@ -94,51 +103,26 @@ void validate_base(
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param length Length of the factor.
- * @param num_levels Number of factor levels.
- * @param has_names Whether the factor is named.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 template<class Reader>
-void validate(
-    Reader& reader,
-    size_t length,
-    size_t num_levels,
-    bool has_names,
-    Options options = Options())
-{
+void validate(Reader& reader, const Parameters& params) {
     validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        length,
-        num_levels,
-        has_names,
-        options
+        params
     );
 }
 
 /**
- * Checks if a CSV is correctly formatted for the `factor` format.
- * An error is raised if the file does not meet the specifications.
+ * Overload of `factor::validate()` that accepts a file path.
  *
  * @param path Path to the CSV file.
- * @param length Length of the factor.
- * @param num_levels Number of factor levels.
- * @param has_names Whether the factor is named.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
-inline void validate(
-    const char* path,
-    size_t length,
-    size_t num_levels,
-    bool has_names,
-    Options options = Options())
-{
+inline void validate(const char* path, const Parameters& params) {
     validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        length,
-        num_levels,
-        has_names,
-        options
+        params
     );
 }
 

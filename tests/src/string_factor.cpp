@@ -12,7 +12,9 @@ static void validate(const std::string& buffer, size_t length) {
         std::ofstream ohandle(path);
         ohandle << buffer;
     }
-    takane::string_factor::validate_levels(path.c_str(), length);
+    takane::string_factor::LevelParameters params;
+    params.num_levels = length;
+    takane::string_factor::validate_levels(path.c_str(), params);
 }
 
 template<typename ... Args_>

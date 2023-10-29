@@ -6,7 +6,9 @@
 
 #include "array.hpp"
 
+#include <array>
 #include <stdexcept>
+#include <string>
 
 /**
  * @file hdf5_sparse_matrix.hpp
@@ -18,16 +20,48 @@ namespace takane {
 namespace hdf5_sparse_matrix {
 
 /**
- * @brief Options for parsing the HDF5 sparse matrix file.
+ * @brief Parameters for validating a HDF5 sparse matrix file.
  */
-struct Options {
+struct Parameters {
+    /**
+     * @param group Name of the group containing the matrix.
+     * @param dimensions Dimensions of the matrix.
+     */
+    Parameters(std::string group, std::array<size_t, 2> dimensions) : group(std::move(group)), dimensions(std::move(dimensions)) {}
+
+    /**
+     * Name of the group in the HDF5 file containing the matrix data.
+     */
+    std::string group;
+
+    /**
+     * Expected dimensions of the sparse matrix.
+     * The first entry should contain the number of rows and the second should contain the number of columns.
+     */
+    std::array<size_t, 2> dimensions;
+
+    /**
+     * Expected type of the sparse matrix.
+     */
+    array::Type type = array::Type::INTEGER;
+
+    /**
+     * Whether the array has dimension names.
+     */
+    bool has_dimnames = false;
+
+    /**
+     * Name of the group containing the dimension names.
+     */
+    std::string dimnames_group;
+
     /**
      * Buffer size to use when reading values from the HDF5 file.
      */
     hsize_t buffer_size = 10000;
 
     /**
-     * Version of the `hdf5_sparse_matrix` format.
+     * Version of this file specification.
      */
     int version = 2;
 };
@@ -37,26 +71,17 @@ struct Options {
  * An error is raised if the file does not meet the specifications.
  *
  * @param handle Handle to the HDF5 file containing the matrix.
- * @param group Group containing the matrix data. 
- * @param dimensions Vector containing the matrix dimensions.
- * @param has_dimnames Whether the matrix contains dimnames.
- * @param dimnames_group Group containing the dimnames, if `has_dimnames = true`.
- * @param options Parsing options.
+ * @param params Parameters for validation.
  */
-inline void validate(
-    const H5::H5File& handle, 
-    const std::string& group, 
-    const std::vector<size_t>& dimensions, 
-    bool has_dimnames, 
-    const std::string& dimnames_group, 
-    Options options = Options()) 
-{
+inline void validate(const H5::H5File& handle, const Parameters& params) {
+    const auto& group = params.group;    
     if (!handle.exists(group) || handle.childObjType(group) != H5O_TYPE_GROUP) {
         throw std::runtime_error("expected a '" + group + "' group");
     }
     auto dhandle = handle.openGroup(group);
 
     // Shape check.
+    const auto& dimensions = params.dimensions;    
     {
         std::string dset_name = group + "/shape";
         if (!dhandle.exists("shape") || dhandle.childObjType("shape") != H5O_TYPE_DATASET) {
@@ -98,7 +123,7 @@ inline void validate(
             throw std::runtime_error("expected the '" + dset_name + "' dataset to be integer or float");
         }
 
-        if (options.version >= 2) {
+        if (params.version >= 2) {
             const char* missing_attr = "missing-value-placeholder";
             if (ddhandle.attrExists(missing_attr)) {
                 ritsuko::hdf5::get_missing_placeholder_attribute(ddhandle, missing_attr, dset_name.c_str());
@@ -159,7 +184,7 @@ inline void validate(
             throw std::runtime_error("expected the '" + dset_name + "' dataset to be integer or float");
         }
 
-        auto block_size = ritsuko::hdf5::pick_1d_block_size(ixhandle.getCreatePlist(), num_nonzero, options.buffer_size);
+        auto block_size = ritsuko::hdf5::pick_1d_block_size(ixhandle.getCreatePlist(), num_nonzero, params.buffer_size);
         std::vector<hsize_t> buffer(block_size);
         size_t which_ptr = 0;
         hsize_t last_index = 0;
@@ -196,23 +221,20 @@ inline void validate(
         );
     }
 
-    if (has_dimnames) {
-        array::check_dimnames(handle, dimnames_group, dimensions);
+    if (params.has_dimnames) {
+        array::check_dimnames(handle, params.dimnames_group, params.dimensions);
     }
 }
 
 /**
  * Overload for `hdf5_sparse_matrix::validate()` that accepts a file path.
  *
- * @tparam Args_ Arguments to be forwarded.
- *
  * @param path Path to the HDF5 file.
- * @param args Further arguments, passed to other `validate()` method.
+ * @param params Parameters for validation.
  */
-template<typename... Args_>
-void validate(const std::string& path, Args_&& ... args) {
+inline void validate(const char* path, const Parameters& params) {
     H5::H5File handle(path, H5F_ACC_RDONLY);
-    validate(handle, std::forward<Args_>(args)...);
+    validate(handle, params);
 }
 
 

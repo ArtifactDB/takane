@@ -12,7 +12,7 @@ template<typename ... Args_>
 static void expect_error(const std::string& msg, const std::string& path, Args_&& ... args) {
     EXPECT_ANY_THROW({
         try {
-            takane::hdf5_dense_array::validate(path, std::forward<Args_>(args)...);
+            takane::hdf5_dense_array::validate(path.c_str(), std::forward<Args_>(args)...);
         } catch (std::exception& e) {
             EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
             throw;
@@ -23,8 +23,6 @@ static void expect_error(const std::string& msg, const std::string& path, Args_&
 TEST(Hdf5DenseArray, Success) {
     std::string path = "TEST-hdf5_dense_array.h5";
     std::string name = "array";
-    takane::hdf5_dense_array::Parameters params;
-    params.dataset = name;
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
@@ -33,15 +31,15 @@ TEST(Hdf5DenseArray, Success) {
         handle.createDataSet(name, H5::PredType::NATIVE_INT, dspace);
     }
 
-    params.dimensions = std::vector<size_t>{ 20, 10 };
+    takane::hdf5_dense_array::Parameters params(name, { 20, 10 });
     params.type = takane::array::Type::INTEGER;
-    takane::hdf5_dense_array::validate(path, params);
+    takane::hdf5_dense_array::validate(path.c_str(), params);
     
     params.type = takane::array::Type::NUMBER;
-    takane::hdf5_dense_array::validate(path, params);
+    takane::hdf5_dense_array::validate(path.c_str(), params);
 
     params.type = takane::array::Type::BOOLEAN;
-    takane::hdf5_dense_array::validate(path, params);
+    takane::hdf5_dense_array::validate(path.c_str(), params);
 
     // Works with missing placeholders.
     {
@@ -51,7 +49,7 @@ TEST(Hdf5DenseArray, Success) {
     }
     params.type = takane::array::Type::NUMBER;
     params.version = 2;
-    takane::hdf5_dense_array::validate(path, params);
+    takane::hdf5_dense_array::validate(path.c_str(), params);
 
     // Works with strings.
     {
@@ -61,14 +59,13 @@ TEST(Hdf5DenseArray, Success) {
         handle.createDataSet(name, H5::StrType(0, H5T_VARIABLE), dspace);
     }
     params.type = takane::array::Type::STRING;
-    takane::hdf5_dense_array::validate(path, params);
+    takane::hdf5_dense_array::validate(path.c_str(), params);
 }
 
 TEST(Hdf5DenseArray, Fails) {
     std::string path = "TEST-hdf5_dense_array.h5";
     std::string name = "array";
-    takane::hdf5_dense_array::Parameters params;
-    params.dataset = name;
+    takane::hdf5_dense_array::Parameters params(name, {});
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
@@ -128,11 +125,9 @@ TEST(Hdf5DenseArray, NameCheck) {
         handle.createDataSet(name, H5::PredType::NATIVE_INT, dspace);
     }
 
-    takane::hdf5_dense_array::Parameters params;
-    params.dataset = name;
+    takane::hdf5_dense_array::Parameters params(name, { 20, 10 });
     params.has_dimnames = true;
     params.dimnames_group = "FOO";
-    params.dimensions = std::vector<size_t>{ 20, 10 };
     expect_error("FOO", path, params);
 
     {
@@ -144,5 +139,5 @@ TEST(Hdf5DenseArray, NameCheck) {
         dim = 10;
         nhandle.createDataSet("1", H5::StrType(0, H5T_VARIABLE), H5::DataSpace(1, &dim));
     }
-    takane::hdf5_dense_array::validate(path, params);
+    takane::hdf5_dense_array::validate(path.c_str(), params);
 }

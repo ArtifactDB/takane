@@ -12,7 +12,13 @@ static void validate(const std::string& buffer, size_t length, takane::atomic_ve
         std::ofstream ohandle(path);
         ohandle << buffer;
     }
-    takane::atomic_vector::validate(path.c_str(), length, type, has_names);
+
+    takane::atomic_vector::Parameters params;
+    params.length = length;
+    params.type = type;
+    params.has_names = has_names;
+
+    takane::atomic_vector::validate(path.c_str(), params);
 }
 
 template<typename ... Args_>

@@ -6,6 +6,10 @@
 
 #include "array.hpp"
 
+#include <vector>
+#include <string>
+#include <stdexcept>
+
 /**
  * @file hdf5_dense_array.hpp
  * @brief Validation for HDF5 dense arrays.
@@ -19,6 +23,12 @@ namespace hdf5_dense_array {
  * @brief Parameters for validating a HDF5 dense array file.
  */
 struct Parameters {
+    /**
+     * @param dataset Name of the dataset.
+     * @param dimensions Dimensions of the array.
+     */
+    Parameters(std::string dataset, std::vector<size_t> dimensions) : dataset(std::move(dataset)), dimensions(std::move(dimensions)) {}
+
     /**
      * Name of the dataset in the HDF5 file.
      */
@@ -53,6 +63,7 @@ struct Parameters {
 
 /**
  * Validate a file containing a HDF5 dense array.
+ * An error is raised if the file does not meet the specifications.
  *
  * @param handle Handle to the file.
  * @param params Validation parameters.
@@ -117,12 +128,12 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
 }
 
 /**
- * Validate a file containing a HDF5 dense array.
+ * Overload for `hdf5_dense_array::validate()` that accepts a file path.
  *
  * @param path Path to the file.
  * @param params Validation parameters.
  */
-inline void validate(const std::string& path, const Parameters& params) {
+inline void validate(const char* path, const Parameters& params) {
     H5::H5File handle(path, H5F_ACC_RDONLY);
     validate(handle, params);
 }

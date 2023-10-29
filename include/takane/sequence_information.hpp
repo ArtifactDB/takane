@@ -31,9 +31,14 @@ struct Summary {
 };
 
 /**
- * @brief Options for parsing the sequence information file.
+ * @brief Parameters for validating the sequence information file.
  */
-struct Options {
+struct Parameters {
+    /**
+     * Expected number of sequences.
+     */
+    size_t num_sequences = 0;
+
     /**
      * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
      */
@@ -90,15 +95,11 @@ struct SeqlengthsField : public comservatory::DummyNumberField {
 };
 
 template<class ParseCommand>
-Summary validate_base(
-    ParseCommand parse,
-    size_t num_sequences,
-    const Options& options)
-{
+Summary validate_base(ParseCommand parse, const Parameters& params) {
     comservatory::Contents contents;
 
     contents.names.push_back("seqnames");
-    auto ptr = new SeqnamesField(options.save_seqnames);
+    auto ptr = new SeqnamesField(params.save_seqnames);
     contents.fields.emplace_back(ptr);
 
     contents.names.push_back("seqlengths");
@@ -109,9 +110,9 @@ Summary validate_base(
     contents.fields.emplace_back(new comservatory::DummyStringField);
 
     comservatory::ReadOptions opt;
-    opt.parallel = options.parallel;
+    opt.parallel = params.parallel;
     parse(contents, opt);
-    if (contents.num_records() != num_sequences) {
+    if (contents.num_records() != params.num_sequences) {
         throw std::runtime_error("number of records in the CSV file does not match the expected number of ranges");
     }
 
@@ -130,39 +131,26 @@ Summary validate_base(
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param num_sequences Number of sequences in this object.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 template<class Reader>
-Summary validate(
-    Reader& reader,
-    size_t num_sequences,
-    Options options = Options())
-{
+Summary validate(Reader& reader, const Parameters& params) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        num_sequences,
-        options
+        params
     );
 }
 
 /**
- * Checks if a CSV data frame is correctly formatted for sequence information.
- * An error is raised if the file does not meet the specifications.
+ * Overload of `sequence_information::validate()` that accepts a file path.
  *
  * @param path Path to the CSV file.
- * @param num_sequences Number of sequences in this object.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
-inline Summary validate(
-    const char* path,
-    size_t num_sequences,
-    Options options = Options())
-{
+inline Summary validate(const char* path, const Parameters& params) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        num_sequences,
-        options
+        params
     );
 }
 

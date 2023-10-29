@@ -12,7 +12,9 @@ static void validate(const std::string& buffer, size_t num_sequences) {
         std::ofstream ohandle(path);
         ohandle << buffer;
     }
-    takane::sequence_information::validate(path.c_str(), num_sequences);
+    takane::sequence_information::Parameters params;
+    params.num_sequences = num_sequences;
+    takane::sequence_information::validate(path.c_str(), params);
 }
 
 template<typename ... Args_>
@@ -64,10 +66,11 @@ TEST(SequenceInformation, Seqnames) {
     buffer += "\"chrB\",9,FALSE,\"mm10\"\n";
     buffer += "\"chrX\",99,FALSE,\"mm10\"\n";
     {
-        takane::sequence_information::Options opt;
+        takane::sequence_information::Parameters opt;
+        opt.num_sequences = 3;
         opt.save_seqnames = true;
         byteme::RawBufferReader input(reinterpret_cast<const unsigned char*>(buffer.c_str()), buffer.size());
-        auto output = takane::sequence_information::validate(input, 3, opt);
+        auto output = takane::sequence_information::validate(input, opt);
         std::vector<std::string> expected{ "chrA", "chrB", "chrX" };
         EXPECT_EQ(output.seqnames, expected);
     }

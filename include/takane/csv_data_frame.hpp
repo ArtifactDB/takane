@@ -4,6 +4,7 @@
 #include "ritsuko/ritsuko.hpp"
 #include "comservatory/comservatory.hpp"
 
+#include "WrappedOption.hpp"
 #include "data_frame.hpp"
 
 #include <unordered_set>
@@ -20,9 +21,24 @@ namespace takane {
 namespace csv_data_frame {
 
 /**
- * @brief Options for parsing the CSV data frame.
+ * @brief Parameters for validating the CSV data frame.
  */
-struct Options {
+struct Parameters {
+    /**
+     * Number of rows in the data frame.
+     */
+    size_t num_rows = 0;
+
+    /**
+     * Whether the data frame contains row names.
+     */
+    bool has_row_names = false;
+
+    /**
+     * Details about the expected columns of the data frame, in order.
+     */
+    WrappedOption<std::vector<data_frame::ColumnDetails> > columns;
+ 
     /**
      * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
      */
@@ -196,12 +212,13 @@ struct TakaneFactorV2Field : public comservatory::NumberField {
 };
 
 template<class ParseCommand>
-void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, const std::vector<data_frame::ColumnDetails>& columns, const Options& options) {
+void validate_base(ParseCommand parse, const Parameters& params) {
     comservatory::Contents contents;
-    if (has_row_names) {
+    if (params.has_row_names) {
         contents.fields.emplace_back(new TakaneRowNamesField);
     }
 
+    const auto& columns = *(params.columns);
     size_t ncol = columns.size();
     std::unordered_set<std::string> present;
     for (size_t c = 0; c < ncol; ++c) {
@@ -230,10 +247,10 @@ void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, cons
             contents.fields.emplace_back(new comservatory::DummyBooleanField);
 
         } else if (col.type == data_frame::ColumnType::FACTOR) {
-            if (options.df_version == 1) {
-                contents.fields.emplace_back(new TakaneFactorV1Field(0, c, &(col.factor_levels)));
+            if (params.df_version == 1) {
+                contents.fields.emplace_back(new TakaneFactorV1Field(0, c, col.factor_levels.get()));
             } else {
-                contents.fields.emplace_back(new TakaneFactorV2Field(0, c, col.factor_levels.size()));
+                contents.fields.emplace_back(new TakaneFactorV2Field(0, c, col.factor_levels->size()));
             }
         } else if (col.type == data_frame::ColumnType::OTHER) {
             contents.fields.emplace_back(new comservatory::UnknownField); // This can be anything.
@@ -244,15 +261,15 @@ void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, cons
     }
 
     comservatory::ReadOptions opt;
-    opt.parallel = options.parallel;
+    opt.parallel = params.parallel;
     parse(contents, opt);
-    if (contents.num_records() != num_rows) {
+    if (contents.num_records() != params.num_rows) {
         throw std::runtime_error("number of records in the CSV file does not match the expected number of rows");
     }
 
     for (size_t c = 0; c < ncol; ++c) {
         const auto& col = columns[c];
-        if (col.name != contents.names[c + has_row_names]) {
+        if (col.name != contents.names[c + params.has_row_names]) {
             throw std::runtime_error("observed and expected header names do not match");
         }
     }
@@ -268,51 +285,26 @@ void validate_base(ParseCommand parse, size_t num_rows, bool has_row_names, cons
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param num_rows Number of rows in the data frame.
- * @param has_row_names Whether the data frame contains row names.
- * @param columns Details about the expected columns of the data frame, in order.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 template<class Reader>
-void validate(
-    Reader& reader, 
-    size_t num_rows, 
-    bool has_row_names, 
-    const std::vector<data_frame::ColumnDetails>& columns, 
-    Options options = Options())
-{
+void validate(Reader& reader, const Parameters& params) {
     validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read(reader, contents, opt); },
-        num_rows,
-        has_row_names,
-        columns,
-        options
+        params
     );
 }
 
 /**
- * Checks if a CSV data frame is correctly formatted.
- * An error is raised if the file does not meet the specifications.
+ * Overload of `compressed_list::validate()` that accepts a file path.
  *
  * @param path Path to the CSV file.
- * @param num_rows Number of rows in the data frame.
- * @param has_row_names Whether the data frame contains row names.
- * @param columns Details about the expected columns of the data frame, in order.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
-inline void validate(
-    const char* path, 
-    size_t num_rows, 
-    bool has_row_names, 
-    const std::vector<data_frame::ColumnDetails>& columns, 
-    Options options = Options())
-{
+inline void validate(const char* path, const Parameters& params) {
     validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read_file(path, contents, opt); },
-        num_rows,
-        has_row_names,
-        columns,
-        options
+        params
     );
 }
 

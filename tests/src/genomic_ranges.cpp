@@ -12,7 +12,13 @@ static void validate(const std::string& buffer, size_t num_ranges, bool has_name
         std::ofstream ohandle(path);
         ohandle << buffer;
     }
-    takane::genomic_ranges::validate(path.c_str(), num_ranges, has_names, all_seqnames);
+
+    takane::genomic_ranges::Parameters params;
+    params.num_ranges = num_ranges;
+    params.has_names = has_names;
+    params.seqnames = &all_seqnames;
+
+    takane::genomic_ranges::validate(path.c_str(), params);
 }
 
 template<typename ... Args_>

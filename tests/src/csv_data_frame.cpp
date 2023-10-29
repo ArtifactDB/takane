@@ -14,9 +14,14 @@ static void validate(const std::string& buffer, size_t num_rows, bool has_row_na
         std::ofstream ohandle(path);
         ohandle << buffer;
     }
-    takane::csv_data_frame::Options opt;
+
+    takane::csv_data_frame::Parameters opt;
+    opt.num_rows = num_rows;
+    opt.has_row_names = has_row_names;
+    opt.columns = &columns;
     opt.df_version = df_version;
-    takane::csv_data_frame::validate(path.c_str(), num_rows, has_row_names, columns, opt);
+
+    takane::csv_data_frame::validate(path.c_str(), opt);
 }
 
 template<typename ... Args_>
@@ -183,9 +188,15 @@ TEST(CsvDataFrame, FactorVersion2) {
 }
 
 TEST(CsvDataFrame, FromReader) {
-    std::vector<takane::data_frame::ColumnDetails> columns(1);
-    columns[0].name = "aaron";
     std::string buffer = "\"rows\",\"aaron\"\n\"mizuki\",54\n\"fumika\",21\n\"aiko\",55\n";
     byteme::RawBufferReader reader(reinterpret_cast<const unsigned char*>(buffer.c_str()), buffer.size());
-    takane::csv_data_frame::validate(reader, 3, true, columns);
+
+    takane::csv_data_frame::Parameters params;
+    params.num_rows = 3;
+    params.has_row_names = true;
+    auto& columns = params.columns.mutable_ref();
+    columns.resize(1);
+    columns[0].name = "aaron";
+
+    takane::csv_data_frame::validate(reader, params);
 }

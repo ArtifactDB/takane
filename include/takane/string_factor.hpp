@@ -18,9 +18,14 @@ namespace takane {
 namespace string_factor {
 
 /**
- * @brief Options for parsing the factor file.
+ * @brief Parameters for validating the level file.
  */
-struct Options {
+struct LevelParameters {
+    /**
+     * Expected number of levels.
+     */
+    size_t num_levels = 0;
+
     /**
      * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
      */
@@ -48,15 +53,15 @@ struct KnownLevelField : public comservatory::DummyStringField {
 };
 
 template<class ParseCommand>
-void validate_levels_base(ParseCommand parse, size_t length, const Options& options) {
+void validate_levels_base(ParseCommand parse, const LevelParameters& params) {
     comservatory::Contents contents;
     contents.fields.emplace_back(new KnownLevelField);
     contents.names.push_back("values");
 
     comservatory::ReadOptions opt;
-    opt.parallel = options.parallel;
+    opt.parallel = params.parallel;
     parse(contents, opt);
-    if (contents.num_records() != length) {
+    if (contents.num_records() != params.num_levels) {
         throw std::runtime_error("number of records in the CSV file does not match the expected length");
     }
 }
@@ -71,31 +76,26 @@ void validate_levels_base(ParseCommand parse, size_t length, const Options& opti
  * @tparam Reader A **byteme** reader class.
  *
  * @param reader A stream of bytes from the CSV file.
- * @param length Number of levels.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 template<class Reader>
-void validate_levels(Reader& reader, size_t length, Options options = Options()) {
+void validate_levels(Reader& reader, const LevelParameters& params) {
     validate_levels_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        length,
-        options
+        params
     );
 }
 
 /**
- * Checks if a CSV is correctly formatted for the levels in the `string_factor` format.
- * An error is raised if the file does not meet the specifications.
+ * Overload of `string_factor::validate_levels()` that accepts a file path.
  *
  * @param path Path to the CSV file.
- * @param length Number of levels.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
-inline void validate_levels(const char* path, size_t length, Options options = Options()) {
+inline void validate_levels(const char* path, const LevelParameters& params) {
     validate_levels_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        length,
-        options
+        params
     );
 }
 

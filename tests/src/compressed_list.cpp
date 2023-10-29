@@ -12,7 +12,13 @@ static void validate(const std::string& buffer, size_t length, size_t concatenat
         std::ofstream ohandle(path);
         ohandle << buffer;
     }
-    takane::compressed_list::validate(path.c_str(), length, concatenated, has_names);
+
+    takane::compressed_list::Parameters params;
+    params.length = length;
+    params.concatenated = concatenated;
+    params.has_names = has_names;
+
+    takane::compressed_list::validate(path.c_str(), params);
 }
 
 template<typename ... Args_>
