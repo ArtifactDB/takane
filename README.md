@@ -326,6 +326,118 @@ takane::compressed_list::validate_levels(
 ```
 </details>
 
+### HDF5 sparse matrix
+
+A compressed sparse matrix stored inside a HDF5 file, corresponding to the [`hdf5_sparse_matrix`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_sparse_matrix/v1.json) schema.
+
+The HDF5 group (specified by `~hdf5_sparse_matrix.group`) should contain the typical contents of the compressed sparse matrix, i.e., `indices`, `indptr` and `data`.
+`data` should be a 1-dimensional integer or floating-point dataset containing the values of the non-zero elements;
+`indices` should be a 1-dimensional integer dataset containing the 0-based row/column index for each non-zero element in `data`;
+and `indptr` should be a 1-dimensional integer dataset of length equal to the number of columns/rows plus 1, containing pointers to the start and end of each column/row.
+
+If `~hdf5_sparse_matrix.format` is equal to `"tenx_matrix"`, `indices` should contain row indices and `indptr` should contain the column index pointers. 
+The group should also contain a `shape` dataset, an 1-dimensional integer dataset of length 2 storing the number of rows and columns - this should be equal to `array.dimensions`.
+
+The type of the matrix is specified by `~array.type` and should be integer, boolean or numeric.
+This determines the appropriate HDF5 datatype for `data`.
+The exact type is generally left to the discretion of the data generator, with some restrictions:
+
+- Numeric arrays can be represented by any integer or floating-point HDF5 datatype.
+- Integer `data` can be represented by any integer HDF5 datatype.
+  However, it is advisable to use a data type that is representable by a 32-bit signed integer, for maximum compatibility with downstream clients.
+- Boolean `data` are stored as integer HDF5 datasets, where a value of 1 is truthy and a value of zero is falsey.
+  These can be distinguished from integer columns by inspecting the `array.type` property.
+
+The treatment of missing values is version-dependent:
+
+- **For `~hdf5_dense_array.version >= 2`:** 
+  the dataset may have a `missing-value-placeholder` attribute, containing a scalar value to use as a missing value placeholder.
+  Any value equal to this placeholder should be treated as missing.
+  The HDF5 datatype of the attribute should be exactly equal to that of the dataset.
+  If no attribute exists, it can be assumed that no values are missing.
+- **For `~hdf5_dense_array.version = 1`:** 
+  no placeholder is present for non-string types.
+  Missing integers and booleans are represented by -2147483648 instead.
+  Missing numbers are represented by a quiet NaN with a payload of 1954.
+
+Dimnames may also be saved inside the same HDF5 file, as string datasets in another group.
+In such cases, the `~hdf5_sparse_matrix.dimnames` property should be present and contain the name of that group.
+This group should contain zero or one string datasets for each dimension. 
+The name of each string dataset is based on its dimension - `"0"` for rows, `"1"` for columns - and should have length equal to the extent of that dimension.
+If no dataset is not present for a dimension, it can be assumed that no dimnames are available for that dimension
+
+<details>
+<summary>Example usage</summary>
+
+```cpp
+#include "takane/takane.hpp"
+
+takane::hdf5_sparse_matrix::Parameters params;
+params.dimensions[0] = 10;
+params.dimensions[1] = 20;
+params.type = takane::array::Type::BOOLEAN;
+
+takane::hdf5_sparse_matrix::validate(file_path, group_name, params);
+```
+</details>
+
+### HDF5 dense array
+
+A dense array stored inside a HDF5 file, corresponding to the [`hdf5_dense_array`](https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_dense_array/v1.json) schema.
+
+The file should contain a dataset at the name specified by `~hdf5_dense_array.dataset`.
+The dimension extents of this dataset should be listed in reverse order to those in `~array.dimensions`,
+i.e., the extent of the last HDF5 dimension should be equal to the extent of the first dimension in `~array.dimensions`.
+This is because the dimensions reported in `~array.dimensions` are ordered from fastest-changing to slowest,
+while the HDF5 library reports dataset dimensions from slowest-changing to fastest. 
+In the context of matrices, this implies storage in a column-major layout where the first (faster) dimension corresponds to the rows and the second (slower) dimension corresponds to the columns.
+
+The file may also contain the dimnames of the array, stored in a separate HDF5 group.
+If present, the name of the group should be listed in the `~hdf5_dense_array.dimnames` property.
+This group should contain zero or one string datasets for each dimension. 
+The name of each string dataset is based on its dimension - `"0"` for rows, `"1"` for columns - and should have length equal to the extent of that dimension,
+i.e., the dataset named `"0"` should have length equal to the first entry of `~array.dimensions`.
+If no dataset is not present for a dimension, it can be assumed that no dimnames are available for that dimension.
+
+The type of the array is specified by `~array.type` and can be integer, boolean, numeric, or string.
+The exact HDF5 datatype is generally left to the discretion of the data generator, with some restrictions:
+
+- String arrays can be represented by any string HDF5 dataset at the discretion of the data generator.
+- Numeric arrays can be represented by any integer or floating-point HDF5 dataset at the discretion of the data generator.
+- Integer arrays can be represented by any integer HDF5 datatype at the discretion of the data generator.
+  However, it is advisable to use a data type that is representable by a 32-bit signed integer, for maximum compatibility with downstream clients.
+- Boolean arrays are stored as integer HDF5 datasets, where a value of 1 is truthy and a value of zero is falsey.
+  These can be distinguished from integer columns by inspecting the `~array.type` property.
+
+The treatment of missing values is version-dependent:
+
+- **For `~hdf5_dense_array.version >= 2`:** 
+  the dataset may have a `missing-value-placeholder` attribute, containing a scalar value to use as a missing value placeholder.
+  Any value equal to this placeholder should be treated as missing.
+  For non-string types, the HDF5 datatype of the attribute should be exactly equal to that of the dataset.
+  For string types, the datatype only needs to be same string type.
+  If no attribute exists, it can be assumed that no values are missing.
+- **For `~hdf5_dense_array.version = 1`:** 
+  no placeholder is present for non-string types.
+  Missing integers and booleans are represented by -2147483648 instead.
+  Missing numbers are represented by a quiet NaN with a payload of 1954.
+  Missing strings are represented by a `missing-value-placeholder` attribute, containing a scalar value of some string type.
+
+<details>
+<summary>Example usage</summary>
+
+```cpp
+#include "takane/takane.hpp"
+
+takane::hdf5_dense_array::Parameters params;
+params.dimensions = std::vector<size_t>{ 10, 20, 30 };
+params.type = takane::array::Type::STRING;
+
+takane::hdf5_dense_array::validate(file_path, dataset_name, params);
+```
+</details>
+
+
 ## Building projects
 
 ### CMake with `FetchContent`
