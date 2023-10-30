@@ -78,30 +78,31 @@ $(function() {
 <p >This library contains some C++ libraries to validate ArtifactDB file formats that aren't covered by other libraries (e.g., <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b></a>, <a href="https://github.com/ArtifactDB/uzuki2"><b>uzuki2</b></a>). The idea is to provide a cross-language method for validating the files - which is not quite as useful as a library for <em>reading</em> the files, but it's better than nothing.</p>
 <h1>Specifications</h1>
 <h2>HDF5 data frame</h2>
-<p >A data frame object stored inside a group of a HDF5 file. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_data_frame/v1.json"><code>hdf5_data_frame</code></a> schema, of which several properties are worth noting:</p>
-<ul>
-<li>The name of the group is specified in the <code>hdf5_data_frame.group</code> property.</li>
-<li>The <code>data_frame.version</code> property has a maximum value of 2.</li>
-<li>The <code>hdf5_data_frame.version</code> property has a maximum value of 2.</li>
-</ul>
-<p >Each atomic column is stored as a 1-dimensional dataset in the <code>data</code> subgroup, named by its positional 0-based index in the data frame, e.g., the first column is named <code>0</code>, the second column is named <code>1</code>, and so on. All datasets representing atomic columns should have the same length. The type of each atomic column is determined from the corresponding <code>data_frame.columns.type</code> property in the schema:</p>
+<p >A data frame object stored inside a group of a HDF5 file, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_data_frame/v1.json"><code>hdf5_data_frame</code></a> schema. of which several properties are worth noting:</p>
+<p >The name of the group is specified in the <code>~hdf5_data_frame.group</code> property. Each atomic column is stored as a 1-dimensional dataset in the <code>data</code> subgroup, named by its positional 0-based index in the data frame, e.g., the first column is named <code>0</code>, the second column is named <code>1</code>, and so on. All datasets representing atomic columns should have the same length. The type of each atomic column is determined from the corresponding <code>~data_frame.columns.type</code> property in the schema:</p>
 <ul>
 <li>A boolean column is stored as an integer HDF5 dataset where a value of 1 is truthy and a value of zero is falsey. Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer.</li>
 <li>An integer column can be represented by any integer HDF5 dataset. Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer.</li>
-<li><b>For <code>data_frame.version &gt;= 2</code>:</b> A factor column is represented by a integer HDF5 dataset. Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer. Each integer is a 0-based index into the array of factor levels, found in the <code>data_frame.columns.levels</code> property. Each integer should be non-negative and less than the total number of levels, or equal to the missing value placeholder (see below).</li>
-<li><b>For <code>data_frame.version = 1</code>:</b> A factor column is represented by any string dataset. Each entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).</li>
+<li>The factor column has some version-dependent treatment:<ul>
+<li><b>For <code>~data_frame.version &gt;= 2</code>:</b> A factor column is represented by a integer HDF5 dataset. Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer. Each integer is a 0-based index into the array of factor levels, found in the <code>data_frame.columns.levels</code> property. Each integer should be non-negative and less than the total number of levels, or equal to the missing value placeholder (see below).</li>
+<li><b>For <code>~data_frame.version = 1</code>:</b> A factor column is represented by any string dataset. Each entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).</li>
+</ul>
+</li>
 <li>Floating-point columns can be represented by any floating-point datatype at the discretion of the data generator. IEEE special values like Inf and NaN are allowed.</li>
-<li>String columns can be represented by any string datatype (fixed or variable, ASCII or UTF-8) at the discretion of the data generator. The character encoding specified in the dataset's type should be respected. Non-missing strings may be associated with further format constraints based on the <code>data_frame.columns.format</code> property, which may be one of the following:<ul>
+<li>String columns can be represented by any string datatype (fixed or variable, ASCII or UTF-8) at the discretion of the data generator. The character encoding specified in the dataset's type should be respected. Non-missing strings may be associated with further format constraints based on the <code>~data_frame.columns.format</code> property, which may be one of the following:<ul>
 <li>No format constraints.</li>
 <li>String must be a <code>YYYY-MM-DD</code> date.</li>
 <li>String must be an Internet date/time complying with the RFC3339 specification.</li>
 </ul>
 </li>
 </ul>
-<p ><b>For <code>hdf5_data_frame.version &gt;= 2</code>:</b> Each dataset may have a <code>missing-value-placeholder</code> attribute, containing a scalar value of the same exact type. Any value in the dataset equal to this placeholder should be treated as missing. If no attribute exists, it can be assumed that no values are missing. For all types except strings, the type of the scalar should b exactly the same as that of the dataset, so as to avoid transformations during casting. For strings, the scalar value may be of any string type class, and all comparisons should be performed byte-wise like <code>strcmp</code>. For numbers, the scalar value may be NaN with a non-default payload, which should be considered via byte-wise comparisons, e.g., with <code>memcmp</code>.</p>
-<p ><b>For <code>hdf5_data_frame.version = 1</code>:</b> Missing integers and booleans are represented by -2147483648. Missing floats are always represented by NaNs with R's missingness payload. Missing strings are represented by a <code>missing-value-placeholder</code> attribute, containing a scalar value of some string type.</p>
-<p >For non-atomic columns, the corresponding dataset is omitted and the actual contents are obtained from other files. A pointer to the resource should be stored in the corresponding entry of the <code>data_frame.columns</code> property.</p>
-<p >Column names are stored in <code>column_names</code>, a 1-dimensional string dataset of length equal to the number of columns. Row names, if present, are stored in a 1-dimensional <code>row_names</code> string dataset of the same length at the number of rows. Neither should contain any missing values.</p>
+<p >The treatment of missing values is version-dependent:</p>
+<ul>
+<li><b>For <code>~hdf5_data_frame.version &gt;= 2</code>:</b> each dataset may have a <code>missing-value-placeholder</code> attribute, containing a scalar value of the same exact type. Any value in the dataset equal to this placeholder should be treated as missing. If no attribute exists, it can be assumed that no values are missing. For all types except strings, the type of the scalar should b exactly the same as that of the dataset, so as to avoid transformations during casting. For strings, the scalar value may be of any string type class, and all comparisons should be performed byte-wise like <code>strcmp</code>. For numbers, the scalar value may be NaN with a non-default payload, which should be considered via byte-wise comparisons, e.g., with <code>memcmp</code>.</li>
+<li><b>For <code>~hdf5_data_frame.version = 1</code>:</b> missing integers and booleans are represented by -2147483648. Missing floats are always represented by NaNs with R's missingness payload. Missing strings are represented by a <code>missing-value-placeholder</code> attribute, containing a scalar value of some string type.</li>
+</ul>
+<p >For non-atomic columns, the corresponding dataset is omitted and the actual contents are obtained from other files. A pointer to the resource should be stored in the corresponding entry of the <code>~data_frame.columns</code> property.</p>
+<p >Column names are stored in <code>column_names</code>, a 1-dimensional string dataset of length equal to the number of columns. If <code>~data_frame.row_names = true</code>, row names should be stored in a 1-dimensional <code>row_names</code> string dataset of the same length at the number of rows. Neither should contain any missing values.</p>
 <details >
 <p ><summary>Example usage</summary></p>
 <p >Here we validate a HDF5 data frame with columns of different types and row names:</p>
@@ -117,27 +118,32 @@ $(function() {
 <div class="line">expected_columns[3].add_factor_level(<span class="stringliteral">&quot;bar&quot;</span>);</div>
 <div class="line">expected_columns[4].type = takane::data_frame::ColumnType::NUMBER;</div>
 <div class="line"> </div>
-<div class="line">takane::data_frame::validate_hdf5(</div>
-<div class="line">    path, </div>
-<div class="line">    name, </div>
-<div class="line">    <span class="comment">/* num_rows = */</span> 9876, </div>
-<div class="line">    <span class="comment">/* has_row_names = */</span> <span class="keyword">true</span>, </div>
-<div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
-<div class="line">);</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1hdf5__data__frame_1_1Parameters.html">takane::hdf5_data_frame::Parameters</a> params;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a0d50ca7b49cdcf027b4c8abb45e39b21">group</a> = group_name;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a5e05ea1e9509a4be79670d5af06512ef">num_rows</a> = 9876;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a7554cda5388861f2cb5c6e3a1858dff6">has_row_names</a> = <span class="keyword">true</span>;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a5646b75b9312c62ada2e3a5db28de584">columns</a> = &amp;expected_columns; <span class="comment">// can also pass by value here.</span></div>
+<div class="line"> </div>
+<div class="line">takane::hdf5_data_frame::validate(path, params);</div>
+<div class="ttc" id="astructtakane_1_1hdf5__data__frame_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1hdf5__data__frame_1_1Parameters.html">takane::hdf5_data_frame::Parameters</a></div><div class="ttdoc">Parameters for validating the HDF5 data frame.</div><div class="ttdef"><b>Definition:</b> hdf5_data_frame.hpp:28</div></div>
+<div class="ttc" id="astructtakane_1_1hdf5__data__frame_1_1Parameters_html_a0d50ca7b49cdcf027b4c8abb45e39b21"><div class="ttname"><a href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a0d50ca7b49cdcf027b4c8abb45e39b21">takane::hdf5_data_frame::Parameters::group</a></div><div class="ttdeci">std::string group</div><div class="ttdef"><b>Definition:</b> hdf5_data_frame.hpp:37</div></div>
+<div class="ttc" id="astructtakane_1_1hdf5__data__frame_1_1Parameters_html_a5646b75b9312c62ada2e3a5db28de584"><div class="ttname"><a href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a5646b75b9312c62ada2e3a5db28de584">takane::hdf5_data_frame::Parameters::columns</a></div><div class="ttdeci">WrappedOption&lt; std::vector&lt; data_frame::ColumnDetails &gt; &gt; columns</div><div class="ttdef"><b>Definition:</b> hdf5_data_frame.hpp:52</div></div>
+<div class="ttc" id="astructtakane_1_1hdf5__data__frame_1_1Parameters_html_a5e05ea1e9509a4be79670d5af06512ef"><div class="ttname"><a href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a5e05ea1e9509a4be79670d5af06512ef">takane::hdf5_data_frame::Parameters::num_rows</a></div><div class="ttdeci">size_t num_rows</div><div class="ttdef"><b>Definition:</b> hdf5_data_frame.hpp:42</div></div>
+<div class="ttc" id="astructtakane_1_1hdf5__data__frame_1_1Parameters_html_a7554cda5388861f2cb5c6e3a1858dff6"><div class="ttname"><a href="structtakane_1_1hdf5__data__frame_1_1Parameters.html#a7554cda5388861f2cb5c6e3a1858dff6">takane::hdf5_data_frame::Parameters::has_row_names</a></div><div class="ttdeci">bool has_row_names</div><div class="ttdef"><b>Definition:</b> hdf5_data_frame.hpp:47</div></div>
 </div><!-- fragment --> </details>
 <h2>CSV data frame</h2>
-<p >A data frame object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json"><code>csv_data_frame</code></a> schema, of which several properties are worth noting:</p>
-<ul>
-<li>The <code>data_frame.version</code> property has a maximum value of 2.</li>
-</ul>
-<p >The type of each column is determined from the corresponding <code>data_frame.columns.type</code> property in the schema:</p>
+<p >A data frame object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/csv_data_frame/v1.json"><code>csv_data_frame</code></a> schema.</p>
+<p >The type of each column is determined from the corresponding <code>~data_frame.columns.type</code> property in the schema:</p>
 <ul>
 <li>Boolean columns are stored as <b>comservatory</b> boolean columns.</li>
 <li>Number columns are stored as <b>comservatory</b> number columns.</li>
 <li>An integer column is stored as a <b>comservatory</b> integer column, where all (non-missing) values must be representable by a 32-bit signed integer.</li>
-<li><b>For <code>data_frame.version &gt;= 2</code>:</b> A factor column is represented as a <b>comservatory</b> integer column containing 0-based indices into the array of levels. All (non-missing) values are non-negative and less than the total number of levels.</li>
-<li><b>For <code>data_frame.version = 1</code>:</b> A factor column is represented as a <b>comservatory</b> string dataset. Each (non-missing) entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).</li>
-<li>String columns are stored as <b>comservatory</b> string columns. Strings may be associated with further format constraints based on the <code>data_frame.columns.format</code> property, which may be one of the following:<ul>
+<li>A factor column has version-dependent treatment:<ul>
+<li><b>For <code>~data_frame.version &gt;= 2</code>:</b> A factor column is represented as a <b>comservatory</b> integer column containing 0-based indices into the array of levels. All (non-missing) values are non-negative and less than the total number of levels.</li>
+<li><b>For <code>~data_frame.version = 1</code>:</b> A factor column is represented as a <b>comservatory</b> string dataset. Each (non-missing) entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).</li>
+</ul>
+</li>
+<li>String columns are stored as <b>comservatory</b> string columns. Strings may be associated with further format constraints based on the <code>~data_frame.columns.format</code> property, which may be one of the following:<ul>
 <li>No format constraints.</li>
 <li>String must be a <code>YYYY-MM-DD</code> date.</li>
 <li>String must be an Internet date/time complying with the RFC3339 specification.</li>
@@ -161,12 +167,16 @@ $(function() {
 <div class="line">expected_columns[3].add_factor_level(<span class="stringliteral">&quot;bar&quot;</span>);</div>
 <div class="line">expected_columns[4].type = takane::data_frame::ColumnType::NUMBER;</div>
 <div class="line"> </div>
-<div class="line">takane::data_frame::validate_csv(</div>
-<div class="line">    path, </div>
-<div class="line">    <span class="comment">/* num_rows = */</span> 9876, </div>
-<div class="line">    <span class="comment">/* has_row_names = */</span> <span class="keyword">true</span>, </div>
-<div class="line">    <span class="comment">/* columns = */</span> expected_columns</div>
-<div class="line">);</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1csv__data__frame_1_1Parameters.html">takane::csv_data_frame::Parameters</a> params;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1csv__data__frame_1_1Parameters.html#a5470182fe9fbbd21a97cf3964f8935c4">num_rows</a> = 9876;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1csv__data__frame_1_1Parameters.html#a50be7db2e98b55402086fe669e7e05ea">has_row_names</a> = <span class="keyword">true</span>;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1csv__data__frame_1_1Parameters.html#a12ea767e74941368f99df94ecb09844b">columns</a> = &amp;expected_columns; <span class="comment">// can also pass by value here.</span></div>
+<div class="line"> </div>
+<div class="line">takane::data_frame::validate_csv(path, params);</div>
+<div class="ttc" id="astructtakane_1_1csv__data__frame_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1csv__data__frame_1_1Parameters.html">takane::csv_data_frame::Parameters</a></div><div class="ttdoc">Parameters for validating the CSV data frame.</div><div class="ttdef"><b>Definition:</b> csv_data_frame.hpp:26</div></div>
+<div class="ttc" id="astructtakane_1_1csv__data__frame_1_1Parameters_html_a12ea767e74941368f99df94ecb09844b"><div class="ttname"><a href="structtakane_1_1csv__data__frame_1_1Parameters.html#a12ea767e74941368f99df94ecb09844b">takane::csv_data_frame::Parameters::columns</a></div><div class="ttdeci">WrappedOption&lt; std::vector&lt; data_frame::ColumnDetails &gt; &gt; columns</div><div class="ttdef"><b>Definition:</b> csv_data_frame.hpp:40</div></div>
+<div class="ttc" id="astructtakane_1_1csv__data__frame_1_1Parameters_html_a50be7db2e98b55402086fe669e7e05ea"><div class="ttname"><a href="structtakane_1_1csv__data__frame_1_1Parameters.html#a50be7db2e98b55402086fe669e7e05ea">takane::csv_data_frame::Parameters::has_row_names</a></div><div class="ttdeci">bool has_row_names</div><div class="ttdef"><b>Definition:</b> csv_data_frame.hpp:35</div></div>
+<div class="ttc" id="astructtakane_1_1csv__data__frame_1_1Parameters_html_a5470182fe9fbbd21a97cf3964f8935c4"><div class="ttname"><a href="structtakane_1_1csv__data__frame_1_1Parameters.html#a5470182fe9fbbd21a97cf3964f8935c4">takane::csv_data_frame::Parameters::num_rows</a></div><div class="ttdeci">size_t num_rows</div><div class="ttdef"><b>Definition:</b> csv_data_frame.hpp:30</div></div>
 </div><!-- fragment --><p >Note that the row name column does not need to be considered in the set of <code>expected_columns</code>; it is handled separately by the <code>has_row_names = true</code> argument. </p>
 </details>
 <h2>Genomic ranges</h2>
@@ -183,14 +193,13 @@ $(function() {
 <p >Here we validate a <code>genomic_ranges</code>:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line">std::unordered_set&lt;std::string&gt; allowed{ <span class="stringliteral">&quot;chrA&quot;</span>, <span class="stringliteral">&quot;chrB&quot;</span> };</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1genomic__ranges_1_1Parameters.html">takane::genomic_ranges::Parameters</a> params;</div>
+<div class="line">params.num_ranges = 192;</div>
+<div class="line">params.has_names = <span class="keyword">true</span>;</div>
+<div class="line">params.seqnames = std::unordered_set&lt;std::string&gt;{ <span class="stringliteral">&quot;chrA&quot;</span>, <span class="stringliteral">&quot;chrB&quot;</span> };</div>
 <div class="line"> </div>
-<div class="line">takane::genomic_ranges::validate(</div>
-<div class="line">    path, </div>
-<div class="line">    <span class="comment">/* num_ranges = */</span> 192, </div>
-<div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">true</span>, </div>
-<div class="line">    <span class="comment">/* seqnames = */</span> allowed</div>
-<div class="line">);</div>
+<div class="line">takane::genomic_ranges::validate(path, params);</div>
+<div class="ttc" id="astructtakane_1_1genomic__ranges_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1genomic__ranges_1_1Parameters.html">takane::genomic_ranges::Parameters</a></div><div class="ttdoc">Parameters for validating the genomic ranges file.</div><div class="ttdef"><b>Definition:</b> genomic_ranges.hpp:25</div></div>
 </div><!-- fragment --> </details>
 <h2>Sequence information</h2>
 <p >A <code>Seqinfo</code> object stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/sequence_information/v1.json"><code>sequence_information</code></a> schema. We expect the columns in the following type and order:</p>
@@ -204,12 +213,13 @@ $(function() {
 <p ><summary>Example usage</summary></p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">auto</span> output = takane::sequence_information::validate(</div>
-<div class="line">    path, </div>
-<div class="line">    <span class="comment">/* num_ranges = */</span> 192, </div>
-<div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">true</span>, </div>
-<div class="line">    <span class="comment">/* seqnames = */</span> allowed</div>
-<div class="line">);</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1sequence__information_1_1Parameters.html">takane::sequence_information::Parameters</a> params;</div>
+<div class="line">params.num_ranges = 192;</div>
+<div class="line">params.has_names = <span class="keyword">true</span>;</div>
+<div class="line">params.save_seqnames = <span class="keyword">true</span>;</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">auto</span> output = takane::sequence_information::validate(path, params);</div>
+<div class="ttc" id="astructtakane_1_1sequence__information_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1sequence__information_1_1Parameters.html">takane::sequence_information::Parameters</a></div><div class="ttdoc">Parameters for validating the sequence information file.</div><div class="ttdef"><b>Definition:</b> sequence_information.hpp:36</div></div>
 </div><!-- fragment --><p >The value of <code>output.seqnames</code> can be used to define the set of allowed sequence names in <code>genomic_ranges::validate()</code>. </p>
 </details>
 <h2>Atomic vector</h2>
@@ -222,11 +232,12 @@ $(function() {
 <p ><summary>Example usage</summary></p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line">takane::atomic_vector::validate(</div>
-<div class="line">    path, </div>
-<div class="line">    <span class="comment">/* length = */</span> 99, </div>
-<div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">true</span></div>
-<div class="line">);</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">takane::atomic_vector::Parameters</a> params;</div>
+<div class="line">params.length = 99;</div>
+<div class="line">params.has_names = <span class="keyword">true</span>;</div>
+<div class="line"> </div>
+<div class="line">takane::atomic_vector::validate(path, params);</div>
+<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html">takane::atomic_vector::Parameters</a></div><div class="ttdoc">Parameters for validating the atomic vector file.</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:36</div></div>
 </div><!-- fragment --> </details>
 <h2>Factor</h2>
 <p >An abstract factor stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/factor/v1.json"><code>factor</code></a> schema. We expect the columns in the following type and order:</p>
@@ -238,12 +249,13 @@ $(function() {
 <p ><summary>Example usage</summary></p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line">takane::factor::validate(</div>
-<div class="line">    path, </div>
-<div class="line">    <span class="comment">/* length = */</span> 99, </div>
-<div class="line">    <span class="comment">/* num_levels = */</span> 20, </div>
-<div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">false</span></div>
-<div class="line">);</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1factor_1_1Parameters.html">takane::factor::Parameters</a> params;</div>
+<div class="line">params.length = 99;</div>
+<div class="line">params.num_levels = 20;</div>
+<div class="line">params.has_names = <span class="keyword">false</span>;</div>
+<div class="line"> </div>
+<div class="line">takane::factor::validate(path, params);</div>
+<div class="ttc" id="astructtakane_1_1factor_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1factor_1_1Parameters.html">takane::factor::Parameters</a></div><div class="ttdoc">Parameters for validating the factor file.</div><div class="ttdef"><b>Definition:</b> factor.hpp:21</div></div>
 </div><!-- fragment --> </details>
 <h2>String factor</h2>
 <p >A factor with string levels, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/string_factor/v1.json"><code>string_factor</code></a> schema. The file at <code>path</code> can be validated as described for the Factor. The levels at <code>string_factor.levels</code> should be stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. We expect a single string column containing unique and non-missing levels.</p>
@@ -251,10 +263,11 @@ $(function() {
 <p ><summary>Example usage</summary></p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line">takane::string_factor::validate_levels(</div>
-<div class="line">    levels_path, </div>
-<div class="line">    <span class="comment">/* length = */</span> 99</div>
-<div class="line">);</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1string__factor_1_1LevelParameters.html">takane::string_factor::LevelParameters</a> params;</div>
+<div class="line">params.length = 99;</div>
+<div class="line"> </div>
+<div class="line">takane::string_factor::validate_levels(levels_path, params);</div>
+<div class="ttc" id="astructtakane_1_1string__factor_1_1LevelParameters_html"><div class="ttname"><a href="structtakane_1_1string__factor_1_1LevelParameters.html">takane::string_factor::LevelParameters</a></div><div class="ttdoc">Parameters for validating the level file.</div><div class="ttdef"><b>Definition:</b> string_factor.hpp:23</div></div>
 </div><!-- fragment --> </details>
 <h2>Compressed list</h2>
 <p >An abstract compressed list stored inside a CSV file, formatted as described in the <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b> specification (version 1.0)</a>. This corresponds to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/compressed_list/v1.json"><code>compressed_list</code></a> schema. We expect the columns in the following type and order:</p>
@@ -266,12 +279,12 @@ $(function() {
 <p ><summary>Example usage</summary></p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line">takane::compressed_list::validate_levels(</div>
-<div class="line">    levels_path, </div>
-<div class="line">    <span class="comment">/* length = */</span> 99,</div>
-<div class="line">    <span class="comment">/* concatenated = */</span> 1191,</div>
-<div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">false</span> </div>
-<div class="line">);</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1compressed__list_1_1Parameters.html">takane::compressed_list::Parameters</a> params;</div>
+<div class="line">params.length = 99;</div>
+<div class="line">params.concatenated = 1191;</div>
+<div class="line"> </div>
+<div class="line">takane::compressed_list::validate(path, params);</div>
+<div class="ttc" id="astructtakane_1_1compressed__list_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1compressed__list_1_1Parameters.html">takane::compressed_list::Parameters</a></div><div class="ttdoc">Parameters for validating the compressed list file.</div><div class="ttdef"><b>Definition:</b> compressed_list.hpp:21</div></div>
 </div><!-- fragment --> </details>
 <h2>HDF5 sparse matrix</h2>
 <p >A compressed sparse matrix stored inside a HDF5 file, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_sparse_matrix/v1.json"><code>hdf5_sparse_matrix</code></a> schema.</p>
@@ -293,15 +306,11 @@ $(function() {
 <p ><summary>Example usage</summary></p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line"><a class="code hl_struct" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a> params;</div>
-<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>[0] = 10;</div>
-<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>[1] = 20;</div>
-<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#ab03e88e77755a1ba81a4bdd3a67d51d7">type</a> = takane::array::Type::BOOLEAN;</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a> params(group_name, { 10, 20 });</div>
+<div class="line">params.type = takane::array::Type::BOOLEAN;</div>
 <div class="line"> </div>
-<div class="line">takane::hdf5_sparse_matrix::validate(file_path, group_name, params);</div>
+<div class="line">takane::hdf5_sparse_matrix::validate(file_path, params);</div>
 <div class="ttc" id="astructtakane_1_1hdf5__sparse__matrix_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a></div><div class="ttdoc">Parameters for validating a HDF5 sparse matrix file.</div><div class="ttdef"><b>Definition:</b> hdf5_sparse_matrix.hpp:25</div></div>
-<div class="ttc" id="astructtakane_1_1hdf5__sparse__matrix_1_1Parameters_html_a53824d04b1f1600cc03aa7fcfc8aea29"><div class="ttname"><a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">takane::hdf5_sparse_matrix::Parameters::dimensions</a></div><div class="ttdeci">std::array&lt; size_t, 2 &gt; dimensions</div><div class="ttdef"><b>Definition:</b> hdf5_sparse_matrix.hpp:41</div></div>
-<div class="ttc" id="astructtakane_1_1hdf5__sparse__matrix_1_1Parameters_html_ab03e88e77755a1ba81a4bdd3a67d51d7"><div class="ttname"><a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#ab03e88e77755a1ba81a4bdd3a67d51d7">takane::hdf5_sparse_matrix::Parameters::type</a></div><div class="ttdeci">array::Type type</div><div class="ttdef"><b>Definition:</b> hdf5_sparse_matrix.hpp:46</div></div>
 </div><!-- fragment --> </details>
 <h2>HDF5 dense array</h2>
 <p >A dense array stored inside a HDF5 file, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_dense_array/v1.json"><code>hdf5_dense_array</code></a> schema.</p>
@@ -323,11 +332,10 @@ $(function() {
 <p ><summary>Example usage</summary></p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line"><a class="code hl_struct" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">takane::hdf5_dense_array::Parameters</a> params;</div>
-<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a> = std::vector&lt;size_t&gt;{ 10, 20, 30 };</div>
-<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#ab03e88e77755a1ba81a4bdd3a67d51d7">type</a> = takane::array::Type::STRING;</div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">takane::hdf5_dense_array::Parameters</a> params(dataset_name, {10, 20, 30});</div>
+<div class="line">params.type = takane::array::Type::STRING;</div>
 <div class="line"> </div>
-<div class="line">takane::hdf5_dense_array::validate(file_path, dataset_name, params);</div>
+<div class="line">takane::hdf5_dense_array::validate(file_path, params);</div>
 <div class="ttc" id="astructtakane_1_1hdf5__dense__array_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">takane::hdf5_dense_array::Parameters</a></div><div class="ttdoc">Parameters for validating a HDF5 dense array file.</div><div class="ttdef"><b>Definition:</b> hdf5_dense_array.hpp:25</div></div>
 </div><!-- fragment --> </details>
 <h1>Building projects</h1>

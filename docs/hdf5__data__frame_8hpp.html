@@ -123,16 +123,16 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a9d2551c66153b91c141d29e2f78213f3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#a9d2551c66153b91c141d29e2f78213f3">takane::hdf5_data_frame::validate</a> (const H5::Group &amp;handle, const Parameters &amp;params)</td></tr>
-<tr class="separator:a9d2551c66153b91c141d29e2f78213f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46e0a5efd5239c14253231e8c9759954"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#a46e0a5efd5239c14253231e8c9759954">takane::hdf5_data_frame::validate</a> (const std::string &amp;path, const std::string &amp;name, const Parameters &amp;params)</td></tr>
-<tr class="separator:a46e0a5efd5239c14253231e8c9759954"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa339d857191a71baa76517f096bd14fd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#aa339d857191a71baa76517f096bd14fd">takane::hdf5_data_frame::validate</a> (const H5::H5File &amp;handle, const Parameters &amp;params)</td></tr>
+<tr class="separator:aa339d857191a71baa76517f096bd14fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67276933fef36c13e5e409e533afc2d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__data__frame_8hpp.html#a67276933fef36c13e5e409e533afc2d9">takane::hdf5_data_frame::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
+<tr class="separator:a67276933fef36c13e5e409e533afc2d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for HDF5 data frames. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a9d2551c66153b91c141d29e2f78213f3" name="a9d2551c66153b91c141d29e2f78213f3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9d2551c66153b91c141d29e2f78213f3">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="a67276933fef36c13e5e409e533afc2d9" name="a67276933fef36c13e5e409e533afc2d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67276933fef36c13e5e409e533afc2d9">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -143,58 +143,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">void takane::hdf5_data_frame::validate </td>
           <td>(</td>
-          <td class="paramtype">const H5::Group &amp;&#160;</td>
-          <td class="paramname"><em>handle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__data__frame_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Checks if a HDF5 data frame is correctly formatted. An error is raised if the file does not meet the specifications.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">handle</td><td>Handle to the HDF5 group containing the data frame's contents. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a46e0a5efd5239c14253231e8c9759954" name="a46e0a5efd5239c14253231e8c9759954"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a46e0a5efd5239c14253231e8c9759954">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void takane::hdf5_data_frame::validate </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -218,6 +168,50 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the HDF5 file. </td></tr>
+    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa339d857191a71baa76517f096bd14fd" name="aa339d857191a71baa76517f096bd14fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa339d857191a71baa76517f096bd14fd">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void takane::hdf5_data_frame::validate </td>
+          <td>(</td>
+          <td class="paramtype">const H5::H5File &amp;&#160;</td>
+          <td class="paramname"><em>handle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__data__frame_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Checks if a HDF5 data frame is correctly formatted. An error is raised if the file does not meet the specifications.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">handle</td><td>Handle to a HDF5 file. </td></tr>
     <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
   </table>
   </dd>
