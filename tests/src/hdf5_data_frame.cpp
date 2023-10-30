@@ -108,12 +108,10 @@ static void create_hdf5_data_frame(const H5::Group& handle, hsize_t num_rows, bo
 }
 
 template<typename ... Args_>
-static void expect_error(const std::string& msg, const std::string& path, const std::string& name, Args_&& ... args) {
-    H5::H5File handle(path, H5F_ACC_RDONLY);
-    auto ghandle = handle.openGroup(name);
+static void expect_error(const std::string& msg, Args_&& ... args) {
     EXPECT_ANY_THROW({
         try {
-            takane::hdf5_data_frame::validate(ghandle, std::forward<Args_>(args)...);
+            takane::hdf5_data_frame::validate(std::forward<Args_>(args)...);
         } catch (std::exception& e) {
             EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
             throw;
@@ -125,7 +123,7 @@ TEST(Hdf5DataFrame, Rownames) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 29;
     params.has_row_names = true;
     auto& columns = params.columns.mutable_ref();
@@ -136,16 +134,16 @@ TEST(Hdf5DataFrame, Rownames) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, true, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.unlink("row_names");
     }
-    expect_error("expected a 'row_names' dataset", path, name, params);
+    expect_error("expected a 'row_names' dataset", path.c_str(), params);
     params.has_row_names = false;
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -153,7 +151,7 @@ TEST(Hdf5DataFrame, Rownames) {
         ghandle.createGroup("row_names");
     }
     params.has_row_names = true;
-    expect_error("expected a 'row_names' dataset", path, name, params);
+    expect_error("expected a 'row_names' dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -161,7 +159,7 @@ TEST(Hdf5DataFrame, Rownames) {
         ghandle.unlink("row_names");
         ghandle.createDataSet("row_names", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error("string dataset", path, name, params);
+    expect_error("string dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -173,14 +171,14 @@ TEST(Hdf5DataFrame, Rownames) {
         H5::DataSpace dspace(1, &dummy);
         ghandle.createDataSet("row_names", stype, dspace);
     }
-    expect_error("expected 'row_names' to have length", path, name, params);
+    expect_error("expected 'row_names' to have length", path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, Colnames) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 29;
     auto& columns = params.columns.mutable_ref();
     columns.resize(2);
@@ -192,11 +190,11 @@ TEST(Hdf5DataFrame, Colnames) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
     
     auto old = columns[1].name;
     columns[1].name = "Charlie";
-    expect_error("expected name 'Charlie'", path, name, params);
+    expect_error("expected name 'Charlie'", path.c_str(), params);
     columns[1].name = old;
 
     {
@@ -204,14 +202,14 @@ TEST(Hdf5DataFrame, Colnames) {
         auto ghandle = handle.openGroup(name);
         ghandle.unlink("column_names");
     }
-    expect_error("dataset", path, name, params);
+    expect_error("dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.createGroup("column_names");
     }    
-    expect_error("expected a 'column_names' dataset", path, name, params);
+    expect_error("expected a 'column_names' dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -219,7 +217,7 @@ TEST(Hdf5DataFrame, Colnames) {
         ghandle.unlink("column_names");
         ghandle.createDataSet("column_names", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error("string dataset", path, name, params);
+    expect_error("string dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -231,7 +229,7 @@ TEST(Hdf5DataFrame, Colnames) {
         H5::DataSpace dspace(1, &dummy);
         ghandle.createDataSet("column_names", stype, dspace);
     }
-    expect_error("length of 'column_names'", path, name, params);
+    expect_error("length of 'column_names'", path.c_str(), params);
 
     columns[1].name = "Aaron";
     {
@@ -239,14 +237,14 @@ TEST(Hdf5DataFrame, Colnames) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    expect_error("duplicated column name", path, name, params);
+    expect_error("duplicated column name", path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, Data) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 33;
     auto& columns = params.columns.mutable_ref();
     columns.resize(2);
@@ -259,7 +257,7 @@ TEST(Hdf5DataFrame, Data) {
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
         ghandle.unlink("data");
     }
-    expect_error("'data' group", path, name, params);
+    expect_error("'data' group", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -267,7 +265,7 @@ TEST(Hdf5DataFrame, Data) {
         auto dhandle = ghandle.createGroup("data");
         dhandle.createGroup("0");
     }
-    expect_error("expected a dataset", path, name, params);
+    expect_error("expected a dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -279,7 +277,7 @@ TEST(Hdf5DataFrame, Data) {
         H5::DataSpace dspace(1, &dummy);
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT32, dspace);
     }
-    expect_error("length equal to the number of rows", path, name, params);
+    expect_error("length equal to the number of rows", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
@@ -288,7 +286,7 @@ TEST(Hdf5DataFrame, Data) {
         auto dhandle = ghandle.openGroup("data");
         dhandle.createGroup("foo");
     }
-    expect_error("more objects present", path, name, params);
+    expect_error("more objects present", path.c_str(), params);
 
     columns[0].type = takane::data_frame::ColumnType::OTHER;
     columns[1].type = takane::data_frame::ColumnType::OTHER;
@@ -297,14 +295,14 @@ TEST(Hdf5DataFrame, Data) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, Integer) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
     columns[0].name = "Aaron";
@@ -316,7 +314,7 @@ TEST(Hdf5DataFrame, Integer) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     hsize_t nrows = params.num_rows;
     H5::DataSpace dspace(1, &nrows);
@@ -327,7 +325,7 @@ TEST(Hdf5DataFrame, Integer) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("integer dataset", path, name, params);
+    expect_error("integer dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -336,7 +334,7 @@ TEST(Hdf5DataFrame, Integer) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, dspace);
     }
-    expect_error("exceeds the range", path, name, params);
+    expect_error("exceeds the range", path.c_str(), params);
 
     // Checking the missing value placeholder.
     {
@@ -347,7 +345,7 @@ TEST(Hdf5DataFrame, Integer) {
         auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT16, dspace);
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT16, H5S_SCALAR);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -357,14 +355,14 @@ TEST(Hdf5DataFrame, Integer) {
         xhandle.removeAttr("missing-value-placeholder");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-    expect_error("same type as", path, name, params);
+    expect_error("same type as", path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, Boolean) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 33;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
@@ -376,7 +374,7 @@ TEST(Hdf5DataFrame, Boolean) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -387,14 +385,14 @@ TEST(Hdf5DataFrame, Boolean) {
         H5::DataSpace dspace(1, &nrows);
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("integer dataset", path, name, params);
+    expect_error("integer dataset", path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, Number) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 27;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
@@ -406,7 +404,7 @@ TEST(Hdf5DataFrame, Number) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     hsize_t nrows = params.num_rows;
     H5::DataSpace dspace(1, &nrows);
@@ -417,7 +415,7 @@ TEST(Hdf5DataFrame, Number) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT, dspace);
     }
-    expect_error("floating-point dataset", path, name, params);
+    expect_error("floating-point dataset", path.c_str(), params);
 
     // Checking the missing value placeholder.
     {
@@ -428,7 +426,7 @@ TEST(Hdf5DataFrame, Number) {
         auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -438,14 +436,14 @@ TEST(Hdf5DataFrame, Number) {
         xhandle.removeAttr("missing-value-placeholder");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-    expect_error("same type as", path, name, params);
+    expect_error("same type as", path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, String) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 32;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
@@ -457,7 +455,7 @@ TEST(Hdf5DataFrame, String) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     hsize_t nrows = params.num_rows;
     H5::DataSpace dspace(1, &nrows);
@@ -468,7 +466,7 @@ TEST(Hdf5DataFrame, String) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT, dspace);
     }
-    expect_error("string dataset", path, name, params);
+    expect_error("string dataset", path.c_str(), params);
 
     // Checking the missing value placeholder.
     {
@@ -482,7 +480,7 @@ TEST(Hdf5DataFrame, String) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string("asdasd"));
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -492,14 +490,14 @@ TEST(Hdf5DataFrame, String) {
         xhandle.removeAttr("missing-value-placeholder");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-    expect_error("same type class as", path, name, params);
+    expect_error("same type class as", path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, StringDate) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 32;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
@@ -522,7 +520,7 @@ TEST(Hdf5DataFrame, StringDate) {
         auto xhandle = dhandle.createDataSet("0", stype, dspace);
         xhandle.write(dump.data(), stype);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     const char* violator = "asdasd";
     {
@@ -534,7 +532,7 @@ TEST(Hdf5DataFrame, StringDate) {
         dump.back() = violator;
         xhandle.write(dump.data(), stype);
     }
-    expect_error("date-formatted", path, name, params);
+    expect_error("date-formatted", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -544,14 +542,14 @@ TEST(Hdf5DataFrame, StringDate) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string(violator));
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, StringDateTime) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 32;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
@@ -574,7 +572,7 @@ TEST(Hdf5DataFrame, StringDateTime) {
         auto xhandle = dhandle.createDataSet("0", stype, dspace);
         xhandle.write(dump.data(), stype);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 
     const char* violator = "asdasd";
     {
@@ -586,7 +584,7 @@ TEST(Hdf5DataFrame, StringDateTime) {
         dump.back() = violator;
         xhandle.write(dump.data(), stype);
     }
-    expect_error("date/time-formatted", path, name, params);
+    expect_error("date/time-formatted", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -596,14 +594,14 @@ TEST(Hdf5DataFrame, StringDateTime) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string(violator));
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, FactorVersion1) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 32;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
@@ -619,9 +617,9 @@ TEST(Hdf5DataFrame, FactorVersion1) {
     }
     params.df_version = 1;
     params.hdf5_version = 1;
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
     columns[0].factor_levels.mutable_ref().erase("chisato");
-    expect_error("contains 'chisato'", path, name, params);
+    expect_error("contains 'chisato'", path.c_str(), params);
 
     hsize_t nrows = params.num_rows;
     H5::DataSpace dspace(1, &nrows);
@@ -632,7 +630,7 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("string dataset", path, name, params);
+    expect_error("string dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -649,14 +647,14 @@ TEST(Hdf5DataFrame, FactorVersion1) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR); // rescues the missing values.
         ahandle.write(stype, std::string(missing));
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, FactorVersion2) {
     std::string path = "TEST-hdf5_data_frame.h5";
     std::string name = "df";
 
-    takane::hdf5_data_frame::Parameters params;
+    takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 32;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
@@ -674,9 +672,9 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns);
     }
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
     factor_levels.erase("chisato");
-    expect_error("less than the number of levels", path, name, params);
+    expect_error("less than the number of levels", path.c_str(), params);
 
     hsize_t nrows = params.num_rows;
     H5::DataSpace dspace(1, &nrows);
@@ -687,7 +685,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("integer dataset", path, name, params);
+    expect_error("integer dataset", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -696,7 +694,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, dspace);
     }
-    expect_error("exceeds the range", path, name, params);
+    expect_error("exceeds the range", path.c_str(), params);
 
     // Using -1 as a placeholder value.
     {
@@ -709,7 +707,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         std::vector<int> replacement(nrows, -1);
         xhandle.write(replacement.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("non-negative", path, name, params);
+    expect_error("non-negative", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -720,7 +718,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         int val = -1;
         ahandle.write(H5::PredType::NATIVE_INT, &val); 
     }
-    takane::hdf5_data_frame::validate(path, name, params); // rescues the negative values.
+    takane::hdf5_data_frame::validate(path.c_str(), params); // rescues the negative values.
 
     // Using -2^31 as the placeholder, to check legacy loaders.
     {
@@ -733,7 +731,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         std::vector<int> replacement(nrows, -2147483648);
         xhandle.write(replacement.data(), H5::PredType::NATIVE_INT);
     }
-    expect_error("non-negative", path, name, params);
+    expect_error("non-negative", path.c_str(), params);
     params.hdf5_version = 1;
-    takane::hdf5_data_frame::validate(path, name, params);
+    takane::hdf5_data_frame::validate(path.c_str(), params);
 }

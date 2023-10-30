@@ -27,6 +27,16 @@ namespace hdf5_data_frame {
  */
 struct Parameters {
     /**
+     * @param group Name of the group containing the data frame's contents.
+     */
+    Parameters(std::string group) : group(std::move(group)) {}
+
+    /**
+     * Name of the group containing the data frame's contents.
+     */
+    std::string group;
+
+    /**
      * Number of rows in the data frame.
      */
     size_t num_rows = 0;
@@ -61,19 +71,24 @@ struct Parameters {
  * Checks if a HDF5 data frame is correctly formatted.
  * An error is raised if the file does not meet the specifications.
  *
- * @param handle Handle to the HDF5 group containing the data frame's contents.
+ * @param handle Handle to a HDF5 file.
  * @param params Validation parameters.
  */
-inline void validate(const H5::Group& handle, const Parameters& params) {
+inline void validate(const H5::H5File& handle, const Parameters& params) {
+    if (!handle.exists(params.group) || handle.childObjType(params.group) != H5O_TYPE_GROUP) {
+        throw std::runtime_error("expected a '" + params.group + "' group");
+    }
+    auto ghandle = handle.openGroup(params.group);
+
     const char* missing_attr = "missing-value-placeholder";
 
     // Checking the row names.
     if (params.has_row_names) {
-        if (!handle.exists("row_names") || handle.childObjType("row_names") != H5O_TYPE_DATASET) {
+        if (!ghandle.exists("row_names") || ghandle.childObjType("row_names") != H5O_TYPE_DATASET) {
             throw std::runtime_error("expected a 'row_names' dataset when row names is present");
         }
 
-        auto rnhandle = handle.openDataSet("row_names");
+        auto rnhandle = ghandle.openDataSet("row_names");
         if (rnhandle.getTypeClass() != H5T_STRING) {
             throw std::runtime_error("expected 'row_names' to be a string dataset");
         }
@@ -86,11 +101,11 @@ inline void validate(const H5::Group& handle, const Parameters& params) {
     // Checking the column names.
     const auto& columns = *(params.columns);
     {
-        if (!handle.exists("column_names") || handle.childObjType("column_names") != H5O_TYPE_DATASET) {
+        if (!ghandle.exists("column_names") || ghandle.childObjType("column_names") != H5O_TYPE_DATASET) {
             throw std::runtime_error("expected a 'column_names' dataset");
         }
 
-        auto cnhandle = handle.openDataSet("column_names");
+        auto cnhandle = ghandle.openDataSet("column_names");
         if (cnhandle.getTypeClass() != H5T_STRING) {
             throw std::runtime_error("expected 'column_names' to be a string dataset");
         }
@@ -121,10 +136,10 @@ inline void validate(const H5::Group& handle, const Parameters& params) {
         }
     }
 
-    if (!handle.exists("data") || handle.childObjType("data") != H5O_TYPE_GROUP) {
+    if (!ghandle.exists("data") || ghandle.childObjType("data") != H5O_TYPE_GROUP) {
         throw std::runtime_error("expected a 'data' group");
     }
-    auto dhandle = handle.openGroup("data");
+    auto dhandle = ghandle.openGroup("data");
 
     // Checking each column individually.
     size_t NC = columns.size();
@@ -133,7 +148,7 @@ inline void validate(const H5::Group& handle, const Parameters& params) {
         const auto& curcol = columns[c];
 
         std::string dset_name = std::to_string(c);
-        if (!handle.exists(dset_name)) {
+        if (!ghandle.exists(dset_name)) {
             if (curcol.type == data_frame::ColumnType::OTHER) {
                 continue;
             }
@@ -292,10 +307,9 @@ inline void validate(const H5::Group& handle, const Parameters& params) {
  * @param path Path to the HDF5 file.
  * @param params Validation parameters.
  */
-inline void validate(const std::string& path, const std::string& name, const Parameters& params) {
+inline void validate(const char* path, const Parameters& params) {
     H5::H5File handle(path, H5F_ACC_RDONLY);
-    auto ghandle = handle.openGroup(name);
-    validate(ghandle, params);
+    validate(handle, params);
 }
 
 }
