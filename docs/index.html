@@ -273,6 +273,63 @@ $(function() {
 <div class="line">    <span class="comment">/* has_names = */</span> <span class="keyword">false</span> </div>
 <div class="line">);</div>
 </div><!-- fragment --> </details>
+<h2>HDF5 sparse matrix</h2>
+<p >A compressed sparse matrix stored inside a HDF5 file, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_sparse_matrix/v1.json"><code>hdf5_sparse_matrix</code></a> schema.</p>
+<p >The HDF5 group (specified by <code>~hdf5_sparse_matrix.group</code>) should contain the typical contents of the compressed sparse matrix, i.e., <code>indices</code>, <code>indptr</code> and <code>data</code>. <code>data</code> should be a 1-dimensional integer or floating-point dataset containing the values of the non-zero elements; <code>indices</code> should be a 1-dimensional integer dataset containing the 0-based row/column index for each non-zero element in <code>data</code>; and <code>indptr</code> should be a 1-dimensional integer dataset of length equal to the number of columns/rows plus 1, containing pointers to the start and end of each column/row.</p>
+<p >If <code>~hdf5_sparse_matrix.format</code> is equal to <code>"tenx_matrix"</code>, <code>indices</code> should contain row indices and <code>indptr</code> should contain the column index pointers. The group should also contain a <code>shape</code> dataset, an 1-dimensional integer dataset of length 2 storing the number of rows and columns - this should be equal to <code>array.dimensions</code>.</p>
+<p >The type of the matrix is specified by <code>~array.type</code> and should be integer, boolean or numeric. This determines the appropriate HDF5 datatype for <code>data</code>. The exact type is generally left to the discretion of the data generator, with some restrictions:</p>
+<ul>
+<li>Numeric arrays can be represented by any integer or floating-point HDF5 datatype.</li>
+<li>Integer <code>data</code> can be represented by any integer HDF5 datatype. However, it is advisable to use a data type that is representable by a 32-bit signed integer, for maximum compatibility with downstream clients.</li>
+<li>Boolean <code>data</code> are stored as integer HDF5 datasets, where a value of 1 is truthy and a value of zero is falsey. These can be distinguished from integer columns by inspecting the <code>array.type</code> property.</li>
+</ul>
+<p >The treatment of missing values is version-dependent:</p>
+<ul>
+<li><b>For <code>~hdf5_dense_array.version &gt;= 2</code>:</b> the dataset may have a <code>missing-value-placeholder</code> attribute, containing a scalar value to use as a missing value placeholder. Any value equal to this placeholder should be treated as missing. The HDF5 datatype of the attribute should be exactly equal to that of the dataset. If no attribute exists, it can be assumed that no values are missing.</li>
+<li><b>For <code>~hdf5_dense_array.version = 1</code>:</b> no placeholder is present for non-string types. Missing integers and booleans are represented by -2147483648 instead. Missing numbers are represented by a quiet NaN with a payload of 1954.</li>
+</ul>
+<p >Dimnames may also be saved inside the same HDF5 file, as string datasets in another group. In such cases, the <code>~hdf5_sparse_matrix.dimnames</code> property should be present and contain the name of that group. This group should contain zero or one string datasets for each dimension. The name of each string dataset is based on its dimension - <code>"0"</code> for rows, <code>"1"</code> for columns - and should have length equal to the extent of that dimension. If no dataset is not present for a dimension, it can be assumed that no dimnames are available for that dimension</p>
+<details >
+<p ><summary>Example usage</summary></p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a> params;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>[0] = 10;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>[1] = 20;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#ab03e88e77755a1ba81a4bdd3a67d51d7">type</a> = takane::array::Type::BOOLEAN;</div>
+<div class="line"> </div>
+<div class="line">takane::hdf5_sparse_matrix::validate(file_path, group_name, params);</div>
+<div class="ttc" id="astructtakane_1_1hdf5__sparse__matrix_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a></div><div class="ttdoc">Parameters for validating a HDF5 sparse matrix file.</div><div class="ttdef"><b>Definition:</b> hdf5_sparse_matrix.hpp:25</div></div>
+<div class="ttc" id="astructtakane_1_1hdf5__sparse__matrix_1_1Parameters_html_a53824d04b1f1600cc03aa7fcfc8aea29"><div class="ttname"><a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">takane::hdf5_sparse_matrix::Parameters::dimensions</a></div><div class="ttdeci">std::array&lt; size_t, 2 &gt; dimensions</div><div class="ttdef"><b>Definition:</b> hdf5_sparse_matrix.hpp:41</div></div>
+<div class="ttc" id="astructtakane_1_1hdf5__sparse__matrix_1_1Parameters_html_ab03e88e77755a1ba81a4bdd3a67d51d7"><div class="ttname"><a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#ab03e88e77755a1ba81a4bdd3a67d51d7">takane::hdf5_sparse_matrix::Parameters::type</a></div><div class="ttdeci">array::Type type</div><div class="ttdef"><b>Definition:</b> hdf5_sparse_matrix.hpp:46</div></div>
+</div><!-- fragment --> </details>
+<h2>HDF5 dense array</h2>
+<p >A dense array stored inside a HDF5 file, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_dense_array/v1.json"><code>hdf5_dense_array</code></a> schema.</p>
+<p >The file should contain a dataset at the name specified by <code>~hdf5_dense_array.dataset</code>. The dimension extents of this dataset should be listed in reverse order to those in <code>~array.dimensions</code>, i.e., the extent of the last HDF5 dimension should be equal to the extent of the first dimension in <code>~array.dimensions</code>. This is because the dimensions reported in <code>~array.dimensions</code> are ordered from fastest-changing to slowest, while the HDF5 library reports dataset dimensions from slowest-changing to fastest. In the context of matrices, this implies storage in a column-major layout where the first (faster) dimension corresponds to the rows and the second (slower) dimension corresponds to the columns.</p>
+<p >The file may also contain the dimnames of the array, stored in a separate HDF5 group. If present, the name of the group should be listed in the <code>~hdf5_dense_array.dimnames</code> property. This group should contain zero or one string datasets for each dimension. The name of each string dataset is based on its dimension - <code>"0"</code> for rows, <code>"1"</code> for columns - and should have length equal to the extent of that dimension, i.e., the dataset named <code>"0"</code> should have length equal to the first entry of <code>~array.dimensions</code>. If no dataset is not present for a dimension, it can be assumed that no dimnames are available for that dimension.</p>
+<p >The type of the array is specified by <code>~array.type</code> and can be integer, boolean, numeric, or string. The exact HDF5 datatype is generally left to the discretion of the data generator, with some restrictions:</p>
+<ul>
+<li>String arrays can be represented by any string HDF5 dataset at the discretion of the data generator.</li>
+<li>Numeric arrays can be represented by any integer or floating-point HDF5 dataset at the discretion of the data generator.</li>
+<li>Integer arrays can be represented by any integer HDF5 datatype at the discretion of the data generator. However, it is advisable to use a data type that is representable by a 32-bit signed integer, for maximum compatibility with downstream clients.</li>
+<li>Boolean arrays are stored as integer HDF5 datasets, where a value of 1 is truthy and a value of zero is falsey. These can be distinguished from integer columns by inspecting the <code>~array.type</code> property.</li>
+</ul>
+<p >The treatment of missing values is version-dependent:</p>
+<ul>
+<li><b>For <code>~hdf5_dense_array.version &gt;= 2</code>:</b> the dataset may have a <code>missing-value-placeholder</code> attribute, containing a scalar value to use as a missing value placeholder. Any value equal to this placeholder should be treated as missing. For non-string types, the HDF5 datatype of the attribute should be exactly equal to that of the dataset. For string types, the datatype only needs to be same string type. If no attribute exists, it can be assumed that no values are missing.</li>
+<li><b>For <code>~hdf5_dense_array.version = 1</code>:</b> no placeholder is present for non-string types. Missing integers and booleans are represented by -2147483648 instead. Missing numbers are represented by a quiet NaN with a payload of 1954. Missing strings are represented by a <code>missing-value-placeholder</code> attribute, containing a scalar value of some string type.</li>
+</ul>
+<details >
+<p ><summary>Example usage</summary></p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><a class="code hl_struct" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">takane::hdf5_dense_array::Parameters</a> params;</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a> = std::vector&lt;size_t&gt;{ 10, 20, 30 };</div>
+<div class="line">params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#ab03e88e77755a1ba81a4bdd3a67d51d7">type</a> = takane::array::Type::STRING;</div>
+<div class="line"> </div>
+<div class="line">takane::hdf5_dense_array::validate(file_path, dataset_name, params);</div>
+<div class="ttc" id="astructtakane_1_1hdf5__dense__array_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">takane::hdf5_dense_array::Parameters</a></div><div class="ttdoc">Parameters for validating a HDF5 dense array file.</div><div class="ttdef"><b>Definition:</b> hdf5_dense_array.hpp:25</div></div>
+</div><!-- fragment --> </details>
 <h1>Building projects</h1>
 <h2>CMake with <code>FetchContent</code></h2>
 <p >If you're using CMake, you just need to add something like this to your <code>CMakeLists.txt</code>:</p>
