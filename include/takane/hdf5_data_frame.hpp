@@ -85,7 +85,7 @@ inline void validate_row_names(const H5::Group& handle, hsize_t num_rows) try {
     throw std::runtime_error("failed to validate the row names for '" + ritsuko::hdf5::get_name(handle) + "'; " + std::string(e.what()));
 }
 
-inline void validate_column_names(const H5::Group& handle, const std::vector<data_frame::ColumnDetails>& columns) try {
+inline void validate_column_names(const H5::Group& ghandle, const Parameters& params) try {
     if (!ghandle.exists("column_names") || ghandle.childObjType("column_names") != H5O_TYPE_DATASET) {
         throw std::runtime_error("expected a 'column_names' dataset");
     }
@@ -95,6 +95,7 @@ inline void validate_column_names(const H5::Group& handle, const std::vector<dat
         throw std::runtime_error("expected 'column_names' to be a string dataset");
     }
 
+    const auto& columns = *(params.columns);
     size_t num_cols = ritsuko::hdf5::get_1d_length(cnhandle.getSpace(), false);
     if (num_cols != columns.size()) {
         throw std::runtime_error("length of 'column_names' should equal the expected number of columns");
@@ -120,7 +121,7 @@ inline void validate_column_names(const H5::Group& handle, const std::vector<dat
         column_names.insert(col.name);
     }
 } catch (std::exception& e) {
-    throw std::runtime_error("failed to validate the column names for '" + ritsuko::hdf5::get_name(handle) + "'; " + std::string(e.what()));
+    throw std::runtime_error("failed to validate the column names for '" + ritsuko::hdf5::get_name(ghandle) + "'; " + std::string(e.what()));
 }
 
 inline void validate_column(const H5::Group& dhandle, const std::string& dset_name, const data_frame::ColumnDetails& curcol, const Parameters& params) try { 
@@ -128,6 +129,8 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
     if (params.num_rows != ritsuko::hdf5::get_1d_length(xhandle.getSpace(), false)) {
         throw std::runtime_error("expected column to have length equal to the number of rows");
     }
+
+    const char* missing_attr = "missing-value-placeholder";
 
     if (curcol.type == data_frame::ColumnType::NUMBER) {
         if (params.hdf5_version < 3) {
@@ -286,20 +289,17 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
     }
     auto ghandle = handle.openGroup(params.group);
 
-    const char* missing_attr = "missing-value-placeholder";
-
-    if (has_row_names) {
+    if (params.has_row_names) {
         validate_row_names(ghandle, params.num_rows);
     }
+    validate_column_names(ghandle, params);
 
-    const auto& columns = *(params.columns);
-    validate_column_names(ghandle, columns);
-
-    if (!handle.exists("data") || handle.childObjType("data") != H5O_TYPE_GROUP) {
-        throw std::runtime_error("expected a 'data' group in '" + ritsuko::hdf5::get_name(handle) + "'");
+    if (!ghandle.exists("data") || ghandle.childObjType("data") != H5O_TYPE_GROUP) {
+        throw std::runtime_error("expected a 'data' group");
     }
     auto dhandle = ghandle.openGroup("data");
 
+    const auto& columns = *(params.columns);
     size_t NC = columns.size();
     hsize_t found = 0;
     for (size_t c = 0; c < NC; ++c) {
@@ -312,7 +312,7 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
             }
         }
 
-        validate_column(ghandle, dset_name, curcol, params);
+        validate_column(dhandle, dset_name, curcol, params);
         ++found;
     }
 

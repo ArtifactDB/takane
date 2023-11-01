@@ -9,6 +9,7 @@
 #include <array>
 #include <stdexcept>
 #include <string>
+#include <cstdint>
 
 /**
  * @file hdf5_sparse_matrix.hpp
@@ -67,6 +68,160 @@ struct Parameters {
 };
 
 /**
+ * @cond
+ */
+inline void validate_shape(const H5::Group& dhandle, const Parameters& params) try {
+    const auto& dimensions = params.dimensions;
+    if (!dhandle.exists("shape") || dhandle.childObjType("shape") != H5O_TYPE_DATASET) {
+        throw std::runtime_error("expected a dataset");
+    }
+
+    auto shandle = dhandle.openDataSet("shape");
+    if (ritsuko::hdf5::exceeds_integer_limit(shandle, 64, true)) {
+        throw std::runtime_error("expected the datatype to be a subset of a 64-bit signed integer");
+    }
+
+    size_t len = ritsuko::hdf5::get_1d_length(shandle.getSpace(), false);
+    if (len != 2) {
+        throw std::runtime_error("expected the dataset to be of length 2");
+    }
+
+    int64_t dims[2];
+    shandle.read(dims, H5::PredType::NATIVE_INT64);
+    if (dims[0] < 0 || static_cast<size_t>(dims[0]) != params.dimensions[0]) {
+        throw std::runtime_error("mismatch in first entry (expected " + std::to_string(dimensions[0]) + ", got " + std::to_string(dims[0]) + ")");
+    }
+    if (dims[1] < 0 || static_cast<size_t>(dims[1]) != params.dimensions[1]) {
+        throw std::runtime_error("mismatch in second entry (expected " + std::to_string(dimensions[1]) + ", got " + std::to_string(dims[1]) + ")");
+    }
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate sparse matrix shape at '" + ritsuko::hdf5::get_name(dhandle) + "/shape'; " + std::string(e.what()));
+}
+
+inline size_t validate_data(const H5::Group& dhandle, const Parameters& params) try {
+    if (!dhandle.exists("data") || dhandle.childObjType("data") != H5O_TYPE_DATASET) {
+        throw std::runtime_error("expected a dataset");
+    }
+
+    auto ddhandle = dhandle.openDataSet("data");
+    size_t num_nonzero = ritsuko::hdf5::get_1d_length(ddhandle.getSpace(), false);
+
+    if (params.type == array::Type::INTEGER) {
+        if (ritsuko::hdf5::exceeds_integer_limit(ddhandle, 32, true)) {
+            throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
+        }
+    } else {
+        if (ritsuko::hdf5::exceeds_float_limit(ddhandle, 64)) {
+            throw std::runtime_error("expected datatype to be a subset of a 64-bit float");
+        }
+    }
+
+    if (params.version >= 2) {
+        const char* missing_attr = "missing-value-placeholder";
+        if (ddhandle.attrExists(missing_attr)) {
+            ritsuko::hdf5::get_missing_placeholder_attribute(ddhandle, missing_attr);
+        }
+    }
+
+    return num_nonzero;
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate sparse matrix data at '" + ritsuko::hdf5::get_name(dhandle) + "/data'; " + std::string(e.what()));
+}
+
+inline std::vector<uint64_t> validate_indptrs(const H5::Group& dhandle, size_t primary_dim, size_t num_nonzero) try {
+    if (!dhandle.exists("indptr") || dhandle.childObjType("indptr") != H5O_TYPE_DATASET) {
+        throw std::runtime_error("expected a dataset");
+    }
+
+    auto iphandle = dhandle.openDataSet("indptr");
+    if (ritsuko::hdf5::exceeds_integer_limit(iphandle, 64, false)) {
+        throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+    }
+
+    size_t len = ritsuko::hdf5::get_1d_length(iphandle.getSpace(), false);
+    if (len != primary_dim + 1) {
+        throw std::runtime_error("dataset should have length equal to the primary dimension extent plus 1");
+    }
+
+    std::vector<uint64_t> indptrs(len);
+    iphandle.read(indptrs.data(), H5::PredType::NATIVE_UINT64);
+
+    if (indptrs[0] != 0) {
+        throw std::runtime_error("first entry should be zero");
+    }
+    if (indptrs.back() != num_nonzero) {
+        throw std::runtime_error("last entry should equal the number of non-zero elements");
+    }
+
+    for (size_t i = 1; i < len; ++i) {
+        if (indptrs[i] < indptrs[i-1]) {
+            throw std::runtime_error("pointers should be sorted in increasing order");
+        }
+    }
+
+    return indptrs;
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate sparse matrix pointers at '" + ritsuko::hdf5::get_name(dhandle) + "/indptr'; " + std::string(e.what()));
+}
+
+inline void validate_indices(const H5::Group& dhandle, const std::vector<uint64_t>& indptrs, uint64_t secondary_dim, const Parameters& params) try {
+    if (!dhandle.exists("indices") || dhandle.childObjType("indices") != H5O_TYPE_DATASET) {
+        throw std::runtime_error("expected a dataset");
+    }
+
+    auto ixhandle = dhandle.openDataSet("indices");
+    auto len = ritsuko::hdf5::get_1d_length(ixhandle.getSpace(), false);
+    if (indptrs.back() != len) {
+        throw std::runtime_error("dataset length should be equal to the number of non-zero elements (expected " + std::to_string(indptrs.back()) + ", got " + std::to_string(len) + ")");
+    }
+
+    if (ritsuko::hdf5::exceeds_integer_limit(ixhandle, 64, false)) {
+        throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+    }
+
+    auto block_size = ritsuko::hdf5::pick_1d_block_size(ixhandle.getCreatePlist(), len, params.buffer_size);
+    std::vector<uint64_t> buffer(block_size);
+    size_t which_ptr = 0;
+    uint64_t last_index = 0;
+    auto limit = indptrs[0];
+
+    ritsuko::hdf5::iterate_1d_blocks(
+        len,
+        block_size,
+        [&](hsize_t position, hsize_t len, const H5::DataSpace& memspace, const H5::DataSpace& dataspace) {
+            buffer.resize(len);
+            ixhandle.read(buffer.data(), H5::PredType::NATIVE_UINT64, memspace, dataspace);
+
+            for (auto bIt = buffer.begin(); bIt != buffer.end(); ++bIt, ++position) {
+                if (*bIt >= secondary_dim) {
+                    throw std::runtime_error("out-of-range index (" + std::to_string(*bIt) + ")");
+                }
+
+                if (position == limit) {
+                    // No need to check if there are more or fewer elements
+                    // than expected, as we already know that indptr.back()
+                    // is equal to the number of non-zero elements.
+                    do {
+                        ++which_ptr;
+                        limit = indptrs[which_ptr];
+                    } while (position == limit);
+
+                } else if (last_index >= *bIt) {
+                    throw std::runtime_error("indices should be strictly increasing");
+                }
+
+                last_index = *bIt;
+            }
+        }
+    );
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate sparse matrix indices at '" + ritsuko::hdf5::get_name(dhandle) + "/indices'; " + std::string(e.what()));
+}
+/**
+ * @endcond
+ */
+
+/**
  * Checks if a HDF5 sparse matrix is correctly formatted.
  * An error is raised if the file does not meet the specifications.
  *
@@ -80,146 +235,10 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
     }
     auto dhandle = handle.openGroup(group);
 
-    // Shape check.
-    const auto& dimensions = params.dimensions;    
-    {
-        std::string dset_name = group + "/shape";
-        if (!dhandle.exists("shape") || dhandle.childObjType("shape") != H5O_TYPE_DATASET) {
-            throw std::runtime_error("expected a '" + dset_name + "' dataset");
-        }
-
-        auto shandle = dhandle.openDataSet("shape");
-        if (shandle.getTypeClass() != H5T_INTEGER) {
-            throw std::runtime_error("expected the '" + dset_name + "' dataset to be integer");
-        }
-
-        size_t len = ritsuko::hdf5::get_1d_length(shandle.getSpace(), false, dset_name.c_str());
-        if (len != 2) {
-            throw std::runtime_error("expected the '" + dset_name + "' dataset to be length 2");
-        }
-
-        hsize_t dims[2];
-        shandle.read(dims, H5::PredType::NATIVE_HSIZE);
-        if (dims[0] != dimensions[0]) {
-            throw std::runtime_error("mismatch in first entry of '" + dset_name + "' (expected " + std::to_string(dimensions[0]) + ", got " + std::to_string(dims[0]) + ")");
-        }
-        if (dims[1] != dimensions[1]) {
-            throw std::runtime_error("mismatch in second entry of '" + dset_name + "' (expected " + std::to_string(dimensions[1]) + ", got " + std::to_string(dims[1]) + ")");
-        }
-    }
-
-    size_t num_nonzero = 0;
-    {
-        std::string dset_name = group + "/data";
-        if (!dhandle.exists("data") || dhandle.childObjType("data") != H5O_TYPE_DATASET) {
-            throw std::runtime_error("expected a '" + dset_name + "' dataset");
-        }
-
-        auto ddhandle = dhandle.openDataSet("data");
-        num_nonzero = ritsuko::hdf5::get_1d_length(ddhandle.getSpace(), false, dset_name.c_str());
-
-        auto type_class = ddhandle.getTypeClass();
-        if (type_class != H5T_INTEGER && type_class != H5T_FLOAT) {
-            throw std::runtime_error("expected the '" + dset_name + "' dataset to be integer or float");
-        }
-
-        if (params.version >= 2) {
-            const char* missing_attr = "missing-value-placeholder";
-            if (ddhandle.attrExists(missing_attr)) {
-                ritsuko::hdf5::get_missing_placeholder_attribute(ddhandle, missing_attr, dset_name.c_str());
-            }
-        }
-    }
-
-    // Okey dokey, need to load in the pointers.
-    size_t primary_dim = dimensions[1];
-    std::vector<hsize_t> indptrs;
-    {
-        std::string dset_name = group + "/indptr";
-        if (!dhandle.exists("indptr") || dhandle.childObjType("indptr") != H5O_TYPE_DATASET) {
-            throw std::runtime_error("expected a '" + dset_name + "' dataset");
-        }
-
-        auto iphandle = dhandle.openDataSet("indptr");
-        if (iphandle.getTypeClass() != H5T_INTEGER) {
-            throw std::runtime_error("expected the '" + dset_name + "' dataset to be integer");
-        }
-
-        size_t len = ritsuko::hdf5::get_1d_length(iphandle.getSpace(), false, dset_name.c_str());
-        if (len != primary_dim + 1) {
-            throw std::runtime_error("'" + dset_name + "' should have length equal to the number of columns plus 1");
-        }
-
-        indptrs.resize(len);
-        iphandle.read(indptrs.data(), H5::PredType::NATIVE_HSIZE);
-
-        if (indptrs[0] != 0) {
-            throw std::runtime_error("first entry of '" + dset_name + "' should be zero");
-        }
-        if (indptrs.back() != num_nonzero) {
-            throw std::runtime_error("last entry of '" + dset_name + "' should equal the number of non-zero elements");
-        }
-
-        for (size_t i = 1; i < len; ++i) {
-            if (indptrs[i] < indptrs[i-1]) {
-                throw std::runtime_error("'" + dset_name + "' should be sorted in increasing order");
-            }
-        }
-    }
-
-    // Now iterating over the indices and checking that everything is kosher.
-    {
-        std::string dset_name = group + "/indices";
-        if (!dhandle.exists("indices") || dhandle.childObjType("indices") != H5O_TYPE_DATASET) {
-            throw std::runtime_error("expected a '" + dset_name + "' dataset");
-        }
-
-        auto ixhandle = dhandle.openDataSet("indices");
-        if (num_nonzero != ritsuko::hdf5::get_1d_length(ixhandle.getSpace(), false, dset_name.c_str())) {
-            throw std::runtime_error("'" + group + "/data' and '" + dset_name + "' should have the same length");
-        }
-
-        auto type_class = ixhandle.getTypeClass();
-        if (type_class != H5T_INTEGER) { 
-            throw std::runtime_error("expected the '" + dset_name + "' dataset to be integer or float");
-        }
-
-        auto block_size = ritsuko::hdf5::pick_1d_block_size(ixhandle.getCreatePlist(), num_nonzero, params.buffer_size);
-        std::vector<hsize_t> buffer(block_size);
-        size_t which_ptr = 0;
-        hsize_t last_index = 0;
-        auto limit = indptrs[0];
-
-        ritsuko::hdf5::iterate_1d_blocks(
-            num_nonzero,
-            block_size,
-            [&](hsize_t position, hsize_t len, const H5::DataSpace& memspace, const H5::DataSpace& dataspace) {
-                buffer.resize(len);
-                ixhandle.read(buffer.data(), H5::PredType::NATIVE_HSIZE, memspace, dataspace);
-
-                for (auto bIt = buffer.begin(); bIt != buffer.end(); ++bIt, ++position) {
-                    if (*bIt >= dimensions[0]) {
-                        throw std::runtime_error("out-of-range index in '" + dset_name + "'");
-                    }
-
-                    if (position == limit) {
-                        // No need to check if there are more or fewer elements
-                        // than expected, as we already know that indptr.back()
-                        // is equal to the number of non-zero elements.
-                        do {
-                            ++which_ptr;
-                            limit = indptrs[which_ptr];
-                        } while (position == limit);
-
-                    } else if (last_index >= *bIt) {
-                        throw std::runtime_error("indices in '" + dset_name + "' should be strictly increasing");
-                    }
-
-                    last_index = *bIt;
-                }
-            }
-        );
-    }
+    validate_shape(dhandle, params);
+    size_t num_nonzero = validate_data(dhandle, params);
+    std::vector<uint64_t> indptrs = validate_indptrs(dhandle, params.dimensions[1], num_nonzero);
+    validate_indices(dhandle, indptrs, params.dimensions[0], params);
 
     if (params.has_dimnames) {
         array::check_dimnames(handle, params.dimnames_group, params.dimensions);
