@@ -19,7 +19,6 @@ Currently, **takane** performs validation of the following representations:
 - [HDF5 dense array](docs/specifications/hdf5_dense_array/v1.md)
 - [HDF5 sparse matrix](docs/specifications/hdf5_sparse_matrix/v1.md)
 - [Sequence information](docs/specifications/sequence_information/v1.md)
-- [String factor](docs/specifications/string_factor/v1.md)
 
 Each representation has its own validation function that takes information from the schema and checks them against the file contents.
 For example, for the `hdf5_sparse_matrix`, we could do:

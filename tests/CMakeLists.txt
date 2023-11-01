@@ -23,7 +23,6 @@ add_executable(
     src/sequence_information.cpp
     src/atomic_vector.cpp
     src/factor.cpp
-    src/string_factor.cpp
     src/compressed_list.cpp
     src/hdf5_sparse_matrix.cpp
     src/hdf5_dense_array.cpp
