@@ -77,8 +77,14 @@ inline void validate_shape(const H5::Group& dhandle, const Parameters& params) t
     }
 
     auto shandle = dhandle.openDataSet("shape");
-    if (ritsuko::hdf5::exceeds_integer_limit(shandle, 64, true)) {
-        throw std::runtime_error("expected the datatype to be a subset of a 64-bit signed integer");
+    if (params.version >= 3) {
+        if (ritsuko::hdf5::exceeds_integer_limit(shandle, 64, true)) {
+            throw std::runtime_error("expected the datatype to be a subset of a 64-bit signed integer");
+        }
+    } else {
+        if (shandle.getTypeClass() != H5T_INTEGER) {
+            throw std::runtime_error("expected an integer dataset");
+        }
     }
 
     size_t len = ritsuko::hdf5::get_1d_length(shandle.getSpace(), false);
@@ -106,14 +112,29 @@ inline size_t validate_data(const H5::Group& dhandle, const Parameters& params) 
     auto ddhandle = dhandle.openDataSet("data");
     size_t num_nonzero = ritsuko::hdf5::get_1d_length(ddhandle.getSpace(), false);
 
-    if (params.type == array::Type::INTEGER) {
-        if (ritsuko::hdf5::exceeds_integer_limit(ddhandle, 32, true)) {
-            throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
+    if (params.type == array::Type::INTEGER || params.type == array::Type::BOOLEAN) {
+        if (params.version >= 3) {
+            if (ritsuko::hdf5::exceeds_integer_limit(ddhandle, 32, true)) {
+                throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
+            }
+        } else {
+            if (ddhandle.getTypeClass() != H5T_INTEGER) {
+                throw std::runtime_error("expected an integer dataset");
+            }
+        }
+    } else if (params.type == array::Type::NUMBER) {
+        if (params.version >= 3) {
+            if (ritsuko::hdf5::exceeds_float_limit(ddhandle, 64)) {
+                throw std::runtime_error("expected datatype to be a subset of a 64-bit float");
+            }
+        } else {
+            auto tclass = ddhandle.getTypeClass();
+            if (tclass != H5T_INTEGER && tclass != H5T_FLOAT) {
+                throw std::runtime_error("expected an integer or floating-point dataset");
+            }
         }
     } else {
-        if (ritsuko::hdf5::exceeds_float_limit(ddhandle, 64)) {
-            throw std::runtime_error("expected datatype to be a subset of a 64-bit float");
-        }
+        throw std::runtime_error("unexpected array type for a sparse matrix");
     }
 
     if (params.version >= 2) {
@@ -128,14 +149,20 @@ inline size_t validate_data(const H5::Group& dhandle, const Parameters& params) 
     throw std::runtime_error("failed to validate sparse matrix data at '" + ritsuko::hdf5::get_name(dhandle) + "/data'; " + std::string(e.what()));
 }
 
-inline std::vector<uint64_t> validate_indptrs(const H5::Group& dhandle, size_t primary_dim, size_t num_nonzero) try {
+inline std::vector<uint64_t> validate_indptrs(const H5::Group& dhandle, size_t primary_dim, size_t num_nonzero, const Parameters& params) try {
     if (!dhandle.exists("indptr") || dhandle.childObjType("indptr") != H5O_TYPE_DATASET) {
         throw std::runtime_error("expected a dataset");
     }
 
     auto iphandle = dhandle.openDataSet("indptr");
-    if (ritsuko::hdf5::exceeds_integer_limit(iphandle, 64, false)) {
-        throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+    if (params.version >= 3) {
+        if (ritsuko::hdf5::exceeds_integer_limit(iphandle, 64, false)) {
+            throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+        }
+    } else {
+        if (iphandle.getTypeClass() != H5T_INTEGER) {
+            throw std::runtime_error("expected an integer dataset");
+        }
     }
 
     size_t len = ritsuko::hdf5::get_1d_length(iphandle.getSpace(), false);
@@ -175,8 +202,14 @@ inline void validate_indices(const H5::Group& dhandle, const std::vector<uint64_
         throw std::runtime_error("dataset length should be equal to the number of non-zero elements (expected " + std::to_string(indptrs.back()) + ", got " + std::to_string(len) + ")");
     }
 
-    if (ritsuko::hdf5::exceeds_integer_limit(ixhandle, 64, false)) {
-        throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+    if (params.version >= 3) {
+        if (ritsuko::hdf5::exceeds_integer_limit(ixhandle, 64, false)) {
+            throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+        }
+    } else {
+        if (ixhandle.getTypeClass() != H5T_INTEGER) {
+            throw std::runtime_error("expected an integer dataset");
+        }
     }
 
     auto block_size = ritsuko::hdf5::pick_1d_block_size(ixhandle.getCreatePlist(), len, params.buffer_size);
@@ -237,7 +270,7 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
 
     validate_shape(dhandle, params);
     size_t num_nonzero = validate_data(dhandle, params);
-    std::vector<uint64_t> indptrs = validate_indptrs(dhandle, params.dimensions[1], num_nonzero);
+    std::vector<uint64_t> indptrs = validate_indptrs(dhandle, params.dimensions[1], num_nonzero, params);
     validate_indices(dhandle, indptrs, params.dimensions[0], params);
 
     if (params.has_dimnames) {

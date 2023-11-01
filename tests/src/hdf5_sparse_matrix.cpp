@@ -112,6 +112,8 @@ TEST(Hdf5SparseMatrix, Success) {
         takane::hdf5_sparse_matrix::validate(path.c_str(), params);
         params.type = takane::array::Type::NUMBER; // still works for floats.
         takane::hdf5_sparse_matrix::validate(path.c_str(), params);
+        params.type = takane::array::Type::BOOLEAN; // still works for bools, I guess.
+        takane::hdf5_sparse_matrix::validate(path.c_str(), params);
     }
 
     // Has a missing value.
@@ -177,7 +179,12 @@ TEST(Hdf5SparseMatrix, ShapeFails) {
         ghandle.unlink("shape");
         ghandle.createDataSet("shape", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
-    expect_error("64-bit signed integer", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
+    {
+        takane::hdf5_sparse_matrix::Parameters params(name, {12, 18});
+        expect_error("expected an integer dataset", path, params);
+        params.version = 3;
+        expect_error("64-bit signed integer", path, params);
+    }
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -211,6 +218,17 @@ TEST(Hdf5SparseMatrix, DataFails) {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         create_hdf5_sparse_matrix(ghandle);
+    }
+    {
+        takane::hdf5_sparse_matrix::Parameters params(name, {12, 18});
+        params.type = takane::array::Type::STRING;
+        expect_error("unexpected array type", path, params);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup(name);
+        create_hdf5_sparse_matrix(ghandle);
         ghandle.unlink("data");
     }
     expect_error("expected a dataset", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
@@ -232,6 +250,8 @@ TEST(Hdf5SparseMatrix, DataFails) {
     }
     {
         takane::hdf5_sparse_matrix::Parameters params(name, {12, 18});
+        expect_error("expected an integer dataset", path, params);
+        params.version = 3;
         expect_error("subset of a 32-bit signed integer", path, params);
         params.type = takane::array::Type::NUMBER;
         expect_error("subset of a 64-bit float", path, params);
@@ -276,7 +296,12 @@ TEST(Hdf5SparseMatrix, IndptrFails) {
         auto dspace = H5::DataSpace(1, &dim);
         ghandle.createDataSet("indptr", H5::StrType(0, H5T_VARIABLE), dspace);
     }
-    expect_error("subset of a 64-bit unsigned integer", path, takane::hdf5_sparse_matrix::Parameters(name, {12, 18}));
+    {
+        takane::hdf5_sparse_matrix::Parameters params(name, {12, 18});
+        expect_error("expected an integer dataset", path, params);
+        params.version = 3;
+        expect_error("subset of a 64-bit unsigned integer", path, params);
+    }
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);

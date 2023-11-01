@@ -97,17 +97,31 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
     }
 
     {
-        auto tclass = dhandle.getTypeClass();
         if (params.type == array::Type::INTEGER || params.type == array::Type::BOOLEAN) {
-            if (tclass != H5T_INTEGER) {
-                throw std::runtime_error("expected an integer type for '" + dataset + "'");
+            if (params.version >= 3) {
+                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                    throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
+                }
+            } else {
+                if (dhandle.getTypeClass() != H5T_INTEGER) {
+                    throw std::runtime_error("expected an integer type for '" + dataset + "'");
+                }
             }
+
         } else if (params.type == array::Type::NUMBER) {
-            if (tclass != H5T_FLOAT && tclass != H5T_INTEGER) {
-                throw std::runtime_error("expected an integer or floating-point type for '" + dataset + "'");
+            if (params.version >= 3) {
+                if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
+                    throw std::runtime_error("expected datatype to be a subset of a 64-bit float");
+                }
+            } else {
+                auto tclass = dhandle.getTypeClass();
+                if (tclass != H5T_FLOAT && tclass != H5T_INTEGER) {
+                    throw std::runtime_error("expected an integer or floating-point type for '" + dataset + "'");
+                }
             }
+
         } else if (params.type == array::Type::STRING) {
-            if (tclass != H5T_STRING) {
+            if (dhandle.getTypeClass() != H5T_STRING) {
                 throw std::runtime_error("expected a string type for '" + dataset + "'");
             }
         } else {
