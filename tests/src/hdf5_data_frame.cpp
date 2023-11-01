@@ -325,7 +325,7 @@ TEST(Hdf5DataFrame, Integer) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("integer dataset", path.c_str(), params);
+    expect_error("expected integer column", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -334,7 +334,7 @@ TEST(Hdf5DataFrame, Integer) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, dspace);
     }
-    expect_error("exceeds the range", path.c_str(), params);
+    expect_error("32-bit signed integer", path.c_str(), params);
 
     // Checking the missing value placeholder.
     {
@@ -385,7 +385,7 @@ TEST(Hdf5DataFrame, Boolean) {
         H5::DataSpace dspace(1, &nrows);
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("integer dataset", path.c_str(), params);
+    expect_error("expected integer column", path.c_str(), params);
 }
 
 TEST(Hdf5DataFrame, Number) {
@@ -415,7 +415,27 @@ TEST(Hdf5DataFrame, Number) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT, dspace);
     }
-    expect_error("floating-point dataset", path.c_str(), params);
+    {
+        expect_error("floating-point dataset", path.c_str(), params);
+
+        auto params2 = params;
+        params2.hdf5_version = 3; // version 3 is fine with smaller integers.
+        takane::hdf5_data_frame::validate(path.c_str(), params2);
+    }
+
+    // But version 3 is not okay with larger integers.
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+        dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, dspace);
+    }
+    {
+        auto params2 = params;
+        params2.hdf5_version = 3;
+        expect_error("64-bit float", path.c_str(), params2);
+    }
 
     // Checking the missing value placeholder.
     {
@@ -685,7 +705,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_DOUBLE, dspace);
     }
-    expect_error("integer dataset", path.c_str(), params);
+    expect_error("expected factor column", path.c_str(), params);
 
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
@@ -694,7 +714,7 @@ TEST(Hdf5DataFrame, FactorVersion2) {
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, dspace);
     }
-    expect_error("exceeds the range", path.c_str(), params);
+    expect_error("32-bit signed integer", path.c_str(), params);
 
     // Using -1 as a placeholder value.
     {

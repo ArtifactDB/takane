@@ -100,9 +100,15 @@ TEST(Hdf5DenseArray, Fails) {
 
     params.type = takane::array::Type::INTEGER;
     expect_error("expected an integer type", path, params);
+    params.version = 3;
+    expect_error("32-bit signed integer", path, params);
+    params.version = 2;
 
     params.type = takane::array::Type::NUMBER;
     expect_error("expected an integer or floating-point type", path, params);
+    params.version = 3;
+    expect_error("64-bit float", path, params);
+    params.version = 2;
 
     // Wrong placeholder type.
     {

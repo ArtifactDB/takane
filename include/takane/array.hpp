@@ -22,9 +22,9 @@ enum Type {
  * @cond
  */
 template<class Dimensions_>
-void check_dimnames(const H5::H5File& handle, const std::string& dimnames_group, const Dimensions_& dimensions) {
+void check_dimnames(const H5::H5File& handle, const std::string& dimnames_group, const Dimensions_& dimensions) try {
     if (!handle.exists(dimnames_group) || handle.childObjType(dimnames_group) != H5O_TYPE_GROUP) {
-        throw std::runtime_error("expected a '" + dimnames_group + "' group");
+        throw std::runtime_error("expected a group");
     }
     auto nhandle = handle.openGroup(dimnames_group);
 
@@ -34,19 +34,20 @@ void check_dimnames(const H5::H5File& handle, const std::string& dimnames_group,
             continue;
         }
 
-        auto dset_name = dimnames_group + "/" + dim_name;
         if (nhandle.childObjType(dim_name) != H5O_TYPE_DATASET) {
-            throw std::runtime_error("expected '" + dset_name + "' to be a dataset");
+            throw std::runtime_error("expected '" + dim_name + "' to be a dataset");
         }
         auto dnhandle = nhandle.openDataSet(dim_name);
 
         if (dnhandle.getTypeClass() != H5T_STRING) {
-            throw std::runtime_error("expected '" + dset_name + "' to be a string dataset");
+            throw std::runtime_error("expected '" + dim_name + "' to be a string dataset");
         }
-        if (ritsuko::hdf5::get_1d_length(dnhandle.getSpace(), false, dset_name.c_str()) != dimensions[i]) {
-            throw std::runtime_error("expected '" + dset_name + "' to have length equal to the corresponding dimension");
+        if (ritsuko::hdf5::get_1d_length(dnhandle.getSpace(), false) != dimensions[i]) {
+            throw std::runtime_error("expected '" + dim_name + "' to have length equal to the corresponding dimension");
         }
     }
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate dimnames at '/" + dimnames_group + "'; " + std::string(e.what()));
 }
 /**
  * @endcond

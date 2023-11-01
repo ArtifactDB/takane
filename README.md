@@ -24,15 +24,20 @@ The type of each atomic column is determined from the corresponding `~data_frame
   Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer.
 - An integer column can be represented by any integer HDF5 dataset.
   Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer.
-- The factor column has some version-dependent treatment:
+- A factor column has some version-dependent treatment:
   - **For `~data_frame.version >= 2`:** A factor column is represented by a integer HDF5 dataset.
     Any integer data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 32-bit signed integer.
     Each integer is a 0-based index into the array of factor levels, found in the `data_frame.columns.levels` property.
     Each integer should be non-negative and less than the total number of levels, or equal to the missing value placeholder (see below).
   - **For `~data_frame.version = 1`:** A factor column is represented by any string dataset.
     Each entry in the string dataset should either be present in the set of levels or be equal to the missing placeholder value (see below).
-- Floating-point columns can be represented by any floating-point datatype at the discretion of the data generator.
-  IEEE special values like Inf and NaN are allowed.
+- A number columns has some version-dependent treatment:
+  - **For `~hdf5_data_frame.version >= 3`:** A floating-point column can be represented by any integer or floating-point dataset.
+    IEEE754 special values like Inf and NaN are allowed.
+    Any integer or floating-point data type can be used at the discretion of the data generator, though the type's range of values must be representable by a 64-bit IEEE754-compliant float.
+    See the [HDF5 policy draft (0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/0.1.0) for more details.
+  - **For `~hdf5_data_frame.version < 3`:** A floating-point column can be represented by any floating-point dataset.
+    IEEE754 special values like Inf and NaN are allowed.
 - String columns can be represented by any string datatype (fixed or variable, ASCII or UTF-8) at the discretion of the data generator.
   The character encoding specified in the dataset's type should be respected.
   Non-missing strings may be associated with further format constraints based on the `~data_frame.columns.format` property, which may be one of the following:
@@ -42,13 +47,21 @@ The type of each atomic column is determined from the corresponding `~data_frame
 
 The treatment of missing values is version-dependent:
 
-- **For `~hdf5_data_frame.version >= 2`:** 
-  each dataset may have a `missing-value-placeholder` attribute, containing a scalar value of the same exact type.
+- **For `~hdf5_data_frame.version >= 3`:** 
+  each dataset may have a `missing-value-placeholder` attribute, containing a scalar value.
   Any value in the dataset equal to this placeholder should be treated as missing.
+  For all types except strings, the type of the scalar should b exactly the same as that of the dataset, so as to avoid transformations during casting.
+  For strings, the scalar value may be of any string type class, and all comparisons should be performed byte-wise like `strcmp`.
+  For numbers, the scalar value may be NaN, in which case all NaNs in the dataset are treated as missing regardless of the payload.
   If no attribute exists, it can be assumed that no values are missing.
+  See the [HDF5 policy draft (0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/0.1.0) for more details.
+- **For `~hdf5_data_frame.version = 2`:** 
+  each dataset may have a `missing-value-placeholder` attribute, containing a scalar value.
+  Any value in the dataset equal to this placeholder should be treated as missing.
   For all types except strings, the type of the scalar should b exactly the same as that of the dataset, so as to avoid transformations during casting.
   For strings, the scalar value may be of any string type class, and all comparisons should be performed byte-wise like `strcmp`.
   For numbers, the scalar value may be NaN with a non-default payload, which should be considered via byte-wise comparisons, e.g., with `memcmp`.
+  If no attribute exists, it can be assumed that no values are missing.
 - **For `~hdf5_data_frame.version = 1`:** 
   missing integers and booleans are represented by -2147483648. 
   Missing floats are always represented by NaNs with R's missingness payload.
@@ -332,27 +345,40 @@ and `indptr` should be a 1-dimensional integer dataset of length equal to the nu
 
 If `~hdf5_sparse_matrix.format` is equal to `"tenx_matrix"`, `indices` should contain row indices and `indptr` should contain the column index pointers. 
 The group should also contain a `shape` dataset, an 1-dimensional integer dataset of length 2 storing the number of rows and columns - this should be equal to `array.dimensions`.
+  - **For `~hdf5_sparse_matrix.version >= 3`:** the `shape` datatype should be a subset of a 64-bit signed integer.
+
+**For `~hdf5_sparse_matrix.version >= 3`:** 
+the HDF5 datatype of `indices` and `indptr` should be a subset of a 64-bit unsigned integer.
 
 The type of the matrix is specified by `~array.type` and should be integer, boolean or numeric.
 This determines the appropriate HDF5 datatype for `data`.
 The exact type is generally left to the discretion of the data generator, with some restrictions:
 
-- Numeric arrays can be represented by any integer or floating-point HDF5 datatype.
-- Integer `data` can be represented by any integer HDF5 datatype.
-  However, it is advisable to use a data type that is representable by a 32-bit signed integer, for maximum compatibility with downstream clients.
-- Boolean `data` are stored as integer HDF5 datasets, where a value of 1 is truthy and a value of zero is falsey.
-  These can be distinguished from integer columns by inspecting the `array.type` property.
+- A number matrix should be represented by any integer or floating-point `data`.
+  - **For `~hdf5_sparse_matrix.version >= 3`:** the HDF5 datatype should be a subset of a 64-bit float.
+    See the [HDF5 policy draft (0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/0.1.0) for more details.
+- An integer matrix should be represented by an integer `data`.
+  - **For `~hdf5_sparse_matrix.version >= 3`:** the datatype should be a subset of a 32-bit signed integer.
+- A booleanm matrix can be represented by an integer `data`, where a value of 1 is truthy and a value of zero is falsey.
+  - **For `~hdf5_sparse_matrix.version >= 3`:** the datatype should be a subset of a 32-bit signed integer.
 
 The treatment of missing values is version-dependent:
 
-- **For `~hdf5_dense_array.version >= 2`:** 
-  the dataset may have a `missing-value-placeholder` attribute, containing a scalar value to use as a missing value placeholder.
+- **For `~hdf5_sparse_matrix.version >= 3`:** 
+  the `data` dataset may have a `missing-value-placeholder` attribute, containing a scalar value to use as a missing value placeholder.
   Any value equal to this placeholder should be treated as missing.
   The HDF5 datatype of the attribute should be exactly equal to that of the dataset.
+  For number matrices, the scalar value may be NaN, in which case all NaNs in the dataset are treated as missing regardless of the payload.
   If no attribute exists, it can be assumed that no values are missing.
-- **For `~hdf5_dense_array.version = 1`:** 
-  no placeholder is present for non-string types.
-  Missing integers and booleans are represented by -2147483648 instead.
+  See the [HDF5 policy draft (0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/0.1.0) for more details.
+- **For `~hdf5_dense_matrix.version = 2`:** 
+  the `data` dataset may have a `missing-value-placeholder` attribute, containing a scalar value to use as a missing value placeholder.
+  Any value equal to this placeholder should be treated as missing.
+  The HDF5 datatype of the attribute should be exactly equal to that of the dataset.
+  For numbers, the scalar value may be NaN with a non-default payload, which should be considered via byte-wise comparisons, e.g., with `memcmp`.
+  If no attribute exists, it can be assumed that no values are missing.
+- **For `~hdf5_sparse_matrix.version = 1`:** 
+  Missing integers and booleans are represented by -2147483648.
   Missing numbers are represented by a quiet NaN with a payload of 1954.
 
 Dimnames may also be saved inside the same HDF5 file, as string datasets in another group.
@@ -395,20 +421,32 @@ If no dataset is not present for a dimension, it can be assumed that no dimnames
 The type of the array is specified by `~array.type` and can be integer, boolean, numeric, or string.
 The exact HDF5 datatype is generally left to the discretion of the data generator, with some restrictions:
 
-- String arrays can be represented by any string HDF5 dataset at the discretion of the data generator.
-- Numeric arrays can be represented by any integer or floating-point HDF5 dataset at the discretion of the data generator.
-- Integer arrays can be represented by any integer HDF5 datatype at the discretion of the data generator.
-  However, it is advisable to use a data type that is representable by a 32-bit signed integer, for maximum compatibility with downstream clients.
+- String arrays can be represented by any string HDF5 dataset.
+  The choice of datatype is left to the discretion of the data generator.
+- Number arrays should be represented by any integer or floating-point HDF5 dataset.
+  - **For `~hdf5_dense_array.version >= 3`:** the HDF5 datatype may be any integer or float that is a subset of a 64-bit float.
+    See the [HDF5 policy draft (0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/0.1.0) for more details.
+- Integer arrays should be represented by an integer HDF5 dataset.
+  - **For `~hdf5_dense_array.version >= 3`:** the data type should be a subset of a 32-bit signed integer.
 - Boolean arrays are stored as integer HDF5 datasets, where a value of 1 is truthy and a value of zero is falsey.
-  These can be distinguished from integer columns by inspecting the `~array.type` property.
+  - **For `~hdf5_dense_array.version >= 3`:** the data type should be a subset of a 32-bit signed integer.
 
 The treatment of missing values is version-dependent:
 
-- **For `~hdf5_dense_array.version >= 2`:** 
+- **For `~hdf5_dense_array.version >= 3`:** 
   the dataset may have a `missing-value-placeholder` attribute, containing a scalar value to use as a missing value placeholder.
   Any value equal to this placeholder should be treated as missing.
   For non-string types, the HDF5 datatype of the attribute should be exactly equal to that of the dataset.
-  For string types, the datatype only needs to be same string type.
+  For string types, the datatype only needs to be same string type, and comparisons should be performed by byte-wise comparisons (e.g., with `strcmp`).
+  For numbers, the scalar value may be NaN, in which case all NaNs in the dataset are treated as missing regardless of the payload.
+  If no attribute exists, it can be assumed that no values are missing.
+  See the [HDF5 policy draft (0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/0.1.0) for more details.
+- **For `~hdf5_dense_array.version = 2`:** 
+  the dataset may have a `missing-value-placeholder` attribute, containing a scalar value to use as a missing value placeholder.
+  Any value equal to this placeholder should be treated as missing.
+  For non-string types, the HDF5 datatype of the attribute should be exactly equal to that of the dataset.
+  For string types, the datatype only needs to be same string type, and comparisons should be performed by byte-wise comparisons (e.g., with `strcmp`).
+  For numbers, the scalar value may be NaN with a non-default payload, which should be considered via byte-wise comparisons, e.g., with `memcmp`.
   If no attribute exists, it can be assumed that no values are missing.
 - **For `~hdf5_dense_array.version = 1`:** 
   no placeholder is present for non-string types.
