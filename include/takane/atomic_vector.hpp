@@ -110,10 +110,10 @@ void validate_base(ParseCommand parse, const Parameters& params) {
  * @param params Validation parameters.
  */
 template<class Reader>
-void validate(Reader& reader, const Parameters& parameters) {
+void validate(Reader& reader, const Parameters& params) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        parameters
+        params
     );
 }
 

@@ -27,15 +27,15 @@ struct WrappedOption {
      * The constructed `WrappedOption` object does not own the instance,
      * and it is assumed that the latter outlives the former.
      */
-    WrappedOption(const T* val) : non_owned(val) {}
+    WrappedOption(const T* ptr) : non_owned(ptr) {}
 
     /**
      * @param ptr Pointer to an existing instance of `T`.
      * The `WrappedOption` object does not own the instance,
      * and it is assumed that the latter outlives the former.
      */
-    WrappedOption& operator=(const T* val) {
-        non_owned = val;
+    WrappedOption& operator=(const T* ptr) {
+        non_owned = ptr;
         return *this;
     }
 

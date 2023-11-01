@@ -199,7 +199,7 @@ void validate(Reader& reader, const Parameters& params) {
  * An error is raised if the file does not meet the specifications.
  *
  * @param path Path to the CSV file.
- * @param options Parsing options.
+ * @param params Validation parameters.
  */
 inline void validate(const char* path, const Parameters& params) {
     validate_base(
