@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['levelparameters_0',['LevelParameters',['../structtakane_1_1string__factor_1_1LevelParameters.html',1,'takane::string_factor']]]
+  ['parameters_0',['Parameters',['../structtakane_1_1atomic__vector_1_1Parameters.html',1,'takane::atomic_vector::Parameters'],['../structtakane_1_1compressed__list_1_1Parameters.html',1,'takane::compressed_list::Parameters'],['../structtakane_1_1csv__data__frame_1_1Parameters.html',1,'takane::csv_data_frame::Parameters'],['../structtakane_1_1factor_1_1Parameters.html',1,'takane::factor::Parameters'],['../structtakane_1_1genomic__ranges_1_1Parameters.html',1,'takane::genomic_ranges::Parameters'],['../structtakane_1_1hdf5__data__frame_1_1Parameters.html',1,'takane::hdf5_data_frame::Parameters'],['../structtakane_1_1hdf5__dense__array_1_1Parameters.html',1,'takane::hdf5_dense_array::Parameters'],['../structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html',1,'takane::hdf5_sparse_matrix::Parameters'],['../structtakane_1_1sequence__information_1_1Parameters.html',1,'takane::sequence_information::Parameters']]]
 ];
