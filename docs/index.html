@@ -74,7 +74,8 @@ $(function() {
   <div class="headertitle"><div class="title">Miscellaneous validators for ArtifactDB </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p ><a class="anchor" id="md__github_workspace_README"></a> </p><h1>Overview</h1>
+<div class="textblock"><p ><a class="anchor" id="md__github_workspace_README"></a> <img src="https://github.com/ArtifactDB/takane/actions/workflows/run-tests.yaml/badge.svg" alt="Unit tests" style="pointer-events: none;" class="inline"/> <img src="https://github.com/ArtifactDB/takane/actions/workflows/doxygenate.yaml/badge.svg" alt="Documentation" style="pointer-events: none;" class="inline"/> <a href="https://codecov.io/gh/ArtifactDB/takane"><img src="https://codecov.io/gh/ArtifactDB/takane/branch/master/graph/badge.svg?token=J3dxS3MtT1" alt="codecov" style="pointer-events: none;" class="inline"/></a></p>
+<h1>Overview</h1>
 <p >This library contains some C++ libraries to validate ArtifactDB file formats that aren't covered by other libraries (e.g., <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b></a>, <a href="https://github.com/ArtifactDB/uzuki2"><b>uzuki2</b></a>). The idea is to provide a cross-language method for validating the files - which is not quite as useful as a library for <em>reading</em> the files, but it's better than nothing.</p>
 <h1>Specifications</h1>
 <p >Currently, <b>takane</b> performs validation of the following representations:</p>
@@ -128,7 +129,7 @@ $(function() {
 </div><!-- fragment --><h2>Manual</h2>
 <p >If you're not using CMake, the simple approach is to just copy the files in the <code>include/</code> subdirectory - either directly or with Git submodules - and include their path during compilation with, e.g., GCC's <code>-I</code>. You will also need to link to the dependencies listed in the <a href="extern/CMakeLists.txt"><code>extern/CMakeLists.txt</code></a> directory along with the HDF5 library.</p>
 <h1>Further comments</h1>
-<p >This library is named after <a href="https://myanimelist.net/character/40012/Takane_Shijou">Takane Shijou</a>, continuing my trend of naming C++ libraries after <a href="https://myanimelist.net/anime/10278/The_iDOLMSTER">iDOLM@STER</a> characters.</p>
+<p >This library is named after <a href="https://myanimelist.net/character/40012/Takane_Shijou">Takane Shijou</a>, continuing my trend of naming C++ libraries after <a href="https://myanimelist.net/anime/10278/The_iDOLMSTER">iDOLM@STER</a> characters. Not really sure why I picked Takane but she's nice enough.</p>
 <p ><img src="https://64.media.tumblr.com/17ecbb29ab7ed3328ed854c1b02e0eec/tumblr_o49c7i4jUu1th93f0o1_540.gif" alt="Takane GIF" class="inline"/> </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
