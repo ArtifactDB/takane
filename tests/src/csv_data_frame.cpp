@@ -2,13 +2,15 @@
 #include <gmock/gmock.h>
 
 #include "takane/csv_data_frame.hpp"
+#include "utils.h"
 
 #include <numeric>
 #include <string>
 #include <vector>
 #include <fstream>
 
-static void validate(const std::string& buffer, size_t num_rows, bool has_row_names, const std::vector<takane::data_frame::ColumnDetails>& columns, int df_version = 2) {
+template<typename ... Args_>
+static takane::CsvContents validate(const std::string& buffer, size_t num_rows, bool has_row_names, const std::vector<takane::data_frame::ColumnDetails>& columns, int df_version = 2, takane::CsvFieldCreator* creator = NULL) {
     std::string path = "TEST-csv_data_frame.csv";
     {
         std::ofstream ohandle(path);
@@ -21,7 +23,7 @@ static void validate(const std::string& buffer, size_t num_rows, bool has_row_na
     opt.columns = &columns;
     opt.df_version = df_version;
 
-    takane::csv_data_frame::validate(path.c_str(), opt);
+    return takane::csv_data_frame::validate(path.c_str(), opt, creator);
 }
 
 template<typename ... Args_>
@@ -57,7 +59,15 @@ TEST(CsvDataFrame, General) {
 
     std::string buffer = "\"Aaron\",\"Barry\"\n\"mizuki\",54\n\"fumika\",21\n\"aiko\",55\n";
     validate(buffer, 3, false, columns);
-    expect_error("number of records", buffer, 50, false, columns);
+
+    {
+        FilledFieldCreator filled;
+        auto output = validate(buffer, 3, false, columns, /* version = */ 2, &filled);
+        EXPECT_EQ(output.fields.size(), 2);
+        EXPECT_EQ(output.fields[0]->type(), comservatory::Type::STRING);
+        EXPECT_EQ(output.fields[1]->type(), comservatory::Type::NUMBER);
+        expect_error("number of records", buffer, 50, false, columns);
+    }
 
     {
         std::string buffer = "\"Aaron\",\"Barry\",\"Charlie\"\n\"mizuki\",54,true\n\"fumika\",21,false\n\"aiko\",55,true\n";
@@ -66,7 +76,10 @@ TEST(CsvDataFrame, General) {
         columns.resize(columns.size() + 1);
         columns.back().name = "Charlie";
         columns.back().type = takane::data_frame::ColumnType::BOOLEAN;
-        validate(buffer, 3, false, columns);
+        auto output = validate(buffer, 3, false, columns);
+        EXPECT_EQ(output.fields.size(), 3);
+        EXPECT_EQ(output.fields.back()->type(), comservatory::Type::BOOLEAN);
+
         columns.pop_back();
     }
 
@@ -102,6 +115,13 @@ TEST(CsvDataFrame, Integer) {
     {
         std::string buffer = "\"Aaron\",\"Barry\"\n\"mizuki\",54\n\"fumika\",21\n\"aiko\",55\n";
         validate(buffer, 3, true, columns);
+
+        FilledFieldCreator filler;
+        auto output = validate(buffer, 3, true, columns, /* version = */ 2, &filler);
+        EXPECT_EQ(output.fields.size(), 2);
+        EXPECT_EQ(output.fields[1]->type(), comservatory::Type::NUMBER);
+        auto ptr = static_cast<comservatory::FilledNumberField*>(output.fields[1].get());
+        EXPECT_EQ(ptr->values.size(), 3);
     }
 
     {
@@ -124,6 +144,13 @@ TEST(CsvDataFrame, StringDate) {
     {
         std::string buffer = "\"Aaron\",\"Charlie\"\n\"mio\",\"2019-12-31\"\n\"rin\",\"1991-07-31\"\n\"uzuki\",\"1967-01-23\"\n";
         validate(buffer, 3, true, columns);
+
+        FilledFieldCreator filler;
+        auto output = validate(buffer, 3, true, columns, /* version = */ 2, &filler);
+        EXPECT_EQ(output.fields.size(), 2);
+        EXPECT_EQ(output.fields[1]->type(), comservatory::Type::STRING);
+        auto ptr = static_cast<comservatory::FilledStringField*>(output.fields[1].get());
+        EXPECT_EQ(ptr->values.size(), 3);
     }
 
     {
@@ -141,6 +168,13 @@ TEST(CsvDataFrame, StringDateTime) {
     {
         std::string buffer = "\"rows\",\"Omega\"\n\"mio\",\"2019-12-31T01:34:21+21:00\"\n\"rin\",\"1991-07-31T15:56:02.1Z\"\n\"uzuki\",\"1967-01-23T21:33:42.324-09:30\"\n";
         validate(buffer, 3, true, columns);
+
+        FilledFieldCreator filler;
+        auto output = validate(buffer, 3, true, columns, /* version = */ 2, &filler);
+        EXPECT_EQ(output.fields.size(), 2);
+        EXPECT_EQ(output.fields[1]->type(), comservatory::Type::STRING);
+        auto ptr = static_cast<comservatory::FilledStringField*>(output.fields[1].get());
+        EXPECT_EQ(ptr->values.size(), 3);
     }
 
     {
@@ -158,6 +192,13 @@ TEST(CsvDataFrame, FactorVersion1) {
     {
         std::string buffer = "\"Omega\"\n\"hiori\"\n\"meguru\"\n\"hiori\"\n\"kiriko\"\n\"mano\"\n\"meguru\"\n";
         validate(buffer, 6, false, columns, /* version = */ 1);
+
+        FilledFieldCreator filler;
+        auto output = validate(buffer, 6, false, columns, /* version = */ 1, &filler);
+        EXPECT_EQ(output.fields.size(), 1);
+        EXPECT_EQ(output.fields[0]->type(), comservatory::Type::STRING);
+        auto ptr = static_cast<comservatory::FilledStringField*>(output.fields[0].get());
+        EXPECT_EQ(ptr->values.size(), 6);
     }
 
     {
@@ -175,6 +216,13 @@ TEST(CsvDataFrame, FactorVersion2) {
     {
         std::string buffer = "\"Omega\"\n2\n1\n3\n0\n0\n1\n2\n2\n";
         validate(buffer, 8, false, columns);
+
+        FilledFieldCreator filler;
+        auto output = validate(buffer, 8, false, columns, /* version = */ 2, &filler);
+        EXPECT_EQ(output.fields.size(), 1);
+        EXPECT_EQ(output.fields[0]->type(), comservatory::Type::NUMBER);
+        auto ptr = static_cast<comservatory::FilledNumberField*>(output.fields[0].get());
+        EXPECT_EQ(ptr->values.size(), 8);
     }
 
     {

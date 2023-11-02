@@ -2,11 +2,12 @@
 #include <gmock/gmock.h>
 
 #include "takane/factor.hpp"
+#include "utils.h"
 
 #include <fstream>
 #include <string>
 
-static void validate(const std::string& buffer, size_t length, size_t num_levels, bool has_names) {
+static takane::CsvContents validate(const std::string& buffer, size_t length, size_t num_levels, bool has_names, takane::CsvFieldCreator* creator = NULL) {
     std::string path = "TEST-factor.csv";
     {
         std::ofstream ohandle(path);
@@ -18,7 +19,7 @@ static void validate(const std::string& buffer, size_t length, size_t num_levels
     params.num_levels = num_levels;
     params.has_names = has_names;
 
-    takane::factor::validate(path.c_str(), params);
+    return takane::factor::validate(path.c_str(), params, creator);
 }
 
 template<typename ... Args_>
@@ -45,6 +46,12 @@ TEST(Factor, Basics) {
     expect_error("less than the number of levels", buffer, 4, 2, true);
     expect_error("number of records", buffer, 10, 3, true);
     expect_error("number of levels must fit", buffer, 4, 3000000000, true);
+
+    FilledFieldCreator filled;
+    auto output = ::validate(buffer, 4, 3, true, &filled);
+    EXPECT_EQ(output.fields.size(), 2);
+    EXPECT_EQ(output.fields[0]->type(), comservatory::Type::STRING);
+    EXPECT_EQ(output.fields[1]->type(), comservatory::Type::NUMBER);
 
     buffer = "\"values\"\n";
     buffer += "-1\n";

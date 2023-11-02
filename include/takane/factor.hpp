@@ -115,13 +115,16 @@ CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* 
  *
  * @param path Path to the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
  *
  * @return Contents of the loaded CSV.
  */
-inline CsvContents validate(const char* path, const Parameters& params) {
+inline CsvContents validate(const char* path, const Parameters& params, CsvFieldCreator* creator = NULL) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        params
+        params,
+        creator
     );
 }
 
