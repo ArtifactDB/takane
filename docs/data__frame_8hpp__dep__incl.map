@@ -1,6 +1,7 @@
 <map id="takane/data_frame.hpp" name="takane/data_frame.hpp">
-<area shape="rect" id="node1" title="Common data frame utilities." alt="" coords="229,5,383,31"/>
+<area shape="rect" id="node1" title="Common data frame utilities." alt="" coords="214,5,369,31"/>
 <area shape="rect" id="node2" href="$csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="5,79,188,104"/>
-<area shape="rect" id="node3" href="$hdf5__data__frame_8hpp.html" title="Validation for HDF5 data frames." alt="" coords="213,79,399,104"/>
-<area shape="rect" id="node4" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="423,79,639,104"/>
+<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="227,152,355,177"/>
+<area shape="rect" id="node4" href="$hdf5__data__frame_8hpp.html" title="Validation for HDF5 data frames." alt="" coords="263,79,450,104"/>
+<area shape="rect" id="node5" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="474,79,690,104"/>
 </map>
