@@ -1,7 +1,6 @@
 #ifndef TAKANE_CSV_DATA_FRAME_HPP
 #define TAKANE_CSV_DATA_FRAME_HPP
 
-#include "ritsuko/ritsuko.hpp"
 #include "comservatory/comservatory.hpp"
 
 #include "WrappedOption.hpp"
@@ -55,15 +54,24 @@ struct Parameters {
  * @cond
  */
 template<class ParseCommand>
-void validate_base(ParseCommand parse, const Parameters& params) {
+CsvContents validate_base(ParseCommand parse, const Parameters& params, CsvFieldCreator* creator) {
+    DummyCsvFieldCreator default_creator;
+    if (creator == NULL) {
+        creator = &default_creator;
+    }
+
     comservatory::Contents contents;
+    CsvContents output;
     if (params.has_row_names) {
-        contents.fields.emplace_back(new TakaneRowNamesField);
+        auto ptr = creator->string();
+        output.fields.emplace_back(ptr); 
+        contents.fields.emplace_back(new CsvNameField(true, ptr));
     }
 
     const auto& columns = *(params.columns);
     size_t ncol = columns.size();
     std::unordered_set<std::string> present;
+
     for (size_t c = 0; c < ncol; ++c) {
         const auto& col = columns[c];
         if (present.find(col.name) != present.end()) {
@@ -72,30 +80,47 @@ void validate_base(ParseCommand parse, const Parameters& params) {
         present.insert(col.name);
 
         if (col.type == data_frame::ColumnType::INTEGER) {
-            contents.fields.emplace_back(new TakaneIntegerField(0, c));
+            auto ptr = creator->integer();
+            output.fields.emplace_back(ptr); 
+            contents.fields.emplace_back(new CsvIntegerField(c, ptr));
 
         } else if (col.type == data_frame::ColumnType::NUMBER) {
-            contents.fields.emplace_back(new comservatory::DummyNumberField);
+            output.fields.emplace_back(nullptr); 
+            contents.fields.emplace_back(creator->number());
 
         } else if (col.type == data_frame::ColumnType::STRING) {
             if (col.format == data_frame::StringFormat::DATE) {
-                contents.fields.emplace_back(new TakaneDateField(0, c));
+                auto ptr = creator->string();
+                output.fields.emplace_back(ptr); 
+                contents.fields.emplace_back(new CsvDateField(c, ptr));
+
             } else if (col.format == data_frame::StringFormat::DATE_TIME) {
-                contents.fields.emplace_back(new TakaneDateTimeField(0, c));
+                auto ptr = creator->string();
+                output.fields.emplace_back(ptr); 
+                contents.fields.emplace_back(new CsvDateTimeField(c, ptr));
+
             } else {
-                contents.fields.emplace_back(new comservatory::DummyStringField);
+                output.fields.emplace_back(nullptr);
+                contents.fields.emplace_back(creator->string());
             }
 
         } else if (col.type == data_frame::ColumnType::BOOLEAN) {
-            contents.fields.emplace_back(new comservatory::DummyBooleanField);
+            output.fields.emplace_back(nullptr);
+            contents.fields.emplace_back(creator->boolean());
 
         } else if (col.type == data_frame::ColumnType::FACTOR) {
             if (params.df_version == 1) {
-                contents.fields.emplace_back(new TakaneFactorV1Field(0, c, col.factor_levels.get()));
+                auto ptr = creator->string();
+                output.fields.emplace_back(ptr); 
+                contents.fields.emplace_back(new CsvFactorV1Field(c, col.factor_levels.get(), ptr));
             } else {
-                contents.fields.emplace_back(new TakaneFactorV2Field(0, c, col.factor_levels->size()));
+                auto ptr = creator->integer();
+                output.fields.emplace_back(ptr);
+                contents.fields.emplace_back(new CsvFactorV2Field(c, col.factor_levels->size(), ptr));
             }
+
         } else if (col.type == data_frame::ColumnType::OTHER) {
+            output.fields.emplace_back(nullptr);
             contents.fields.emplace_back(new comservatory::UnknownField); // This can be anything.
 
         } else {
@@ -116,6 +141,9 @@ void validate_base(ParseCommand parse, const Parameters& params) {
             throw std::runtime_error("observed and expected header names do not match");
         }
     }
+
+    output.reconstitute(contents.fields);
+    return output;
 }
 /**
  * @endcond
@@ -129,25 +157,38 @@ void validate_base(ParseCommand parse, const Parameters& params) {
  *
  * @param reader A stream of bytes from the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
+ * 
+ * @return Contents of the loaded CSV.
+ * Whether the `fields` member actually contains the CSV data depends on `creator`.
+ * Each entry of the `fields` member corresponds to an entry of `params.columns`,
+ * which an additional field at the start if `params.has_row_names = true`.
  */
 template<class Reader>
-void validate(Reader& reader, const Parameters& params) {
-    validate_base(
+CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* creator = NULL) {
+    return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read(reader, contents, opt); },
-        params
+        params,
+        creator
     );
 }
 
 /**
- * Overload of `compressed_list::validate()` that accepts a file path.
+ * Overload of `csv_data_frame::validate()` that accepts a file path.
  *
  * @param path Path to the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
+ * 
+ * @return Contents of the loaded CSV.
  */
-inline void validate(const char* path, const Parameters& params) {
-    validate_base(
+inline CsvContents validate(const char* path, const Parameters& params, CsvFieldCreator* creator = NULL) {
+    return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opt) -> void { comservatory::read_file(path, contents, opt); },
-        params
+        params,
+        creator
     );
 }
 

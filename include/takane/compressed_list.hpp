@@ -1,8 +1,9 @@
 #ifndef TAKANE_COMPRESSED_LIST_HPP
 #define TAKANE_COMPRESSED_LIST_HPP
 
-#include "utils.hpp"
 #include "comservatory/comservatory.hpp"
+
+#include "utils_csv.hpp"
 
 #include <stdexcept>
 
@@ -48,29 +49,24 @@ struct Parameters {
 /**
  * @cond
  */
-struct KnownCompressedLengthField : public KnownNonNegativeIntegerField {
-    KnownCompressedLengthField(int cid) : KnownNonNegativeIntegerField(cid) {}
-
-    void add_missing() {
-        throw std::runtime_error("lengths should not be missing");
-    }
-
-    void push_back(double x) {
-        KnownNonNegativeIntegerField::push_back(x);
-        total += static_cast<size_t>(x);
-    }
-
-    size_t total = 0;
-};
-
 template<class ParseCommand>
-void validate_base(ParseCommand parse, const Parameters& params) {
-    comservatory::Contents contents;
-    if (params.has_names) {
-        contents.fields.emplace_back(new KnownNameField(false));
+CsvContents validate_base(ParseCommand parse, const Parameters& params, CsvFieldCreator* creator = NULL) {
+    DummyCsvFieldCreator default_creator;
+    if (creator == NULL) {
+        creator = &default_creator;
     }
 
-    auto ptr = new KnownCompressedLengthField(static_cast<int>(params.has_names));
+    comservatory::Contents contents;
+    CsvContents output;
+    if (params.has_names) {
+        auto ptr = creator->string();
+        output.fields.emplace_back(ptr); 
+        contents.fields.emplace_back(new CsvNameField(false, ptr));
+    }
+
+    auto ptr0 = creator->integer();
+    output.fields.emplace_back(ptr0);
+    auto ptr = new CsvCompressedLengthField(static_cast<int>(params.has_names), ptr0);
     contents.fields.emplace_back(ptr);
 
     comservatory::ReadOptions opt;
@@ -87,6 +83,8 @@ void validate_base(ParseCommand parse, const Parameters& params) {
     if (contents.names.back() != "number") {
         throw std::runtime_error("column containing the compressed list lengths should be named 'number'");
     }
+
+    return output;
 }
 /**
  * @endcond
@@ -100,12 +98,19 @@ void validate_base(ParseCommand parse, const Parameters& params) {
  *
  * @param reader A stream of bytes from the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
+ *
+ * @return Contents of the loaded CSV.
+ * Whether the `fields` member actually contains the CSV data depends on `creator`.
+ * If `params.has_names = true`, an additional field containing the names is present at the start.
  */
 template<class Reader>
-void validate(Reader& reader, const Parameters& params) {
-    validate_base(
+CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* creator = NULL) {
+    return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        params
+        params,
+        creator
     );
 }
 
@@ -114,11 +119,16 @@ void validate(Reader& reader, const Parameters& params) {
  *
  * @param path Path to the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
+ *
+ * @return Contents of the loaded CSV.
  */
-inline void validate(const char* path, const Parameters& params) {
+inline CsvContents validate(const char* path, const Parameters& params, CsvFieldCreator* creator = NULL) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        params
+        params,
+        creator
     );
 }
 

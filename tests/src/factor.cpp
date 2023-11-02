@@ -44,11 +44,11 @@ TEST(Factor, Basics) {
     expect_error("number of header names", buffer, 4, 3, false);
     expect_error("less than the number of levels", buffer, 4, 2, true);
     expect_error("number of records", buffer, 10, 3, true);
-    expect_error("number of levels does not fit", buffer, 4, 3000000000, true);
+    expect_error("number of levels must fit", buffer, 4, 3000000000, true);
 
     buffer = "\"values\"\n";
     buffer += "-1\n";
-    expect_error("should not be negative", buffer, 1, 3, false);
+    expect_error("should be non-negative", buffer, 1, 3, false);
 
     buffer = "\"values\"\n";
     buffer += "1.5\n";

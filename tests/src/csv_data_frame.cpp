@@ -179,9 +179,9 @@ TEST(CsvDataFrame, FactorVersion2) {
 
     {
         std::string buffer = "\"Omega\"\n2\n1\n3\n-1\n0\n1\n2\n2\n";
-        expect_error("does not refer to a valid level", buffer, 8, false, columns);
+        expect_error("non-negative", buffer, 8, false, columns);
         buffer = "\"Omega\"\n2\n1\n3\n1\n5\n1\n2\n2\n";
-        expect_error("does not refer to a valid level", buffer, 8, false, columns);
+        expect_error("less than the number of levels", buffer, 8, false, columns);
         buffer = "\"Omega\"\n2\n1.1\n3\n1\n5\n1\n2\n2\n";
         expect_error("is not an integer", buffer, 8, false, columns);
     }
