@@ -1,10 +1,10 @@
 #ifndef TAKANE_SEQUENCE_INFORMATION_HPP
 #define TAKANE_SEQUENCE_INFORMATION_HPP
 
-#include "ritsuko/ritsuko.hpp"
 #include "comservatory/comservatory.hpp"
 
 #include "data_frame.hpp"
+#include "utils_csv.hpp"
 
 #include <unordered_set>
 #include <string>
@@ -18,17 +18,6 @@
 namespace takane {
 
 namespace sequence_information {
-
-/**
- * @brief Summary of the sequence information file.
- */
-struct Summary {
-    /**
-     * Names of all reference sequences in the file.
-     * Only filled if `Options::save_seqnames` is true.
-     */
-    std::vector<std::string> seqnames;
-};
 
 /**
  * @brief Parameters for validating the sequence information file.
@@ -45,11 +34,6 @@ struct Parameters {
     bool parallel = false;
 
     /**
-     * Whether to save the reference sequence names.
-     */
-    bool save_seqnames = true;
-
-    /**
      * Version of the `sequence_information` format.
      */
     int version = 1;
@@ -58,56 +42,36 @@ struct Parameters {
 /**
  * @cond
  */
-struct SeqnamesField : public comservatory::DummyStringField {
-    SeqnamesField(bool store) : save_names(store) {}
-
-    void add_missing() {
-        throw std::runtime_error("missing values should not be present in the seqnames column");
-    }
-
-    void push_back(std::string x) {
-        if (collected.find(x) != collected.end()) {
-            throw std::runtime_error("duplicated sequence name '" + x + "'");
-        }
-        collected.insert(x);
-
-        if (save_names) {
-            ordered.push_back(x);
-        }
-        comservatory::DummyStringField::push_back(std::move(x));
-    }
-
-    std::unordered_set<std::string> collected;
-    bool save_names;
-    std::vector<std::string> ordered;
-};
-
-struct SeqlengthsField : public comservatory::DummyNumberField {
-    void push_back(double x) {
-        if (x < 0 || x > 2147483647) { // constrain within limits.
-            throw std::runtime_error("sequence length must be non-negative and fit inside a 32-bit signed integer");
-        }
-        if (x != std::floor(x)) {
-            throw std::runtime_error("sequence length is not an integer");
-        }
-        comservatory::DummyNumberField::push_back(x);
-    }
-};
-
 template<class ParseCommand>
-Summary validate_base(ParseCommand parse, const Parameters& params) {
-    comservatory::Contents contents;
+CsvContents validate_base(ParseCommand parse, const Parameters& params, CsvFieldCreator* creator) {
+    DummyCsvFieldCreator default_creator;
+    if (creator == NULL) {
+        creator = &default_creator;
+    }
 
+    comservatory::Contents contents;
+    CsvContents output;
     contents.names.push_back("seqnames");
-    auto ptr = new SeqnamesField(params.save_seqnames);
-    contents.fields.emplace_back(ptr);
+    {
+        auto ptr = creator->string();
+        output.fields.emplace_back(ptr);
+        contents.fields.emplace_back(new CsvUniqueStringField(0, ptr));
+    }
 
     contents.names.push_back("seqlengths");
-    contents.fields.emplace_back(new SeqlengthsField);
+    {
+        auto ptr = creator->integer();
+        output.fields.emplace_back(ptr);
+        contents.fields.emplace_back(new CsvNonNegativeIntegerField(1, ptr));
+    }
+
     contents.names.push_back("isCircular");
-    contents.fields.emplace_back(new comservatory::DummyBooleanField);
+    output.fields.emplace_back(nullptr);
+    contents.fields.emplace_back(creator->boolean());
+
     contents.names.push_back("genome");
-    contents.fields.emplace_back(new comservatory::DummyStringField);
+    output.fields.emplace_back(nullptr);
+    contents.fields.emplace_back(creator->string());
 
     comservatory::ReadOptions opt;
     opt.parallel = params.parallel;
@@ -116,8 +80,7 @@ Summary validate_base(ParseCommand parse, const Parameters& params) {
         throw std::runtime_error("number of records in the CSV file does not match the expected number of ranges");
     }
 
-    Summary output;
-    output.seqnames.swap(ptr->ordered);
+    output.reconstitute(contents.fields);
     return output;
 }
 /**
@@ -132,12 +95,18 @@ Summary validate_base(ParseCommand parse, const Parameters& params) {
  *
  * @param reader A stream of bytes from the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
+ * 
+ * @return Contents of the loaded CSV.
+ * Whether the `fields` member actually contains the CSV data depends on `creator`.
  */
 template<class Reader>
-Summary validate(Reader& reader, const Parameters& params) {
+CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* creator = NULL) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        params
+        params,
+        creator
     );
 }
 
@@ -146,11 +115,16 @@ Summary validate(Reader& reader, const Parameters& params) {
  *
  * @param path Path to the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
+ * 
+ * @return Contents of the loaded CSV.
  */
-inline Summary validate(const char* path, const Parameters& params) {
+inline CsvContents validate(const char* path, const Parameters& params, CsvFieldCreator* creator = NULL) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        params
+        params,
+        creator
     );
 }
 

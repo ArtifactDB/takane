@@ -4,6 +4,12 @@
 #include "ritsuko/ritsuko.hpp"
 #include "comservatory/comservatory.hpp"
 
+#include <unordered_set>
+#include <string>
+#include <stdexcept>
+#include <vector>
+#include <memory>
+
 /**
  * @file utils_csv.hpp
  * @brief Utilities for parsing CSVs.
@@ -334,6 +340,36 @@ struct CsvCompressedLengthField : public CsvNonNegativeIntegerField {
     }
 
     size_t total = 0;
+};
+
+struct CsvUniqueStringField : public comservatory::StringField {
+    CsvUniqueStringField(int cid, comservatory::StringField* p) : column_id(cid), child(p) {}
+
+private:
+    int column_id;
+    comservatory::StringField* child;
+    std::unordered_set<std::string> collected;
+
+public:
+    void add_missing() {
+        throw std::runtime_error("missing values should not be present in column " + std::to_string(column_id));
+    }
+
+    void push_back(std::string x) {
+        if (collected.find(x) != collected.end()) {
+            throw std::runtime_error("duplicated value '" + x + "' in column " + std::to_string(column_id));
+        }
+        collected.insert(x);
+        child->push_back(std::move(x));
+    }
+
+    size_t size() const {
+        return child->size();
+    }
+
+    bool filled() const { 
+        return true;
+    }
 };
 /**
  * @endcond
