@@ -1,12 +1,10 @@
 <map id="takane/hdf5_sparse_matrix.hpp" name="takane/hdf5_sparse_matrix.hpp">
-<area shape="rect" id="node1" title="Validation for HDF5 sparse matrices." alt="" coords="362,5,498,45"/>
-<area shape="rect" id="node2" href="$utils_8hpp_source.html" title=" " alt="" coords="196,93,267,119"/>
-<area shape="rect" id="node4" title=" " alt="" coords="237,167,298,192"/>
-<area shape="rect" id="node5" title=" " alt="" coords="323,167,465,192"/>
-<area shape="rect" id="node6" href="$array_8hpp_source.html" title=" " alt="" coords="393,93,467,119"/>
-<area shape="rect" id="node8" title=" " alt="" coords="491,93,542,119"/>
-<area shape="rect" id="node9" title=" " alt="" coords="567,93,645,119"/>
-<area shape="rect" id="node10" title=" " alt="" coords="669,93,724,119"/>
-<area shape="rect" id="node3" title=" " alt="" coords="5,167,212,192"/>
-<area shape="rect" id="node7" title=" " alt="" coords="490,167,562,192"/>
+<area shape="rect" id="node1" title="Validation for HDF5 sparse matrices." alt="" coords="214,5,350,45"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,167,148,192"/>
+<area shape="rect" id="node3" href="$array_8hpp_source.html" title=" " alt="" coords="114,93,189,119"/>
+<area shape="rect" id="node5" title=" " alt="" coords="213,93,263,119"/>
+<area shape="rect" id="node6" title=" " alt="" coords="288,93,367,119"/>
+<area shape="rect" id="node7" title=" " alt="" coords="391,93,445,119"/>
+<area shape="rect" id="node8" title=" " alt="" coords="470,93,531,119"/>
+<area shape="rect" id="node4" title=" " alt="" coords="173,167,245,192"/>
 </map>

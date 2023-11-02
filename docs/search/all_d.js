@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['type_0',['type',['../structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df',1,'takane::atomic_vector::Parameters::type()'],['../structtakane_1_1data__frame_1_1ColumnDetails.html#abecf2ab0b4257f66b18a33685f8f81e4',1,'takane::data_frame::ColumnDetails::type()'],['../structtakane_1_1hdf5__dense__array_1_1Parameters.html#a4fbe334fafb0454ced376877ddb857b4',1,'takane::hdf5_dense_array::Parameters::type()'],['../structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#ab03e88e77755a1ba81a4bdd3a67d51d7',1,'takane::hdf5_sparse_matrix::Parameters::type()']]],
-  ['type_1',['Type',['../atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1',1,'takane::atomic_vector']]]
+  ['seqnames_0',['seqnames',['../structtakane_1_1genomic__ranges_1_1Parameters.html#aaf43ccf6fbec1927c078059d0d2e0a8e',1,'takane::genomic_ranges::Parameters']]],
+  ['sequence_20information_1',['Sequence information',['../md__github_workspace_docs_specifications_sequence_information_v1.html',1,'']]],
+  ['sequence_5finformation_2ehpp_2',['sequence_information.hpp',['../sequence__information_8hpp.html',1,'']]],
+  ['string_3',['string',['../structtakane_1_1CsvFieldCreator.html#af940a1b2e8bb37323f70be9a33c96f35',1,'takane::CsvFieldCreator::string()'],['../structtakane_1_1DummyCsvFieldCreator.html#a5983501b74e4ab20fbb795604e0b8735',1,'takane::DummyCsvFieldCreator::string()']]],
+  ['stringformat_4',['StringFormat',['../data__frame_8hpp.html#ae9316d06d2cc382804fa777f595f34e9',1,'takane::data_frame']]]
 ];

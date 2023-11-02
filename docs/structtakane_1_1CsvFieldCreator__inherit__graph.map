@@ -1,0 +1,4 @@
+<map id="takane::CsvFieldCreator" name="takane::CsvFieldCreator">
+<area shape="rect" id="node1" title="Create comservatory::Field objects to capture column contents." alt="" coords="27,5,187,31"/>
+<area shape="rect" id="node2" href="$structtakane_1_1DummyCsvFieldCreator.html" title="Dummy column creator." alt="" coords="5,79,209,104"/>
+</map>

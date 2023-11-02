@@ -1,11 +1,13 @@
 <map id="takane/sequence_information.hpp" name="takane/sequence_information.hpp">
-<area shape="rect" id="node1" title="Validation for sequence information." alt="" coords="341,5,557,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,79,133,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="158,79,365,104"/>
-<area shape="rect" id="node4" href="$data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="441,79,551,104"/>
-<area shape="rect" id="node5" title=" " alt="" coords="300,152,404,177"/>
-<area shape="rect" id="node6" title=" " alt="" coords="587,152,642,177"/>
-<area shape="rect" id="node9" title=" " alt="" coords="627,79,706,104"/>
-<area shape="rect" id="node7" href="$WrappedOption_8hpp_source.html" title=" " alt="" coords="429,152,563,177"/>
-<area shape="rect" id="node8" title=" " alt="" coords="462,225,530,251"/>
+<area shape="rect" id="node1" title="Validation for sequence information." alt="" coords="413,5,629,31"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,152,212,177"/>
+<area shape="rect" id="node3" href="$data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="401,79,512,104"/>
+<area shape="rect" id="node8" href="$utils__csv_8hpp.html" title="Utilities for parsing CSVs." alt="" coords="557,79,655,104"/>
+<area shape="rect" id="node10" title=" " alt="" coords="889,152,968,177"/>
+<area shape="rect" id="node4" title=" " alt="" coords="395,152,499,177"/>
+<area shape="rect" id="node5" title=" " alt="" coords="524,152,579,177"/>
+<area shape="rect" id="node6" href="$WrappedOption_8hpp_source.html" title=" " alt="" coords="236,152,371,177"/>
+<area shape="rect" id="node7" title=" " alt="" coords="425,225,493,251"/>
+<area shape="rect" id="node9" title=" " alt="" coords="654,152,782,177"/>
+<area shape="rect" id="node11" title=" " alt="" coords="806,152,865,177"/>
 </map>

@@ -84,10 +84,10 @@ $(function() {
 
 <p>Validation for CSV data frames.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
-<code>#include &quot;comservatory/comservatory.hpp&quot;</code><br />
+<div class="textblock"><code>#include &quot;comservatory/comservatory.hpp&quot;</code><br />
 <code>#include &quot;WrappedOption.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="data__frame_8hpp_source.html">data_frame.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__csv_8hpp_source.html">utils_csv.hpp</a>&quot;</code><br />
 <code>#include &lt;unordered_set&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
@@ -96,15 +96,17 @@ Include dependency graph for csv_data_frame.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="csv__data__frame_8hpp__incl.png" border="0" usemap="#atakane_2csv__data__frame_8hpp" alt=""/></div>
 <map name="atakane_2csv__data__frame_8hpp" id="atakane_2csv__data__frame_8hpp">
-<area shape="rect" title="Validation for CSV data frames." alt="" coords="362,5,545,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,133,104"/>
-<area shape="rect" title=" " alt="" coords="158,79,365,104"/>
-<area shape="rect" href="WrappedOption_8hpp_source.html" title=" " alt="" coords="330,152,465,177"/>
-<area shape="rect" href="data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="491,79,602,104"/>
-<area shape="rect" title=" " alt="" coords="489,152,593,177"/>
-<area shape="rect" title=" " alt="" coords="618,152,673,177"/>
-<area shape="rect" title=" " alt="" coords="678,79,757,104"/>
-<area shape="rect" title=" " alt="" coords="363,225,431,251"/>
+<area shape="rect" title="Validation for CSV data frames." alt="" coords="367,5,549,31"/>
+<area shape="rect" title=" " alt="" coords="164,152,371,177"/>
+<area shape="rect" href="WrappedOption_8hpp_source.html" title=" " alt="" coords="5,152,140,177"/>
+<area shape="rect" href="data__frame_8hpp.html" title="Common data frame utilities." alt="" coords="403,79,513,104"/>
+<area shape="rect" title=" " alt="" coords="395,152,499,177"/>
+<area shape="rect" title=" " alt="" coords="524,152,579,177"/>
+<area shape="rect" href="utils__csv_8hpp.html" title="Utilities for parsing CSVs." alt="" coords="603,79,702,104"/>
+<area shape="rect" title=" " alt="" coords="889,152,968,177"/>
+<area shape="rect" title=" " alt="" coords="428,225,496,251"/>
+<area shape="rect" title=" " alt="" coords="603,152,731,177"/>
+<area shape="rect" title=" " alt="" coords="755,152,814,177"/>
 </map>
 </div>
 </div>
@@ -118,17 +120,17 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a3392479681a327126ef9b02ca7bc800f"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:a3392479681a327126ef9b02ca7bc800f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="csv__data__frame_8hpp.html#a3392479681a327126ef9b02ca7bc800f">takane::csv_data_frame::validate</a> (Reader &amp;reader, const Parameters &amp;params)</td></tr>
-<tr class="separator:a3392479681a327126ef9b02ca7bc800f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acea6742e3d7bcc3b9a45bf7cee3ee9e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="csv__data__frame_8hpp.html#acea6742e3d7bcc3b9a45bf7cee3ee9e6">takane::csv_data_frame::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
-<tr class="separator:acea6742e3d7bcc3b9a45bf7cee3ee9e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac22501e0633d2e46bb8dbb9faf4b5443"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
+<tr class="memitem:ac22501e0633d2e46bb8dbb9faf4b5443"><td class="memTemplItemLeft" align="right" valign="top">CsvContents&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="csv__data__frame_8hpp.html#ac22501e0633d2e46bb8dbb9faf4b5443">takane::csv_data_frame::validate</a> (Reader &amp;reader, const Parameters &amp;params, CsvFieldCreator *creator=NULL)</td></tr>
+<tr class="separator:ac22501e0633d2e46bb8dbb9faf4b5443"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a141a82a280a1dff1faeff0a7c49cf64c"><td class="memItemLeft" align="right" valign="top">CsvContents&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="csv__data__frame_8hpp.html#a141a82a280a1dff1faeff0a7c49cf64c">takane::csv_data_frame::validate</a> (const char *path, const Parameters &amp;params, CsvFieldCreator *creator=NULL)</td></tr>
+<tr class="separator:a141a82a280a1dff1faeff0a7c49cf64c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for CSV data frames. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="acea6742e3d7bcc3b9a45bf7cee3ee9e6" name="acea6742e3d7bcc3b9a45bf7cee3ee9e6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acea6742e3d7bcc3b9a45bf7cee3ee9e6">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="a141a82a280a1dff1faeff0a7c49cf64c" name="a141a82a280a1dff1faeff0a7c49cf64c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a141a82a280a1dff1faeff0a7c49cf64c">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -137,7 +139,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void takane::csv_data_frame::validate </td>
+          <td class="memname">CsvContents takane::csv_data_frame::validate </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>path</em>, </td>
@@ -146,7 +148,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structtakane_1_1csv__data__frame_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
+          <td class="paramname"><em>params</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *&#160;</td>
+          <td class="paramname"><em>creator</em> = <code>NULL</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -160,19 +168,21 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Overload of <code>compressed_list::validate()</code> that accepts a file path.</p>
+<p >Overload of <code>csv_data_frame::validate()</code> that accepts a file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the CSV file. </td></tr>
     <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+    <tr><td class="paramname">creator</td><td>Factory to create objects for holding the contents of each CSV field. Defaults to a pointer to a <code>DummyFieldCreator</code> instance.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Contents of the loaded CSV. </dd></dl>
 
 </div>
 </div>
-<a id="a3392479681a327126ef9b02ca7bc800f" name="a3392479681a327126ef9b02ca7bc800f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3392479681a327126ef9b02ca7bc800f">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+<a id="ac22501e0633d2e46bb8dbb9faf4b5443" name="ac22501e0633d2e46bb8dbb9faf4b5443"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac22501e0633d2e46bb8dbb9faf4b5443">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -180,7 +190,7 @@ Functions</h2></td></tr>
 template&lt;class Reader &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">void takane::csv_data_frame::validate </td>
+          <td class="memname">CsvContents takane::csv_data_frame::validate </td>
           <td>(</td>
           <td class="paramtype">Reader &amp;&#160;</td>
           <td class="paramname"><em>reader</em>, </td>
@@ -189,7 +199,13 @@ template&lt;class Reader &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structtakane_1_1csv__data__frame_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
+          <td class="paramname"><em>params</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *&#160;</td>
+          <td class="paramname"><em>creator</em> = <code>NULL</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -209,9 +225,11 @@ template&lt;class Reader &gt; </div>
   <table class="params">
     <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
     <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+    <tr><td class="paramname">creator</td><td>Factory to create objects for holding the contents of each CSV field. Defaults to a pointer to a <code>DummyFieldCreator</code> instance.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Contents of the loaded CSV. Whether the <code>fields</code> member actually contains the CSV data depends on <code>creator</code>. Each entry of the <code>fields</code> member corresponds to an entry of <code>params.columns</code>, which an additional field at the start if <code>params.has_row_names = true</code>. </dd></dl>
 
 </div>
 </div>

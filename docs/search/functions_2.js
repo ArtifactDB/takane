@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mutable_5fref_0',['mutable_ref',['../structtakane_1_1WrappedOption.html#afb00e785d47f748c80d409b7cf125aa1',1,'takane::WrappedOption']]]
+  ['get_0',['get',['../structtakane_1_1WrappedOption.html#a6c4c407bbb10f7775dcc22f92bc838dc',1,'takane::WrappedOption']]]
 ];

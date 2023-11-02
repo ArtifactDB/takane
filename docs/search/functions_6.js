@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['wrappedoption_0',['WrappedOption',['../structtakane_1_1WrappedOption.html#a4ae9b3cd1bc3d13ca79cfc836bc5ea94',1,'takane::WrappedOption::WrappedOption()=default'],['../structtakane_1_1WrappedOption.html#adb80d42e4d791a9758db39863a51cb40',1,'takane::WrappedOption::WrappedOption(const T *ptr)'],['../structtakane_1_1WrappedOption.html#a7365688de910f6021129975fd607b8f6',1,'takane::WrappedOption::WrappedOption(T val)']]]
+  ['operator_2a_0',['operator*',['../structtakane_1_1WrappedOption.html#af48d965d7c5c90116625a94e3ccfc2e0',1,'takane::WrappedOption']]],
+  ['operator_2d_3e_1',['operator-&gt;',['../structtakane_1_1WrappedOption.html#af82dabe312c2dae05d85b8bdbdfad1ef',1,'takane::WrappedOption']]],
+  ['operator_3d_2',['operator=',['../structtakane_1_1WrappedOption.html#a75091f00dccdcb84605c50b2b944802f',1,'takane::WrappedOption::operator=(const T *ptr)'],['../structtakane_1_1WrappedOption.html#a27fa123b4d76c73a7932996b1042f4f4',1,'takane::WrappedOption::operator=(T val)']]]
 ];

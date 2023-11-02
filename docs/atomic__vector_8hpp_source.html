@@ -81,95 +81,134 @@ $(function() {
 <a href="atomic__vector_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef TAKANE_ATOMIC_VECTOR_HPP</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define TAKANE_ATOMIC_VECTOR_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;utils.hpp&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;comservatory/comservatory.hpp&quot;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;stdexcept&gt;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">namespace </span>takane {</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">namespace </span>atomic_vector {</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">   26</a></span><span class="keyword">enum class</span> <a class="code hl_enumeration" href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">Type</a> {</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    INTEGER,</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    NUMBER,</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    STRING,</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    BOOLEAN</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>};</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html">   36</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a> {</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">   40</a></span>    <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">length</a> = 0;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">   45</a></span>    <a class="code hl_enumeration" href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">Type</a> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">type</a> = Type::INTEGER;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">   50</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">has_names</a> = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">   55</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">parallel</a> = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#a9f5edb4c45c8b003d94846d09c7aa8c8">   60</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a9f5edb4c45c8b003d94846d09c7aa8c8">version</a> = 1;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>};</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> ParseCommand&gt;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordtype">void</span> validate_base(ParseCommand parse, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a>&amp; params) {</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    comservatory::Contents contents;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordflow">if</span> (params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">has_names</a>) {</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        contents.fields.emplace_back(<span class="keyword">new</span> KnownNameField(<span class="keyword">false</span>));</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    }</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">switch</span>(params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">type</a>) {</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keywordflow">case</span> Type::INTEGER:</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>            contents.fields.emplace_back(<span class="keyword">new</span> KnownIntegerField(<span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">has_names</a>)));</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        <span class="keywordflow">case</span> Type::NUMBER:</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>            contents.fields.emplace_back(<span class="keyword">new</span> comservatory::DummyNumberField);</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        <span class="keywordflow">case</span> Type::STRING:</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>            contents.fields.emplace_back(<span class="keyword">new</span> comservatory::DummyStringField);</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keywordflow">case</span> Type::BOOLEAN:</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>            contents.fields.emplace_back(<span class="keyword">new</span> comservatory::DummyBooleanField);</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    }</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    comservatory::ReadOptions opt;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    opt.parallel = params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">parallel</a>;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    parse(contents, opt);</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordflow">if</span> (contents.num_records() != params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">length</a>) {</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;number of records in the CSV file does not match the expected length&quot;</span>);</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    }</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordflow">if</span> (contents.names.back() != <span class="stringliteral">&quot;values&quot;</span>) {</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;column containing vector contents should be named &#39;values&#39;&quot;</span>);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    }</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>}</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> Reader&gt;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="atomic__vector_8hpp.html#a634416d6669a202444a50162de77e292">  113</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="atomic__vector_8hpp.html#a634416d6669a202444a50162de77e292">validate</a>(Reader&amp; reader, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a>&amp; params) {</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">return</span> validate_base(</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read(reader, contents, opts); },</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        params</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    );</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>}</div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;comservatory/comservatory.hpp&quot;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;<a class="code" href="utils__csv_8hpp.html">utils_csv.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;stdexcept&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">namespace </span>takane {</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">namespace </span>atomic_vector {</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">   27</a></span><span class="keyword">enum class</span> <a class="code hl_enumeration" href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">Type</a> {</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    INTEGER,</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    NUMBER,</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    STRING,</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    BOOLEAN</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>};</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html">   37</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a> {</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">   41</a></span>    <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">length</a> = 0;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">   46</a></span>    <a class="code hl_enumeration" href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">Type</a> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">type</a> = Type::INTEGER;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">   51</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">has_names</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">   56</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">parallel</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="structtakane_1_1atomic__vector_1_1Parameters.html#a9f5edb4c45c8b003d94846d09c7aa8c8">   61</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a9f5edb4c45c8b003d94846d09c7aa8c8">version</a> = 1;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>};</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> ParseCommand&gt;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><a class="code hl_struct" href="structtakane_1_1CsvContents.html">CsvContents</a> validate_base(ParseCommand parse, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a>&amp; params, <a class="code hl_struct" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a>* creator) {</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <a class="code hl_struct" href="structtakane_1_1DummyCsvFieldCreator.html">DummyCsvFieldCreator</a> default_creator;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordflow">if</span> (creator == NULL) {</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        creator = &amp;default_creator;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    }</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    comservatory::Contents contents;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <a class="code hl_struct" href="structtakane_1_1CsvContents.html">CsvContents</a> output;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">if</span> (params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">has_names</a>) {</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        <span class="keyword">auto</span> ptr = creator-&gt;<a class="code hl_function" href="structtakane_1_1CsvFieldCreator.html#af940a1b2e8bb37323f70be9a33c96f35">string</a>();</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        output.<a class="code hl_variable" href="structtakane_1_1CsvContents.html#a60ceb38995ccdf9f9bb9203fc6e8b4d8">fields</a>.emplace_back(ptr);</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        contents.fields.emplace_back(<span class="keyword">new</span> CsvNameField(<span class="keyword">false</span>, ptr));</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    }</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordflow">switch</span>(params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">type</a>) {</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keywordflow">case</span> Type::INTEGER:</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>            {</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>                <span class="keyword">auto</span> ptr = creator-&gt;<a class="code hl_function" href="structtakane_1_1CsvFieldCreator.html#aa304a5c33a1b393bd35330dd8e0cfabc">integer</a>();</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>                output.<a class="code hl_variable" href="structtakane_1_1CsvContents.html#a60ceb38995ccdf9f9bb9203fc6e8b4d8">fields</a>.emplace_back(ptr);</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>                contents.fields.emplace_back(<span class="keyword">new</span> CsvIntegerField(<span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">has_names</a>), ptr));</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>            }</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        <span class="keywordflow">case</span> Type::NUMBER:</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            {</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>                <span class="keyword">auto</span> ptr = creator-&gt;<a class="code hl_function" href="structtakane_1_1CsvFieldCreator.html#abe3009cf82536706a58b973bc948a534">number</a>();</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>                output.<a class="code hl_variable" href="structtakane_1_1CsvContents.html#a60ceb38995ccdf9f9bb9203fc6e8b4d8">fields</a>.emplace_back(<span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>                contents.fields.emplace_back(ptr);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>            }</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keywordflow">case</span> Type::STRING:</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>            {</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>                <span class="keyword">auto</span> ptr = creator-&gt;<a class="code hl_function" href="structtakane_1_1CsvFieldCreator.html#af940a1b2e8bb37323f70be9a33c96f35">string</a>();</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>                output.<a class="code hl_variable" href="structtakane_1_1CsvContents.html#a60ceb38995ccdf9f9bb9203fc6e8b4d8">fields</a>.emplace_back(<span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>                contents.fields.emplace_back(ptr);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            }</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        <span class="keywordflow">case</span> Type::BOOLEAN:</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            {</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>                <span class="keyword">auto</span> ptr = creator-&gt;<a class="code hl_function" href="structtakane_1_1CsvFieldCreator.html#ae2ac21c8d2d3e4740b43a6458ea5ee61">boolean</a>();</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>                output.<a class="code hl_variable" href="structtakane_1_1CsvContents.html#a60ceb38995ccdf9f9bb9203fc6e8b4d8">fields</a>.emplace_back(<span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                contents.fields.emplace_back(ptr);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            }</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    }</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    comservatory::ReadOptions opt;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    opt.parallel = params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">parallel</a>;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    parse(contents, opt);</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="keywordflow">if</span> (contents.num_records() != params.<a class="code hl_variable" href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">length</a>) {</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;number of records in the CSV file does not match the expected length&quot;</span>);</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    }</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="atomic__vector_8hpp.html#a61bded9cbe879f8711d9edd0aab4c059">  126</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="atomic__vector_8hpp.html#a634416d6669a202444a50162de77e292">validate</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a>&amp; params) {</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordflow">return</span> validate_base(</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read_file(path, contents, opts); },</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        params</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    );</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>}</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>}</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>}</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="aatomic__vector_8hpp_html_a634416d6669a202444a50162de77e292"><div class="ttname"><a href="atomic__vector_8hpp.html#a634416d6669a202444a50162de77e292">takane::atomic_vector::validate</a></div><div class="ttdeci">void validate(Reader &amp;reader, const Parameters &amp;params)</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:113</div></div>
-<div class="ttc" id="aatomic__vector_8hpp_html_a6c8bfd44d20a0946ee5eb50e7adb32b1"><div class="ttname"><a href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">takane::atomic_vector::Type</a></div><div class="ttdeci">Type</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:26</div></div>
-<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html">takane::atomic_vector::Parameters</a></div><div class="ttdoc">Parameters for validating the atomic vector file.</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:36</div></div>
-<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_a5b4a0a755392ad62ce838b0d037e41df"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">takane::atomic_vector::Parameters::type</a></div><div class="ttdeci">Type type</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:45</div></div>
-<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_a8ad69b51dadf832b0893906a61d79c7b"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">takane::atomic_vector::Parameters::has_names</a></div><div class="ttdeci">bool has_names</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:50</div></div>
-<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_a9f5edb4c45c8b003d94846d09c7aa8c8"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#a9f5edb4c45c8b003d94846d09c7aa8c8">takane::atomic_vector::Parameters::version</a></div><div class="ttdeci">int version</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:60</div></div>
-<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_ac95cc888b5fd2f61cd2a3ebfc2cdfe7a"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">takane::atomic_vector::Parameters::length</a></div><div class="ttdeci">size_t length</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:40</div></div>
-<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_af1827fb7056013a18211441f737ff28c"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">takane::atomic_vector::Parameters::parallel</a></div><div class="ttdeci">bool parallel</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:55</div></div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordflow">if</span> (contents.names.back() != <span class="stringliteral">&quot;values&quot;</span>) {</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;column containing vector contents should be named &#39;values&#39;&quot;</span>);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    }</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    output.reconstitute(contents.fields);</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">return</span> output;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>}</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> Reader&gt;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno"><a class="line" href="atomic__vector_8hpp.html#a98dd9f3c416c9fac38bd27cf41174f60">  147</a></span><a class="code hl_struct" href="structtakane_1_1CsvContents.html">CsvContents</a> <a class="code hl_function" href="atomic__vector_8hpp.html#a98dd9f3c416c9fac38bd27cf41174f60">validate</a>(Reader&amp; reader, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a>&amp; params, <a class="code hl_struct" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a>* creator = NULL) {</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordflow">return</span> validate_base(</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read(reader, contents, opts); },</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>        params,</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>        creator</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    );</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>}</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span> </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno"><a class="line" href="atomic__vector_8hpp.html#abd506a6f62a28d7fdc2e501df1a071d6">  163</a></span><span class="keyword">inline</span> <a class="code hl_struct" href="structtakane_1_1CsvContents.html">CsvContents</a> <a class="code hl_function" href="atomic__vector_8hpp.html#a98dd9f3c416c9fac38bd27cf41174f60">validate</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a>&amp; params, <a class="code hl_struct" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a>* creator = NULL) {</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordflow">return</span> validate_base(</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>        [&amp;](comservatory::Contents&amp; contents, <span class="keyword">const</span> comservatory::ReadOptions&amp; opts) -&gt; <span class="keywordtype">void</span> { comservatory::read_file(path, contents, opts); },</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        params,</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        creator</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    );</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>}</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>}</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>}</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aatomic__vector_8hpp_html_a6c8bfd44d20a0946ee5eb50e7adb32b1"><div class="ttname"><a href="atomic__vector_8hpp.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">takane::atomic_vector::Type</a></div><div class="ttdeci">Type</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:27</div></div>
+<div class="ttc" id="aatomic__vector_8hpp_html_a98dd9f3c416c9fac38bd27cf41174f60"><div class="ttname"><a href="atomic__vector_8hpp.html#a98dd9f3c416c9fac38bd27cf41174f60">takane::atomic_vector::validate</a></div><div class="ttdeci">CsvContents validate(Reader &amp;reader, const Parameters &amp;params, CsvFieldCreator *creator=NULL)</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:147</div></div>
+<div class="ttc" id="astructtakane_1_1CsvContents_html"><div class="ttname"><a href="structtakane_1_1CsvContents.html">takane::CsvContents</a></div><div class="ttdoc">Contents of the parsed CSV.</div><div class="ttdef"><b>Definition:</b> utils_csv.hpp:84</div></div>
+<div class="ttc" id="astructtakane_1_1CsvContents_html_a60ceb38995ccdf9f9bb9203fc6e8b4d8"><div class="ttname"><a href="structtakane_1_1CsvContents.html#a60ceb38995ccdf9f9bb9203fc6e8b4d8">takane::CsvContents::fields</a></div><div class="ttdeci">std::vector&lt; std::unique_ptr&lt; comservatory::Field &gt; &gt; fields</div><div class="ttdef"><b>Definition:</b> utils_csv.hpp:89</div></div>
+<div class="ttc" id="astructtakane_1_1CsvFieldCreator_html"><div class="ttname"><a href="structtakane_1_1CsvFieldCreator.html">takane::CsvFieldCreator</a></div><div class="ttdoc">Create comservatory::Field objects to capture column contents.</div><div class="ttdef"><b>Definition:</b> utils_csv.hpp:27</div></div>
+<div class="ttc" id="astructtakane_1_1CsvFieldCreator_html_aa304a5c33a1b393bd35330dd8e0cfabc"><div class="ttname"><a href="structtakane_1_1CsvFieldCreator.html#aa304a5c33a1b393bd35330dd8e0cfabc">takane::CsvFieldCreator::integer</a></div><div class="ttdeci">virtual comservatory::NumberField * integer()</div><div class="ttdef"><b>Definition:</b> utils_csv.hpp:40</div></div>
+<div class="ttc" id="astructtakane_1_1CsvFieldCreator_html_abe3009cf82536706a58b973bc948a534"><div class="ttname"><a href="structtakane_1_1CsvFieldCreator.html#abe3009cf82536706a58b973bc948a534">takane::CsvFieldCreator::number</a></div><div class="ttdeci">virtual comservatory::NumberField * number()=0</div></div>
+<div class="ttc" id="astructtakane_1_1CsvFieldCreator_html_ae2ac21c8d2d3e4740b43a6458ea5ee61"><div class="ttname"><a href="structtakane_1_1CsvFieldCreator.html#ae2ac21c8d2d3e4740b43a6458ea5ee61">takane::CsvFieldCreator::boolean</a></div><div class="ttdeci">virtual comservatory::BooleanField * boolean()=0</div></div>
+<div class="ttc" id="astructtakane_1_1CsvFieldCreator_html_af940a1b2e8bb37323f70be9a33c96f35"><div class="ttname"><a href="structtakane_1_1CsvFieldCreator.html#af940a1b2e8bb37323f70be9a33c96f35">takane::CsvFieldCreator::string</a></div><div class="ttdeci">virtual comservatory::StringField * string()=0</div></div>
+<div class="ttc" id="astructtakane_1_1DummyCsvFieldCreator_html"><div class="ttname"><a href="structtakane_1_1DummyCsvFieldCreator.html">takane::DummyCsvFieldCreator</a></div><div class="ttdoc">Dummy column creator.</div><div class="ttdef"><b>Definition:</b> utils_csv.hpp:67</div></div>
+<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html">takane::atomic_vector::Parameters</a></div><div class="ttdoc">Parameters for validating the atomic vector file.</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:37</div></div>
+<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_a5b4a0a755392ad62ce838b0d037e41df"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#a5b4a0a755392ad62ce838b0d037e41df">takane::atomic_vector::Parameters::type</a></div><div class="ttdeci">Type type</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:46</div></div>
+<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_a8ad69b51dadf832b0893906a61d79c7b"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b">takane::atomic_vector::Parameters::has_names</a></div><div class="ttdeci">bool has_names</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:51</div></div>
+<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_a9f5edb4c45c8b003d94846d09c7aa8c8"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#a9f5edb4c45c8b003d94846d09c7aa8c8">takane::atomic_vector::Parameters::version</a></div><div class="ttdeci">int version</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:61</div></div>
+<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_ac95cc888b5fd2f61cd2a3ebfc2cdfe7a"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#ac95cc888b5fd2f61cd2a3ebfc2cdfe7a">takane::atomic_vector::Parameters::length</a></div><div class="ttdeci">size_t length</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:41</div></div>
+<div class="ttc" id="astructtakane_1_1atomic__vector_1_1Parameters_html_af1827fb7056013a18211441f737ff28c"><div class="ttname"><a href="structtakane_1_1atomic__vector_1_1Parameters.html#af1827fb7056013a18211441f737ff28c">takane::atomic_vector::Parameters::parallel</a></div><div class="ttdeci">bool parallel</div><div class="ttdef"><b>Definition:</b> atomic_vector.hpp:56</div></div>
+<div class="ttc" id="autils__csv_8hpp_html"><div class="ttname"><a href="utils__csv_8hpp.html">utils_csv.hpp</a></div><div class="ttdoc">Utilities for parsing CSVs.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
