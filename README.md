@@ -1,5 +1,9 @@
 # Miscellaneous validators for ArtifactDB 
 
+![Unit tests](https://github.com/ArtifactDB/takane/actions/workflows/run-tests.yaml/badge.svg)
+![Documentation](https://github.com/ArtifactDB/takane/actions/workflows/doxygenate.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/ArtifactDB/takane/branch/master/graph/badge.svg?token=J3dxS3MtT1)](https://codecov.io/gh/ArtifactDB/takane)
+
 ## Overview
 
 This library contains some C++ libraries to validate ArtifactDB file formats that aren't covered by other libraries
@@ -89,5 +93,6 @@ You will also need to link to the dependencies listed in the [`extern/CMakeLists
 
 This library is named after [Takane Shijou](https://myanimelist.net/character/40012/Takane_Shijou),
 continuing my trend of naming C++ libraries after [iDOLM@STER](https://myanimelist.net/anime/10278/The_iDOLMSTER) characters.
+Not really sure why I picked Takane but she's nice enough.
 
 ![Takane GIF](https://64.media.tumblr.com/17ecbb29ab7ed3328ed854c1b02e0eec/tumblr_o49c7i4jUu1th93f0o1_540.gif)
