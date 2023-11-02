@@ -1,7 +1,6 @@
 #ifndef TAKANE_HDF5_SPARSE_MATRIX_HPP
 #define TAKANE_HDF5_SPARSE_MATRIX_HPP
 
-#include "utils.hpp"
 #include "ritsuko/hdf5/hdf5.hpp"
 
 #include "array.hpp"

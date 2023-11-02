@@ -2,11 +2,12 @@
 #include <gmock/gmock.h>
 
 #include "takane/compressed_list.hpp"
+#include "utils.h"
 
 #include <fstream>
 #include <string>
 
-static void validate(const std::string& buffer, size_t length, size_t concatenated, bool has_names) {
+static takane::CsvContents validate(const std::string& buffer, size_t length, size_t concatenated, bool has_names, takane::CsvFieldCreator* creator = NULL) {
     std::string path = "TEST-compressed_list.csv";
     {
         std::ofstream ohandle(path);
@@ -18,7 +19,7 @@ static void validate(const std::string& buffer, size_t length, size_t concatenat
     params.concatenated = concatenated;
     params.has_names = has_names;
 
-    takane::compressed_list::validate(path.c_str(), params);
+    return takane::compressed_list::validate(path.c_str(), params, creator);
 }
 
 template<typename ... Args_>
@@ -43,6 +44,12 @@ TEST(CompressedList, Basics) {
     expect_error("number of header names", buffer, 3, 12, false);
     expect_error("number of records", buffer, 10, 12, true);
     expect_error("concatenated total", buffer, 3, 9, true);
+
+    FilledFieldCreator filled;
+    auto output = ::validate(buffer, 3, 12, true, &filled);
+    EXPECT_EQ(output.fields.size(), 2);
+    EXPECT_EQ(output.fields[0]->type(), comservatory::Type::STRING);
+    EXPECT_EQ(output.fields[1]->type(), comservatory::Type::NUMBER);
 
     buffer = "\"names\",\"whee\"\n";
     buffer += "\"foo\",2\n";

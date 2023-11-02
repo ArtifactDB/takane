@@ -1,8 +1,9 @@
 #ifndef TAKANE_ATOMIC_VECTOR_HPP
 #define TAKANE_ATOMIC_VECTOR_HPP
 
-#include "utils.hpp"
 #include "comservatory/comservatory.hpp"
+
+#include "utils_csv.hpp"
 
 #include <stdexcept>
 
@@ -64,24 +65,48 @@ struct Parameters {
  * @cond
  */
 template<class ParseCommand>
-void validate_base(ParseCommand parse, const Parameters& params) {
+CsvContents validate_base(ParseCommand parse, const Parameters& params, CsvFieldCreator* creator) {
+    DummyCsvFieldCreator default_creator;
+    if (creator == NULL) {
+        creator = &default_creator;
+    }
+
     comservatory::Contents contents;
+    CsvContents output;
     if (params.has_names) {
-        contents.fields.emplace_back(new KnownNameField(false));
+        auto ptr = creator->string();
+        output.fields.emplace_back(ptr);
+        contents.fields.emplace_back(new CsvNameField(false, ptr));
     }
 
     switch(params.type) {
         case Type::INTEGER:
-            contents.fields.emplace_back(new KnownIntegerField(static_cast<int>(params.has_names)));
+            {
+                auto ptr = creator->integer();
+                output.fields.emplace_back(ptr);
+                contents.fields.emplace_back(new CsvIntegerField(static_cast<int>(params.has_names), ptr));
+            }
             break;
         case Type::NUMBER:
-            contents.fields.emplace_back(new comservatory::DummyNumberField);
+            {
+                auto ptr = creator->number();
+                output.fields.emplace_back(nullptr);
+                contents.fields.emplace_back(ptr);
+            }
             break;
         case Type::STRING:
-            contents.fields.emplace_back(new comservatory::DummyStringField);
+            {
+                auto ptr = creator->string();
+                output.fields.emplace_back(nullptr);
+                contents.fields.emplace_back(ptr);
+            }
             break;
         case Type::BOOLEAN:
-            contents.fields.emplace_back(new comservatory::DummyBooleanField);
+            {
+                auto ptr = creator->boolean();
+                output.fields.emplace_back(nullptr);
+                contents.fields.emplace_back(ptr);
+            }
             break;
     }
 
@@ -95,6 +120,9 @@ void validate_base(ParseCommand parse, const Parameters& params) {
     if (contents.names.back() != "values") {
         throw std::runtime_error("column containing vector contents should be named 'values'");
     }
+
+    output.reconstitute(contents.fields);
+    return output;
 }
 /**
  * @endcond
@@ -108,12 +136,19 @@ void validate_base(ParseCommand parse, const Parameters& params) {
  *
  * @param reader A stream of bytes from the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
+ *
+ * @return Contents of the loaded CSV.
+ * Whether the `fields` member actually contains the CSV data depends on `creator`.
+ * If `params.has_names = true`, an additional column containing names is present at the start.
  */
 template<class Reader>
-void validate(Reader& reader, const Parameters& params) {
+CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* creator = NULL) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        params
+        params,
+        creator
     );
 }
 
@@ -122,11 +157,14 @@ void validate(Reader& reader, const Parameters& params) {
  *
  * @param path Path to the CSV file.
  * @param params Validation parameters.
+ *
+ * @return Contents of the loaded CSV.
  */
-inline void validate(const char* path, const Parameters& params) {
+inline CsvContents validate(const char* path, const Parameters& params, CsvFieldCreator* creator = NULL) {
     return validate_base(
         [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        params
+        params,
+        creator
     );
 }
 

@@ -2,11 +2,12 @@
 #include <gmock/gmock.h>
 
 #include "takane/atomic_vector.hpp"
+#include "utils.h"
 
 #include <fstream>
 #include <string>
 
-static void validate(const std::string& buffer, size_t length, takane::atomic_vector::Type type, bool has_names) {
+static takane::CsvContents validate(const std::string& buffer, size_t length, takane::atomic_vector::Type type, bool has_names, takane::CsvFieldCreator* creator = NULL) {
     std::string path = "TEST-atomic_vector.csv";
     {
         std::ofstream ohandle(path);
@@ -18,7 +19,7 @@ static void validate(const std::string& buffer, size_t length, takane::atomic_ve
     params.type = type;
     params.has_names = has_names;
 
-    takane::atomic_vector::validate(path.c_str(), params);
+    return takane::atomic_vector::validate(path.c_str(), params, creator);
 }
 
 template<typename ... Args_>
@@ -42,6 +43,12 @@ TEST(AtomicVector, Basics) {
 
     expect_error("number of header names", buffer, 3, takane::atomic_vector::Type::STRING, false);
     expect_error("number of records", buffer, 10, takane::atomic_vector::Type::STRING, true);
+
+    FilledFieldCreator filled;
+    auto output = ::validate(buffer, 3, takane::atomic_vector::Type::STRING, true, &filled);
+    EXPECT_EQ(output.fields.size(), 2);
+    EXPECT_EQ(output.fields[0]->type(), comservatory::Type::STRING);
+    EXPECT_EQ(output.fields[1]->type(), comservatory::Type::STRING);
 
     buffer = "\"names\",\"blah\"\n";
     buffer += "\"foo\",\"whee\"\n";

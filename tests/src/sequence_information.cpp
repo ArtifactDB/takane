@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "takane/sequence_information.hpp"
+#include "utils.h"
 
 #include <fstream>
 #include <string>
@@ -55,7 +56,7 @@ TEST(SequenceInformation, Seqnames) {
     buffer += "\"chrA\",4,TRUE,\"hg19\"\n";
     buffer += "\"chrB\",9,FALSE,\"mm10\"\n";
     buffer += "\"chrA\",19,TRUE,\"hg38\"\n";
-    expect_error("duplicated sequence name", buffer, 3);
+    expect_error("duplicated value", buffer, 3);
 
     buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
     buffer += "NA,4,TRUE,\"hg19\"\n";
@@ -68,11 +69,12 @@ TEST(SequenceInformation, Seqnames) {
     {
         takane::sequence_information::Parameters opt;
         opt.num_sequences = 3;
-        opt.save_seqnames = true;
         byteme::RawBufferReader input(reinterpret_cast<const unsigned char*>(buffer.c_str()), buffer.size());
-        auto output = takane::sequence_information::validate(input, opt);
+
+        FilledFieldCreator filled; 
+        auto output = takane::sequence_information::validate(input, opt, &filled);
         std::vector<std::string> expected{ "chrA", "chrB", "chrX" };
-        EXPECT_EQ(output.seqnames, expected);
+        EXPECT_EQ(static_cast<comservatory::FilledStringField*>(output.fields[0].get())->values, expected);
     }
 }
 
@@ -92,7 +94,7 @@ TEST(SequenceInformation, Seqlengths) {
     buffer += "\"chrA\",-1,TRUE,\"hg19\"\n";
     buffer += "\"chrB\",24,FALSE,\"mm10\"\n";
     buffer += "\"chrC\",21,TRUE,\"hg38\"\n";
-    expect_error("non-negative", buffer, 3);
+    expect_error("negative", buffer, 3);
 
     buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
     buffer += "\"chrA\",1,TRUE,\"hg19\"\n";
