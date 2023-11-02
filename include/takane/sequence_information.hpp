@@ -15,6 +15,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::sequence_information
+ * @brief Definitions for sequence information objects.
+ */
 namespace sequence_information {
 
 /**

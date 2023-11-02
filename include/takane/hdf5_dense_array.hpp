@@ -17,6 +17,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::hdf5_dense_array
+ * @brief Definitions for HDF5 dense arrays.
+ */
 namespace hdf5_dense_array {
 
 /**

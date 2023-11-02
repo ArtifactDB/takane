@@ -14,6 +14,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::compressed_list
+ * @brief Definitions for compressed lists.
+ */
 namespace compressed_list {
 
 /**

@@ -18,6 +18,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::csv_data_frame
+ * @brief Definitions for CSV data frames.
+ */
 namespace csv_data_frame {
 
 /**

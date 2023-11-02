@@ -17,6 +17,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::hdf5_sparse_matrix
+ * @brief Definitions for HDF5 sparse matrices.
+ */
 namespace hdf5_sparse_matrix {
 
 /**

@@ -20,6 +20,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::hdf5_data_frame
+ * @brief Definitions for HDF5 data frames.
+ */
 namespace hdf5_data_frame {
 
 /**

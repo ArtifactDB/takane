@@ -13,6 +13,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::data_frame
+ * @brief Definitions for abstract data frames.
+ */
 namespace data_frame {
 
 /**

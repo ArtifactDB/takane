@@ -14,6 +14,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::factor
+ * @brief Definitions for abstract factors.
+ */
 namespace factor {
 
 /**

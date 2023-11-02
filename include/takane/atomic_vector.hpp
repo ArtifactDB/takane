@@ -14,6 +14,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::atomic_vector
+ * @brief Definitions for atomic vectors.
+ */
 namespace atomic_vector {
 
 /**
@@ -157,6 +161,8 @@ CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* 
  *
  * @param path Path to the CSV file.
  * @param params Validation parameters.
+ * @param creator Factory to create objects for holding the contents of each CSV field.
+ * Defaults to a pointer to a `DummyFieldCreator` instance.
  *
  * @return Contents of the loaded CSV.
  */

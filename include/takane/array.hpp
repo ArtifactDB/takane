@@ -6,6 +6,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::array
+ * @brief Definitions for abstract arrays.
+ */
 namespace array {
 
 /**

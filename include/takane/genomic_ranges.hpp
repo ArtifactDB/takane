@@ -17,6 +17,10 @@
 
 namespace takane {
 
+/**
+ * @namespace takane::genomic_ranges
+ * @brief Definitions for genomic ranges.
+ */
 namespace genomic_ranges {
 
 /**
