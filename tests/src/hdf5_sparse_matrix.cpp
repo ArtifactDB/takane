@@ -565,6 +565,12 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
         ghandle.createDataSet("0", H5::StrType(0, H5T_VARIABLE), dspace);
     }
     expect_error("expected '0' to have length", path, params);
+
+    if (version >= 3) {
+        auto params2 = params;
+        params2.has_dimnames = false;
+        expect_error("unexpected 'names'", path, params2);
+    }
 }
 
 TEST_P(Hdf5SparseMatrixTest, General) {

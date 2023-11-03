@@ -303,6 +303,10 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
         } else {
             array::check_dimnames(handle, params.dimnames_group, params.dimensions);
         }
+    } else if (version.major) {
+        if (dhandle.exists("names")) {
+            throw std::runtime_error("unexpected 'names' subgroup in the absence of any dimnames");
+        }
     }
 }
 
