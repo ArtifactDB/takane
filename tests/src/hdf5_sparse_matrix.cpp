@@ -37,6 +37,9 @@ public:
             H5::StrType stype(0, H5T_VARIABLE);
             auto ahandle = handle.createAttribute("version", stype, H5S_SCALAR);
             ahandle.write(stype, std::string("1.0"));
+
+            auto fhandle = handle.createAttribute("format", stype, H5S_SCALAR);
+            fhandle.write(stype, std::string("tenx_matrix"));
         }
 
         {
@@ -576,12 +579,22 @@ TEST_P(Hdf5SparseMatrixTest, General) {
 
     H5::StrType stype(0, H5T_VARIABLE);
     {
-        H5::H5File handle(path, H5F_ACC_RDWR);
+        H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
         attr.write(stype, std::string("2.0"));
     }
     expect_error("unsupported version", path.c_str(), params);
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup(name);
+        auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
+        attr.write(stype, std::string("1.0"));
+        auto fattr = ghandle.createAttribute("format", stype, H5S_SCALAR);
+        fattr.write(stype, std::string("whee"));
+    }
+    expect_error("unsupported format", path.c_str(), params);
 }
 
 INSTANTIATE_TEST_SUITE_P(

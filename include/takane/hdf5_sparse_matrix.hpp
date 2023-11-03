@@ -283,6 +283,15 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
         }
     }
 
+    if (version.major) {
+        auto format = ritsuko::hdf5::load_scalar_string_attribute(dhandle, "format");
+        if (format == "tenx_matrix") {
+            ;
+        } else {
+            throw std::runtime_error("unsupported format '" + format + "' for the '" + params.group + "' group");
+        }
+    }
+
     validate_shape(dhandle, params, version);
     size_t num_nonzero = validate_data(dhandle, params, version);
     std::vector<uint64_t> indptrs = validate_indptrs(dhandle, params.dimensions[1], num_nonzero, version);
