@@ -139,7 +139,7 @@ TEST(CsvDataFrame, StringDate) {
     std::vector<takane::data_frame::ColumnDetails> columns(1);
     columns[0].name = "Charlie";
     columns[0].type = takane::data_frame::ColumnType::STRING;
-    columns[0].format = takane::data_frame::StringFormat::DATE;
+    columns[0].string_format = takane::data_frame::StringFormat::DATE;
 
     {
         std::string buffer = "\"Aaron\",\"Charlie\"\n\"mio\",\"2019-12-31\"\n\"rin\",\"1991-07-31\"\n\"uzuki\",\"1967-01-23\"\n";
@@ -163,7 +163,7 @@ TEST(CsvDataFrame, StringDateTime) {
     std::vector<takane::data_frame::ColumnDetails> columns(1);
     columns[0].name = "Omega";
     columns[0].type = takane::data_frame::ColumnType::STRING;
-    columns[0].format = takane::data_frame::StringFormat::DATE_TIME;
+    columns[0].string_format = takane::data_frame::StringFormat::DATE_TIME;
 
     {
         std::string buffer = "\"rows\",\"Omega\"\n\"mio\",\"2019-12-31T01:34:21+21:00\"\n\"rin\",\"1991-07-31T15:56:02.1Z\"\n\"uzuki\",\"1967-01-23T21:33:42.324-09:30\"\n";
