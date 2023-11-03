@@ -128,7 +128,7 @@ inline void validate_column_names(const H5::Group& ghandle, const Parameters& pa
     throw std::runtime_error("failed to validate the column names for '" + ritsuko::hdf5::get_name(ghandle) + "'; " + std::string(e.what()));
 }
 
-inline void validate_column(const H5::Group& dhandle, const std::string& dset_name, const data_frame::ColumnDetails& curcol, const Parameters& params) try { 
+inline void validate_column(const H5::Group& dhandle, const std::string& dset_name, const data_frame::ColumnDetails& curcol, const Parameters& params, int df_version, int hdf5_version) try { 
     auto xhandle = ritsuko::hdf5::get_dataset(dhandle, dset_name.c_str());
     if (params.num_rows != ritsuko::hdf5::get_1d_length(xhandle.getSpace(), false)) {
         throw std::runtime_error("expected column to have length equal to the number of rows");
@@ -137,7 +137,7 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
     const char* missing_attr = "missing-value-placeholder";
 
     if (curcol.type == data_frame::ColumnType::NUMBER) {
-        if (params.hdf5_version < 3) {
+        if (hdf5_version < 3) {
             if (xhandle.getTypeClass() != H5T_FLOAT) {
                 throw std::runtime_error("expected column to be a floating-point dataset");
             }
@@ -145,17 +145,42 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
             if (ritsuko::hdf5::exceeds_float_limit(xhandle, 64)) {
                 throw std::runtime_error("expected number column to use a datatype that is a subset of a 64-bit float");
             }
+
+            auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "type");
+            if (type != "number") {
+                throw std::runtime_error("expected number column to have a 'type' attribute set to 'number'");
+            }
         }
-        if (params.hdf5_version > 1 && xhandle.attrExists(missing_attr)) {
+        if (hdf5_version > 1 && xhandle.attrExists(missing_attr)) {
             ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr);
         }
 
-    } else if (curcol.type == data_frame::ColumnType::BOOLEAN || curcol.type == data_frame::ColumnType::INTEGER) {
+    } else if (curcol.type == data_frame::ColumnType::BOOLEAN) {
+        if (ritsuko::hdf5::exceeds_integer_limit(xhandle, 32, true)) {
+            throw std::runtime_error("expected boolean column to use a datatype that is a subset of a 32-bit signed integer");
+        }
+        if (hdf5_version > 1 && xhandle.attrExists(missing_attr)) {
+            ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr);
+        }
+        if (hdf5_version >= 3) {
+            auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "type");
+            if (type != "boolean") {
+                throw std::runtime_error("expected boolean column to have a 'type' attribute set to 'boolean'");
+            }
+        }
+
+    } else if (curcol.type == data_frame::ColumnType::INTEGER) {
         if (ritsuko::hdf5::exceeds_integer_limit(xhandle, 32, true)) {
             throw std::runtime_error("expected integer column to use a datatype that is a subset of a 32-bit signed integer");
         }
-        if (params.hdf5_version > 1 && xhandle.attrExists(missing_attr)) {
+        if (hdf5_version > 1 && xhandle.attrExists(missing_attr)) {
             ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr);
+        }
+        if (hdf5_version >= 3) {
+            auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "type");
+            if (type != "integer") {
+                throw std::runtime_error("expected integer column to have a 'type' attribute set to 'integer'");
+            }
         }
 
     } else if (curcol.type == data_frame::ColumnType::STRING) {
@@ -168,6 +193,13 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
         if (has_missing) {
             auto attr = ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr, /* type_class_only = */ true);
             missing_value = ritsuko::hdf5::load_scalar_string_attribute(attr);
+        }
+
+        if (hdf5_version >= 3) {
+            auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "type");
+            if (type != "string") {
+                throw std::runtime_error("expected string column to have a 'type' attribute set to 'string'");
+            }
         }
 
         if (curcol.format == data_frame::StringFormat::DATE) {
@@ -186,6 +218,13 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
                 }
             );
 
+            if (hdf5_version >= 3) {
+                auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "format");
+                if (type != "date") {
+                    throw std::runtime_error("expected date-formatted column to have a 'format' attribute set to 'date'");
+                }
+            }
+
         } else if (curcol.format == data_frame::StringFormat::DATE_TIME) {
             ritsuko::hdf5::load_1d_string_dataset(
                 xhandle, 
@@ -201,10 +240,25 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
                     }
                 }
             );
+
+            if (hdf5_version >= 3) {
+                auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "format");
+                if (type != "date-time") {
+                    throw std::runtime_error("expected date/time-formatted column to have a 'format' attribute set to 'date-time'");
+                }
+            }
+
+        } else {
+            if (xhandle.attrExists("format")) {
+                auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "format");
+                if (type != "none") {
+                    throw std::runtime_error("any 'format' attribute on an unformatted string column should be 'none'");
+                }
+            }
         }
 
     } else if (curcol.type == data_frame::ColumnType::FACTOR) {
-        if (params.df_version <= 1) {
+        if (df_version <= 1) {
             if (xhandle.getTypeClass() != H5T_STRING) {
                 throw std::runtime_error("expected column " + dset_name + " to be a string dataset");
             }
@@ -231,14 +285,14 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
                 }
             );
 
-        } else if (params.df_version > 1) {
+        } else if (df_version > 1) {
             if (ritsuko::hdf5::exceeds_integer_limit(xhandle, 32, true)) {
                 throw std::runtime_error("expected factor column to use a datatype that is a subset of a 32-bit signed integer");
             }
 
             int32_t placeholder = -2147483648;
             bool has_missing = true;
-            if (params.hdf5_version > 1) {
+            if (hdf5_version > 1) {
                 has_missing = xhandle.attrExists(missing_attr);
                 if (has_missing) {
                     auto attr = ritsuko::hdf5::get_missing_placeholder_attribute(xhandle, missing_attr);
@@ -268,6 +322,19 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
                     }
                 }
             );
+
+            if (hdf5_version >= 3) {
+                auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "type");
+                if (type != "factor") {
+                    throw std::runtime_error("expected factor column to have a 'type' attribute set to 'factor'");
+                }
+                if (xhandle.attrExists("ordered")) {
+                    auto attr = ritsuko::hdf5::get_scalar_attribute(xhandle, "ordered");
+                    if (ritsuko::hdf5::exceeds_integer_limit(attr, 32, true)) {
+                        throw std::runtime_error("an 'ordered' attribute on a factor column should have a datatype that fits in a 32-bit signed integer");
+                    }
+                }
+            }
         }
 
     } else {
@@ -293,13 +360,42 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
     }
     auto ghandle = handle.openGroup(params.group);
 
+    // Inspecting the columns.
+    auto df_version = params.df_version;
+    auto hdf5_version = params.hdf5_version;
+    if (ghandle.attrExists("version")) {
+        auto vstring = ritsuko::hdf5::load_scalar_string_attribute(ghandle, "version");
+        auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+        if (version.major == 1) {
+            df_version = 2;
+            hdf5_version = 3;
+        } else {
+            throw std::runtime_error("unsupported version '" + vstring + "' for the '" + params.group + "' group");
+        }
+    }
+
+    // Checking the number of rows.
+    if (hdf5_version >= 3) {
+        auto attr = ritsuko::hdf5::get_scalar_attribute(ghandle, "num_rows");
+        if (ritsuko::hdf5::exceeds_integer_limit(attr, 32, true)) {
+            throw std::runtime_error("'num_rows' attribute on '" + params.group + "' should have a datatype that fits in a 32-bit signed integer");
+        }
+        int32_t nrows = 0;
+        attr.read(H5::PredType::NATIVE_INT32, &nrows);
+        if (nrows < 0 || static_cast<size_t>(nrows) != params.num_rows) {
+            throw std::runtime_error("inconsistent number of rows in '" + params.group + "' (expected " + std::to_string(params.num_rows) + ", got " + std::to_string(nrows) + ")");
+        }
+    }
+
+    // Checking row and column names.
     if (params.has_row_names) {
         validate_row_names(ghandle, params.num_rows);
     }
     validate_column_names(ghandle, params);
 
+    // Finally iterating through the columns.
     if (!ghandle.exists("data") || ghandle.childObjType("data") != H5O_TYPE_GROUP) {
-        throw std::runtime_error("expected a 'data' group");
+        throw std::runtime_error("expected a '" + params.group + "/data' group");
     }
     auto dhandle = ghandle.openGroup("data");
 
@@ -316,12 +412,12 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
             }
         }
 
-        validate_column(dhandle, dset_name, curcol, params);
+        validate_column(dhandle, dset_name, curcol, params, df_version, hdf5_version);
         ++found;
     }
 
     if (found != dhandle.getNumObjs()) {
-        throw std::runtime_error("more objects present in the 'data' group than expected");
+        throw std::runtime_error("more objects present in the '" + params.group + "/data' group than expected");
     }
 }
 
