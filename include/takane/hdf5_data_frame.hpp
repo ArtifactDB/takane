@@ -62,14 +62,14 @@ struct Parameters {
     hsize_t buffer_size = 10000;
 
     /**
-     * Version of the `data_frame` format,
-     * ignored if a `version` attribute is present on the `group`.
+     * Version of the `data_frame` format.
+     * Ignored if a `version` attribute is present on the HDF5 group at `group`.
      */
     int df_version = 2;
 
     /**
      * Version of the `hdf5_data_frame` format,
-     * ignored if a `version` attribute is present on the `group`.
+     * Ignored if a `version` attribute is present on the HDF5 group at `group`.
      */
     int hdf5_version = 2;
 };
