@@ -330,6 +330,54 @@ TEST_P(Hdf5DataFrameTest, Colnames) {
     expect_error("duplicated column name", path.c_str(), params);
 }
 
+TEST_P(Hdf5DataFrameTest, General) {
+    takane::hdf5_data_frame::Parameters params(name);
+    params.num_rows = 33;
+    auto& columns = params.columns.mutable_ref();
+    columns.resize(2);
+    columns[0].name = "Aaron";
+    columns[1].name = "Barry";
+
+    auto version = GetParam();
+    params.df_version = version;
+    params.hdf5_version = version;
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+    }
+    expect_error("'" + name + "' group", path.c_str(), params);
+
+    H5::StrType stype(0, H5T_VARIABLE);
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.createGroup(name);
+        auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
+        attr.write(stype, std::string("2.0"));
+    }
+    expect_error("unsupported version", path.c_str(), params);
+
+    if (version >= 3) {
+        {
+            H5::H5File handle(path, H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup(name);
+            ghandle.removeAttr("version");
+            auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
+            attr.write(stype, std::string("1.0"));
+            ghandle.createAttribute("num_rows", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+        }
+        expect_error("64-bit unsigned", path.c_str(), params);
+
+        {
+            H5::H5File handle(path, H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup(name);
+            ghandle.removeAttr("num_rows");
+            ghandle.createAttribute("num_rows", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
+        }
+        expect_error("inconsistent number", path.c_str(), params);
+    }
+
+}
+
 TEST_P(Hdf5DataFrameTest, Data) {
     takane::hdf5_data_frame::Parameters params(name);
     params.num_rows = 33;
@@ -379,15 +427,38 @@ TEST_P(Hdf5DataFrameTest, Data) {
         dhandle.createGroup("foo");
     }
     expect_error("more objects present", path.c_str(), params);
+}
 
+TEST_P(Hdf5DataFrameTest, Other) {
+    takane::hdf5_data_frame::Parameters params(name);
+    params.num_rows = 33;
+    auto& columns = params.columns.mutable_ref();
+    columns.resize(2);
+    columns[0].name = "Aaron";
     columns[0].type = takane::data_frame::ColumnType::OTHER;
+    columns[1].name = "Barry";
     columns[1].type = takane::data_frame::ColumnType::OTHER;
+
+    auto version = GetParam();
+    params.df_version = version;
+    params.hdf5_version = version;
+
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns, version);
     }
     takane::hdf5_data_frame::validate(path.c_str(), params);
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        hsize_t nr = params.num_rows;
+        H5::DataSpace dspace(1, &nr); 
+        dhandle.createDataSet("0", H5::PredType::NATIVE_INT, dspace);
+    }
+    expect_error("'other'", path.c_str(), params);
 }
 
 TEST_P(Hdf5DataFrameTest, Integer) {
@@ -409,13 +480,12 @@ TEST_P(Hdf5DataFrameTest, Integer) {
     }
     takane::hdf5_data_frame::validate(path.c_str(), params);
 
-    hsize_t nrows = params.num_rows;
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        spawn_integer_column(dhandle, "0", nrows, version, H5::PredType::NATIVE_DOUBLE);
+        spawn_integer_column(dhandle, "0", params.num_rows, version, H5::PredType::NATIVE_DOUBLE);
     }
     expect_error("expected integer column", path.c_str(), params);
 
@@ -425,7 +495,7 @@ TEST_P(Hdf5DataFrameTest, Integer) {
             auto ghandle = handle.openGroup(name);
             auto dhandle = ghandle.openGroup("data");
             dhandle.unlink("0");
-            spawn_boolean_column(dhandle, "0", nrows, version);
+            spawn_boolean_column(dhandle, "0", params.num_rows, version);
         }
         expect_error("'type' attribute set to 'integer'", path.c_str(), params);
     }
@@ -435,7 +505,7 @@ TEST_P(Hdf5DataFrameTest, Integer) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        spawn_integer_column(dhandle, "0", nrows, version, H5::PredType::NATIVE_INT64);
+        spawn_integer_column(dhandle, "0", params.num_rows, version, H5::PredType::NATIVE_INT64);
     }
     expect_error("32-bit signed integer", path.c_str(), params);
 
@@ -446,7 +516,7 @@ TEST_P(Hdf5DataFrameTest, Integer) {
             auto ghandle = handle.openGroup(name);
             auto dhandle = ghandle.openGroup("data");
             dhandle.unlink("0");
-            auto xhandle = spawn_integer_column(dhandle, "0", nrows, version, H5::PredType::NATIVE_INT16);
+            auto xhandle = spawn_integer_column(dhandle, "0", params.num_rows, version, H5::PredType::NATIVE_INT16);
             xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT16, H5S_SCALAR);
         }
         takane::hdf5_data_frame::validate(path.c_str(), params);
@@ -487,9 +557,18 @@ TEST_P(Hdf5DataFrameTest, Boolean) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        spawn_integer_column(dhandle, "0", params.num_rows, version, H5::PredType::NATIVE_DOUBLE);
+        spawn_boolean_column(dhandle, "0", params.num_rows, version, H5::PredType::NATIVE_DOUBLE);
     }
     expect_error("expected boolean column", path.c_str(), params);
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
+        spawn_boolean_column(dhandle, "0", params.num_rows, version, H5::PredType::NATIVE_INT64);
+    }
+    expect_error("32-bit signed integer", path.c_str(), params);
 
     if (version >= 3) {
         {
@@ -884,6 +963,17 @@ TEST_P(Hdf5DataFrameTest, Factor) {
             group_name = "data/0";
             code_name = "codes";
         }
+
+        {
+            H5::H5File handle(path, H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup(name);
+            auto dhandle = ghandle.openGroup(group_name);
+            dhandle.unlink(code_name);
+            hsize_t nrows = params.num_rows + 10;
+            H5::DataSpace dspace(1, &nrows);
+            dhandle.createDataSet(code_name, H5::PredType::NATIVE_INT8, dspace);
+        }
+        expect_error("length equal to the number of rows", path.c_str(), params);
 
         hsize_t nrows = params.num_rows;
         H5::DataSpace dspace(1, &nrows);

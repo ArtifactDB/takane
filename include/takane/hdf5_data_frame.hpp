@@ -207,14 +207,6 @@ inline void validate_column_v1_v2(const H5::Group& dhandle, const std::string& d
                     }
                 }
             );
-
-        } else {
-            if (xhandle.attrExists("format")) {
-                auto type = ritsuko::hdf5::load_scalar_string_attribute(xhandle, "format");
-                if (type != "none") {
-                    throw std::runtime_error("any 'format' attribute on an unformatted string column should be 'none'");
-                }
-            }
         }
 
     } else if (curcol.type == data_frame::ColumnType::FACTOR) {
@@ -531,7 +523,7 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
     if (version.major > 0) {
         auto attr = ritsuko::hdf5::get_scalar_attribute(ghandle, "num_rows");
         if (ritsuko::hdf5::exceeds_integer_limit(attr, 64, false)) {
-            throw std::runtime_error("'num_rows' attribute on '" + params.group + "' should have a datatype that fits in a 32-bit signed integer");
+            throw std::runtime_error("'num_rows' attribute on '" + params.group + "' should have a datatype that fits in a 64-bit unsigned integer");
         }
         uint64_t nrows = 0;
         attr.read(H5::PredType::NATIVE_UINT64, &nrows);
@@ -559,7 +551,7 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
         const auto& curcol = columns[c];
 
         std::string dset_name = std::to_string(c);
-        if (!ghandle.exists(dset_name)) {
+        if (!dhandle.exists(dset_name)) {
             if (curcol.type == data_frame::ColumnType::OTHER) {
                 continue;
             }
