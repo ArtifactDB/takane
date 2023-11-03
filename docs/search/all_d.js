@@ -4,5 +4,6 @@ var searchData=
   ['sequence_20information_1',['Sequence information',['../md__github_workspace_docs_specifications_sequence_information_v1.html',1,'']]],
   ['sequence_5finformation_2ehpp_2',['sequence_information.hpp',['../sequence__information_8hpp.html',1,'']]],
   ['string_3',['string',['../structtakane_1_1CsvFieldCreator.html#af940a1b2e8bb37323f70be9a33c96f35',1,'takane::CsvFieldCreator::string()'],['../structtakane_1_1DummyCsvFieldCreator.html#a5983501b74e4ab20fbb795604e0b8735',1,'takane::DummyCsvFieldCreator::string()']]],
-  ['stringformat_4',['StringFormat',['../namespacetakane_1_1data__frame.html#ae9316d06d2cc382804fa777f595f34e9',1,'takane::data_frame']]]
+  ['string_5fformat_4',['string_format',['../structtakane_1_1data__frame_1_1ColumnDetails.html#af58604a3f6345358e9aa77f219d9192c',1,'takane::data_frame::ColumnDetails']]],
+  ['stringformat_5',['StringFormat',['../namespacetakane_1_1data__frame.html#ae9316d06d2cc382804fa777f595f34e9',1,'takane::data_frame']]]
 ];

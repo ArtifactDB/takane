@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['operator_2a_0',['operator*',['../structtakane_1_1WrappedOption.html#af48d965d7c5c90116625a94e3ccfc2e0',1,'takane::WrappedOption']]],
-  ['operator_2d_3e_1',['operator-&gt;',['../structtakane_1_1WrappedOption.html#af82dabe312c2dae05d85b8bdbdfad1ef',1,'takane::WrappedOption']]],
-  ['operator_3d_2',['operator=',['../structtakane_1_1WrappedOption.html#a75091f00dccdcb84605c50b2b944802f',1,'takane::WrappedOption::operator=(const T *ptr)'],['../structtakane_1_1WrappedOption.html#a27fa123b4d76c73a7932996b1042f4f4',1,'takane::WrappedOption::operator=(T val)']]]
+  ['parameters_0',['Parameters',['../structtakane_1_1hdf5__data__frame_1_1Parameters.html#aa6737a8c6b78a835f2c0df82deca36db',1,'takane::hdf5_data_frame::Parameters::Parameters()'],['../structtakane_1_1hdf5__dense__array_1_1Parameters.html#a3b9bc61ca4197b6a52bd2c1a277949c8',1,'takane::hdf5_dense_array::Parameters::Parameters()'],['../structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a89989c474a984ae11d5ed51a18ec26b5',1,'takane::hdf5_sparse_matrix::Parameters::Parameters()']]]
 ];
