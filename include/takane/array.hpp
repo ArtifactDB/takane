@@ -26,7 +26,7 @@ enum Type {
  * @cond
  */
 template<class Dimensions_>
-void check_dimnames(const H5::H5File& handle, const std::string& dimnames_group, const Dimensions_& dimensions) try {
+void check_dimnames(const H5::Group& handle, const std::string& dimnames_group, const Dimensions_& dimensions) try {
     if (!handle.exists(dimnames_group) || handle.childObjType(dimnames_group) != H5O_TYPE_GROUP) {
         throw std::runtime_error("expected a group");
     }
