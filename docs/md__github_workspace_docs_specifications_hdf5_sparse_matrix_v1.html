@@ -75,12 +75,14 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h1>Overview</h1>
-<p >A compressed sparse matrix stored inside a group of a HDF5 file, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_sparse_matrix/v1.json"><code>hdf5_sparse_matrix</code></a> schema. We use <code>~</code> below to denote properties of the schema.</p>
+<p >A sparse matrix stored inside a group of a HDF5 file, corresponding to the <a href="https://github.com/ArtifactDB/BiocObjectSchemas/raw/master/raw/hdf5_sparse_matrix/v1.json"><code>hdf5_sparse_matrix</code></a> schema. We use <code>~</code> below to denote properties of the schema.</p>
 <p >The main HDF5 group containing the contents of the matrix is taken from <code>~hdf5_sparse_matrix.group</code>. This group may have a <code>version</code> property containing a scalar <code>&lt;major&gt;.&lt;minor&gt;</code> version string. If a version attibute is present on <code>group</code>, all version-related properties in the schema (e.g., <code>~hdf5_sparse_matrix.version</code>) will be ignored in the remainder of this document.</p>
-<p >If <code>~hdf5_sparse_matrix.format</code> is equal to <code>"tenx_matrix"</code>, <code>indices</code> should contain row indices and <code>indptr</code> should contain the column index pointers. The group should also contain a <code>shape</code> dataset, an 1-dimensional integer dataset of length 2 storing the number of rows and columns - this should be equal to <code>array.dimensions</code>.</p>
+<p >The expected contents of the main group depend on <code>~hdf5_sparse_matrix.format</code>. This is currently limited to <code>"tenx_matrix"</code>.</p>
 <p ><b>If a <code>version</code> attribute is present on the main group:</b> the group should contain a <code>format</code> string scalar attribute, equal to <code>~hdf5_sparse_matrix.format</code>.</p>
-<h1>Datatypes</h1>
-<p ><code>data</code> should be a 1-dimensional integer or floating-point dataset containing the values of the non-zero elements. The type of the matrix is specified by <code>~array.type</code> and should be integer, boolean or numeric. The exact type is generally left to the discretion of the data generator, with some restrictions:</p>
+<h1>Formats</h1>
+<h2><code>tenx_matrix</code></h2>
+<p >This format is a compressed sparse column layout.</p>
+<p >The main group should contain <code>data</code>, a 1-dimensional integer or floating-point dataset containing the values of the non-zero elements. The exact type is determined from <code>~array.type</code> and should be integer, boolean or number:</p>
 <ul>
 <li>A number matrix should be represented by any integer or floating-point <code>data</code>.<ul>
 <li><b>If a <code>version</code> attribute is present on the main group:</b> the HDF5 datatype should be a subset of a 64-bit float. See the <a href="https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/0.1.0">HDF5 policy draft (0.1.0)</a> for more details.</li>
@@ -95,7 +97,9 @@ $(function() {
 </ul>
 </li>
 </ul>
-<p ><code>indices</code> should be a 1-dimensional integer dataset containing the 0-based row/column index for each non-zero element in <code>data</code>. <code>indptr</code> should be a 1-dimensional integer dataset of length equal to the number of columns/rows plus 1, containing pointers to the start and end of each column/row.</p>
+<p >The main group should contain <code>indices</code>, a 1-dimensional integer dataset containing the 0-based row index for each non-zero element in <code>data</code>. Indices for structural non-zero elements from the same column should form a contiguous block within <code>indices</code>, where all indices are unique and sorted in increasing order.</p>
+<p >The main group should contain <code>indptr</code>, a 1-dimensional integer dataset of length equal to the number of columns plus 1. This contains offsets to the start and end of each column in <code>indices</code>/<code>data</code>. The first entry should be zero, the last entry should be equal to the length of <code>indices</code>/<code>data</code>, and all values should be sorted in increasing order.</p>
+<p >The main group should also contain a <code>shape</code> dataset, a 1-dimensional integer dataset of length 2 storing the number of rows and columns. This should be equal to <code>array.dimensions</code>.</p>
 <p ><b>If a <code>version</code> attribute is present on the main group:</b> the HDF5 datatype of <code>indices</code> and <code>indptr</code> should be a subset of a 64-bit unsigned integer. Note that these two datasets do not need to have the same exact datatype.</p>
 <p ><b>If a <code>version</code> attribute is present on the main group:</b> the <code>shape</code> datatype should be a subset of a 64-bit signed integer when <code>~hdf5_sparse_matrix.format</code> is <code>"tenx_matrix"</code>.</p>
 <h1>Missing values</h1>
