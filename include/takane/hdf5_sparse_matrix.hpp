@@ -114,57 +114,14 @@ inline size_t validate_data(const H5::Group& dhandle, const Parameters& params, 
     if (!dhandle.exists("data") || dhandle.childObjType("data") != H5O_TYPE_DATASET) {
         throw std::runtime_error("expected a dataset");
     }
-
     auto ddhandle = dhandle.openDataSet("data");
-    size_t num_nonzero = ritsuko::hdf5::get_1d_length(ddhandle.getSpace(), false);
 
-    if (params.type == array::Type::INTEGER || params.type == array::Type::BOOLEAN) {
-        if (version.major) {
-            std::string expected;
-            if (params.type == array::Type::INTEGER) {
-                expected = "integer";
-            } else {
-                expected = "boolean";
-            }
-            if (ritsuko::hdf5::load_scalar_string_attribute(ddhandle, "type") != expected) {
-                throw std::runtime_error("expected 'type' attribute to be '" + expected + "'");
-            }
-            if (ritsuko::hdf5::exceeds_integer_limit(ddhandle, 32, true)) {
-                throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
-            }
-        } else {
-            if (ddhandle.getTypeClass() != H5T_INTEGER) {
-                throw std::runtime_error("expected an integer dataset");
-            }
-        }
-
-    } else if (params.type == array::Type::NUMBER) {
-        if (version.major) {
-            if (ritsuko::hdf5::load_scalar_string_attribute(ddhandle, "type") != "number") {
-                throw std::runtime_error("expected 'type' attribute to be 'number'");
-            }
-            if (ritsuko::hdf5::exceeds_float_limit(ddhandle, 64)) {
-                throw std::runtime_error("expected datatype to be a subset of a 64-bit float");
-            }
-        } else {
-            auto tclass = ddhandle.getTypeClass();
-            if (tclass != H5T_INTEGER && tclass != H5T_FLOAT) {
-                throw std::runtime_error("expected an integer or floating-point dataset");
-            }
-        }
-
-    } else {
-        throw std::runtime_error("unexpected array type for a sparse matrix");
+    if (params.type == array::Type::STRING) {
+        throw std::runtime_error("sparse matrices of string type are not currently supported");
     }
+    array::check_data(ddhandle, params.type, version, params.version);
 
-    if (version.major || params.version >= 2) {
-        const char* missing_attr = "missing-value-placeholder";
-        if (ddhandle.attrExists(missing_attr)) {
-            ritsuko::hdf5::get_missing_placeholder_attribute(ddhandle, missing_attr);
-        }
-    }
-
-    return num_nonzero;
+    return ritsuko::hdf5::get_1d_length(ddhandle.getSpace(), false);
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate sparse matrix data at '" + ritsuko::hdf5::get_name(dhandle) + "/data'; " + std::string(e.what()));
 }

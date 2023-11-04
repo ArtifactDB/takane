@@ -3,6 +3,7 @@
 
 #include "H5Cpp.h"
 #include "ritsuko/hdf5/hdf5.hpp"
+#include "ritsuko/ritsuko.hpp"
 
 namespace takane {
 
@@ -25,6 +26,74 @@ enum Type {
 /**
  * @cond
  */
+inline void check_data(const H5::DataSet& dhandle, Type type, const ritsuko::Version& version, int old_version) try {
+    if (type == array::Type::INTEGER) {
+        if (version.major) {
+            if (ritsuko::hdf5::load_scalar_string_attribute(dhandle, "type") != "integer") {
+                throw std::runtime_error("expected 'type' attribute to be 'integer'");
+            }
+            if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
+            }
+        } else {
+            if (dhandle.getTypeClass() != H5T_INTEGER) {
+                throw std::runtime_error("expected an integer type class");
+            }
+        }
+
+    } else if (type == array::Type::BOOLEAN) {
+        if (version.major) {
+            if (ritsuko::hdf5::load_scalar_string_attribute(dhandle, "type") != "boolean") {
+                throw std::runtime_error("expected 'type' attribute to be 'boolean'");
+            }
+            if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
+            }
+        } else {
+            if (dhandle.getTypeClass() != H5T_INTEGER) {
+                throw std::runtime_error("expected an integer type class");
+            }
+        }
+
+    } else if (type == array::Type::NUMBER) {
+        if (version.major) {
+            if (ritsuko::hdf5::load_scalar_string_attribute(dhandle, "type") != "number") {
+                throw std::runtime_error("expected 'type' attribute to be 'number'");
+            }
+            if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
+                throw std::runtime_error("expected datatype to be a subset of a 64-bit float");
+            }
+        } else {
+            auto tclass = dhandle.getTypeClass();
+            if (tclass != H5T_FLOAT && tclass != H5T_INTEGER) {
+                throw std::runtime_error("expected an integer or floating-point type class");
+            }
+        }
+
+    } else if (type == array::Type::STRING) {
+        if (version.major) {
+            if (ritsuko::hdf5::load_scalar_string_attribute(dhandle, "type") != "string") {
+                throw std::runtime_error("expected 'type' attribute to be 'string'");
+            }
+        }
+        if (dhandle.getTypeClass() != H5T_STRING) {
+            throw std::runtime_error("expected a string type class");
+        }
+
+    } else {
+        throw std::runtime_error("not-yet-supported array type (" + std::to_string(static_cast<int>(type)) + ")");
+    }
+
+    if (version.major || old_version >= 2) {
+        const char* missing_attr = "missing-value-placeholder";
+        if (dhandle.attrExists(missing_attr)) {
+            ritsuko::hdf5::get_missing_placeholder_attribute(dhandle, missing_attr, /* type_class_only = */ type == array::Type::STRING);
+        }
+    }
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate dataset at '" + ritsuko::hdf5::get_name(dhandle) + "'; " + std::string(e.what()));
+}
+
 inline void check_dimnames(const H5::DataSet& handle, size_t expected_dim) try {
     if (handle.getTypeClass() != H5T_STRING) {
         throw std::runtime_error("expected a string dataset");
