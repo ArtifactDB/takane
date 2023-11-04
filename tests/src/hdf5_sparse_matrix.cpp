@@ -573,14 +573,14 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
             H5::H5File handle(path, H5F_ACC_TRUNC);
             auto ghandle = handle.createGroup(name);
             create_hdf5_sparse_matrix(ghandle, version);
-            auto ahandle = ghandle.createAttribute("dimension-names", stype, attspace);
+            auto ahandle = ghandle.createAttribute("dimnames", stype, attspace);
             ahandle.write(stype, buffer.data());
         }
         takane::hdf5_sparse_matrix::validate(path.c_str(), params);
         {
             auto params2 = params;
             params2.has_dimnames = false;
-            expect_error("unexpected 'dimension-names'", path, params2);
+            expect_error("unexpected 'dimnames'", path, params2);
         }
 
         const char* colnames = "foo";
@@ -588,7 +588,7 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
         {
             H5::H5File handle(path, H5F_ACC_RDWR);
             auto ghandle = handle.openGroup(name);
-            auto ahandle = ghandle.openAttribute("dimension-names");
+            auto ahandle = ghandle.openAttribute("dimnames");
             ahandle.write(stype, buffer.data());
         }
         expect_error("expected a dataset", path, params);
@@ -622,7 +622,7 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
         {
             H5::H5File handle(path, H5F_ACC_RDWR);
             auto ghandle = handle.openGroup(name);
-            auto ahandle = ghandle.openAttribute("dimension-names");
+            auto ahandle = ghandle.openAttribute("dimnames");
             ahandle.write(stype, buffer.data());
             handle.createDataSet(rownames, H5::StrType(0, H5T_VARIABLE), rowspace);
         }
@@ -631,26 +631,26 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
         {
             H5::H5File handle(path, H5F_ACC_RDWR);
             auto ghandle = handle.openGroup(name);
-            ghandle.removeAttr("dimension-names");
+            ghandle.removeAttr("dimnames");
         }
-        expect_error("expected a 'dimension-names' attribute", path, params);
+        expect_error("expected a 'dimnames' attribute", path, params);
 
         {
             H5::H5File handle(path, H5F_ACC_RDWR);
             auto ghandle = handle.openGroup(name);
-            ghandle.createAttribute("dimension-names", H5::PredType::NATIVE_INT, H5S_SCALAR);
+            ghandle.createAttribute("dimnames", H5::PredType::NATIVE_INT, H5S_SCALAR);
         }
-        expect_error("'dimension-names' attribute should have a string", path, params);
+        expect_error("'dimnames' attribute should have a string", path, params);
 
         {
             H5::H5File handle(path, H5F_ACC_RDWR);
             auto ghandle = handle.openGroup(name);
             hsize_t ndims = 10;
             H5::DataSpace attspace(1, &ndims);
-            ghandle.removeAttr("dimension-names");
-            ghandle.createAttribute("dimension-names", stype, attspace);
+            ghandle.removeAttr("dimnames");
+            ghandle.createAttribute("dimnames", stype, attspace);
         }
-        expect_error("'dimension-names' attribute should have length equal to the number of dimensions (2)", path, params);
+        expect_error("'dimnames' attribute should have length equal to the number of dimensions (2)", path, params);
     }
 }
 

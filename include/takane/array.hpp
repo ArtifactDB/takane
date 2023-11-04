@@ -60,11 +60,11 @@ void check_dimnames(const H5::H5File& handle, const std::string& dimnames_group,
 
 template<class Host_, class Dimensions_>
 void check_dimnames2(const H5::H5File& handle, const Host_& host, const Dimensions_& dimensions, bool reverse = false) try {
-    if (!host.attrExists("dimension-names")) {
-        throw std::runtime_error("expected a 'dimension-names' attribute");
+    if (!host.attrExists("dimnames")) {
+        throw std::runtime_error("expected a 'dimnames' attribute");
     }
 
-    auto dimnames = host.openAttribute("dimension-names");
+    auto dimnames = host.openAttribute("dimnames");
     if (dimnames.getTypeClass() != H5T_STRING) {
         throw std::runtime_error("'" + dimnames.getName() + "' attribute should have a string datatype");
     }
