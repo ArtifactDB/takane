@@ -521,9 +521,9 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
 
     // Checking the number of rows.
     if (version.major > 0) {
-        auto attr = ritsuko::hdf5::get_scalar_attribute(ghandle, "num_rows");
+        auto attr = ritsuko::hdf5::get_scalar_attribute(ghandle, "row-count");
         if (ritsuko::hdf5::exceeds_integer_limit(attr, 64, false)) {
-            throw std::runtime_error("'num_rows' attribute on '" + params.group + "' should have a datatype that fits in a 64-bit unsigned integer");
+            throw std::runtime_error("'row-count' attribute on '" + params.group + "' should have a datatype that fits in a 64-bit unsigned integer");
         }
         uint64_t nrows = 0;
         attr.read(H5::PredType::NATIVE_UINT64, &nrows);
