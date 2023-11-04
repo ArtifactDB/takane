@@ -286,9 +286,9 @@ TEST_P(Hdf5SparseMatrixTest, DataFails) {
         create_hdf5_sparse_matrix(ghandle, version);
     }
     {
-        params.type = takane::array::Type::STRING;
-        expect_error("unexpected array type", path, params);
-        params.type = takane::array::Type::INTEGER;
+        auto params2 = params;
+        params2.type = takane::array::Type::STRING;
+        expect_error("not currently supported", path, params2);
     }
 
     {
@@ -315,36 +315,9 @@ TEST_P(Hdf5SparseMatrixTest, DataFails) {
         attach_type(dhandle, "integer");
     }
     if (version < 3) {
-        expect_error("expected an integer dataset", path, params);
+        expect_error("expected an integer type class", path, params);
     } else {
         expect_error("subset of a 32-bit signed integer", path, params);
-    }
-
-    if (version >= 3) {
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(name);
-            ghandle.unlink("data");
-            auto dhandle = ghandle.createDataSet("data", H5::PredType::NATIVE_INT, dspace);
-            attach_type(dhandle, "integer");
-        }
-        auto params2 = params;
-        params2.type = takane::array::Type::BOOLEAN;
-        expect_error("expected 'type'", path, params2);
-        params2.type = takane::array::Type::NUMBER;
-        expect_error("expected 'type'", path, params2);
-    }
-
-    if (version >= 2) {
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(name);
-            ghandle.unlink("data");
-            auto dhandle = ghandle.createDataSet("data", H5::PredType::NATIVE_INT, dspace);
-            attach_type(dhandle, "integer");
-            dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
-        }
-        expect_error("missing-value-placeholder", path, params);
     }
 }
 
@@ -554,58 +527,14 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
             H5::H5File handle(path, H5F_ACC_TRUNC);
             auto ghandle = handle.createGroup(name);
             create_hdf5_sparse_matrix(ghandle, version);
-            handle.createGroup(dname);
-        }
-        takane::hdf5_sparse_matrix::validate(path.c_str(), params);
+            auto nhandle = handle.createGroup(dname);
 
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto nhandle = handle.openGroup(dname);
             hsize_t dim = params.dimensions[1];
-            H5::DataSpace dspace(1, &dim);
-            nhandle.createDataSet("1", H5::StrType(0, H5T_VARIABLE), dspace);
+            nhandle.createDataSet("1", H5::StrType(0, H5T_VARIABLE), H5::DataSpace(1, &dim));
+            dim = params.dimensions[0];
+            nhandle.createDataSet("0", H5::StrType(0, H5T_VARIABLE), H5::DataSpace(1, &dim));
         }
         takane::hdf5_sparse_matrix::validate(path.c_str(), params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto nhandle = handle.openGroup(dname);
-            hsize_t dim = params.dimensions[0];
-            H5::DataSpace dspace(1, &dim);
-            nhandle.createDataSet("0", H5::StrType(0, H5T_VARIABLE), dspace);
-        }
-        takane::hdf5_sparse_matrix::validate(path.c_str(), params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            handle.unlink(dname);
-        }
-        expect_error("expected a group", path, params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.createGroup(dname);
-            ghandle.createGroup("0");
-        }
-        expect_error("expected '0' to be a dataset", path, params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(dname);
-            ghandle.unlink("0");
-            ghandle.createDataSet("0", H5::PredType::NATIVE_INT, H5S_SCALAR);
-        }
-        expect_error("expected a string dataset", path, params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(dname);
-            ghandle.unlink("0");
-            hsize_t dim = 10;
-            H5::DataSpace dspace(1, &dim);
-            ghandle.createDataSet("0", H5::StrType(0, H5T_VARIABLE), dspace);
-        }
-        expect_error("expected dataset to have length", path, params);
 
     } else {
         H5::StrType stype(0, H5T_VARIABLE);
@@ -622,80 +551,10 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
             ahandle.write(stype, buffer.data());
         }
         takane::hdf5_sparse_matrix::validate(path.c_str(), params);
-        {
-            auto params2 = params;
-            params2.has_dimnames = false;
-            expect_error("unexpected 'dimension-names'", path, params2);
-        }
 
-        const char* colnames = "foo";
-        buffer[1] = colnames;
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(name);
-            auto ahandle = ghandle.openAttribute("dimension-names");
-            ahandle.write(stype, buffer.data());
-        }
-        expect_error("expected a dataset", path, params);
-
-        hsize_t nrow = params.dimensions[0];
-        H5::DataSpace rowspace(1, &nrow);
-        hsize_t ncol = params.dimensions[1];
-        H5::DataSpace colspace(1, &ncol);
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            handle.createDataSet(colnames, H5::PredType::NATIVE_INT, colspace);
-        }
-        expect_error("expected a string dataset", path, params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            handle.unlink(colnames);
-            handle.createDataSet(colnames, stype, rowspace);
-        }
-        expect_error("expected dataset to have length", path, params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            handle.unlink(colnames);
-            handle.createDataSet(colnames, stype, colspace);
-        }
-        takane::hdf5_sparse_matrix::validate(path.c_str(), params);
-
-        const char* rownames = "whee";
-        buffer[0] = rownames;
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(name);
-            auto ahandle = ghandle.openAttribute("dimension-names");
-            ahandle.write(stype, buffer.data());
-            handle.createDataSet(rownames, H5::StrType(0, H5T_VARIABLE), rowspace);
-        }
-        takane::hdf5_sparse_matrix::validate(path.c_str(), params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(name);
-            ghandle.removeAttr("dimension-names");
-        }
-        expect_error("expected a 'dimension-names' attribute", path, params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(name);
-            ghandle.createAttribute("dimension-names", H5::PredType::NATIVE_INT, H5S_SCALAR);
-        }
-        expect_error("'dimension-names' attribute should have a string", path, params);
-
-        {
-            H5::H5File handle(path, H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup(name);
-            hsize_t ndims = 10;
-            H5::DataSpace attspace(1, &ndims);
-            ghandle.removeAttr("dimension-names");
-            ghandle.createAttribute("dimension-names", stype, attspace);
-        }
-        expect_error("'dimension-names' attribute should have length equal to the number of dimensions (2)", path, params);
+        auto params2 = params;
+        params2.has_dimnames = false;
+        expect_error("absence of any dimnames", path, params2);
     }
 }
 

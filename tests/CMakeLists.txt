@@ -24,6 +24,7 @@ add_executable(
     src/atomic_vector.cpp
     src/factor.cpp
     src/compressed_list.cpp
+    src/array.cpp
     src/hdf5_sparse_matrix.cpp
     src/hdf5_dense_array.cpp
 )
