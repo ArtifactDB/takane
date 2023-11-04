@@ -120,6 +120,15 @@ inline size_t validate_data(const H5::Group& dhandle, const Parameters& params, 
 
     if (params.type == array::Type::INTEGER || params.type == array::Type::BOOLEAN) {
         if (version.major) {
+            std::string expected;
+            if (params.type == array::Type::INTEGER) {
+                expected = "integer";
+            } else {
+                expected = "boolean";
+            }
+            if (ritsuko::hdf5::load_scalar_string_attribute(ddhandle, "type") != expected) {
+                throw std::runtime_error("expected 'type' attribute to be '" + expected + "'");
+            }
             if (ritsuko::hdf5::exceeds_integer_limit(ddhandle, 32, true)) {
                 throw std::runtime_error("expected datatype to be a subset of a 32-bit signed integer");
             }
@@ -128,8 +137,12 @@ inline size_t validate_data(const H5::Group& dhandle, const Parameters& params, 
                 throw std::runtime_error("expected an integer dataset");
             }
         }
+
     } else if (params.type == array::Type::NUMBER) {
         if (version.major) {
+            if (ritsuko::hdf5::load_scalar_string_attribute(ddhandle, "type") != "number") {
+                throw std::runtime_error("expected 'type' attribute to be 'number'");
+            }
             if (ritsuko::hdf5::exceeds_float_limit(ddhandle, 64)) {
                 throw std::runtime_error("expected datatype to be a subset of a 64-bit float");
             }
@@ -139,6 +152,7 @@ inline size_t validate_data(const H5::Group& dhandle, const Parameters& params, 
                 throw std::runtime_error("expected an integer or floating-point dataset");
             }
         }
+
     } else {
         throw std::runtime_error("unexpected array type for a sparse matrix");
     }
@@ -299,13 +313,13 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
 
     if (params.has_dimnames) {
         if (version.major) {
-            array::check_dimnames(dhandle, "names", params.dimensions);
+            array::check_dimnames2(handle, dhandle, params.dimensions, false);
         } else {
             array::check_dimnames(handle, params.dimnames_group, params.dimensions);
         }
     } else if (version.major) {
-        if (dhandle.exists("names")) {
-            throw std::runtime_error("unexpected 'names' subgroup in the absence of any dimnames");
+        if (dhandle.attrExists("dimension-names")) {
+            throw std::runtime_error("unexpected 'dimension-names' subgroup in the absence of any dimnames");
         }
     }
 }

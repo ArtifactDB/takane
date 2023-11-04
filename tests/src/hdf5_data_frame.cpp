@@ -99,7 +99,7 @@ public:
         }
 
         if (version >= 3) {
-            auto attr = handle.createAttribute("num_rows", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+            auto attr = handle.createAttribute("row-count", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
             attr.write(H5::PredType::NATIVE_HSIZE, &num_rows);
 
             H5::StrType stype(0, H5T_VARIABLE);
@@ -363,19 +363,18 @@ TEST_P(Hdf5DataFrameTest, General) {
             ghandle.removeAttr("version");
             auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
             attr.write(stype, std::string("1.0"));
-            ghandle.createAttribute("num_rows", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+            ghandle.createAttribute("row-count", H5::PredType::NATIVE_INT8, H5S_SCALAR);
         }
         expect_error("64-bit unsigned", path.c_str(), params);
 
         {
             H5::H5File handle(path, H5F_ACC_RDWR);
             auto ghandle = handle.openGroup(name);
-            ghandle.removeAttr("num_rows");
-            ghandle.createAttribute("num_rows", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
+            ghandle.removeAttr("row-count");
+            ghandle.createAttribute("row-count", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
         }
         expect_error("inconsistent number", path.c_str(), params);
     }
-
 }
 
 TEST_P(Hdf5DataFrameTest, Data) {
