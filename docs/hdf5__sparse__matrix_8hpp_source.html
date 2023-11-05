@@ -294,30 +294,24 @@ $(function() {
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    std::vector&lt;uint64_t&gt; indptrs = validate_indptrs(dhandle, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>[1], num_nonzero, version);</div>
 <div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    validate_indices(dhandle, indptrs, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>[0], params, version);</div>
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordflow">if</span> (params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a4c54d15bc0b2534307f601007ff19b14">has_dimnames</a>) {</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>        <span class="keywordflow">if</span> (version.major) {</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>            array::check_dimnames2(handle, dhandle, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>, <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>            array::check_dimnames(handle, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a8ce918d6157709f03e423695474af8d2">dimnames_group</a>, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>);</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        }</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (version.major) {</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        <span class="keywordflow">if</span> (dhandle.attrExists(<span class="stringliteral">&quot;dimension-names&quot;</span>)) {</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unexpected &#39;dimension-names&#39; subgroup in the absence of any dimnames&quot;</span>);</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>        }</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    }</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>}</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno"><a class="line" href="namespacetakane_1_1hdf5__sparse__matrix.html#a5a6f11265c5317d74663b4fdf949cd9a">  290</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> validate(<span class="keyword">const</span> <span class="keywordtype">char</span>* path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">Parameters</a>&amp; params) {</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    H5::H5File handle(path, H5F_ACC_RDONLY);</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    validate(handle, params);</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>}</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>}</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>}</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordflow">if</span> (version.major) {</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>        array::check_dimnames2(handle, dhandle, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>, <span class="keyword">false</span>);</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>        array::check_dimnames(handle, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a8ce918d6157709f03e423695474af8d2">dimnames_group</a>, params.<a class="code hl_variable" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a53824d04b1f1600cc03aa7fcfc8aea29">dimensions</a>);</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    }</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>}</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno"><a class="line" href="namespacetakane_1_1hdf5__sparse__matrix.html#a5a6f11265c5317d74663b4fdf949cd9a">  284</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> validate(<span class="keyword">const</span> <span class="keywordtype">char</span>* path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">Parameters</a>&amp; params) {</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    H5::H5File handle(path, H5F_ACC_RDONLY);</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    validate(handle, params);</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>}</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>}</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>}</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_1_1array_html_a538e4ae728dd741e837fb1ba4ee73dce"><div class="ttname"><a href="namespacetakane_1_1array.html#a538e4ae728dd741e837fb1ba4ee73dce">takane::array::Type</a></div><div class="ttdeci">Type</div><div class="ttdef"><b>Definition:</b> array.hpp:19</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> array.hpp:8</div></div>
 <div class="ttc" id="astructtakane_1_1hdf5__sparse__matrix_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a></div><div class="ttdoc">Parameters for validating a HDF5 sparse matrix file.</div><div class="ttdef"><b>Definition:</b> hdf5_sparse_matrix.hpp:30</div></div>

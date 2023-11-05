@@ -101,8 +101,6 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a61842571565a2210dfeaf2bd26f4b90c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fbe334fafb0454ced376877ddb857b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetakane_1_1array.html#a538e4ae728dd741e837fb1ba4ee73dce">array::Type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html#a4fbe334fafb0454ced376877ddb857b4">type</a> = array::Type::INTEGER</td></tr>
 <tr class="separator:a4fbe334fafb0454ced376877ddb857b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8a8fad2e3c51e5beac03bc75fc0ba9f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html#aa8a8fad2e3c51e5beac03bc75fc0ba9f">has_dimnames</a> = false</td></tr>
-<tr class="separator:aa8a8fad2e3c51e5beac03bc75fc0ba9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a69a06ed0314d17e5f30838e2b1b1d8a7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html#a69a06ed0314d17e5f30838e2b1b1d8a7">dimnames_group</a></td></tr>
 <tr class="separator:a69a06ed0314d17e5f30838e2b1b1d8a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3324390f017b02430b1d6ebe4a0b57fd"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html#a3324390f017b02430b1d6ebe4a0b57fd">version</a> = 2</td></tr>
@@ -196,22 +194,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Name of the group containing the dimension names. Ignored if a <code>version</code> attribute is present on the HDF5 dataset at <code>dataset</code>. </p>
-
-</div>
-</div>
-<a id="aa8a8fad2e3c51e5beac03bc75fc0ba9f" name="aa8a8fad2e3c51e5beac03bc75fc0ba9f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8a8fad2e3c51e5beac03bc75fc0ba9f">&#9670;&#160;</a></span>has_dimnames</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool takane::hdf5_dense_array::Parameters::has_dimnames = false</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Whether the array has dimension names. </p>
+<p >Name of the group containing the dimension names. If empty, it is assumed that no dimension names are present. Ignored if a <code>version</code> attribute is present on the HDF5 dataset at <code>dataset</code>. </p>
 
 </div>
 </div>
