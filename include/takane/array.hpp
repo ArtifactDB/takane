@@ -107,6 +107,9 @@ inline void check_dimnames(const H5::DataSet& handle, size_t expected_dim) try {
 
 template<class Dimensions_>
 void check_dimnames(const H5::H5File& handle, const std::string& dimnames_group, const Dimensions_& dimensions) try {
+    if (dimnames_group.empty()) {
+        return;
+    }
     if (!handle.exists(dimnames_group) || handle.childObjType(dimnames_group) != H5O_TYPE_GROUP) {
         throw std::runtime_error("expected a group");
     }
@@ -130,7 +133,7 @@ void check_dimnames(const H5::H5File& handle, const std::string& dimnames_group,
 template<class Host_, class Dimensions_>
 void check_dimnames2(const H5::H5File& handle, const Host_& host, const Dimensions_& dimensions, bool reverse = false) try {
     if (!host.attrExists("dimension-names")) {
-        throw std::runtime_error("expected a 'dimension-names' attribute");
+        return;
     }
 
     auto dimnames = host.openAttribute("dimension-names");

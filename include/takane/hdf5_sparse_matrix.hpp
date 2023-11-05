@@ -268,16 +268,10 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
     std::vector<uint64_t> indptrs = validate_indptrs(dhandle, params.dimensions[1], num_nonzero, version);
     validate_indices(dhandle, indptrs, params.dimensions[0], params, version);
 
-    if (params.has_dimnames) {
-        if (version.major) {
-            array::check_dimnames2(handle, dhandle, params.dimensions, false);
-        } else {
-            array::check_dimnames(handle, params.dimnames_group, params.dimensions);
-        }
-    } else if (version.major) {
-        if (dhandle.attrExists("dimension-names")) {
-            throw std::runtime_error("unexpected 'dimension-names' subgroup in the absence of any dimnames");
-        }
+    if (version.major) {
+        array::check_dimnames2(handle, dhandle, params.dimensions, false);
+    } else {
+        array::check_dimnames(handle, params.dimnames_group, params.dimensions);
     }
 }
 

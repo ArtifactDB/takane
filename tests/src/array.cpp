@@ -334,6 +334,15 @@ TEST_F(ArrayUtilsCheckDimnamesTest, Old) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        takane::array::check_dimnames(handle, "", dims);
+        expect_error("expected a group", handle, "FOO", dims);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
         handle.createGroup(dname);
     }
     {
@@ -412,6 +421,16 @@ TEST_F(ArrayUtilsCheckDimnamesTest, New) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(name);
+        takane::array::check_dimnames2(handle, ghandle, dims);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup(name);
         attach_dimnames(ghandle, buffer);
     }
     {
@@ -489,16 +508,6 @@ TEST_F(ArrayUtilsCheckDimnamesTest, New) {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup(name);
         ghandle.removeAttr("dimension-names");
-    }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        auto ghandle = handle.openGroup(name);
-        expect_error2("expected a 'dimension-names' attribute", handle, ghandle, dims);
-    }
-
-    {
-        H5::H5File handle(path, H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup(name);
         ghandle.createAttribute("dimension-names", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
     {

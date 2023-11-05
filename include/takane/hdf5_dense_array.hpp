@@ -50,12 +50,8 @@ struct Parameters {
     array::Type type = array::Type::INTEGER;
 
     /**
-     * Whether the array has dimension names.
-     */
-    bool has_dimnames = false;
-
-    /**
      * Name of the group containing the dimension names.
+     * If empty, it is assumed that no dimension names are present.
      * Ignored if a `version` attribute is present on the HDF5 dataset at `dataset`.
      */
     std::string dimnames_group;
@@ -113,16 +109,10 @@ inline void validate(const H5::H5File& handle, const Parameters& params) {
 
     array::check_data(dhandle, params.type, version, params.version);
 
-    if (params.has_dimnames) {
-        if (version.major) {
-            array::check_dimnames2(handle, dhandle, params.dimensions, true);
-        } else {
-            array::check_dimnames(handle, params.dimnames_group, params.dimensions);
-        }
+    if (version.major) {
+        array::check_dimnames2(handle, dhandle, params.dimensions, true);
     } else {
-        if (dhandle.attrExists("dimension-names")) {
-            throw std::runtime_error("no 'dimension-names' attribute should be present if the array has no dimnames");
-        }
+        array::check_dimnames(handle, params.dimnames_group, params.dimensions);
     }
 }
 

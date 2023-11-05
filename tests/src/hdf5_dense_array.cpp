@@ -143,7 +143,6 @@ TEST_P(Hdf5DenseArrayTest, NameCheck) {
     auto version = GetParam();
     takane::hdf5_dense_array::Parameters params(name, { 20, 10 });
     params.version = version;
-    params.has_dimnames = true;
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
@@ -155,14 +154,11 @@ TEST_P(Hdf5DenseArrayTest, NameCheck) {
             attach_type(xhandle, "integer");
         }
     }
+
     if (version < 3) {
         params.dimnames_group = "FOO";
         expect_error("FOO", path, params);
-    } else {
-        expect_error("dimension-names", path, params);
-    }
 
-    if (version < 3) {
         {
             H5::H5File handle(path, H5F_ACC_RDWR);
             auto nhandle = handle.createGroup("FOO");
@@ -187,10 +183,6 @@ TEST_P(Hdf5DenseArrayTest, NameCheck) {
             ahandle.write(stype, buffer.data());
         }
         takane::hdf5_dense_array::validate(path.c_str(), params);
-    
-        auto params2 = params;
-        params2.has_dimnames = false;
-        expect_error("has no dimnames", path, params2);
     }
 }
 

@@ -551,10 +551,6 @@ TEST_P(Hdf5SparseMatrixTest, NameCheck) {
             ahandle.write(stype, buffer.data());
         }
         takane::hdf5_sparse_matrix::validate(path.c_str(), params);
-
-        auto params2 = params;
-        params2.has_dimnames = false;
-        expect_error("absence of any dimnames", path, params2);
     }
 }
 
