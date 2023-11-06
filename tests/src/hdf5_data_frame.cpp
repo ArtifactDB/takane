@@ -213,6 +213,7 @@ TEST_P(Hdf5DataFrameTest, Rownames) {
     params.has_row_names = true;
     auto& columns = params.columns.mutable_ref();
     columns.resize(1);
+    columns.front().name = "WHEE";
 
     auto version = GetParam();
     params.df_version = version;
@@ -328,6 +329,14 @@ TEST_P(Hdf5DataFrameTest, Colnames) {
         create_hdf5_data_frame(ghandle, params.num_rows, false, columns, version);
     }
     expect_error("duplicated column name", path.c_str(), params);
+
+    columns[0].name = "";
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup(name);
+        create_hdf5_data_frame(ghandle, params.num_rows, false, columns, version);
+    }
+    expect_error("empty strings", path.c_str(), params);
 }
 
 TEST_P(Hdf5DataFrameTest, General) {
