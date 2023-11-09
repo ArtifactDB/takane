@@ -79,7 +79,7 @@ $(function() {
 <p >In ths CSV, we expect columns in the following type and order:</p>
 <ul>
 <li>(optional) A string column containing the name of each element. All strings should be non-missing. This column can have any name that not conflict with subsequent columns. It should only be present if and only if <code>~factor.names = true</code>.</li>
-<li>An integer column named <code>values</code>, containing the codes for the factor. Missing values are allowed. All (non-missing) values must be non-negative, less than the total number of levels, and representable by a 32-bit signed integer. (The total number of levels is referenced in subclass-specific properties.)</li>
+<li>An integer column named <code>values</code>, containing the codes for the factor. Each code is a 0-based index into an array of factor levels. Missing values are allowed. All (non-missing) values must be non-negative, less than the total number of levels, and representable by a 32-bit signed integer. (The total number of levels is referenced in subclass-specific properties.)</li>
 </ul>
 <p >The number of rows should be equal to <code>~factor.length</code>.</p>
 <h1>Example usage</h1>
