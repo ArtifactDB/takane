@@ -1,12 +1,14 @@
 #ifndef TAKANE_SIMPLE_LIST_HPP
 #define TAKANE_SIMPLE_LIST_HPP
 
-#include "uzuki2/uzuki2.hpp"
-#include "byteme/byteme.hpp"
-
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+
+#include "uzuki2/uzuki2.hpp"
+#include "byteme/byteme.hpp"
+
+#include "utils_public.hpp"
 
 /**
  * @file simple_list.hpp
@@ -18,7 +20,7 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::string&);
+void validate(const std::filesystem::path&, const Options&);
 /**
  * @endcond
  */
@@ -30,21 +32,11 @@ void validate(const std::string&);
 namespace simple_list {
 
 /**
- * @brief Parameters for validating the simple list file.
- */
-struct Parameters {
-    /**
-     * Whether to read and parse the JSON in parallel.
-     */
-    bool parallel = true;
-};
-
-/**
  * @param path Path to the directory containing the simple list.
- * @param params Validation parameters.
+ * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::string& path, Parameters params = Parameters()) try {
-    std::string other_dir = path + "/other_contents";
+inline void validate(const std::filesystem::path& path, const Options& options) try {
+    auto other_dir = path / "other_contents";
     int num_external = 0;
     if (std::filesystem::exists(other_dir)) {
         auto status = std::filesystem::status(other_dir);
@@ -54,7 +46,7 @@ inline void validate(const std::string& path, Parameters params = Parameters()) 
 
         for (const auto& entry : std::filesystem::directory_iterator(other_dir)) {
             try {
-                ::takane::validate(entry.path().string());
+                ::takane::validate(entry.path().string(), options);
             } catch (std::exception& e) {
                 throw std::runtime_error("failed to validate external list object at '" + std::filesystem::relative(entry.path(), path).string() + "'; " + std::string(e.what()));
             }
@@ -62,18 +54,26 @@ inline void validate(const std::string& path, Parameters params = Parameters()) 
         }
     }
 
-    auto candidate = path + "/list_contents.json.gz";
+    auto candidate = path / "list_contents.json.gz";
     if (std::filesystem::exists(candidate)) {
         uzuki2::json::Options opt;
-        opt.parallel = params.parallel;
-        byteme::SomeFileReader gzreader(candidate);
+        opt.parallel = options.parallel_reads;
+        byteme::SomeFileReader gzreader(candidate.string());
         uzuki2::json::validate(gzreader, num_external, opt);
     } else {
         throw std::runtime_error("could not determine format from the file names");
     }
 
 } catch (std::exception& e) {
-    throw std::runtime_error("failed to validate a 'simple_list' at '" + path + "'; " + std::string(e.what()));
+    throw std::runtime_error("failed to validate a 'simple_list' at '" + path.string() + "'; " + std::string(e.what()));
+}
+
+/**
+ * Overload of `simple_list::validate()` with default options.
+ * @param path Path to the directory containing the simple list.
+ */
+inline void validate(const std::filesystem::path& path) {
+    simple_list::validate(path, Options());
 }
 
 }
