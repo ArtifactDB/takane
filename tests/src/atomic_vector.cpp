@@ -2,10 +2,12 @@
 #include <gmock/gmock.h>
 
 #include "takane/atomic_vector.hpp"
+#include "takane/validate.hpp"
 #include "utils.h"
 
 #include <string>
 #include <filesystem>
+#include <fstream>
 
 struct AtomicVectorTest : public::testing::Test, public Hdf5Utils {
     static std::filesystem::path testdir() {
@@ -223,4 +225,20 @@ TEST_F(AtomicVectorTest, NameChecks) {
         spawn_data(ghandle, "names", 100, H5::StrType(0, 10));
     }
     takane::atomic_vector::validate(testdir());
+}
+
+TEST_F(AtomicVectorTest, Dispatch) {
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup("atomic_vector");
+        attach_attribute(ghandle, "version", "1.0");
+        attach_attribute(ghandle, "type", "integer");
+        spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+
+        auto objpath = testdir();
+        objpath.append("OBJECT");
+        std::ofstream output(objpath);
+        output << "atomic_vector";
+    }
+    takane::validate(testdir());
 }

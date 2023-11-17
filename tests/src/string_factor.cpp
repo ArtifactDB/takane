@@ -2,10 +2,12 @@
 #include <gmock/gmock.h>
 
 #include "takane/string_factor.hpp"
+#include "takane/validate.hpp"
 #include "utils.h"
 
 #include <string>
 #include <filesystem>
+#include <fstream>
 
 struct StringFactorTest : public::testing::Test, public Hdf5Utils {
     static std::filesystem::path testdir() {
@@ -175,4 +177,23 @@ TEST_F(StringFactorTest, NameChecks) {
         spawn_data(ghandle, "names", codes.size(), H5::StrType(0, 10));
     }
     takane::string_factor::validate(testdir());
+}
+
+TEST_F(StringFactorTest, Dispatch) {
+    std::vector<int> codes { 0, 1, 2, 1, 0, 1, 2 };
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup("string_factor");
+        attach_attribute(ghandle, "version", "1.0");
+
+        auto dhandle = spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
+        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
+
+        auto objpath = testdir();
+        objpath.append("OBJECT");
+        std::ofstream output(objpath);
+        output << "string_factor";
+    }
+    takane::validate(testdir());
 }
