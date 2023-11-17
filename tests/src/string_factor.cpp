@@ -119,6 +119,32 @@ TEST_F(StringFactorTest, CodeChecks) {
     takane::string_factor::validate(testdir());
 }
 
+TEST_F(StringFactorTest, OrderedChecks) {
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup("string_factor");
+        attach_attribute(ghandle, "version", "1.0");
+
+        std::vector<int> codes { 0, 2, 1, 1, 2 };
+        auto dhandle = spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
+        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
+
+        attach_attribute(ghandle, "ordered", "TRUE");
+    }
+    expect_error("32-bit signed integer");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup("string_factor");
+        ghandle.removeAttr("ordered");
+        auto ahandle = ghandle.createAttribute("ordered", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+        int val = 1;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
+    }
+    takane::string_factor::validate(testdir());
+}
+
 TEST_F(StringFactorTest, NameChecks) {
     std::vector<int> codes { 0, 1, 2, 1, 0, 1, 2 };
     {
