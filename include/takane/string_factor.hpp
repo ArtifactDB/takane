@@ -57,8 +57,8 @@ inline void validate(const std::string& path, Parameters params = Parameters()) 
     }
 
     // Number of levels.
-    size_t num_levels = validate_hdf5_factor_levels(ghandle, "levels", params.buffer_size);
-    size_t num_codes = validate_hdf5_factor_codes(ghandle, "codes", num_levels, params.buffer_size);
+    size_t num_levels = internal_hdf5::validate_factor_levels(ghandle, "levels", params.buffer_size);
+    size_t num_codes = internal_hdf5::validate_factor_codes(ghandle, "codes", num_levels, params.buffer_size);
 
     if (ghandle.exists("names")) {
         auto nhandle = ritsuko::hdf5::get_dataset(ghandle, "names");

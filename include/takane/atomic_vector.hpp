@@ -84,7 +84,7 @@ inline void validate(const std::string& path, Parameters params = Parameters()) 
 
         if (ghandle.attrExists("format")) {
             auto format = ritsuko::hdf5::load_scalar_string_attribute(ghandle, "format");
-            validate_hdf5_string_format(dhandle, vlen, format, has_missing, missing_value, params.buffer_size);
+            internal_hdf5::validate_string_format(dhandle, vlen, format, has_missing, missing_value, params.buffer_size);
         }
     } else {
         throw std::runtime_error("unsupported type '" + type + "'");

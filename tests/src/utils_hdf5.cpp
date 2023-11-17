@@ -14,7 +14,7 @@ struct Hdf5StringFormatTest : public::testing::Test, public Hdf5Utils {
     static void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate_hdf5_string_format(std::forward<Args_>(args)...);
+                takane::internal_hdf5::validate_string_format(std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -33,7 +33,7 @@ TEST_F(Hdf5StringFormatTest, None) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        takane::validate_hdf5_string_format(dhandle, 10, "none", false, "", 10000);
+        takane::internal_hdf5::validate_string_format(dhandle, 10, "none", false, "", 10000);
         expect_error("unsupported format", dhandle, 10, "foobar", false, "", 10000);
     }
 }
@@ -49,7 +49,7 @@ TEST_F(Hdf5StringFormatTest, Date) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
         expect_error("date-formatted string", dhandle, 5, "date", false, "", 10000);
-        takane::validate_hdf5_string_format(dhandle, 5, "date", true, "", 10000);
+        takane::internal_hdf5::validate_string_format(dhandle, 5, "date", true, "", 10000);
     }
 
     {
@@ -60,7 +60,7 @@ TEST_F(Hdf5StringFormatTest, Date) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        takane::validate_hdf5_string_format(dhandle, 5, "date", false, "", 10000);
+        takane::internal_hdf5::validate_string_format(dhandle, 5, "date", false, "", 10000);
     }
 
     // Checking for missing placeholder.
@@ -81,7 +81,7 @@ TEST_F(Hdf5StringFormatTest, Date) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
         expect_error("date-formatted string", dhandle, 5, "date", true, "foobar", 10000);
-        takane::validate_hdf5_string_format(dhandle, 5, "date", true, "aarontllun", 10000);
+        takane::internal_hdf5::validate_string_format(dhandle, 5, "date", true, "aarontllun", 10000);
     }
 }
 
@@ -114,7 +114,7 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        takane::validate_hdf5_string_format(dhandle, 5, "date-time", false, "", 10000);
+        takane::internal_hdf5::validate_string_format(dhandle, 5, "date-time", false, "", 10000);
     }
 
     // Checking for missing placeholder.
@@ -136,7 +136,7 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
         expect_error("date/time-formatted string", dhandle, 5, "date-time", true, "foobar", 10000);
-        takane::validate_hdf5_string_format(dhandle, 5, "date-time", true, "aarontllun", 10000);
+        takane::internal_hdf5::validate_string_format(dhandle, 5, "date-time", true, "aarontllun", 10000);
     }
 }
 
@@ -149,7 +149,7 @@ struct Hdf5FactorTest : public::testing::Test, public Hdf5Utils {
     static void expect_error_levels(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate_hdf5_factor_levels(std::forward<Args_>(args)...);
+                takane::internal_hdf5::validate_factor_levels(std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -161,7 +161,7 @@ struct Hdf5FactorTest : public::testing::Test, public Hdf5Utils {
     static void expect_error_codes(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate_hdf5_factor_codes(std::forward<Args_>(args)...);
+                takane::internal_hdf5::validate_factor_codes(std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -187,7 +187,7 @@ TEST_F(Hdf5FactorTest, Levels) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         expect_error_levels("expected a string", handle, "fab", 10000);
         expect_error_levels("duplicated factor level", handle, "foobar", 10000);
-        EXPECT_EQ(takane::validate_hdf5_factor_levels(handle, "blah", 10000), nlevels);
+        EXPECT_EQ(takane::internal_hdf5::validate_factor_levels(handle, "blah", 10000), nlevels);
     }
 }
 
@@ -204,7 +204,7 @@ TEST_F(Hdf5FactorTest, Codes) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         expect_error_codes("32-bit signed integer", handle, "fab", 10, 10000);
         expect_error_codes("less than the number of levels", handle, "blah", 0, 10000);
-        EXPECT_EQ(takane::validate_hdf5_factor_codes(handle, "blah", 10, 10000), ncodes);
+        EXPECT_EQ(takane::internal_hdf5::validate_factor_codes(handle, "blah", 10, 10000), ncodes);
     }
 
     {
@@ -230,7 +230,7 @@ TEST_F(Hdf5FactorTest, Codes) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        EXPECT_EQ(takane::validate_hdf5_factor_codes(handle, "blah", 4, 10000), ncodes);
+        EXPECT_EQ(takane::internal_hdf5::validate_factor_codes(handle, "blah", 4, 10000), ncodes);
         expect_error_codes("number of levels", handle, "blah", 3, 10000);
     }
 }
