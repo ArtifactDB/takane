@@ -17,7 +17,7 @@ enable_testing()
 # Main test executable.
 add_executable(
     libtest 
-    #    src/hdf5_data_frame.cpp
+    src/data_frame.cpp
     #    src/csv_data_frame.cpp
     #    src/genomic_ranges.cpp
     #    src/sequence_information.cpp

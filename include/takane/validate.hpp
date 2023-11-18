@@ -9,6 +9,7 @@
 #include "utils_public.hpp"
 #include "atomic_vector.hpp"
 #include "string_factor.hpp"
+#include "data_frame.hpp"
 
 /**
  * @file validate.hpp
@@ -26,6 +27,7 @@ inline auto default_registry() {
     std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const Options&)> > registry;
     registry["atomic_vector"] = [](const std::filesystem::path& p, const Options& o) { atomic_vector::validate(p, o); };
     registry["string_factor"] = [](const std::filesystem::path& p, const Options& o) { string_factor::validate(p, o); };
+    registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) { data_frame::validate(p, o); };
     return registry;
 } 
 
@@ -47,7 +49,7 @@ inline std::unordered_map<std::string, std::function<void(const std::filesystem:
  * @param options Validation options, mostly for input performance.
  */
 inline void validate(const std::filesystem::path& path, const std::string& type, const Options& options) {
-    if (std::filesystem::status(path).type() != std::filesystem::file_type::directory) {
+    if (!std::filesystem::exists(path) || std::filesystem::status(path).type() != std::filesystem::file_type::directory) {
         throw std::runtime_error("expected '" + path.string() + "' to be a directory");
     }
 

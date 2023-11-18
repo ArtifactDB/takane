@@ -11,6 +11,12 @@ struct Hdf5Utils {
         attr.write(stype, type);
     }
 
+    template<class Handle>
+    static void attach_attribute(const Handle& handle, const std::string& name, int val) {
+        auto attr = handle.createAttribute(name, H5::PredType::NATIVE_INT32, H5S_SCALAR);
+        attr.write(H5::PredType::NATIVE_INT, &val);
+    }
+
     static H5::DataSet spawn_data(const H5::Group& handle, const std::string& name, hsize_t len, const H5::DataType& dtype) {
         H5::DataSpace dspace(1, &len);
         return handle.createDataSet(name, dtype, dspace);

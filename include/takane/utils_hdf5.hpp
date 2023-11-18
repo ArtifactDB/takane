@@ -3,6 +3,9 @@
 
 #include <unordered_set>
 #include <string>
+#include <cstdint>
+#include <vector>
+#include <stdexcept>
 
 #include "ritsuko/ritsuko.hpp"
 #include "ritsuko/hdf5/hdf5.hpp"
