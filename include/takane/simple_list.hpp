@@ -54,16 +54,26 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         }
     }
 
-    auto candidate = path / "list_contents.json.gz";
-    if (std::filesystem::exists(candidate)) {
-        uzuki2::json::Options opt;
-        opt.parallel = options.parallel_reads;
-        byteme::SomeFileReader gzreader(candidate.string());
-        uzuki2::json::validate(gzreader, num_external, opt);
-    } else {
-        throw std::runtime_error("could not determine format from the file names");
+    {
+        auto candidate = path / "list_contents.json.gz";
+        if (std::filesystem::exists(candidate)) {
+            uzuki2::json::Options opt;
+            opt.parallel = options.parallel_reads;
+            byteme::SomeFileReader gzreader(candidate.string());
+            uzuki2::json::validate(gzreader, num_external, opt);
+            return;
+        } 
     }
 
+    {
+        auto candidate = path / "list_contents.h5";
+        if (std::filesystem::exists(candidate)) {
+            uzuki2::hdf5::validate(candidate.string(), "simple_list", num_external);
+            return;
+        } 
+    }
+
+    throw std::runtime_error("could not determine format from the file names");
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate a 'simple_list' at '" + path.string() + "'; " + std::string(e.what()));
 }

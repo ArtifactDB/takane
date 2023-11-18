@@ -98,3 +98,66 @@ TEST_F(SimpleListTest, Json) {
     }
     takane::simple_list::validate(testdir());
 }
+
+TEST_F(SimpleListTest, Hdf5) {
+    // Success!
+    {
+        initialize();
+        auto dir = testdir();
+        dir.append("list_contents.h5");
+
+        H5::H5File handle(dir, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        H5::StrType stype(0, H5T_VARIABLE);
+        auto ahandle = ghandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
+        ahandle.write(stype, std::string("list"));
+        ghandle.createGroup("data");
+    }
+    takane::simple_list::validate(testdir());
+
+    // Throwing in some externals.
+    auto dir2 = testdir();
+    dir2.append("other_contents");
+    dir2.append("0");
+    {
+        std::filesystem::create_directories(dir2);
+        auto opath = dir2;
+        opath.append("contents.h5");
+
+        H5::H5File handle(opath, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("atomic_vector");
+        attach_attribute(ghandle, "version", "1.0");
+        attach_attribute(ghandle, "type", "integer");
+        spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+
+        auto objpath = dir2;
+        objpath.append("OBJECT");
+        std::ofstream output(objpath);
+        output << "atomic_vector";
+    }
+    expect_error("fewer instances");
+
+    // Success again!
+    {
+        auto dir = testdir();
+        dir.append("list_contents.h5");
+        H5::H5File handle(dir, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+
+        H5::StrType stype(0, H5T_VARIABLE);
+        auto ahandle = ghandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
+        ahandle.write(stype, std::string("list"));
+
+        auto dhandle = ghandle.createGroup("data");
+        auto zhandle = dhandle.createGroup("0");
+        {
+            auto xhandle = zhandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
+            xhandle.write(stype, std::string("external"));
+        }
+
+        auto xhandle = zhandle.createDataSet("index", H5::PredType::NATIVE_INT32, H5S_SCALAR);
+        int val = 0;
+        xhandle.write(&val, H5::PredType::NATIVE_INT);
+    }
+    takane::simple_list::validate(testdir());
+}
