@@ -11,6 +11,7 @@
 #include "string_factor.hpp"
 #include "simple_list.hpp"
 #include "data_frame.hpp"
+#include "data_frame_factor.hpp"
 
 /**
  * @file _validate.hpp
@@ -30,6 +31,7 @@ inline auto default_registry() {
     registry["string_factor"] = [](const std::filesystem::path& p, const Options& o) { string_factor::validate(p, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const Options& o) { simple_list::validate(p, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) { data_frame::validate(p, o); };
+    registry["data_frame_factor"] = [](const std::filesystem::path& p, const Options& o) { data_frame_factor::validate(p, o); };
     return registry;
 } 
 

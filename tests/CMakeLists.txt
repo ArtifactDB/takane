@@ -24,6 +24,7 @@ add_executable(
     src/atomic_vector.cpp
     src/string_factor.cpp
     src/simple_list.cpp
+    src/data_frame_factor.cpp
     #    src/factor.cpp
     #    src/compressed_list.cpp
     #    src/array.cpp

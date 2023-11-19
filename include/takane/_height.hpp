@@ -11,6 +11,7 @@
 #include "string_factor.hpp"
 #include "simple_list.hpp"
 #include "data_frame.hpp"
+#include "data_frame_factor.hpp"
 
 /**
  * @file _height.hpp
@@ -30,6 +31,7 @@ inline auto default_registry() {
     registry["string_factor"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return string_factor::height(p, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return simple_list::height(p, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return data_frame::height(p, o); };
+    registry["data_frame_factor"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return data_frame_factor::height(p, o); };
     return registry;
 } 
 
