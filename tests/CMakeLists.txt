@@ -32,6 +32,7 @@ add_executable(
     #    src/hdf5_dense_array.cpp
     src/utils_hdf5.cpp
     src/utils_other.cpp
+    src/dispatch.cpp
 )
 
 target_link_libraries(

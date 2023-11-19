@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "H5Cpp.h"
+#include "takane/takane.hpp"
 
 inline void initialize_directory(const std::filesystem::path& dir, const std::string& type) {
     if (std::filesystem::exists(dir)) {
@@ -17,6 +18,18 @@ inline void initialize_directory(const std::filesystem::path& dir, const std::st
     auto objpath = dir / "OBJECT";
     std::ofstream output(objpath);
     output << type;
+}
+
+template<typename ... Args_>
+void expect_validation_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
+    EXPECT_ANY_THROW({
+        try {
+            takane::validate(dir, std::forward<Args_>(args)...);
+        } catch (std::exception& e) {
+            EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
+            throw;
+        }
+    });
 }
 
 namespace hdf5_utils {

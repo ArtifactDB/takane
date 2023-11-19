@@ -46,6 +46,17 @@ inline auto default_registry() {
 inline std::unordered_map<std::string, std::function<size_t(const std::filesystem::path&, const Options&)> > height_registry = internal_height::default_registry();
 
 /**
+ * Override for application-defined height functions, to be used by `height()`.
+ *
+ * Any supplied function should accept the directory path, a string containing the object type, and additional `Options`.
+ * It should then return a pair indicating whether a height function for this object type was identified, and if so, the height itself.
+ *
+ * If no overriding function is found for the object type (or if `height_override` was not set at all), 
+ * `height()` will instead search `height_registry` for an appropriate function.
+ */
+inline std::function<std::pair<bool, size_t>(const std::filesystem::path&, const std::string&, const Options&)> height_override;
+
+/**
  * Get the height of an object in a subdirectory, based on the supplied object type.
  * This is used to check the shape of objects stored in vertical containers, e.g., columns of a `data_frame`.
  * For vectors or other 1-dimensional objects, the height is usually just the length;
@@ -62,9 +73,16 @@ inline size_t height(const std::filesystem::path& path, const std::string& type,
         throw std::runtime_error("expected '" + path.string() + "' to be a directory");
     }
 
+    if (height_override) {
+        auto found = height_override(path, type, options);
+        if (found.first) {
+            return found.second;
+        }
+    }
+
     auto vrIt = height_registry.find(type);
     if (vrIt == height_registry.end()) {
-        throw std::runtime_error("failed to find a height_ function for object type '" + type + "' at '" + path.string() + "'");
+        throw std::runtime_error("no registered height function for object type '" + type + "' at '" + path.string() + "'");
     }
 
     return (vrIt->second)(path, options);

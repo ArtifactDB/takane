@@ -46,6 +46,17 @@ inline auto default_registry() {
 inline std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const Options& )> > validate_registry = internal_validate::default_registry();
 
 /**
+ * Override for application-defined validation functions, to be used by `validate()`.
+ *
+ * Any supplied function should accept the directory path, a string containing the object type, and additional `Options`.
+ * It should then return a boolean indicating whether a validation function for this object type was identified.
+ *
+ * If no overriding validator is found for the object type (or if `validate_override` was not set at all), 
+ * `validate()` will instead search `validate_registry` for an appropriate function.
+ */
+inline std::function<bool(const std::filesystem::path&, const std::string&, const Options&)> validate_override;
+
+/**
  * Validate an object in a subdirectory, based on the supplied object type.
  *
  * @param path Path to a directory representing an object.
@@ -57,9 +68,15 @@ inline void validate(const std::filesystem::path& path, const std::string& type,
         throw std::runtime_error("expected '" + path.string() + "' to be a directory");
     }
 
+    if (validate_override) {
+        if (validate_override(path, type, options)) {
+            return;
+        }
+    }
+
     auto vrIt = validate_registry.find(type);
     if (vrIt == validate_registry.end()) {
-        throw std::runtime_error("failed to find a validation function for object type '" + type + "' at '" + path.string() + "'");
+        throw std::runtime_error("no registered validation function for object type '" + type + "' at '" + path.string() + "'");
     }
 
     (vrIt->second)(path, options);
