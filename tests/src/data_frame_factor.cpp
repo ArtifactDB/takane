@@ -29,14 +29,7 @@ struct DataFrameFactorTest : public::testing::Test {
 
     template<typename ... Args_>
     static void expect_error(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::validate(testdir(), std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
+        expect_validation_error(testdir(), msg, std::forward<Args_>(args)...);
     }
 };
 
@@ -60,17 +53,17 @@ TEST_F(DataFrameFactorTest, Basic) {
     }
     expect_error("unsupported version string");
 
+    auto ldir = testdir() / "levels";
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("data_frame_factor");
         ghandle.removeAttr("version");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        initialize_directory(ldir, "data_frame");
     }
     expect_error("'levels'");
 
     {
-        auto ldir = testdir() / "levels";
-        initialize_directory(ldir, "data_frame");
         data_frame::mock(ldir, 5, false, {});
     }
     expect_error("'codes'");
@@ -85,7 +78,30 @@ TEST_F(DataFrameFactorTest, Basic) {
     EXPECT_EQ(takane::height(testdir()), 100);
 }
 
-TEST_F(DataFrameFactorTest, CodeChecks) {
+TEST_F(DataFrameFactorTest, Levels) {
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup("data_frame_factor");
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+    }
+
+    auto ldir = testdir() / "levels";
+    {
+        initialize_directory(ldir, "simple_list");
+    }
+    expect_error("'data_frame' or one of its derivatives");
+
+    takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> bool { return true; };
+    {
+        initialize_directory(ldir, "data_frame");
+        data_frame::mock(ldir, 5, false, {});
+    }
+    expect_error("duplicated rows");
+
+    takane::data_frame_factor::any_duplicated = nullptr;
+}
+
+TEST_F(DataFrameFactorTest, Codes) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup("data_frame_factor");
@@ -120,7 +136,7 @@ TEST_F(DataFrameFactorTest, CodeChecks) {
     takane::validate(testdir());
 }
 
-TEST_F(DataFrameFactorTest, NameChecks) {
+TEST_F(DataFrameFactorTest, Names) {
     std::vector<int> codes { 0, 1, 2, 1, 0, 1, 2 };
     {
         auto handle = initialize();
@@ -154,7 +170,7 @@ TEST_F(DataFrameFactorTest, NameChecks) {
     takane::validate(testdir());
 }
 
-TEST_F(DataFrameFactorTest, MetadataChecks) {
+TEST_F(DataFrameFactorTest, Metadata) {
     auto dir = testdir();
     auto edir = dir / "element_annotations";
     auto odir = dir / "other_annotations";

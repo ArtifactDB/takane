@@ -18,10 +18,30 @@
 namespace takane {
 
 /**
+ * @cond
+ */
+void validate(const std::filesystem::path&, const std::string&, const Options&);
+size_t height(const std::filesystem::path&, const std::string&, const Options&);
+/**
+ * @endcond
+ */
+
+/**
  * @namespace takane::data_frame_factor
  * @brief Definitions for data frame factors.
  */
 namespace data_frame_factor {
+
+/**
+ * Application-specific function to determine whether there are duplicated rows in the data frame containing the levels of a `data_frame_factor`.
+ *
+ * This should accept a path to the directory containing the data frame, a string specifying the object type, and additional reading options.
+ * It should return a boolean indicating whether any duplicate rows were found. 
+ *
+ * If provided, this enables stricter checking of the uniqueness of the data frame levels.
+ * Currently, we don't provide a default method for `data_frame` objects, as it's kind of tedious and we haven't gotten around to it yet.
+ */
+inline std::function<bool(const std::filesystem::path&, const std::string&, const Options& options)> any_duplicated;
 
 /**
  * @param path Path to the directory containing the data frame factor.
@@ -44,12 +64,24 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
 
     // Validating the levels.
     auto lpath = path / "levels";
+    auto xtype = read_object_type(lpath);
+    if (!internal_other::ends_with(xtype, "data_frame")) {
+        throw std::runtime_error("expected 'levels' to be a 'data_frame' or one of its derivatives");
+    }
+
     try {
-        ::takane::validate(lpath, options);
+        ::takane::validate(lpath, xtype, options);
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate 'levels'; " + std::string(e.what()));
     }
-    size_t num_levels = ::takane::height(lpath, options);
+    size_t num_levels = ::takane::height(lpath, xtype, options);
+
+    if (any_duplicated) {
+        if (any_duplicated(lpath, xtype, options)) {
+            throw std::runtime_error("'levels' should not contain duplicated rows");
+        }
+    }
+
     size_t num_codes = internal_hdf5::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
 
     if (ghandle.exists("names")) {
