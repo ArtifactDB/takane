@@ -76,8 +76,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">takane::atomic_vector Namespace Reference</div></div>
 </div><!--header-->
@@ -86,34 +84,18 @@ $(function() {
 <p>Definitions for atomic vectors.  
 <a href="namespacetakane_1_1atomic__vector.html#details">More...</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html" title="Parameters for validating the atomic vector file.">Parameters</a> for validating the atomic vector file.  <a href="structtakane_1_1atomic__vector_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:a6c8bfd44d20a0946ee5eb50e7adb32b1"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">Type</a> { <b>INTEGER</b>
-, <b>NUMBER</b>
-, <b>STRING</b>
-, <b>BOOLEAN</b>
- }</td></tr>
-<tr class="separator:a6c8bfd44d20a0946ee5eb50e7adb32b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a98dd9f3c416c9fac38bd27cf41174f60"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:a98dd9f3c416c9fac38bd27cf41174f60"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#a98dd9f3c416c9fac38bd27cf41174f60">validate</a> (Reader &amp;reader, const <a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a> &amp;params, <a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *creator=NULL)</td></tr>
-<tr class="separator:a98dd9f3c416c9fac38bd27cf41174f60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd506a6f62a28d7fdc2e501df1a071d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#abd506a6f62a28d7fdc2e501df1a071d6">validate</a> (const char *path, const <a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a> &amp;params, <a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *creator=NULL)</td></tr>
-<tr class="separator:abd506a6f62a28d7fdc2e501df1a071d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa83e4fbe34cc3f6f1dead5105934f997"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#aa83e4fbe34cc3f6f1dead5105934f997">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:aa83e4fbe34cc3f6f1dead5105934f997"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada50290bd831730b3852440572c67291"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#ada50290bd831730b3852440572c67291">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)</td></tr>
+<tr class="separator:ada50290bd831730b3852440572c67291"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for atomic vectors. </p>
-</div><h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="a6c8bfd44d20a0946ee5eb50e7adb32b1" name="a6c8bfd44d20a0946ee5eb50e7adb32b1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6c8bfd44d20a0946ee5eb50e7adb32b1">&#9670;&#160;</a></span>Type</h2>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="ada50290bd831730b3852440572c67291" name="ada50290bd831730b3852440572c67291"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada50290bd831730b3852440572c67291">&#9670;&#160;</a></span>height()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -122,52 +104,16 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">enum class <a class="el" href="namespacetakane_1_1atomic__vector.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">takane::atomic_vector::Type</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Type of the atomic vector.</p>
-<ul>
-<li><code>INTEGER</code>: a number that can be represented by a 32-bit signed integer.</li>
-<li><code>NUMBER</code>: a number that can be represented by a double-precision float.</li>
-<li><code>STRING</code>: a string.</li>
-<li><code>BOOLEAN</code>: a boolean. </li>
-</ul>
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="abd506a6f62a28d7fdc2e501df1a071d6" name="abd506a6f62a28d7fdc2e501df1a071d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abd506a6f62a28d7fdc2e501df1a071d6">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a> takane::atomic_vector::validate </td>
+          <td class="memname">size_t takane::atomic_vector::height </td>
           <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *&#160;</td>
-          <td class="paramname"><em>creator</em> = <code>NULL</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname">&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -181,44 +127,37 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Overload of <code><a class="el" href="namespacetakane_1_1atomic__vector.html#a98dd9f3c416c9fac38bd27cf41174f60">atomic_vector::validate()</a></code> that takes a file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the CSV file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
-    <tr><td class="paramname">creator</td><td>Factory to create objects for holding the contents of each CSV field. Defaults to a pointer to a <code>DummyFieldCreator</code> instance.</td></tr>
+    <tr><td class="paramname">path</td><td>Path to the directory containing the atomic vector. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Contents of the loaded CSV. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Length of the vector. </dd></dl>
 
 </div>
 </div>
-<a id="a98dd9f3c416c9fac38bd27cf41174f60" name="a98dd9f3c416c9fac38bd27cf41174f60"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a98dd9f3c416c9fac38bd27cf41174f60">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+<a id="aa83e4fbe34cc3f6f1dead5105934f997" name="aa83e4fbe34cc3f6f1dead5105934f997"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa83e4fbe34cc3f6f1dead5105934f997">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class Reader &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a> takane::atomic_vector::validate </td>
+          <td class="memname">void takane::atomic_vector::validate </td>
           <td>(</td>
-          <td class="paramtype">Reader &amp;&#160;</td>
-          <td class="paramname"><em>reader</em>, </td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *&#160;</td>
-          <td class="paramname"><em>creator</em> = <code>NULL</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -226,23 +165,19 @@ template&lt;class Reader &gt; </div>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p >Checks if a CSV is correctly formatted for the <code><a class="el" href="namespacetakane_1_1atomic__vector.html" title="Definitions for atomic vectors.">atomic_vector</a></code> format. An error is raised if the file does not meet the specifications.</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">Reader</td><td>A <b>byteme</b> reader class.</td></tr>
-  </table>
-  </dd>
-</dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
-    <tr><td class="paramname">creator</td><td>Factory to create objects for holding the contents of each CSV field. Defaults to a pointer to a <code>DummyFieldCreator</code> instance.</td></tr>
+    <tr><td class="paramname">path</td><td>Path to the directory containing the atomic vector. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Contents of the loaded CSV. Whether the <code>fields</code> member actually contains the CSV data depends on <code>creator</code>. If <code>params.has_names = true</code>, an additional column containing names is present at the start. </dd></dl>
 
 </div>
 </div>

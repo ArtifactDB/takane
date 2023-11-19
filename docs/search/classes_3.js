@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['wrappedoption_0',['WrappedOption',['../structtakane_1_1WrappedOption.html',1,'takane']]],
-  ['wrappedoption_3c_20std_3a_3aunordered_5fset_3c_20std_3a_3astring_20_3e_20_3e_1',['WrappedOption&lt; std::unordered_set&lt; std::string &gt; &gt;',['../structtakane_1_1WrappedOption.html',1,'takane']]],
-  ['wrappedoption_3c_20std_3a_3avector_3c_20takane_3a_3adata_5fframe_3a_3acolumndetails_20_3e_20_3e_2',['WrappedOption&lt; std::vector&lt; takane::data_frame::ColumnDetails &gt; &gt;',['../structtakane_1_1WrappedOption.html',1,'takane']]]
+  ['parameters_0',['Parameters',['../structtakane_1_1compressed__list_1_1Parameters.html',1,'takane::compressed_list::Parameters'],['../structtakane_1_1csv__data__frame_1_1Parameters.html',1,'takane::csv_data_frame::Parameters'],['../structtakane_1_1factor_1_1Parameters.html',1,'takane::factor::Parameters'],['../structtakane_1_1genomic__ranges_1_1Parameters.html',1,'takane::genomic_ranges::Parameters'],['../structtakane_1_1hdf5__dense__array_1_1Parameters.html',1,'takane::hdf5_dense_array::Parameters'],['../structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html',1,'takane::hdf5_sparse_matrix::Parameters'],['../structtakane_1_1sequence__information_1_1Parameters.html',1,'takane::sequence_information::Parameters']]]
 ];

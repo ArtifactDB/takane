@@ -1,13 +1,7 @@
 var searchData=
 [
-  ['has_5fdimnames_0',['has_dimnames',['../structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a4c54d15bc0b2534307f601007ff19b14',1,'takane::hdf5_sparse_matrix::Parameters']]],
-  ['has_5fnames_1',['has_names',['../structtakane_1_1atomic__vector_1_1Parameters.html#a8ad69b51dadf832b0893906a61d79c7b',1,'takane::atomic_vector::Parameters::has_names()'],['../structtakane_1_1compressed__list_1_1Parameters.html#a74fb4711a6dfbdcc6ed5efbde7f91b16',1,'takane::compressed_list::Parameters::has_names()'],['../structtakane_1_1factor_1_1Parameters.html#a562618bd2ff92f55edc1ea70d69a9363',1,'takane::factor::Parameters::has_names()'],['../structtakane_1_1genomic__ranges_1_1Parameters.html#a94016d49ea1853288fbd21fea5cf3b61',1,'takane::genomic_ranges::Parameters::has_names()']]],
-  ['has_5frow_5fnames_2',['has_row_names',['../structtakane_1_1csv__data__frame_1_1Parameters.html#a50be7db2e98b55402086fe669e7e05ea',1,'takane::csv_data_frame::Parameters::has_row_names()'],['../structtakane_1_1hdf5__data__frame_1_1Parameters.html#a7554cda5388861f2cb5c6e3a1858dff6',1,'takane::hdf5_data_frame::Parameters::has_row_names()']]],
-  ['hdf5_20data_20frame_3',['HDF5 data frame',['../md__github_workspace_docs_specifications_hdf5_data_frame_v1.html',1,'']]],
-  ['hdf5_20dense_20array_4',['HDF5 dense array',['../md__github_workspace_docs_specifications_hdf5_dense_array_v1.html',1,'']]],
-  ['hdf5_20sparse_20matrix_5',['HDF5 sparse matrix',['../md__github_workspace_docs_specifications_hdf5_sparse_matrix_v1.html',1,'']]],
-  ['hdf5_5fdata_5fframe_2ehpp_6',['hdf5_data_frame.hpp',['../hdf5__data__frame_8hpp.html',1,'']]],
-  ['hdf5_5fdense_5farray_2ehpp_7',['hdf5_dense_array.hpp',['../hdf5__dense__array_8hpp.html',1,'']]],
-  ['hdf5_5fsparse_5fmatrix_2ehpp_8',['hdf5_sparse_matrix.hpp',['../hdf5__sparse__matrix_8hpp.html',1,'']]],
-  ['hdf5_5fversion_9',['hdf5_version',['../structtakane_1_1hdf5__data__frame_1_1Parameters.html#ada9d1f3f4ac2a149aa31aad83ef4d14e',1,'takane::hdf5_data_frame::Parameters']]]
+  ['genomic_20ranges_0',['Genomic ranges',['../md__github_workspace_docs_specifications_genomic_ranges_v1.html',1,'']]],
+  ['genomic_5franges_2ehpp_1',['genomic_ranges.hpp',['../genomic__ranges_8hpp.html',1,'']]],
+  ['get_2',['get',['../structtakane_1_1WrappedOption.html#a6c4c407bbb10f7775dcc22f92bc838dc',1,'takane::WrappedOption']]],
+  ['group_3',['group',['../structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a7160e35d19a88f566f162209c3e3b664',1,'takane::hdf5_sparse_matrix::Parameters']]]
 ];

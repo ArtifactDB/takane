@@ -76,9 +76,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">atomic_vector.hpp File Reference</div></div>
 </div><!--header-->
@@ -86,23 +84,30 @@ $(function() {
 
 <p>Validation for atomic vectors.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;comservatory/comservatory.hpp&quot;</code><br />
-<code>#include &quot;<a class="el" href="utils__csv_8hpp_source.html">utils_csv.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &lt;string&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;filesystem&gt;</code><br />
+<code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__public_8hpp_source.html">utils_public.hpp</a>&quot;</code><br />
+<code>#include &quot;utils_hdf5.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for atomic_vector.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="atomic__vector_8hpp__incl.png" border="0" usemap="#atakane_2atomic__vector_8hpp" alt=""/></div>
 <map name="atakane_2atomic__vector_8hpp" id="atakane_2atomic__vector_8hpp">
-<area shape="rect" title="Validation for atomic vectors." alt="" coords="459,5,630,31"/>
-<area shape="rect" title=" " alt="" coords="5,152,212,177"/>
-<area shape="rect" href="utils__csv_8hpp.html" title="Utilities for parsing CSVs." alt="" coords="495,79,594,104"/>
-<area shape="rect" title=" " alt="" coords="772,152,851,177"/>
-<area shape="rect" title=" " alt="" coords="237,152,365,177"/>
-<area shape="rect" title=" " alt="" coords="389,152,493,177"/>
-<area shape="rect" title=" " alt="" coords="517,152,572,177"/>
-<area shape="rect" title=" " alt="" coords="597,152,655,177"/>
-<area shape="rect" title=" " alt="" coords="680,152,748,177"/>
+<area shape="rect" title="Validation for atomic vectors." alt="" coords="353,5,524,31"/>
+<area shape="rect" title=" " alt="" coords="365,152,419,177"/>
+<area shape="rect" title=" " alt="" coords="443,152,522,177"/>
+<area shape="rect" title=" " alt="" coords="5,152,85,177"/>
+<area shape="rect" title=" " alt="" coords="546,152,689,177"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="218,79,329,104"/>
+<area shape="rect" href="utils__hdf5_8hpp_source.html" title=" " alt="" coords="581,79,683,104"/>
+<area shape="rect" title=" " alt="" coords="109,152,181,177"/>
+<area shape="rect" title=" " alt="" coords="206,152,341,177"/>
+<area shape="rect" title=" " alt="" coords="948,152,1052,177"/>
+<area shape="rect" title=" " alt="" coords="1076,152,1137,177"/>
+<area shape="rect" title=" " alt="" coords="713,152,772,177"/>
+<area shape="rect" title=" " alt="" coords="796,152,924,177"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -110,19 +115,15 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="atomic__vector_8hpp__dep__incl.png" border="0" usemap="#atakane_2atomic__vector_8hppdep" alt=""/></div>
 <map name="atakane_2atomic__vector_8hppdep" id="atakane_2atomic__vector_8hppdep">
-<area shape="rect" title="Validation for atomic vectors." alt="" coords="5,5,176,31"/>
-<area shape="rect" href="takane_8hpp_source.html" title=" " alt="" coords="27,79,155,104"/>
+<area shape="rect" title="Validation for atomic vectors." alt="" coords="65,5,236,31"/>
+<area shape="rect" href="__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,79,136,104"/>
+<area shape="rect" href="__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,79,301,104"/>
+<area shape="rect" href="takane_8hpp_source.html" title=" " alt="" coords="87,152,215,177"/>
 </map>
 </div>
 </div>
 <p><a href="atomic__vector_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html">takane::atomic_vector::Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1atomic__vector_1_1Parameters.html" title="Parameters for validating the atomic vector file.">Parameters</a> for validating the atomic vector file.  <a href="structtakane_1_1atomic__vector_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacetakane"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
@@ -132,22 +133,12 @@ Namespaces</h2></td></tr>
 <tr class="memdesc:namespacetakane_1_1atomic__vector"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for atomic vectors. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:a6c8bfd44d20a0946ee5eb50e7adb32b1"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#a6c8bfd44d20a0946ee5eb50e7adb32b1">takane::atomic_vector::Type</a> { <b>INTEGER</b>
-, <b>NUMBER</b>
-, <b>STRING</b>
-, <b>BOOLEAN</b>
- }</td></tr>
-<tr class="separator:a6c8bfd44d20a0946ee5eb50e7adb32b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a98dd9f3c416c9fac38bd27cf41174f60"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:a98dd9f3c416c9fac38bd27cf41174f60"><td class="memTemplItemLeft" align="right" valign="top">CsvContents&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#a98dd9f3c416c9fac38bd27cf41174f60">takane::atomic_vector::validate</a> (Reader &amp;reader, const Parameters &amp;params, CsvFieldCreator *creator=NULL)</td></tr>
-<tr class="separator:a98dd9f3c416c9fac38bd27cf41174f60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd506a6f62a28d7fdc2e501df1a071d6"><td class="memItemLeft" align="right" valign="top">CsvContents&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#abd506a6f62a28d7fdc2e501df1a071d6">takane::atomic_vector::validate</a> (const char *path, const Parameters &amp;params, CsvFieldCreator *creator=NULL)</td></tr>
-<tr class="separator:abd506a6f62a28d7fdc2e501df1a071d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa83e4fbe34cc3f6f1dead5105934f997"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#aa83e4fbe34cc3f6f1dead5105934f997">takane::atomic_vector::validate</a> (const std::filesystem::path &amp;path, const Options &amp;options)</td></tr>
+<tr class="separator:aa83e4fbe34cc3f6f1dead5105934f997"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada50290bd831730b3852440572c67291"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#ada50290bd831730b3852440572c67291">takane::atomic_vector::height</a> (const std::filesystem::path &amp;path, const Options &amp;)</td></tr>
+<tr class="separator:ada50290bd831730b3852440572c67291"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for atomic vectors. </p>

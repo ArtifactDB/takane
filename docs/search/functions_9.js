@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wrappedoption_0',['WrappedOption',['../structtakane_1_1WrappedOption.html#a4ae9b3cd1bc3d13ca79cfc836bc5ea94',1,'takane::WrappedOption::WrappedOption()=default'],['../structtakane_1_1WrappedOption.html#adb80d42e4d791a9758db39863a51cb40',1,'takane::WrappedOption::WrappedOption(const T *ptr)'],['../structtakane_1_1WrappedOption.html#a7365688de910f6021129975fd607b8f6',1,'takane::WrappedOption::WrappedOption(T val)']]]
+  ['string_0',['string',['../structtakane_1_1CsvFieldCreator.html#af940a1b2e8bb37323f70be9a33c96f35',1,'takane::CsvFieldCreator::string()'],['../structtakane_1_1DummyCsvFieldCreator.html#a5983501b74e4ab20fbb795604e0b8735',1,'takane::DummyCsvFieldCreator::string()']]]
 ];

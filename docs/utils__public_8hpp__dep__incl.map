@@ -1,0 +1,14 @@
+<map id="takane/utils_public.hpp" name="takane/utils_public.hpp">
+<area shape="rect" id="node1" title="Exported utilities." alt="" coords="539,5,693,31"/>
+<area shape="rect" id="node2" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="336,225,467,251"/>
+<area shape="rect" id="node4" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="491,225,632,251"/>
+<area shape="rect" id="node5" href="$atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="603,152,773,177"/>
+<area shape="rect" id="node6" href="$data__frame_8hpp.html" title="Validation for data frames." alt="" coords="848,152,1003,177"/>
+<area shape="rect" id="node9" href="$data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="23,152,217,177"/>
+<area shape="rect" id="node10" href="$simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="242,152,393,177"/>
+<area shape="rect" id="node11" href="$string__factor_8hpp.html" title="Validation for string factors." alt="" coords="417,152,578,177"/>
+<area shape="rect" id="node12" href="$utils__other_8hpp_source.html" title=" " alt="" coords="899,79,1048,104"/>
+<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="417,299,545,324"/>
+<area shape="rect" id="node7" href="$csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="722,225,905,251"/>
+<area shape="rect" id="node8" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="929,225,1145,251"/>
+</map>
