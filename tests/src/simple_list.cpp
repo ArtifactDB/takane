@@ -3,8 +3,7 @@
 
 #include "takane/takane.hpp"
 #include "utils.h"
-
-#include "byteme/byteme.hpp"
+#include "simple_list.h"
 
 #include <string>
 #include <filesystem>
@@ -20,10 +19,7 @@ struct SimpleListTest : public::testing::Test {
     }
 
     static void dump_json(const std::string& buffer) {
-        auto path = testdir();
-        path.append("list_contents.json.gz");
-        byteme::GzipFileWriter writer(path.c_str());
-        writer.write(reinterpret_cast<const unsigned char*>(buffer.data()), buffer.size());
+        simple_list::dump_compressed_json(testdir(), buffer);
     }
 
     template<typename ... Args_>

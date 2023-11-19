@@ -14,6 +14,7 @@
 
 #include "utils_public.hpp"
 #include "utils_hdf5.hpp"
+#include "utils_other.hpp"
 
 /**
  * @file data_frame.hpp
@@ -206,12 +207,18 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     hsize_t found = 0;
     for (size_t c = 0; c < NC; ++c) {
         std::string dset_name = std::to_string(c);
+
         if (!dhandle.exists(dset_name)) {
             auto opath = path / "other_columns" / dset_name;
-            ::takane::validate(opath, options);
-            if (::takane::height(opath, options) != num_rows) {
-                throw std::runtime_error("height of column of class '" + read_object_type(opath) + "' is not the same as the number of rows");
+            try {
+                ::takane::validate(opath, options);
+            } catch (std::exception& e) {
+                throw std::runtime_error("failed to validate 'other' column " + dset_name + "; " + std::string(e.what()));
             }
+            if (::takane::height(opath, options) != num_rows) {
+                throw std::runtime_error("height of column " + dset_name + " of class '" + read_object_type(opath) + "' is not the same as the number of rows");
+            }
+
         } else {
             validate_column(dhandle, dset_name, num_rows, options);
             ++found;
@@ -220,6 +227,19 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
 
     if (found != dhandle.getNumObjs()) {
         throw std::runtime_error("more objects present in the 'data_frame/data' group than expected");
+    }
+
+    // Checking the metadata.
+    try {
+        internal_other::validate_mcols(path / "column_annotations", NC, options);
+    } catch (std::exception& e) {
+        throw std::runtime_error("failed to validate 'column_annotations'; " + std::string(e.what()));
+    }
+
+    try {
+        internal_other::validate_metadata(path / "other_annotations", options);
+    } catch (std::exception& e) {
+        throw std::runtime_error("failed to validate 'other_annotations'; " + std::string(e.what()));
     }
 }
 

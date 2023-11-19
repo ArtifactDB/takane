@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "data_frame.h"
+#include "simple_list.h"
 #include "takane/takane.hpp"
 
 #include <numeric>
@@ -244,7 +245,7 @@ TEST_F(Hdf5DataFrameTest, Other) {
         auto ghandle = handle.createGroup(name);
         mock(ghandle, 32, false, subcolumns);
     }
-    expect_error("height of column of class 'data_frame'");
+    expect_error("height of column 0 of class 'data_frame'");
 }
 
 TEST_F(Hdf5DataFrameTest, Integer) {
@@ -543,5 +544,32 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         fhandle.removeAttr("ordered");
         fhandle.createAttribute("ordered", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
+    takane::validate(dir);
+}
+
+TEST_F(Hdf5DataFrameTest, Metadata) {
+    std::vector<data_frame::ColumnDetails> columns(1);
+    columns[0].name = "Aaron";
+    columns[0].type = data_frame::ColumnType::FACTOR;
+    columns[0].factor_levels = std::vector<std::string>{ "kanon", "chisato", "sumire", "ren", "keke" };
+
+    auto cdir = dir / "column_annotations";
+    auto odir = dir / "other_annotations";
+
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+        data_frame::mock(ghandle, 99, false, columns);
+        initialize_directory(cdir, "simple_list");
+    }
+    expect_error("'data_frame' or one of its derivatives");
+
+    initialize_directory(cdir, "data_frame");
+    data_frame::mock(cdir, columns.size(), false, {});
+    initialize_directory(odir, "data_frame");
+    expect_error("'simple_list' or one of its derivatives");
+
+    initialize_directory(odir, "simple_list");
+    simple_list::mock(odir);
     takane::validate(dir);
 }
