@@ -80,7 +80,7 @@ TEST_F(AtomicVectorTest, Basic) {
     EXPECT_EQ(takane::height(testdir()), 100);
 }
 
-TEST_F(AtomicVectorTest, TypeChecks) {
+TEST_F(AtomicVectorTest, Types) {
     // Integer.
     {
         {
@@ -169,7 +169,7 @@ TEST_F(AtomicVectorTest, TypeChecks) {
     }
 }
 
-TEST_F(AtomicVectorTest, MissingChecks) {
+TEST_F(AtomicVectorTest, Missingness) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup("atomic_vector");

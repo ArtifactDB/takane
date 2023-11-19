@@ -83,7 +83,7 @@ TEST_F(StringFactorTest, Basic) {
     EXPECT_EQ(takane::height(testdir()), 100);
 }
 
-TEST_F(StringFactorTest, CodeChecks) {
+TEST_F(StringFactorTest, Codes) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup("string_factor");
@@ -115,7 +115,7 @@ TEST_F(StringFactorTest, CodeChecks) {
     takane::validate(testdir());
 }
 
-TEST_F(StringFactorTest, OrderedChecks) {
+TEST_F(StringFactorTest, Ordered) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup("string_factor");
@@ -141,7 +141,7 @@ TEST_F(StringFactorTest, OrderedChecks) {
     takane::validate(testdir());
 }
 
-TEST_F(StringFactorTest, NameChecks) {
+TEST_F(StringFactorTest, Names) {
     std::vector<int> codes { 0, 1, 2, 1, 0, 1, 2 };
     {
         auto handle = initialize();
