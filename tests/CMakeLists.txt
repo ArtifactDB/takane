@@ -17,16 +17,22 @@ enable_testing()
 # Main test executable.
 add_executable(
     libtest 
-    src/hdf5_data_frame.cpp
-    src/csv_data_frame.cpp
-    src/genomic_ranges.cpp
-    src/sequence_information.cpp
+    src/data_frame.cpp
+    #    src/csv_data_frame.cpp
+    #    src/genomic_ranges.cpp
+    #    src/sequence_information.cpp
     src/atomic_vector.cpp
-    src/factor.cpp
-    src/compressed_list.cpp
-    src/array.cpp
-    src/hdf5_sparse_matrix.cpp
-    src/hdf5_dense_array.cpp
+    src/string_factor.cpp
+    src/simple_list.cpp
+    src/data_frame_factor.cpp
+    #    src/factor.cpp
+    #    src/compressed_list.cpp
+    #    src/array.cpp
+    #    src/hdf5_sparse_matrix.cpp
+    #    src/hdf5_dense_array.cpp
+    src/utils_hdf5.cpp
+    src/utils_other.cpp
+    src/dispatch.cpp
 )
 
 target_link_libraries(

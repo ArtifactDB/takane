@@ -29,11 +29,7 @@ For example, for the `hdf5_sparse_matrix`, we could do:
 
 ```cpp
 #include "takane/takane.hpp"
-
-takane::hdf5_sparse_matrix::Parameters params(group_name, { 10, 20 });
-params.type = takane::array::Type::BOOLEAN;
-
-takane::hdf5_sparse_matrix::validate(file_path, params);
+takane::validate(dir);
 ```
 
 Check out the [reference documentation](https://artifactdb.github.io/takane/) for more details.
