@@ -103,11 +103,15 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
 }
 
 /**
- * Overload of `atomic_vector::validate()` with default options.
  * @param path Path to the directory containing the atomic vector.
+ * @param options Validation options, typically for reading performance.
+ * @return Length of the vector.
  */
-inline void validate(const std::filesystem::path& path) {
-    atomic_vector::validate(path, Options());
+inline size_t height(const std::filesystem::path& path, const Options&) {
+    H5::H5File handle((path / "contents.h5").string(), H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup("atomic_vector");
+    auto dhandle = ghandle.openDataSet("values");
+    return ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
 }
 
 }

@@ -9,10 +9,11 @@
 #include "utils_public.hpp"
 #include "atomic_vector.hpp"
 #include "string_factor.hpp"
+#include "simple_list.hpp"
 #include "data_frame.hpp"
 
 /**
- * @file validate.hpp
+ * @file _validate.hpp
  * @brief Validation dispatch function.
  */
 
@@ -27,6 +28,7 @@ inline auto default_registry() {
     std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const Options&)> > registry;
     registry["atomic_vector"] = [](const std::filesystem::path& p, const Options& o) { atomic_vector::validate(p, o); };
     registry["string_factor"] = [](const std::filesystem::path& p, const Options& o) { string_factor::validate(p, o); };
+    registry["simple_list"] = [](const std::filesystem::path& p, const Options& o) { simple_list::validate(p, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) { data_frame::validate(p, o); };
     return registry;
 } 
@@ -37,9 +39,9 @@ inline auto default_registry() {
  */
 
 /**
- * Registry of validation functions, to be used by `validate()`.
+ * Registry of functions to be used by `validate()`.
  */
-inline std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const Options& )> > validation_registry = internal_validate::default_registry();
+inline std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const Options& )> > validate_registry = internal_validate::default_registry();
 
 /**
  * Validate an object in a subdirectory, based on the supplied object type.
@@ -53,12 +55,12 @@ inline void validate(const std::filesystem::path& path, const std::string& type,
         throw std::runtime_error("expected '" + path.string() + "' to be a directory");
     }
 
-    auto vrIt = validation_registry.find(type);
-    if (vrIt != validation_registry.end()) {
-        (vrIt->second)(path, options);
-    } else {
+    auto vrIt = validate_registry.find(type);
+    if (vrIt == validate_registry.end()) {
         throw std::runtime_error("failed to find a validation function for object type '" + type + "' at '" + path.string() + "'");
     }
+
+    (vrIt->second)(path, options);
 }
 
 /**

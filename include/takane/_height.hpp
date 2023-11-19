@@ -9,9 +9,11 @@
 #include "utils_public.hpp"
 #include "atomic_vector.hpp"
 #include "string_factor.hpp"
+#include "simple_list.hpp"
+#include "data_frame.hpp"
 
 /**
- * @file HEIGHT.hpp
+ * @file _height.hpp
  * @brief Dispatch to functions for the object's height.
  */
 
@@ -20,10 +22,13 @@ namespace takane {
 /**
  * @cond
  */
-namespace internal_HEIGHT {
+namespace internal_height {
 
 inline auto default_registry() {
     std::unordered_map<std::string, std::function<size_t(const std::filesystem::path&, const Options&)> > registry;
+    registry["atomic_vector"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return atomic_vector::height(p, o); };
+    registry["string_factor"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return string_factor::height(p, o); };
+    registry["simple_list"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return simple_list::height(p, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return data_frame::height(p, o); };
     return registry;
 } 
@@ -34,9 +39,9 @@ inline auto default_registry() {
  */
 
 /**
- * Registry of functions to be used by `HEIGHT()`.
+ * Registry of functions to be used by `height()`.
  */
-inline std::unordered_map<std::string, std::function<size_t(const std::filesystem::path&, const Options&)> > HEIGHT_registry = internal_HEIGHT::default_registry();
+inline std::unordered_map<std::string, std::function<size_t(const std::filesystem::path&, const Options&)> > height_registry = internal_height::default_registry();
 
 /**
  * Get the height of an object in a subdirectory, based on the supplied object type.
@@ -50,14 +55,14 @@ inline std::unordered_map<std::string, std::function<size_t(const std::filesyste
  *
  * @return The object's height.
  */
-inline size_t HEIGHT(const std::filesystem::path& path, const std::string& type, const Options& options) {
+inline size_t height(const std::filesystem::path& path, const std::string& type, const Options& options) {
     if (!std::filesystem::exists(path) || std::filesystem::status(path).type() != std::filesystem::file_type::directory) {
         throw std::runtime_error("expected '" + path.string() + "' to be a directory");
     }
 
-    auto vrIt = HEIGHT_registry.find(type);
-    if (vrIt == HEIGHT_registry.end()) {
-        throw std::runtime_error("failed to find a HEIGHT function for object type '" + type + "' at '" + path.string() + "'");
+    auto vrIt = height_registry.find(type);
+    if (vrIt == height_registry.end()) {
+        throw std::runtime_error("failed to find a height_ function for object type '" + type + "' at '" + path.string() + "'");
     }
 
     return (vrIt->second)(path, options);
@@ -70,18 +75,18 @@ inline size_t HEIGHT(const std::filesystem::path& path, const std::string& type,
  * @param options Validation options, mostly for input performance.
  * @return The object's height.
  */
-inline size_t HEIGHT(const std::filesystem::path& path, const Options& options) {
-    return HEIGHT(path, read_object_type(path), options);
+inline size_t height(const std::filesystem::path& path, const Options& options) {
+    return height(path, read_object_type(path), options);
 }
 
 /**
- * Overload of `HEIGHT()` with default options.
+ * Overload of `height()` with default options.
  *
  * @param path Path to a directory containing an object.
  * @return The object's height.
  */
-inline size_t HEIGHT(const std::filesystem::path& path) {
-    return HEIGHT(path, Options());
+inline size_t height(const std::filesystem::path& path) {
+    return height(path, Options());
 }
 
 }

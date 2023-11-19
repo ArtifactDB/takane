@@ -5,7 +5,7 @@
 
 #include "utils.h"
 
-struct Hdf5StringFormatTest : public::testing::Test, public Hdf5Utils {
+struct Hdf5StringFormatTest : public::testing::Test {
     static std::string testpath() {
         return "TEST_stringformat.h5";
     }
@@ -28,7 +28,7 @@ TEST_F(Hdf5StringFormatTest, None) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        spawn_data(handle, "foobar", 10, H5::StrType(0, 10));
+        hdf5_utils::spawn_data(handle, "foobar", 10, H5::StrType(0, 10));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -43,7 +43,7 @@ TEST_F(Hdf5StringFormatTest, Date) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        spawn_data(handle, "foobar", 5, H5::StrType(0, 10)); // must be 10 characters.
+        hdf5_utils::spawn_data(handle, "foobar", 5, H5::StrType(0, 10)); // must be 10 characters.
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -55,7 +55,7 @@ TEST_F(Hdf5StringFormatTest, Date) {
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         handle.unlink("foobar");
-        spawn_string_data(handle, "foobar", 10, { "2023-01-05", "1999-12-05", "2002-05-23", "2010-08-18", "1987-06-15" });
+        hdf5_utils::spawn_string_data(handle, "foobar", 10, { "2023-01-05", "1999-12-05", "2002-05-23", "2010-08-18", "1987-06-15" });
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -90,9 +90,9 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = spawn_data(handle, "foobar", 5, H5::StrType(0, H5T_VARIABLE));
+        auto dhandle = hdf5_utils::spawn_data(handle, "foobar", 5, H5::StrType(0, H5T_VARIABLE));
         std::vector<std::string> contents { "A", "BB", "CCC", "DDDD", "EEEEEE" };
-        auto ptrs = pointerize_strings(contents);
+        auto ptrs = hdf5_utils::pointerize_strings(contents);
         dhandle.write(ptrs.data(), dhandle.getStrType());
     }
     {
@@ -108,7 +108,7 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
         for (size_t i = 0; i < 5; ++i) {
             contents.push_back("2023-01-1" + std::to_string(i) + "T00:00:00Z");
         }
-        auto ptrs = pointerize_strings(contents);
+        auto ptrs = hdf5_utils::pointerize_strings(contents);
         dhandle.write(ptrs.data(), dhandle.getStrType());
     }
     {
@@ -140,7 +140,7 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
     }
 }
 
-struct Hdf5FactorTest : public::testing::Test, public Hdf5Utils {
+struct Hdf5FactorTest : public::testing::Test {
     static std::string testpath() {
         return "TEST_factorutils.h5";
     }
@@ -176,12 +176,12 @@ TEST_F(Hdf5FactorTest, Levels) {
     size_t nlevels = 0;
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        spawn_data(handle, "fab", 10, H5::PredType::NATIVE_INT32);
-        spawn_data(handle, "foobar", 10, H5::StrType(0, 10000));
+        hdf5_utils::spawn_data(handle, "fab", 10, H5::PredType::NATIVE_INT32);
+        hdf5_utils::spawn_data(handle, "foobar", 10, H5::StrType(0, 10000));
 
         std::vector<std::string> levels { "A", "BB", "CCC", "DDDD", "EEEEE" };
         nlevels = levels.size();
-        spawn_string_data(handle, "blah", H5T_VARIABLE, levels);
+        hdf5_utils::spawn_string_data(handle, "blah", H5T_VARIABLE, levels);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -197,8 +197,8 @@ TEST_F(Hdf5FactorTest, Codes) {
     size_t ncodes = 20;
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        spawn_data(handle, "fab", 10, H5::PredType::NATIVE_FLOAT);
-        spawn_data(handle, "blah", ncodes, H5::PredType::NATIVE_INT32);
+        hdf5_utils::spawn_data(handle, "fab", 10, H5::PredType::NATIVE_FLOAT);
+        hdf5_utils::spawn_data(handle, "blah", ncodes, H5::PredType::NATIVE_INT32);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);

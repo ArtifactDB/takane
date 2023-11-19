@@ -26,7 +26,7 @@ namespace takane {
  * @cond
  */
 void validate(const std::filesystem::path&, const Options&);
-size_t HEIGHT(const std::filesystem::path&, const Options&);
+size_t height(const std::filesystem::path&, const Options&);
 /**
  * @endcond
  */
@@ -209,7 +209,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         if (!dhandle.exists(dset_name)) {
             auto opath = path / "other_columns" / dset_name;
             ::takane::validate(opath, options);
-            if (::takane::HEIGHT(opath, options) != num_rows) {
+            if (::takane::height(opath, options) != num_rows) {
                 throw std::runtime_error("height of column of class '" + read_object_type(opath) + "' is not the same as the number of rows");
             }
         } else {
@@ -221,14 +221,6 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     if (found != dhandle.getNumObjs()) {
         throw std::runtime_error("more objects present in the 'data_frame/data' group than expected");
     }
-}
-
-/**
- * Overload of `data_frame::validate()` that uses default options.
- * @param path Path to the directory containing the data frame.
- */
-inline void validate(const std::filesystem::path& path) {
-    data_frame::validate(path, Options());
 }
 
 /**

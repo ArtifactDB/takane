@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/simple_list.hpp"
-#include "takane/validate.hpp"
+#include "takane/takane.hpp"
 #include "utils.h"
 
 #include "byteme/byteme.hpp"
@@ -11,17 +10,13 @@
 #include <filesystem>
 #include <fstream>
 
-struct SimpleListTest : public::testing::Test, public Hdf5Utils {
+struct SimpleListTest : public::testing::Test {
     static std::filesystem::path testdir() {
         return "TEST_simple_list";
     }
 
     static void initialize() {
-        auto dir = testdir();
-        if (std::filesystem::exists(dir)) {
-            std::filesystem::remove_all(dir);
-        }
-        std::filesystem::create_directory(dir);
+        initialize_directory(testdir(), "simple_list");
     }
 
     static void dump_json(const std::string& buffer) {
@@ -35,7 +30,7 @@ struct SimpleListTest : public::testing::Test, public Hdf5Utils {
     static void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::simple_list::validate(testdir(), std::forward<Args_>(args)...);
+                takane::validate(testdir(), std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -54,7 +49,8 @@ TEST_F(SimpleListTest, Json) {
     {
         dump_json("{ \"type\": \"list\", \"values\": [] }");
     }
-    takane::simple_list::validate(testdir());
+    takane::validate(testdir());
+    EXPECT_EQ(takane::height(testdir()), 0);
 
     // Throwing in some externals.
     auto dir = testdir();
@@ -81,9 +77,9 @@ TEST_F(SimpleListTest, Json) {
 
         H5::H5File handle(opath, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("atomic_vector");
-        attach_attribute(ghandle, "version", "1.0");
-        attach_attribute(ghandle, "type", "integer");
-        spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        hdf5_utils::attach_attribute(ghandle, "type", "integer");
+        hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
 
         auto objpath = dir2;
         objpath.append("OBJECT");
@@ -96,7 +92,8 @@ TEST_F(SimpleListTest, Json) {
     {
         dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"external\", \"index\": 0 } ] }");
     }
-    takane::simple_list::validate(testdir());
+    takane::validate(testdir());
+    EXPECT_EQ(takane::height(testdir()), 1);
 }
 
 TEST_F(SimpleListTest, Hdf5) {
@@ -113,7 +110,8 @@ TEST_F(SimpleListTest, Hdf5) {
         ahandle.write(stype, std::string("list"));
         ghandle.createGroup("data");
     }
-    takane::simple_list::validate(testdir());
+    takane::validate(testdir());
+    EXPECT_EQ(takane::height(testdir()), 0);
 
     // Throwing in some externals.
     auto dir2 = testdir();
@@ -126,9 +124,9 @@ TEST_F(SimpleListTest, Hdf5) {
 
         H5::H5File handle(opath, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("atomic_vector");
-        attach_attribute(ghandle, "version", "1.0");
-        attach_attribute(ghandle, "type", "integer");
-        spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        hdf5_utils::attach_attribute(ghandle, "type", "integer");
+        hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
 
         auto objpath = dir2;
         objpath.append("OBJECT");
@@ -159,5 +157,6 @@ TEST_F(SimpleListTest, Hdf5) {
         int val = 0;
         xhandle.write(&val, H5::PredType::NATIVE_INT);
     }
-    takane::simple_list::validate(testdir());
+    takane::validate(testdir());
+    EXPECT_EQ(takane::height(testdir()), 1);
 }

@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <numeric>
+
 #include "H5Cpp.h"
 #include "utils.h"
 
@@ -86,51 +88,51 @@ inline void mock(const H5::Group& handle, hsize_t num_rows, bool has_row_names, 
 
         std::string colname = std::to_string(c);
         if (curcol.type == data_frame::ColumnType::INTEGER) {
-            auto dhandle = Hdf5Utils::spawn_data(ghandle, colname, num_rows, H5::PredType::NATIVE_INT32);
+            auto dhandle = hdf5_utils::spawn_data(ghandle, colname, num_rows, H5::PredType::NATIVE_INT32);
             std::vector<int> dump(num_rows);
             std::iota(dump.begin(), dump.end(), 0);
             dhandle.write(dump.data(), H5::PredType::NATIVE_INT);
-            Hdf5Utils::attach_attribute(dhandle, "type", "integer");
+            hdf5_utils::attach_attribute(dhandle, "type", "integer");
 
         } else if (curcol.type == data_frame::ColumnType::NUMBER) {
             std::vector<double> dump(num_rows);
             std::iota(dump.begin(), dump.end(), 0.5);
-            auto dhandle = Hdf5Utils::spawn_data(ghandle, colname, num_rows, H5::PredType::NATIVE_DOUBLE);
+            auto dhandle = hdf5_utils::spawn_data(ghandle, colname, num_rows, H5::PredType::NATIVE_DOUBLE);
             dhandle.write(dump.data(), H5::PredType::NATIVE_DOUBLE);
-            Hdf5Utils::attach_attribute(dhandle, "type", "number");
+            hdf5_utils::attach_attribute(dhandle, "type", "number");
 
         } else if (curcol.type == data_frame::ColumnType::BOOLEAN) {
             std::vector<int> dump(num_rows);
             for (hsize_t i = 0; i < num_rows; ++i) {
                 dump[i] = i % 2;
             }
-            auto dhandle = Hdf5Utils::spawn_data(ghandle, colname, num_rows, H5::PredType::NATIVE_INT8);
+            auto dhandle = hdf5_utils::spawn_data(ghandle, colname, num_rows, H5::PredType::NATIVE_INT8);
             dhandle.write(dump.data(), H5::PredType::NATIVE_INT);
-            Hdf5Utils::attach_attribute(dhandle, "type", "boolean");
+            hdf5_utils::attach_attribute(dhandle, "type", "boolean");
 
         } else if (curcol.type == data_frame::ColumnType::STRING) {
             std::vector<std::string> raw_dump(num_rows);
             for (hsize_t i = 0; i < num_rows; ++i) {
                 raw_dump[i] = std::to_string(i);
             }
-            auto dhandle = Hdf5Utils::spawn_string_data(ghandle, colname, H5T_VARIABLE, raw_dump);
-            Hdf5Utils::attach_attribute(dhandle, "type", "string");
+            auto dhandle = hdf5_utils::spawn_string_data(ghandle, colname, H5T_VARIABLE, raw_dump);
+            hdf5_utils::attach_attribute(dhandle, "type", "string");
 
         } else if (curcol.type == data_frame::ColumnType::FACTOR) {
             auto dhandle = ghandle.createGroup(colname);
-            Hdf5Utils::attach_attribute(dhandle, "type", "factor");
+            hdf5_utils::attach_attribute(dhandle, "type", "factor");
             if (curcol.factor_ordered) {
-                Hdf5Utils::attach_attribute(dhandle, "ordered", 1);
+                hdf5_utils::attach_attribute(dhandle, "ordered", 1);
             }
 
             hsize_t nchoices = curcol.factor_levels.size();
-            Hdf5Utils::spawn_string_data(dhandle, "levels", H5T_VARIABLE, curcol.factor_levels);
+            hdf5_utils::spawn_string_data(dhandle, "levels", H5T_VARIABLE, curcol.factor_levels);
 
             std::vector<int> codes(num_rows);
             for (hsize_t i = 0; i < num_rows; ++i) {
                 codes[i] = i % nchoices;
             }
-            auto chandle = Hdf5Utils::spawn_data(dhandle, "codes", num_rows, H5::PredType::NATIVE_INT16);
+            auto chandle = hdf5_utils::spawn_data(dhandle, "codes", num_rows, H5::PredType::NATIVE_INT16);
             chandle.write(codes.data(), H5::PredType::NATIVE_INT);
         }
     }

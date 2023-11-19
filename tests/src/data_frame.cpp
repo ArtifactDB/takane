@@ -2,9 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "data_frame.h"
-#include "takane/data_frame.hpp"
-#include "takane/validate.hpp"
-#include "takane/HEIGHT.hpp"
+#include "takane/takane.hpp"
 
 #include <numeric>
 #include <string>
@@ -21,11 +19,7 @@ struct Hdf5DataFrameTest : public ::testing::Test {
     std::string name;
 
     H5::H5File initialize() {
-        if (std::filesystem::exists(dir)) {
-            std::filesystem::remove_all(dir);
-        }
-        std::filesystem::create_directory(dir);
-
+        initialize_directory(dir, "data_frame");
         auto path = dir / "basic_columns.h5";
         return H5::H5File(std::string(path), H5F_ACC_TRUNC);
     }
@@ -39,7 +33,7 @@ struct Hdf5DataFrameTest : public ::testing::Test {
     void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::data_frame::validate(dir, std::forward<Args_>(args)...);
+                takane::validate(dir, std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -57,7 +51,8 @@ TEST_F(Hdf5DataFrameTest, Rownames) {
         auto ghandle = handle.createGroup(name);
         data_frame::mock(ghandle, 29, true, columns);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 29);
 
     {
         auto handle = reopen();
@@ -98,7 +93,8 @@ TEST_F(Hdf5DataFrameTest, Colnames) {
         auto ghandle = handle.createGroup(name);
         mock(ghandle, 29, false, columns);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 29);
     
     {
         auto handle = reopen();
@@ -188,7 +184,7 @@ TEST_F(Hdf5DataFrameTest, Data) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.createGroup("data");
         auto fhandle = dhandle.createGroup("0");
-        Hdf5Utils::attach_attribute(fhandle, "type", "something");
+        hdf5_utils::attach_attribute(fhandle, "type", "something");
     }
     expect_error("expected HDF5 groups");
 
@@ -197,7 +193,7 @@ TEST_F(Hdf5DataFrameTest, Data) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        Hdf5Utils::spawn_data(dhandle, "0", 2, H5::PredType::NATIVE_INT32);
+        hdf5_utils::spawn_data(dhandle, "0", 2, H5::PredType::NATIVE_INT32);
     }
     expect_error("length equal to the number of rows");
 
@@ -237,7 +233,7 @@ TEST_F(Hdf5DataFrameTest, Other) {
             mock(ghandle, 51, false, subcolumns);
         }
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         std::filesystem::create_directory(dir / "other_columns");
@@ -261,15 +257,15 @@ TEST_F(Hdf5DataFrameTest, Integer) {
         auto ghandle = handle.createGroup(name);
         data_frame::mock(ghandle, 33, false, columns);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 33, H5::PredType::NATIVE_INT64);
-        Hdf5Utils::attach_attribute(xhandle, "type", "integer");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 33, H5::PredType::NATIVE_INT64);
+        hdf5_utils::attach_attribute(xhandle, "type", "integer");
     }
     expect_error("32-bit signed integer");
 
@@ -279,11 +275,11 @@ TEST_F(Hdf5DataFrameTest, Integer) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 33, H5::PredType::NATIVE_INT16);
-        Hdf5Utils::attach_attribute(xhandle, "type", "integer");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 33, H5::PredType::NATIVE_INT16);
+        hdf5_utils::attach_attribute(xhandle, "type", "integer");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT16, H5S_SCALAR);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
@@ -306,15 +302,15 @@ TEST_F(Hdf5DataFrameTest, Boolean) {
         auto ghandle = handle.createGroup(name);
         data_frame::mock(ghandle, 55, false, columns);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 55, H5::PredType::NATIVE_INT64);
-        Hdf5Utils::attach_attribute(xhandle, "type", "boolean");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 55, H5::PredType::NATIVE_INT64);
+        hdf5_utils::attach_attribute(xhandle, "type", "boolean");
     }
     expect_error("32-bit signed integer");
 
@@ -324,11 +320,11 @@ TEST_F(Hdf5DataFrameTest, Boolean) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 55, H5::PredType::NATIVE_INT8);
-        Hdf5Utils::attach_attribute(xhandle, "type", "boolean");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 55, H5::PredType::NATIVE_INT8);
+        hdf5_utils::attach_attribute(xhandle, "type", "boolean");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
@@ -351,15 +347,15 @@ TEST_F(Hdf5DataFrameTest, Number) {
         auto ghandle = handle.createGroup(name);
         data_frame::mock(ghandle, 99, false, columns);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 99, H5::PredType::NATIVE_INT64);
-        Hdf5Utils::attach_attribute(xhandle, "type", "number");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 99, H5::PredType::NATIVE_INT64);
+        hdf5_utils::attach_attribute(xhandle, "type", "number");
     }
     expect_error("64-bit float");
 
@@ -369,11 +365,11 @@ TEST_F(Hdf5DataFrameTest, Number) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 99, H5::PredType::NATIVE_DOUBLE);
-        Hdf5Utils::attach_attribute(xhandle, "type", "number");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 99, H5::PredType::NATIVE_DOUBLE);
+        hdf5_utils::attach_attribute(xhandle, "type", "number");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
@@ -396,15 +392,15 @@ TEST_F(Hdf5DataFrameTest, String) {
         auto ghandle = handle.createGroup(name);
         mock(ghandle, 72, false, columns);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 72, H5::PredType::NATIVE_INT);
-        Hdf5Utils::attach_attribute(xhandle, "type", "string");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 72, H5::PredType::NATIVE_INT);
+        hdf5_utils::attach_attribute(xhandle, "type", "string");
     }
     expect_error("string dataset");
 
@@ -413,9 +409,9 @@ TEST_F(Hdf5DataFrameTest, String) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 72, H5::StrType(0, 5));
-        Hdf5Utils::attach_attribute(xhandle, "type", "string");
-        Hdf5Utils::attach_attribute(xhandle, "format", "whee");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 72, H5::StrType(0, 5));
+        hdf5_utils::attach_attribute(xhandle, "type", "string");
+        hdf5_utils::attach_attribute(xhandle, "format", "whee");
     }
     expect_error("unsupported format 'whee'");
 
@@ -425,9 +421,9 @@ TEST_F(Hdf5DataFrameTest, String) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.removeAttr("format");
-        Hdf5Utils::attach_attribute(xhandle, "format", "none");
+        hdf5_utils::attach_attribute(xhandle, "format", "none");
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     // Checking the missing value placeholder.
     {
@@ -439,7 +435,7 @@ TEST_F(Hdf5DataFrameTest, String) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string("asdasd"));
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
@@ -463,7 +459,7 @@ TEST_F(Hdf5DataFrameTest, StringFormat) {
         mock(ghandle, 72, false, columns);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        Hdf5Utils::attach_attribute(xhandle, "format", "date-time");
+        hdf5_utils::attach_attribute(xhandle, "format", "date-time");
     }
     expect_error("date/time-formatted string");
 
@@ -473,11 +469,11 @@ TEST_F(Hdf5DataFrameTest, StringFormat) {
         auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = Hdf5Utils::spawn_data(dhandle, "0", 72, H5::StrType(0, 5));
-        Hdf5Utils::attach_attribute(xhandle, "type", "string");
-        Hdf5Utils::attach_attribute(xhandle, "missing-value-placeholder", "");
+        auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 72, H5::StrType(0, 5));
+        hdf5_utils::attach_attribute(xhandle, "type", "string");
+        hdf5_utils::attach_attribute(xhandle, "missing-value-placeholder", "");
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 }
 
 TEST_F(Hdf5DataFrameTest, Factor) {
@@ -491,7 +487,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         auto ghandle = handle.createGroup(name);
         mock(ghandle, 99, false, columns);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 
     {
         auto handle = reopen();
@@ -499,7 +495,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.unlink("codes");
-        Hdf5Utils::spawn_data(fhandle, "codes", 80, H5::PredType::NATIVE_INT8);
+        hdf5_utils::spawn_data(fhandle, "codes", 80, H5::PredType::NATIVE_INT8);
     }
     expect_error("length equal to the number of rows");
 
@@ -511,7 +507,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         fhandle.unlink("codes");
 
         std::vector<int> replacement(99, columns[0].factor_levels.size());
-        auto xhandle = Hdf5Utils::spawn_data(fhandle, "codes", replacement.size(), H5::PredType::NATIVE_INT16);
+        auto xhandle = hdf5_utils::spawn_data(fhandle, "codes", replacement.size(), H5::PredType::NATIVE_INT16);
         xhandle.write(replacement.data(), H5::PredType::NATIVE_INT);
     }
     expect_error("less than the number of levels");
@@ -527,9 +523,9 @@ TEST_F(Hdf5DataFrameTest, Factor) {
 
         std::vector<std::string> levels(columns[0].factor_levels.begin(), columns[0].factor_levels.end());
         levels.push_back(levels[0]);
-        Hdf5Utils::spawn_string_data(fhandle, "levels", H5T_VARIABLE, levels);
+        hdf5_utils::spawn_string_data(fhandle, "levels", H5T_VARIABLE, levels);
     }
-    expect_error("duplicate factor level");
+    expect_error("duplicated factor level");
 
     {
         auto handle = initialize();
@@ -541,12 +537,11 @@ TEST_F(Hdf5DataFrameTest, Factor) {
     expect_error("32-bit signed integer");
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 99, false, columns);
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
         auto fhandle = ghandle.openGroup("data/0");
         fhandle.removeAttr("ordered");
         fhandle.createAttribute("ordered", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
-    takane::data_frame::validate(dir);
+    takane::validate(dir);
 }

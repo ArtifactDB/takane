@@ -1,34 +1,27 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/string_factor.hpp"
-#include "takane/validate.hpp"
+#include "takane/takane.hpp"
 #include "utils.h"
 
 #include <string>
 #include <filesystem>
 #include <fstream>
 
-struct StringFactorTest : public::testing::Test, public Hdf5Utils {
+struct StringFactorTest : public::testing::Test {
     static std::filesystem::path testdir() {
         return "TEST_string_factor";
     }
 
     static H5::H5File initialize() {
-        auto dir = testdir();
-        if (std::filesystem::exists(dir)) {
-            std::filesystem::remove_all(dir);
-        }
-        std::filesystem::create_directory(dir);
-
-        auto path = dir;
+        auto path = testdir();
+        initialize_directory(path, "string_factor");
         path.append("contents.h5");
-        return H5::H5File(std::string(path), H5F_ACC_TRUNC);
+        return H5::H5File(path, H5F_ACC_TRUNC);
     }
 
     static H5::H5File reopen() {
-        auto path = testdir();
-        path.append("contents.h5");
+        auto path = testdir() / "contents.h5";
         return H5::H5File(path, H5F_ACC_RDWR);
     }
 
@@ -36,7 +29,7 @@ struct StringFactorTest : public::testing::Test, public Hdf5Utils {
     static void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::string_factor::validate(testdir(), std::forward<Args_>(args)...);
+                takane::validate(testdir(), std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -61,7 +54,7 @@ TEST_F(StringFactorTest, Basic) {
         auto handle = reopen();
         handle.unlink("string_factor");
         auto ghandle = handle.createGroup("string_factor");
-        attach_attribute(ghandle, "version", "2.0");
+        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
     }
     expect_error("unsupported version string");
 
@@ -69,14 +62,14 @@ TEST_F(StringFactorTest, Basic) {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
         ghandle.removeAttr("version");
-        attach_attribute(ghandle, "version", "1.0");
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
     }
     expect_error("'levels'");
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
-        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C", "D", "E" });
+        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C", "D", "E" });
     }
     expect_error("'codes'");
 
@@ -84,21 +77,22 @@ TEST_F(StringFactorTest, Basic) {
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
-        spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_INT32);
+        hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_INT32);
     }
-    takane::string_factor::validate(testdir());
+    takane::validate(testdir());
+    EXPECT_EQ(takane::height(testdir()), 100);
 }
 
 TEST_F(StringFactorTest, CodeChecks) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup("string_factor");
-        attach_attribute(ghandle, "version", "1.0");
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
         std::vector<int> codes { 0, -1, 2, 1, 3, -1, 2 };
-        auto dhandle = spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
+        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
     }
     expect_error("non-negative");
 
@@ -116,23 +110,23 @@ TEST_F(StringFactorTest, CodeChecks) {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
         ghandle.unlink("levels");
-        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C", "D" });
+        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C", "D" });
     }
-    takane::string_factor::validate(testdir());
+    takane::validate(testdir());
 }
 
 TEST_F(StringFactorTest, OrderedChecks) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup("string_factor");
-        attach_attribute(ghandle, "version", "1.0");
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
         std::vector<int> codes { 0, 2, 1, 1, 2 };
-        auto dhandle = spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
+        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
 
-        attach_attribute(ghandle, "ordered", "TRUE");
+        hdf5_utils::attach_attribute(ghandle, "ordered", "TRUE");
     }
     expect_error("32-bit signed integer");
 
@@ -144,7 +138,7 @@ TEST_F(StringFactorTest, OrderedChecks) {
         int val = 1;
         ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
-    takane::string_factor::validate(testdir());
+    takane::validate(testdir());
 }
 
 TEST_F(StringFactorTest, NameChecks) {
@@ -152,13 +146,13 @@ TEST_F(StringFactorTest, NameChecks) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup("string_factor");
-        attach_attribute(ghandle, "version", "1.0");
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
-        auto dhandle = spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
+        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
 
-        spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
+        hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
     }
     expect_error("string datatype");
 
@@ -166,7 +160,7 @@ TEST_F(StringFactorTest, NameChecks) {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
         ghandle.unlink("names");
-        spawn_data(ghandle, "names", 50, H5::StrType(0, 10));
+        hdf5_utils::spawn_data(ghandle, "names", 50, H5::StrType(0, 10));
     }
     expect_error("same length");
 
@@ -174,26 +168,7 @@ TEST_F(StringFactorTest, NameChecks) {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
         ghandle.unlink("names");
-        spawn_data(ghandle, "names", codes.size(), H5::StrType(0, 10));
-    }
-    takane::string_factor::validate(testdir());
-}
-
-TEST_F(StringFactorTest, Dispatch) {
-    std::vector<int> codes { 0, 1, 2, 1, 0, 1, 2 };
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup("string_factor");
-        attach_attribute(ghandle, "version", "1.0");
-
-        auto dhandle = spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
-
-        auto objpath = testdir();
-        objpath.append("OBJECT");
-        std::ofstream output(objpath);
-        output << "string_factor";
+        hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::StrType(0, 10));
     }
     takane::validate(testdir());
 }
