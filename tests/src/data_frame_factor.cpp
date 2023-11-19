@@ -59,11 +59,12 @@ TEST_F(DataFrameFactorTest, Basic) {
         auto ghandle = handle.openGroup("data_frame_factor");
         ghandle.removeAttr("version");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        initialize_directory(ldir, "data_frame");
+        initialize_directory(ldir, "foobar");
     }
     expect_error("'levels'");
 
     {
+        initialize_directory(ldir, "data_frame");
         data_frame::mock(ldir, 5, false, {});
     }
     expect_error("'codes'");
