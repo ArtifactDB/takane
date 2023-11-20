@@ -76,7 +76,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">takane::sequence_information Namespace Reference</div></div>
 </div><!--header-->
@@ -85,25 +84,16 @@ $(function() {
 <p>Definitions for sequence information objects.  
 <a href="namespacetakane_1_1sequence__information.html#details">More...</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html" title="Parameters for validating the sequence information file.">Parameters</a> for validating the sequence information file.  <a href="structtakane_1_1sequence__information_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a5710b494a633aabb8e67a6eaa085b6b3"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:a5710b494a633aabb8e67a6eaa085b6b3"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1sequence__information.html#a5710b494a633aabb8e67a6eaa085b6b3">validate</a> (Reader &amp;reader, const <a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">Parameters</a> &amp;params, <a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *creator=NULL)</td></tr>
-<tr class="separator:a5710b494a633aabb8e67a6eaa085b6b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9bbe91bafe9c3e10fe042cca2d536690"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1sequence__information.html#a9bbe91bafe9c3e10fe042cca2d536690">validate</a> (const char *path, const <a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">Parameters</a> &amp;params, <a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *creator=NULL)</td></tr>
-<tr class="separator:a9bbe91bafe9c3e10fe042cca2d536690"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3af2cd984382046a5c4358e16755376"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1sequence__information.html#ac3af2cd984382046a5c4358e16755376">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:ac3af2cd984382046a5c4358e16755376"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for sequence information objects. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a9bbe91bafe9c3e10fe042cca2d536690" name="a9bbe91bafe9c3e10fe042cca2d536690"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9bbe91bafe9c3e10fe042cca2d536690">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="ac3af2cd984382046a5c4358e16755376" name="ac3af2cd984382046a5c4358e16755376"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3af2cd984382046a5c4358e16755376">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -112,22 +102,16 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a> takane::sequence_information::validate </td>
+          <td class="memname">void takane::sequence_information::validate </td>
           <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *&#160;</td>
-          <td class="paramname"><em>creator</em> = <code>NULL</code>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -141,68 +125,13 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Overload of <code><a class="el" href="namespacetakane_1_1sequence__information.html#a5710b494a633aabb8e67a6eaa085b6b3">sequence_information::validate()</a></code> that accepts a file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the CSV file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
-    <tr><td class="paramname">creator</td><td>Factory to create objects for holding the contents of each CSV field. Defaults to a pointer to a <code>DummyFieldCreator</code> instance.</td></tr>
+    <tr><td class="paramname">path</td><td>Path to the directory containing the data frame. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Contents of the loaded CSV. </dd></dl>
-
-</div>
-</div>
-<a id="a5710b494a633aabb8e67a6eaa085b6b3" name="a5710b494a633aabb8e67a6eaa085b6b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5710b494a633aabb8e67a6eaa085b6b3">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class Reader &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structtakane_1_1CsvContents.html">CsvContents</a> takane::sequence_information::validate </td>
-          <td>(</td>
-          <td class="paramtype">Reader &amp;&#160;</td>
-          <td class="paramname"><em>reader</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1sequence__information_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtakane_1_1CsvFieldCreator.html">CsvFieldCreator</a> *&#160;</td>
-          <td class="paramname"><em>creator</em> = <code>NULL</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Checks if a CSV data frame is correctly formatted for sequence information. An error is raised if the file does not meet the specifications.</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">Reader</td><td>A <b>byteme</b> reader class.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
-    <tr><td class="paramname">creator</td><td>Factory to create objects for holding the contents of each CSV field. Defaults to a pointer to a <code>DummyFieldCreator</code> instance.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Contents of the loaded CSV. Whether the <code>fields</code> member actually contains the CSV data depends on <code>creator</code>. </dd></dl>
 
 </div>
 </div>

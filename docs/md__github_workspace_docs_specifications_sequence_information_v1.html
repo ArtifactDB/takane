@@ -87,14 +87,13 @@ $(function() {
 <h1>Example usage</h1>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line"><a class="code hl_struct" href="structtakane_1_1sequence__information_1_1Parameters.html">takane::sequence_information::Parameters</a> params;</div>
+<div class="line">takane::sequence_information::Parameters params;</div>
 <div class="line">params.num_ranges = 192;</div>
 <div class="line">params.has_names = <span class="keyword">true</span>;</div>
 <div class="line">params.save_seqnames = <span class="keyword">true</span>;</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">auto</span> output = <a class="code hl_function" href="namespacetakane_1_1sequence__information.html#a5710b494a633aabb8e67a6eaa085b6b3">takane::sequence_information::validate</a>(path, params);</div>
-<div class="ttc" id="anamespacetakane_1_1sequence__information_html_a5710b494a633aabb8e67a6eaa085b6b3"><div class="ttname"><a href="namespacetakane_1_1sequence__information.html#a5710b494a633aabb8e67a6eaa085b6b3">takane::sequence_information::validate</a></div><div class="ttdeci">CsvContents validate(Reader &amp;reader, const Parameters &amp;params, CsvFieldCreator *creator=NULL)</div><div class="ttdef"><b>Definition:</b> sequence_information.hpp:107</div></div>
-<div class="ttc" id="astructtakane_1_1sequence__information_1_1Parameters_html"><div class="ttname"><a href="structtakane_1_1sequence__information_1_1Parameters.html">takane::sequence_information::Parameters</a></div><div class="ttdoc">Parameters for validating the sequence information file.</div><div class="ttdef"><b>Definition:</b> sequence_information.hpp:27</div></div>
+<div class="line"><span class="keyword">auto</span> output = <a class="code hl_function" href="namespacetakane_1_1sequence__information.html#ac3af2cd984382046a5c4358e16755376">takane::sequence_information::validate</a>(path, params);</div>
+<div class="ttc" id="anamespacetakane_1_1sequence__information_html_ac3af2cd984382046a5c4358e16755376"><div class="ttname"><a href="namespacetakane_1_1sequence__information.html#ac3af2cd984382046a5c4358e16755376">takane::sequence_information::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> sequence_information.hpp:31</div></div>
 </div><!-- fragment --><p >The value of <code>output.seqnames</code> can be used to define the set of allowed sequence names in <code>genomic_ranges::validate()</code>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->

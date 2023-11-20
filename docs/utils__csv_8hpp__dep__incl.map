@@ -1,7 +1,6 @@
 <map id="takane/utils_csv.hpp" name="takane/utils_csv.hpp">
-<area shape="rect" id="node1" title="Utilities for parsing CSVs." alt="" coords="323,5,464,31"/>
+<area shape="rect" id="node1" title="Utilities for parsing CSVs." alt="" coords="235,5,376,31"/>
 <area shape="rect" id="node2" href="$compressed__list_8hpp.html" title="Validation for compressed lists." alt="" coords="5,79,189,104"/>
 <area shape="rect" id="node3" href="$csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="214,79,397,104"/>
 <area shape="rect" id="node4" href="$factor_8hpp.html" title="Validation for factors." alt="" coords="421,79,544,104"/>
-<area shape="rect" id="node5" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="568,79,784,104"/>
 </map>
