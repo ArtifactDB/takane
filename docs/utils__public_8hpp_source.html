@@ -99,23 +99,28 @@ $(function() {
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        <span class="keywordtype">size_t</span> available = reader.available();</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        output.insert(output.end(), buffer, buffer + available);</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    }</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordflow">return</span> output;</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>}</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="structtakane_1_1Options.html">   39</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structtakane_1_1Options.html">Options</a> {</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">   43</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">parallel_reads</a> = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">   48</a></span>    hsize_t <a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a> = 10000;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="comment">// Removing trailing newline.</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keywordflow">if</span> (output.size() &amp;&amp; output.back() == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        output.pop_back();</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    }</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordflow">return</span> output;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>}</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="structtakane_1_1Options.html">   44</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structtakane_1_1Options.html">Options</a> {</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">   48</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">parallel_reads</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">   53</a></span>    hsize_t <a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a> = 10000;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>};</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>}</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _height.hpp:21</div></div>
 <div class="ttc" id="anamespacetakane_html_aeac4379cea28b6a163f6450a396c6b62"><div class="ttname"><a href="namespacetakane.html#aeac4379cea28b6a163f6450a396c6b62">takane::read_object_type</a></div><div class="ttdeci">std::string read_object_type(const std::filesystem::path &amp;path)</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:24</div></div>
-<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:39</div></div>
-<div class="ttc" id="astructtakane_1_1Options_html_a19ff776508adc6592f8db07a3c75865e"><div class="ttname"><a href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">takane::Options::parallel_reads</a></div><div class="ttdeci">bool parallel_reads</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:43</div></div>
-<div class="ttc" id="astructtakane_1_1Options_html_a3a9ebb8a77372c852d87f5368b6516c3"><div class="ttname"><a href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">takane::Options::hdf5_buffer_size</a></div><div class="ttdeci">hsize_t hdf5_buffer_size</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:48</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:44</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html_a19ff776508adc6592f8db07a3c75865e"><div class="ttname"><a href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">takane::Options::parallel_reads</a></div><div class="ttdeci">bool parallel_reads</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:48</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html_a3a9ebb8a77372c852d87f5368b6516c3"><div class="ttname"><a href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">takane::Options::hdf5_buffer_size</a></div><div class="ttdeci">hsize_t hdf5_buffer_size</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:53</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
