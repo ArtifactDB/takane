@@ -161,12 +161,8 @@ Functions</h2></td></tr>
 Variables</h2></td></tr>
 <tr class="memitem:ab68b0822f2450305203a7887c6802ac8"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; size_t(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ab68b0822f2450305203a7887c6802ac8">height_registry</a> = internal_height::default_registry()</td></tr>
 <tr class="separator:ab68b0822f2450305203a7887c6802ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5cfaf9a502d948cff4afb2fd861d07a8"><td class="memItemLeft" align="right" valign="top">std::function&lt; std::pair&lt; bool, size_t &gt;(const std::filesystem::path &amp;, const std::string &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a5cfaf9a502d948cff4afb2fd861d07a8">height_override</a></td></tr>
-<tr class="separator:a5cfaf9a502d948cff4afb2fd861d07a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac84e2498ceac2a8f8e942f8f433bcc7b"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ac84e2498ceac2a8f8e942f8f433bcc7b">validate_registry</a> = internal_validate::default_registry()</td></tr>
-<tr class="separator:ac84e2498ceac2a8f8e942f8f433bcc7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a160266d624fd397f442603bbc75a04b0"><td class="memItemLeft" align="right" valign="top">std::function&lt; bool(const std::filesystem::path &amp;, const std::string &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a160266d624fd397f442603bbc75a04b0">validate_override</a></td></tr>
-<tr class="separator:a160266d624fd397f442603bbc75a04b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfe1399ce43c36b9f127731f19381595"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#adfe1399ce43c36b9f127731f19381595">validate_registry</a> = internal_validate::default_registry()</td></tr>
+<tr class="separator:adfe1399ce43c36b9f127731f19381595"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p ><b>takane</b> validation functions. </p>
@@ -289,7 +285,8 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Get the height of an object in a subdirectory, based on the supplied object type. This is used to check the shape of objects stored in vertical containers, e.g., columns of a <code>data_frame</code>. For vectors or other 1-dimensional objects, the height is usually just the length; for higher dimensional objects, the height is usually the extent of the first dimension.</p>
+<p >Get the height of an object in a subdirectory, based on the supplied object type. This searches the <code>height_registry</code> to find a height function for the given type.</p>
+<p ><code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code> is used to check the shape of objects stored in vertical containers, e.g., columns of a <code>data_frame</code>. For vectors or other 1-dimensional objects, the height is usually just the length of the object (for some object-specific definition of "length"). For higher-dimensional objects, the height is usually the extent of the first dimension.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
@@ -452,7 +449,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Validate an object in a subdirectory, based on the supplied object type.</p>
+<p >Validate an object in a subdirectory, based on the supplied object type. This searches the <code>validate_registry</code> to find a validation function for the given type.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
@@ -465,31 +462,6 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="a5cfaf9a502d948cff4afb2fd861d07a8" name="a5cfaf9a502d948cff4afb2fd861d07a8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5cfaf9a502d948cff4afb2fd861d07a8">&#9670;&#160;</a></span>height_override</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::function&lt;std::pair&lt;bool, size_t&gt;(const std::filesystem::path&amp;, const std::string&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::height_override</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Override for application-defined height functions, to be used by <code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code>.</p>
-<p >Any supplied function should accept the directory path, a string containing the object type, and additional <code><a class="el" href="structtakane_1_1Options.html" title="Validation options, mostly related to input performance.">Options</a></code>. It should then return a pair indicating whether a height function for this object type was identified, and if so, the height itself.</p>
-<p >If no overriding function is found for the object type (or if <code>height_override</code> was not set at all), <code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code> will instead search <code>height_registry</code> for an appropriate function. </p>
-
-</div>
-</div>
 <a id="ab68b0822f2450305203a7887c6802ac8" name="ab68b0822f2450305203a7887c6802ac8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab68b0822f2450305203a7887c6802ac8">&#9670;&#160;</a></span>height_registry</h2>
 
@@ -509,37 +481,12 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code>. </p>
+<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code>. Applications can extend <b>takane</b> by adding new height functions for custom object types. </p>
 
 </div>
 </div>
-<a id="a160266d624fd397f442603bbc75a04b0" name="a160266d624fd397f442603bbc75a04b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a160266d624fd397f442603bbc75a04b0">&#9670;&#160;</a></span>validate_override</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::function&lt;bool(const std::filesystem::path&amp;, const std::string&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::validate_override</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Override for application-defined validation functions, to be used by <code><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate()</a></code>.</p>
-<p >Any supplied function should accept the directory path, a string containing the object type, and additional <code><a class="el" href="structtakane_1_1Options.html" title="Validation options, mostly related to input performance.">Options</a></code>. It should then return a boolean indicating whether a validation function for this object type was identified.</p>
-<p >If no overriding validator is found for the object type (or if <code>validate_override</code> was not set at all), <code><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate()</a></code> will instead search <code>validate_registry</code> for an appropriate function. </p>
-
-</div>
-</div>
-<a id="ac84e2498ceac2a8f8e942f8f433bcc7b" name="ac84e2498ceac2a8f8e942f8f433bcc7b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac84e2498ceac2a8f8e942f8f433bcc7b">&#9670;&#160;</a></span>validate_registry</h2>
+<a id="adfe1399ce43c36b9f127731f19381595" name="adfe1399ce43c36b9f127731f19381595"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adfe1399ce43c36b9f127731f19381595">&#9670;&#160;</a></span>validate_registry</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -548,7 +495,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp; )&gt; &gt; takane::validate_registry = internal_validate::default_registry()</td>
+          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; takane::validate_registry = internal_validate::default_registry()</td>
         </tr>
       </table>
   </td>
@@ -557,7 +504,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate()</a></code>. </p>
+<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate()</a></code>. Applications can extend <b>takane</b> by adding new validation functions for custom object types. </p>
 
 </div>
 </div>
