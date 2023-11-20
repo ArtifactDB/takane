@@ -9,14 +9,7 @@
 TEST(GenericDispatch, Validate) {
     std::filesystem::path dir = "TEST_dispatcher";
     initialize_directory(dir, "foobar");
-    expect_validation_error(dir, "no registered validation function");
-
-    takane::validate_override = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> bool { return true; };
-    takane::validate(dir);
-
-    takane::validate_override = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> bool { return false; };
-    expect_validation_error(dir, "no registered validation function");
-    takane::validate_override = nullptr;
+    expect_validation_error(dir, "no registered 'validate' function");
 
     takane::validate_registry["foobar"] = [](const std::filesystem::path&, const takane::Options&) -> void {};
     takane::validate(dir);
@@ -38,14 +31,7 @@ void expect_height_error(const std::filesystem::path& dir, const std::string& ms
 TEST(GenericDispatch, Height) {
     std::filesystem::path dir = "TEST_dispatcher";
     initialize_directory(dir, "foobar");
-    expect_height_error(dir, "no registered height function");
-
-    takane::height_override = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> std::pair<bool, size_t> { return std::make_pair(true, 99); };
-    EXPECT_EQ(takane::height(dir), 99);
-
-    takane::height_override = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> std::pair<bool, size_t> { return std::make_pair(false, 0); };
-    expect_height_error(dir, "no registered height function");
-    takane::height_override = nullptr;
+    expect_height_error(dir, "no registered 'height' function");
 
     takane::height_registry["foobar"] = [](const std::filesystem::path&, const takane::Options&) -> size_t { return 11; };
     EXPECT_EQ(takane::height(dir), 11);

@@ -42,22 +42,13 @@ inline auto default_registry() {
 
 /**
  * Registry of functions to be used by `validate()`.
+ * Applications can extend **takane** by adding new validation functions for custom object types.
  */
-inline std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const Options& )> > validate_registry = internal_validate::default_registry();
-
-/**
- * Override for application-defined validation functions, to be used by `validate()`.
- *
- * Any supplied function should accept the directory path, a string containing the object type, and additional `Options`.
- * It should then return a boolean indicating whether a validation function for this object type was identified.
- *
- * If no overriding validator is found for the object type (or if `validate_override` was not set at all), 
- * `validate()` will instead search `validate_registry` for an appropriate function.
- */
-inline std::function<bool(const std::filesystem::path&, const std::string&, const Options&)> validate_override;
+inline std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const Options&)> > validate_registry = internal_validate::default_registry();
 
 /**
  * Validate an object in a subdirectory, based on the supplied object type.
+ * This searches the `validate_registry` to find a validation function for the given type.
  *
  * @param path Path to a directory representing an object.
  * @param type Type of the object, typically determined from its `OBJECT` file.
@@ -68,15 +59,9 @@ inline void validate(const std::filesystem::path& path, const std::string& type,
         throw std::runtime_error("expected '" + path.string() + "' to be a directory");
     }
 
-    if (validate_override) {
-        if (validate_override(path, type, options)) {
-            return;
-        }
-    }
-
     auto vrIt = validate_registry.find(type);
     if (vrIt == validate_registry.end()) {
-        throw std::runtime_error("no registered validation function for object type '" + type + "' at '" + path.string() + "'");
+        throw std::runtime_error("no registered 'validate' function for object type '" + type + "' at '" + path.string() + "'");
     }
 
     (vrIt->second)(path, options);
