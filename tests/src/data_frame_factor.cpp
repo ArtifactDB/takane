@@ -90,7 +90,7 @@ TEST_F(DataFrameFactorTest, Levels) {
     {
         initialize_directory(ldir, "simple_list");
     }
-    expect_error("'data_frame' or one of its derivatives");
+    expect_error("'DATA_FRAME'");
 
     takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> bool { return true; };
     {

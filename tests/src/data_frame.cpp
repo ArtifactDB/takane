@@ -562,12 +562,12 @@ TEST_F(Hdf5DataFrameTest, Metadata) {
         data_frame::mock(ghandle, 99, false, columns);
         initialize_directory(cdir, "simple_list");
     }
-    expect_error("'data_frame' or one of its derivatives");
+    expect_error("'DATA_FRAME'"); 
 
     initialize_directory(cdir, "data_frame");
     data_frame::mock(cdir, columns.size(), false, {});
     initialize_directory(odir, "data_frame");
-    expect_error("'simple_list' or one of its derivatives");
+    expect_error("'SIMPLE_LIST'");
 
     initialize_directory(odir, "simple_list");
     simple_list::mock(odir);

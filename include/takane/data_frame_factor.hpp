@@ -22,6 +22,7 @@ namespace takane {
  */
 void validate(const std::filesystem::path&, const std::string&, const Options&);
 size_t height(const std::filesystem::path&, const std::string&, const Options&);
+bool satisfies_interface(const std::string&, const std::string&);
 /**
  * @endcond
  */
@@ -65,8 +66,8 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     // Validating the levels.
     auto lpath = path / "levels";
     auto xtype = read_object_type(lpath);
-    if (!internal_other::ends_with(xtype, "data_frame")) {
-        throw std::runtime_error("expected 'levels' to be a 'data_frame' or one of its derivatives");
+    if (!satisfies_interface(xtype, "DATA_FRAME")) {
+        throw std::runtime_error("expected 'levels' to be an object that satifies the 'DATA_FRAME' interface");
     }
 
     try {
