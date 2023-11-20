@@ -6,6 +6,28 @@
 
 #include <filesystem>
 
+TEST(ReadObjectTest, Basic) {
+    std::filesystem::path dir = "TEST_readObj";
+    if (std::filesystem::exists(dir)) {
+        std::filesystem::remove_all(dir);
+    }
+    std::filesystem::create_directory(dir);
+
+    // Works with a trailing newline.
+    auto objpath = dir / "OBJECT";
+    {
+        std::ofstream output(objpath);
+        output << "foo_bar 2\n";
+    }
+    EXPECT_EQ(takane::read_object_type(dir), "foo_bar 2");
+
+    {
+        std::ofstream output(objpath);
+        output << "baz-stuff";
+    }
+    EXPECT_EQ(takane::read_object_type(dir), "baz-stuff");
+}
+
 TEST(GenericDispatch, Validate) {
     std::filesystem::path dir = "TEST_dispatcher";
     initialize_directory(dir, "foobar");
