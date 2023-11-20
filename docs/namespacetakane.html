@@ -148,6 +148,8 @@ Functions</h2></td></tr>
 <tr class="separator:a2e229ff0859857d245317f95bf53895f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86a148d13def52648b5f7733ede8dc6e"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a86a148d13def52648b5f7733ede8dc6e">height</a> (const std::filesystem::path &amp;path)</td></tr>
 <tr class="separator:a86a148d13def52648b5f7733ede8dc6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae45905f4234f2875eb1ad9993829e09a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a> (const std::string &amp;type, const std::string &amp;interface)</td></tr>
+<tr class="separator:ae45905f4234f2875eb1ad9993829e09a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a262fb03bd251b0b4a696f0d2d0b6dac2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate</a> (const std::filesystem::path &amp;path, const std::string &amp;type, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="separator:a262fb03bd251b0b4a696f0d2d0b6dac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38ab20fca5772904875fcd8951f49979"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a38ab20fca5772904875fcd8951f49979">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
@@ -161,6 +163,8 @@ Functions</h2></td></tr>
 Variables</h2></td></tr>
 <tr class="memitem:ab68b0822f2450305203a7887c6802ac8"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; size_t(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ab68b0822f2450305203a7887c6802ac8">height_registry</a> = internal_height::default_registry()</td></tr>
 <tr class="separator:ab68b0822f2450305203a7887c6802ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91b48ec2eb7d6f86852b954e4351d889"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::unordered_set&lt; std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a> = internal_satisfies_interface::default_registry()</td></tr>
+<tr class="separator:a91b48ec2eb7d6f86852b954e4351d889"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adfe1399ce43c36b9f127731f19381595"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#adfe1399ce43c36b9f127731f19381595">validate_registry</a> = internal_validate::default_registry()</td></tr>
 <tr class="separator:adfe1399ce43c36b9f127731f19381595"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -333,6 +337,51 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ae45905f4234f2875eb1ad9993829e09a" name="ae45905f4234f2875eb1ad9993829e09a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae45905f4234f2875eb1ad9993829e09a">&#9670;&#160;</a></span>satisfies_interface()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool takane::satisfies_interface </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>interface</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Check whether a particular object type satisfies a particular object interface. This can be used by specifications to check that child components satisfy certain expectations.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Object type. </td></tr>
+    <tr><td class="paramname">interface</td><td>Interface type. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether <code>type</code> satisfies <code>interface</code>. </dd></dl>
+
+</div>
+</div>
 <a id="a1c4dfc3dc5ee51fa250ff1a3fe5169b4" name="a1c4dfc3dc5ee51fa250ff1a3fe5169b4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1c4dfc3dc5ee51fa250ff1a3fe5169b4">&#9670;&#160;</a></span>validate() <span class="overload">[1/3]</span></h2>
 
@@ -482,6 +531,29 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code>. Applications can extend <b>takane</b> by adding new height functions for custom object types. </p>
+
+</div>
+</div>
+<a id="a91b48ec2eb7d6f86852b954e4351d889" name="a91b48ec2eb7d6f86852b954e4351d889"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91b48ec2eb7d6f86852b954e4351d889">&#9670;&#160;</a></span>satisfies_interface_registry</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt;std::string, std::unordered_set&lt;std::string&gt; &gt; takane::satisfies_interface_registry = internal_satisfies_interface::default_registry()</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Registry of object types that satisfy a particular object interface. Each key is the interface and each value is the set of all types that satisfy it. Applications can extend the <b>takane</b> framework by adding custom types to each set. </p>
 
 </div>
 </div>
