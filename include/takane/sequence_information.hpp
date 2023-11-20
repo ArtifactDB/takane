@@ -1,12 +1,15 @@
 #ifndef TAKANE_SEQUENCE_INFORMATION_HPP
 #define TAKANE_SEQUENCE_INFORMATION_HPP
 
-#include "comservatory/comservatory.hpp"
+#include "ritsuko/hdf5/hdf5.hpp"
 
-#include "data_frame.hpp"
-#include "utils_csv.hpp"
-
+#include <filesystem>
 #include <stdexcept>
+#include <unordered_set>
+#include <string>
+
+#include "utils_public.hpp"
+#include "utils_hdf5.hpp"
 
 /**
  * @file sequence_information.hpp
@@ -22,112 +25,83 @@ namespace takane {
 namespace sequence_information {
 
 /**
- * @brief Parameters for validating the sequence information file.
+ * @param path Path to the directory containing the data frame.
+ * @param options Validation options, typically for reading performance.
  */
-struct Parameters {
-    /**
-     * Expected number of sequences.
-     */
-    size_t num_sequences = 0;
+inline void validate(const std::filesystem::path& path, const Options& options) try {
+    auto fpath  = path / "info.h5";
+    H5::H5File handle(fpath, H5F_ACC_RDONLY);
 
-    /**
-     * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
-     */
-    bool parallel = false;
-
-    /**
-     * Version of the `sequence_information` format.
-     */
-    int version = 1;
-};
-
-/**
- * @cond
- */
-template<class ParseCommand>
-CsvContents validate_base(ParseCommand parse, const Parameters& params, CsvFieldCreator* creator) {
-    DummyCsvFieldCreator default_creator;
-    if (creator == NULL) {
-        creator = &default_creator;
+    const char* parent = "sequence_information";
+    if (!handle.exists(parent) || handle.childObjType(parent) != H5O_TYPE_GROUP) {
+        throw std::runtime_error("expected an 'sequence_information' group");
     }
+    auto ghandle = handle.openGroup(parent);
 
-    comservatory::Contents contents;
-    CsvContents output;
-    contents.names.push_back("seqnames");
+    size_t nseq = 0;
     {
-        auto ptr = creator->string();
-        output.fields.emplace_back(ptr);
-        contents.fields.emplace_back(new CsvUniqueStringField(0, ptr));
+        auto nhandle = ritsuko::hdf5::get_dataset(ghandle, "name");
+        if (nhandle.getTypeClass() != H5T_STRING) {
+            throw std::runtime_error("expected a string datatype class for 'name'");
+        }
+
+        nseq = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), false);
+        std::unordered_set<std::string> collected;
+        ritsuko::hdf5::load_1d_string_dataset(
+            nhandle,
+            nseq,
+            options.hdf5_buffer_size,
+            [&](size_t, const char* s, size_t l) {
+                std::string x(s, s + l);
+                if (collected.find(x) != collected.end()) {
+                    throw std::runtime_error("detected duplicated sequence name '" + x + "'");
+                }
+                collected.insert(std::move(x));
+            }
+        );
     }
 
-    contents.names.push_back("seqlengths");
+    const char* missing_attr_name = "missing-value-placeholder";
     {
-        auto ptr = creator->integer();
-        output.fields.emplace_back(ptr);
-        contents.fields.emplace_back(new CsvNonNegativeIntegerField(1, ptr));
+        auto lhandle = ritsuko::hdf5::get_dataset(ghandle, "length");
+        if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
+            throw std::runtime_error("expected a datatype for 'length' that fits in a 64-bit unsigned integer");
+        }
+        if (ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false) != nseq) {
+            throw std::runtime_error("expected lengths of 'length' and 'name' to be equal");
+        }
+        if (lhandle.attrExists(missing_attr_name)) {
+            ritsuko::hdf5::get_missing_placeholder_attribute(lhandle, missing_attr_name);
+        }
     }
 
-    contents.names.push_back("isCircular");
-    output.fields.emplace_back(nullptr);
-    contents.fields.emplace_back(creator->boolean());
-
-    contents.names.push_back("genome");
-    output.fields.emplace_back(nullptr);
-    contents.fields.emplace_back(creator->string());
-
-    comservatory::ReadOptions opt;
-    opt.parallel = params.parallel;
-    parse(contents, opt);
-    if (contents.num_records() != params.num_sequences) {
-        throw std::runtime_error("number of records in the CSV file does not match the expected number of ranges");
+    {
+        auto chandle = ritsuko::hdf5::get_dataset(ghandle, "circular");
+        if (ritsuko::hdf5::exceeds_integer_limit(chandle, 32, true)) {
+            throw std::runtime_error("expected a datatype for 'length' that fits in a 32-bit signed integer");
+        }
+        if (ritsuko::hdf5::get_1d_length(chandle.getSpace(), false) != nseq) {
+            throw std::runtime_error("expected lengths of 'length' and 'circular' to be equal");
+        }
+        if (chandle.attrExists(missing_attr_name)) {
+            ritsuko::hdf5::get_missing_placeholder_attribute(chandle, missing_attr_name);
+        }
     }
 
-    output.reconstitute(contents.fields);
-    return output;
-}
-/**
- * @endcond
- */
-
-/**
- * Checks if a CSV data frame is correctly formatted for sequence information.
- * An error is raised if the file does not meet the specifications.
- *
- * @tparam Reader A **byteme** reader class.
- *
- * @param reader A stream of bytes from the CSV file.
- * @param params Validation parameters.
- * @param creator Factory to create objects for holding the contents of each CSV field.
- * Defaults to a pointer to a `DummyFieldCreator` instance.
- * 
- * @return Contents of the loaded CSV.
- * Whether the `fields` member actually contains the CSV data depends on `creator`.
- */
-template<class Reader>
-CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* creator = NULL) {
-    return validate_base(
-        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        params,
-        creator
-    );
-}
-
-/**
- * Overload of `sequence_information::validate()` that accepts a file path.
- *
- * @param path Path to the CSV file.
- * @param params Validation parameters.
- * @param creator Factory to create objects for holding the contents of each CSV field.
- * Defaults to a pointer to a `DummyFieldCreator` instance.
- * 
- * @return Contents of the loaded CSV.
- */
-inline CsvContents validate(const char* path, const Parameters& params, CsvFieldCreator* creator = NULL) {
-    return validate_base(
-        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        params,
-        creator
-    );
+    {
+        auto gnhandle = ritsuko::hdf5::get_dataset(ghandle, "genome");
+        if (gnhandle.getTypeClass() != H5T_STRING) {
+            throw std::runtime_error("expected a string datatype class for 'genome'");
+        }
+        if (ritsuko::hdf5::get_1d_length(gnhandle.getSpace(), false) != nseq) {
+            throw std::runtime_error("expected lengths of 'length' and 'genome' to be equal");
+        }
+        if (gnhandle.attrExists(missing_attr_name)) {
+            ritsuko::hdf5::get_missing_placeholder_attribute(gnhandle, missing_attr_name, /* type_class_only = */ true);
+        }
+    }
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate 'sequence_information' object at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 }

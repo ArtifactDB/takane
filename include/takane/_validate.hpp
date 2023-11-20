@@ -12,6 +12,7 @@
 #include "simple_list.hpp"
 #include "data_frame.hpp"
 #include "data_frame_factor.hpp"
+#include "sequence_information.hpp"
 
 /**
  * @file _validate.hpp
@@ -32,6 +33,7 @@ inline auto default_registry() {
     registry["simple_list"] = [](const std::filesystem::path& p, const Options& o) { simple_list::validate(p, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) { data_frame::validate(p, o); };
     registry["data_frame_factor"] = [](const std::filesystem::path& p, const Options& o) { data_frame_factor::validate(p, o); };
+    registry["sequence_information"] = [](const std::filesystem::path& p, const Options& o) { sequence_information::validate(p, o); };
     return registry;
 } 
 

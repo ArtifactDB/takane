@@ -20,7 +20,7 @@ add_executable(
     src/data_frame.cpp
     #    src/csv_data_frame.cpp
     #    src/genomic_ranges.cpp
-    #    src/sequence_information.cpp
+    src/sequence_information.cpp
     src/atomic_vector.cpp
     src/string_factor.cpp
     src/simple_list.cpp

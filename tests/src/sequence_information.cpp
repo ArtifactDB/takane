@@ -2,103 +2,212 @@
 #include <gmock/gmock.h>
 
 #include "takane/sequence_information.hpp"
+#include "sequence_information.h"
 #include "utils.h"
 
 #include <fstream>
 #include <string>
 
-static void validate(const std::string& buffer, size_t num_sequences) {
-    std::string path = "TEST-seqinfo.csv";
-    {
-        std::ofstream ohandle(path);
-        ohandle << buffer;
+struct SequenceInformationTest : public ::testing::Test {
+    SequenceInformationTest() {
+        dir = "TEST_seqinfo";
+        name = "sequence_information";
     }
-    takane::sequence_information::Parameters params;
-    params.num_sequences = num_sequences;
-    takane::sequence_information::validate(path.c_str(), params);
-}
 
-template<typename ... Args_>
-static void expect_error(const std::string& msg, const std::string& buffer, Args_&& ... args) {
-    EXPECT_ANY_THROW({
-        try {
-            validate(buffer, std::forward<Args_>(args)...);
-        } catch (std::exception& e) {
-            EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-            throw;
-        }
-    });
-}
+    std::filesystem::path dir;
+    std::string name;
 
-TEST(SequenceInformation, Basic) {
-    std::string buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",4,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",9,FALSE,\"mm10\"\n";
-    buffer += "\"chrC\",19,TRUE,\"hg38\"\n";
-    validate(buffer, 3);
-    expect_error("number of records", buffer, 10);
-
-    buffer = "\"whee\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",4,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",9,FALSE,\"mm10\"\n";
-    buffer += "\"chrC\",19,TRUE,\"hg38\"\n";
-    expect_error("'seqnames'", buffer, 10);
-
-    buffer = "\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "4,TRUE,\"hg19\"\n";
-    buffer += "9,FALSE,\"mm10\"\n";
-    buffer += "19,TRUE,\"hg38\"\n";
-    expect_error("number of header names", buffer, 10);
-}
-
-TEST(SequenceInformation, Seqnames) {
-    std::string buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",4,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",9,FALSE,\"mm10\"\n";
-    buffer += "\"chrA\",19,TRUE,\"hg38\"\n";
-    expect_error("duplicated value", buffer, 3);
-
-    buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "NA,4,TRUE,\"hg19\"\n";
-    expect_error("missing value", buffer, 1);
-
-    buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",4,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",9,FALSE,\"mm10\"\n";
-    buffer += "\"chrX\",99,FALSE,\"mm10\"\n";
-    {
-        takane::sequence_information::Parameters opt;
-        opt.num_sequences = 3;
-        byteme::RawBufferReader input(reinterpret_cast<const unsigned char*>(buffer.c_str()), buffer.size());
-
-        FilledFieldCreator filled; 
-        auto output = takane::sequence_information::validate(input, opt, &filled);
-        std::vector<std::string> expected{ "chrA", "chrB", "chrX" };
-        EXPECT_EQ(static_cast<comservatory::FilledStringField*>(output.fields[0].get())->values, expected);
+    H5::H5File initialize() {
+        initialize_directory(dir, "sequence_information");
+        auto path = dir / "info.h5";
+        return H5::H5File(std::string(path), H5F_ACC_TRUNC);
     }
+
+    H5::H5File reopen() {
+        auto path = dir / "info.h5";
+        return H5::H5File(path, H5F_ACC_RDWR);
+    }
+
+    template<typename ... Args_>
+    void expect_error(const std::string& msg, Args_&& ... args) {
+        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
+    }
+};
+
+TEST_F(SequenceInformationTest, Basic) {
+    {
+        auto handle = initialize();
+    }
+    expect_error("'sequence_information'");
+
+    {
+        auto handle = reopen();
+        handle.createDataSet(name, H5::PredType::NATIVE_INT, H5S_SCALAR);
+    }
+    expect_error("'sequence_information'");
+
+    {
+        auto handle = reopen();
+        handle.unlink(name);
+        handle.createGroup(name);
+    }
+    expect_error("expected a dataset at 'name'");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup("sequence_information");
+        sequence_information::mock(
+            ghandle, 
+            { "chrA", "chrB", "chrC" },
+            { 4, 9, 19 },
+            { 1, 0, 1 },
+            { "mm10", "hg19", "rn10" }
+        );
+    }
+    takane::validate(dir);
 }
 
-TEST(SequenceInformation, Seqlengths) {
-    std::string buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",NA,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",NA,FALSE,\"mm10\"\n";
-    validate(buffer, 2); // missing is allowed.
+TEST_F(SequenceInformationTest, Seqnames) {
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+        hdf5_utils::spawn_data(ghandle, "name", 10, H5::PredType::NATIVE_INT32);
+    }
+    expect_error("string datatype class");
 
-    buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",1.2,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",20.4,FALSE,\"mm10\"\n";
-    buffer += "\"chrC\",22.1,TRUE,\"hg38\"\n";
-    expect_error("integer", buffer, 3);
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+        sequence_information::mock(
+            ghandle, 
+            { "chrA", "chrB", "chrA" },
+            { 4, 9, 19 },
+            { 1, 0, 1 },
+            { "mm10", "hg19", "rn10" }
+        );
+    }
+    expect_error("duplicated sequence name 'chrA'");
+}
 
-    buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",-1,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",24,FALSE,\"mm10\"\n";
-    buffer += "\"chrC\",21,TRUE,\"hg38\"\n";
-    expect_error("negative", buffer, 3);
+TEST_F(SequenceInformationTest, Seqlengths) {
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+        sequence_information::mock(
+            ghandle, 
+            { "chrA", "chrB", "chrC" },
+            { 4, 9 },
+            { 1, 0, 1 },
+            { "mm10", "hg19", "rn10" }
+        );
+    }
+    expect_error("to be equal");
 
-    buffer = "\"seqnames\",\"seqlengths\",\"isCircular\",\"genome\"\n";
-    buffer += "\"chrA\",1,TRUE,\"hg19\"\n";
-    buffer += "\"chrB\",24,FALSE,\"mm10\"\n";
-    buffer += "\"chrC\",3100000000,TRUE,\"hg38\"\n";
-    expect_error("32-bit", buffer, 3);
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("length");
+        hdf5_utils::spawn_data(ghandle, "length", 3, H5::PredType::NATIVE_INT32);
+    }
+    expect_error("64-bit unsigned integer");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("length");
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "length", 3, H5::PredType::NATIVE_UINT8);
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT16, H5S_SCALAR);
+    }
+    expect_error("same type");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openDataSet("length");
+        dhandle.removeAttr("missing-value-placeholder");
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
+    }
+    takane::validate(dir);
+}
+
+TEST_F(SequenceInformationTest, Circular) {
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+        sequence_information::mock(
+            ghandle, 
+            { "chrA", "chrB", "chrC" },
+            { 100, 200, 300 },
+            { 1, 0 },
+            { "mm10", "hg19", "rn10" }
+        );
+    }
+    expect_error("to be equal");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("circular");
+        hdf5_utils::spawn_data(ghandle, "circular", 3, H5::PredType::NATIVE_INT64);
+    }
+    expect_error("32-bit signed integer");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("circular");
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "circular", 3, H5::PredType::NATIVE_UINT8);
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT16, H5S_SCALAR);
+    }
+    expect_error("same type");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openDataSet("circular");
+        dhandle.removeAttr("missing-value-placeholder");
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
+    }
+    takane::validate(dir);
+}
+
+TEST_F(SequenceInformationTest, Genome) {
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+        sequence_information::mock(
+            ghandle, 
+            { "chrA", "chrB", "chrC" },
+            { 100, 200, 300 },
+            { -1, 0, 1 },
+            { "mm10", "hg19" }
+        );
+    }
+    expect_error("to be equal");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("genome");
+        hdf5_utils::spawn_data(ghandle, "genome", 3, H5::PredType::NATIVE_INT64);
+    }
+    expect_error("string datatype class");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("genome");
+        auto dhandle = hdf5_utils::spawn_string_data(ghandle, "genome", 10, { "foo", "bar", "" });
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT16, H5S_SCALAR);
+    }
+    expect_error("same type");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openDataSet("genome");
+        dhandle.removeAttr("missing-value-placeholder");
+        dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
+    }
+    takane::validate(dir);
 }
