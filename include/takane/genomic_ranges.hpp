@@ -162,12 +162,12 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
             }
         }
 
-        // 'end_limit - start' is always non-negative as 'end_limit' is the largest value of an int64_t and 'start' is also int64_t.
-        // In addition, 'end_limit - start' cannot overflow a uint64_t as it's just the range of an int64_t at its most extreme.
         bool exceeded = false;
         if (start > 0) {
+            // 'end_limit - start' is always non-negative as 'end_limit' is the largest value of an int64_t and 'start' is also int64_t.
             exceeded = (end_limit - static_cast<uint64_t>(start) < width);
         } else {
+            // 'end_limit - start' will not overflow a uint64_t, because 'end_limit' is the largest value of an int64_t and 'start' as also 'int64_t'.
             exceeded = (end_limit + static_cast<uint64_t>(-start) < width);
         }
         if (exceeded) {
@@ -181,7 +181,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
             throw std::runtime_error("'strand' and 'sequence' should have the same length");
         }
         if (ritsuko::hdf5::exceeds_integer_limit(strand_handle, 32, true)) {
-            throw std::runtime_error("expected 'strand' to have a datatype that fits into a 64-bit signed integer");
+            throw std::runtime_error("expected 'strand' to have a datatype that fits into a 32-bit signed integer");
         }
 
         ritsuko::hdf5::Stream1dNumericDataset<int32_t> strand_stream(&strand_handle, num_ranges, options.hdf5_buffer_size);
@@ -196,7 +196,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     internal_other::validate_mcols(path, "range_annotations", num_ranges, options);
     internal_other::validate_metadata(path, "other_annotations", options);
 
-    internal_hdf5::validate_names(ghandle, "names", num_ranges, options.hdf5_buffer_size);
+    internal_hdf5::validate_names(ghandle, "name", num_ranges, options.hdf5_buffer_size);
 
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate 'genomic_ranges' object at '" + path.string() + "'; " + std::string(e.what()));

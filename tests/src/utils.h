@@ -52,6 +52,13 @@ inline H5::DataSet spawn_data(const H5::Group& handle, const std::string& name, 
     return handle.createDataSet(name, dtype, dspace);
 }
 
+template<typename Type_>
+H5::DataSet spawn_numeric_data(const H5::Group& handle, const std::string& name, const H5::DataType& dtype, const std::vector<Type_>& values) {
+    auto dhandle = spawn_data(handle, name, values.size(), dtype);
+    dhandle.write(values.data(), ritsuko::hdf5::as_numeric_datatype<Type_>());
+    return dhandle;
+}
+
 template<class Container_>
 std::vector<const char*> pointerize_strings(const Container_& x) {
     std::vector<const char*> output;
