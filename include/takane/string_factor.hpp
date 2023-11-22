@@ -42,16 +42,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     size_t num_levels = internal_hdf5::validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);
     size_t num_codes = internal_hdf5::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size);
 
-    if (ghandle.exists("names")) {
-        auto nhandle = ritsuko::hdf5::open_dataset(ghandle, "names");
-        if (nhandle.getTypeClass() != H5T_STRING) {
-            throw std::runtime_error("'names' should be a string datatype class");
-        }
-        auto nlen = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), false);
-        if (num_codes != nlen) {
-            throw std::runtime_error("'names' and 'codes' should have the same length");
-        }
-    }
+    internal_hdf5::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate a 'string_factor' at '" + path.string() + "'; " + std::string(e.what()));

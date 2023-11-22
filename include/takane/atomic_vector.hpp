@@ -74,16 +74,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         }
     }
 
-    if (ghandle.exists("names")) {
-        auto nhandle = ritsuko::hdf5::open_dataset(ghandle, "names");
-        if (nhandle.getTypeClass() != H5T_STRING) {
-            throw std::runtime_error("'names' should be a string datatype class");
-        }
-        auto nlen = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), false);
-        if (vlen != nlen) {
-            throw std::runtime_error("'names' and 'values' should have the same length");
-        }
-    }
+    internal_hdf5::validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
 
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate an 'atomic_vector' at '" + path.string() + "'; " + std::string(e.what()));

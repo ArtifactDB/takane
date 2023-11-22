@@ -204,18 +204,8 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         throw std::runtime_error("more objects present in the 'data_frame/data' group than expected");
     }
 
-    // Checking the metadata.
-    try {
-        internal_other::validate_mcols(path / "column_annotations", NC, options);
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to validate 'column_annotations'; " + std::string(e.what()));
-    }
-
-    try {
-        internal_other::validate_metadata(path / "other_annotations", options);
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to validate 'other_annotations'; " + std::string(e.what()));
-    }
+    internal_other::validate_mcols(path, "column_annotations", NC, options);
+    internal_other::validate_metadata(path, "other_annotations", options);
 }
 
 /**

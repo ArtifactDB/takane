@@ -131,6 +131,24 @@ inline hsize_t validate_factor_codes(const H5::Group& handle, const std::string&
     return len;
 }
 
+inline void validate_names(const H5::Group& handle, const std::string& name, size_t len, hsize_t buffer_size) {
+    if (!handle.exists(name)) {
+        return;
+    }
+
+    auto nhandle = ritsuko::hdf5::open_dataset(handle, name.c_str());
+    if (nhandle.getTypeClass() != H5T_STRING) {
+        throw std::runtime_error("'" + name + "' should be a string datatype class");
+    }
+
+    auto nlen = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), false);
+    if (len != nlen) {
+        throw std::runtime_error("'" + name + "' should have the same length as the parent object (got " + std::to_string(nlen) + ", expected " + std::to_string(len) + ")");
+    }
+
+    ritsuko::hdf5::validate_1d_string_dataset(nhandle, len, buffer_size);
+}
+
 }
 
 }

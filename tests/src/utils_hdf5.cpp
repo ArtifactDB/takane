@@ -234,3 +234,55 @@ TEST_F(Hdf5FactorTest, Codes) {
         expect_error_codes("number of levels", handle, "blah", 3, 10000);
     }
 }
+
+struct Hdf5NamesTest : public::testing::Test {
+    static std::string testpath() {
+        return "TEST_names_utils.h5";
+    }
+
+    template<typename ... Args_>
+    static void expect_error(const std::string& msg, Args_&& ... args) {
+        EXPECT_ANY_THROW({
+            try {
+                takane::internal_hdf5::validate_names(std::forward<Args_>(args)...);
+            } catch (std::exception& e) {
+                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
+                throw;
+            }
+        });
+    }
+};
+
+TEST_F(Hdf5NamesTest, Basics) {
+    auto path = testpath();
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        hdf5_utils::spawn_data(handle, "names", 5, H5::StrType(0, 10)); // must be 10 characters.
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        takane::internal_hdf5::validate_names(handle, "names", 5, 1000);
+        expect_error("same length", handle, "names", 100, 1000);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        handle.createDataSet("names", H5::PredType::NATIVE_INT, H5S_SCALAR);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        expect_error("string datatype class", handle, "names", 5, 1000);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        hsize_t len = 10;
+        H5::DataSpace dspace(1, &len);
+        handle.createDataSet("names", H5::StrType(0, H5T_VARIABLE), dspace);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        expect_error("NULL pointer", handle, "names", 10, 1000);
+    }
+}

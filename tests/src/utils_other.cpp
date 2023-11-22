@@ -39,21 +39,27 @@ struct ValidateMetadataTest : public::testing::Test {
 
 TEST_F(ValidateMetadataTest, Mcols) {
     auto path = testdir();
-    initialize_directory(path, "data_frame");
-    data_frame::mock(path, 10, true, {});
-    takane::internal_other::validate_mcols(path, 10, takane::Options());
-    expect_error_mcols("unexpected number of rows", path, 20, takane::Options());
+    std::filesystem::create_directory(path);
+    auto subpath = path / "mcols";
+    initialize_directory(subpath, "data_frame");
+    data_frame::mock(subpath, 10, true, {});
 
-    initialize_directory(path, "simple_list");
-    expect_error_mcols("'DATA_FRAME'", path, 10, takane::Options());
+    takane::internal_other::validate_mcols(path, "mcols", 10, takane::Options());
+    expect_error_mcols("unexpected number of rows", path, "mcols", 20, takane::Options());
+
+    initialize_directory(subpath, "simple_list");
+    expect_error_mcols("'DATA_FRAME'", path, "mcols", 10, takane::Options());
 }
 
 TEST_F(ValidateMetadataTest, Metadata) {
     auto path = testdir();
-    initialize_directory(path, "simple_list");
-    simple_list::mock(path);
-    takane::internal_other::validate_metadata(path, takane::Options());
+    std::filesystem::create_directory(path);
+    auto subpath = path / "metadata";
+    initialize_directory(subpath, "simple_list");
+    simple_list::mock(subpath);
 
-    initialize_directory(path, "data_frame");
-    expect_error_metadata("'SIMPLE_LIST'", path, takane::Options());
+    takane::internal_other::validate_metadata(path, "metadata", takane::Options());
+
+    initialize_directory(subpath, "data_frame");
+    expect_error_metadata("'SIMPLE_LIST'", path, "metadata", takane::Options());
 }
