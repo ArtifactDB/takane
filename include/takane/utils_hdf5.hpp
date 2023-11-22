@@ -149,25 +149,6 @@ inline void validate_names(const H5::Group& handle, const std::string& name, siz
     ritsuko::hdf5::validate_1d_string_dataset(nhandle, len, buffer_size);
 }
 
-inline hsize_t validate_compressed_list(const H5::Group& handle, size_t concatenated_length, hsize_t buffer_size) {
-    auto lhandle = ritsuko::hdf5::open_dataset(handle, "lengths");
-    if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
-        throw std::runtime_error("expected 'lengths' to have a datatype that fits in a 64-bit unsigned integer");
-    }
-
-    size_t len = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false);
-    ritsuko::hdf5::Stream1dNumericDataset<int32_t> stream(&lhandle, len, buffer_size);
-    size_t total = 0;
-    for (size_t i = 0; i < len; ++i, stream.next()) {
-        total += stream.get();
-    }
-    if (total != concatenated_length) {
-        throw std::runtime_error("sum of 'lengths' does not equal the height of the concatenated object (got " + std::to_string(total) + ", expected " + std::to_string(concatenated_length) + ")");
-    }
-
-    return len;
-}
-
 }
 
 }

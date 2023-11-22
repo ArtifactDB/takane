@@ -8,7 +8,7 @@
 #include <string>
 
 #include "utils_public.hpp"
-#include "compressed_list.hpp"
+#include "utils_compressed_list.hpp"
 
 /**
  * @file atomic_vector_list.hpp
@@ -24,7 +24,7 @@ namespace atomic_vector_list {
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const Options& options) try {
-    compressed_list::validate<false>(path, "atomic_vector_list", "atomic_vector", options);
+    internal_compressed_list::validate_directory<false>(path, "atomic_vector_list", "atomic_vector", options);
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate an 'atomic_vector_list' object at '" + path.string() + "'; " + std::string(e.what()));
 }
@@ -35,7 +35,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
  * @return The length of the list.
  */
 inline size_t height(const std::filesystem::path& path, const Options& options) {
-    return compressed_list::height(path, "atomic_vector_list", options);
+    return internal_compressed_list::height(path, "atomic_vector_list", options);
 }
 
 }

@@ -1,5 +1,5 @@
-#ifndef TAKANE_COMPRESSED_LIST_HPP
-#define TAKANE_COMPRESSED_LIST_HPP
+#ifndef TAKANE_UTILS_COMPRESSED_LIST_HPP
+#define TAKANE_UTILS_COMPRESSED_LIST_HPP
 
 #include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
@@ -21,10 +21,29 @@ void validate(const std::filesystem::path&, const std::string&, const Options&);
 size_t height(const std::filesystem::path&, const std::string&, const Options&);
 bool satisfies_interface(const std::string&, const std::string&);
 
-namespace compressed_list {
+namespace internal_compressed_list {
+
+inline hsize_t validate_group(const H5::Group& handle, size_t concatenated_length, hsize_t buffer_size) {
+    auto lhandle = ritsuko::hdf5::open_dataset(handle, "lengths");
+    if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
+        throw std::runtime_error("expected 'lengths' to have a datatype that fits in a 64-bit unsigned integer");
+    }
+
+    size_t len = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false);
+    ritsuko::hdf5::Stream1dNumericDataset<int32_t> stream(&lhandle, len, buffer_size);
+    size_t total = 0;
+    for (size_t i = 0; i < len; ++i, stream.next()) {
+        total += stream.get();
+    }
+    if (total != concatenated_length) {
+        throw std::runtime_error("sum of 'lengths' does not equal the height of the concatenated object (got " + std::to_string(total) + ", expected " + std::to_string(concatenated_length) + ")");
+    }
+
+    return len;
+}
 
 template<bool satisfies_interface_>
-void validate(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const Options& options) try {
+void validate_directory(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const Options& options) try {
     auto handle = ritsuko::hdf5::open_file(path / "partitions.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, object_type.c_str());
 
@@ -47,13 +66,13 @@ void validate(const std::filesystem::path& path, const std::string& object_type,
     }
 
     try {
-        validate(catdir, cattype, options);
+        ::takane::validate(catdir, cattype, options);
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate the 'concatenated' object; " + std::string(e.what()));
     }
-    size_t catheight = height(catdir, cattype, options);
+    size_t catheight = ::takane::height(catdir, cattype, options);
 
-    size_t len = internal_hdf5::validate_compressed_list(ghandle, catheight, options.hdf5_buffer_size);
+    size_t len = validate_group(ghandle, catheight, options.hdf5_buffer_size);
 
     internal_hdf5::validate_names(ghandle, "names", len, options.hdf5_buffer_size);
     internal_other::validate_mcols(path, "element_annotations", len, options);
