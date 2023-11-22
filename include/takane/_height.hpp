@@ -32,6 +32,7 @@ inline auto default_registry() {
     registry["simple_list"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return simple_list::height(p, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return data_frame::height(p, o); };
     registry["data_frame_factor"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return data_frame_factor::height(p, o); };
+    registry["genomic_ranges"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return genomic_ranges::height(p, o); };
     return registry;
 } 
 

@@ -25,6 +25,19 @@ inline void mock(
     hdf5_utils::spawn_string_data(handle, "genome", H5T_VARIABLE, genome);
 }
 
+inline void mock(
+    const std::filesystem::path& dir, 
+    const std::vector<std::string>& name, 
+    const std::vector<int>& length, 
+    const std::vector<int>& circular, 
+    const std::vector<std::string>& genome)
+{
+    initialize_directory(dir, "sequence_information");
+    H5::H5File handle(dir / "info.h5", H5F_ACC_TRUNC);
+    auto ghandle = handle.createGroup("sequence_information");
+    mock(ghandle, name, length, circular, genome);
+}
+
 }
 
 #endif
