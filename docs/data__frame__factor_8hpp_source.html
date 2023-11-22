@@ -131,48 +131,29 @@ $(function() {
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordtype">size_t</span> num_codes = internal_hdf5::validate_factor_codes(ghandle, <span class="stringliteral">&quot;codes&quot;</span>, num_levels, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>, <span class="comment">/* allow_missing = */</span> <span class="keyword">false</span>);</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordflow">if</span> (ghandle.exists(<span class="stringliteral">&quot;names&quot;</span>)) {</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keyword">auto</span> nhandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;names&quot;</span>);</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        <span class="keywordflow">if</span> (nhandle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;names&#39; should be a string datatype class&quot;</span>);</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        }</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        <span class="keyword">auto</span> nlen = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <span class="keywordflow">if</span> (num_codes != nlen) {</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;names&#39; and &#39;codes&#39; should have the same length&quot;</span>);</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        }</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    }</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="comment">// Checking the metadata.</span></div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        internal_other::validate_mcols(path / <span class="stringliteral">&quot;element_annotations&quot;</span>, num_codes, options);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;element_annotations&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    }</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        internal_other::validate_metadata(path / <span class="stringliteral">&quot;other_annotations&quot;</span>, options);</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;other_annotations&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    }</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>} <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate a &#39;data_frame_factor&#39; at &#39;&quot;</span> + path.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>}</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno"><a class="line" href="namespacetakane_1_1data__frame__factor.html#a45b5f908a71a626815d19bb7cc90b218">  116</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1data__frame__factor.html#a45b5f908a71a626815d19bb7cc90b218">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp;) {</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    H5::H5File handle(path / <span class="stringliteral">&quot;contents.h5&quot;</span>, H5F_ACC_RDONLY);</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(<span class="stringliteral">&quot;data_frame_factor&quot;</span>);</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;codes&quot;</span>);</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordflow">return</span> ritsuko::hdf5::get_1d_length(dhandle.getSpace(), <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>}</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>}</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>}</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    internal_other::validate_mcols(path, <span class="stringliteral">&quot;element_annotations&quot;</span>, num_codes, options);</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    internal_other::validate_metadata(path, <span class="stringliteral">&quot;other_annotations&quot;</span>, options);</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    internal_hdf5::validate_names(ghandle, <span class="stringliteral">&quot;names&quot;</span>, num_codes, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>);</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>} <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate a &#39;data_frame_factor&#39; at &#39;&quot;</span> + path.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>}</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="namespacetakane_1_1data__frame__factor.html#a45b5f908a71a626815d19bb7cc90b218">   97</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1data__frame__factor.html#a45b5f908a71a626815d19bb7cc90b218">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp;) {</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    H5::H5File handle(path / <span class="stringliteral">&quot;contents.h5&quot;</span>, H5F_ACC_RDONLY);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(<span class="stringliteral">&quot;data_frame_factor&quot;</span>);</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;codes&quot;</span>);</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordflow">return</span> ritsuko::hdf5::get_1d_length(dhandle.getSpace(), <span class="keyword">false</span>);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>}</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>}</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>}</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_1_1data__frame__factor_html_a00c430b35a6f762af1c7ff43b8c82704"><div class="ttname"><a href="namespacetakane_1_1data__frame__factor.html#a00c430b35a6f762af1c7ff43b8c82704">takane::data_frame_factor::any_duplicated</a></div><div class="ttdeci">std::function&lt; bool(const std::filesystem::path &amp;, const std::string &amp;, const Options &amp;options)&gt; any_duplicated</div><div class="ttdef"><b>Definition:</b> data_frame_factor.hpp:45</div></div>
-<div class="ttc" id="anamespacetakane_1_1data__frame__factor_html_a45b5f908a71a626815d19bb7cc90b218"><div class="ttname"><a href="namespacetakane_1_1data__frame__factor.html#a45b5f908a71a626815d19bb7cc90b218">takane::data_frame_factor::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const Options &amp;)</div><div class="ttdef"><b>Definition:</b> data_frame_factor.hpp:116</div></div>
+<div class="ttc" id="anamespacetakane_1_1data__frame__factor_html_a45b5f908a71a626815d19bb7cc90b218"><div class="ttname"><a href="namespacetakane_1_1data__frame__factor.html#a45b5f908a71a626815d19bb7cc90b218">takane::data_frame_factor::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const Options &amp;)</div><div class="ttdef"><b>Definition:</b> data_frame_factor.hpp:97</div></div>
 <div class="ttc" id="anamespacetakane_1_1data__frame__factor_html_a6eafedf2bdcb797ddc43db05c38d4692"><div class="ttname"><a href="namespacetakane_1_1data__frame__factor.html#a6eafedf2bdcb797ddc43db05c38d4692">takane::data_frame_factor::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> data_frame_factor.hpp:51</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _height.hpp:21</div></div>
 <div class="ttc" id="anamespacetakane_html_a262fb03bd251b0b4a696f0d2d0b6dac2"><div class="ttname"><a href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">takane::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const std::string &amp;type, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _validate.hpp:59</div></div>
