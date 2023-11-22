@@ -12,6 +12,7 @@
 #include "simple_list.hpp"
 #include "data_frame.hpp"
 #include "data_frame_factor.hpp"
+#include "atomic_vector_list.hpp"
 
 /**
  * @file _height.hpp
@@ -33,6 +34,7 @@ inline auto default_registry() {
     registry["data_frame"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return data_frame::height(p, o); };
     registry["data_frame_factor"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return data_frame_factor::height(p, o); };
     registry["genomic_ranges"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return genomic_ranges::height(p, o); };
+    registry["atomic_vector_list"] = [](const std::filesystem::path& p, const Options& o) -> size_t { return atomic_vector_list::height(p, o); };
     return registry;
 } 
 
