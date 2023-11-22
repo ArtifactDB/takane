@@ -61,7 +61,7 @@ void validate_directory(const std::filesystem::path& path, const std::string& ob
         }
     } else {
         if (cattype != concatenated_type) {
-            throw std::runtime_error("'concatenated' should contain an 'atomic_vector' object");
+            throw std::runtime_error("'concatenated' should contain an '" + concatenated_type + "' object");
         }
     }
 

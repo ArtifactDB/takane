@@ -3,6 +3,7 @@
 
 #include "takane/takane.hpp"
 #include "utils.h"
+#include "genomic_ranges.h"
 #include "data_frame.h"
 #include "simple_list.h"
 
@@ -10,10 +11,10 @@
 #include <filesystem>
 #include <fstream>
 
-struct DataFrameListTest : public::testing::Test {
-    DataFrameListTest() {
-        dir = "TEST_data_frame_list";
-        name = "data_frame_list";
+struct GenomicRangesListTest : public::testing::Test {
+    GenomicRangesListTest() {
+        dir = "TEST_genomic_ranges_list";
+        name = "genomic_ranges_list";
     }
 
     std::filesystem::path dir;
@@ -41,7 +42,7 @@ struct DataFrameListTest : public::testing::Test {
     }
 };
 
-TEST_F(DataFrameListTest, Basic) {
+TEST_F(GenomicRangesListTest, Basic) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -54,36 +55,36 @@ TEST_F(DataFrameListTest, Basic) {
         auto ghandle = handle.openGroup(name);
         ghandle.removeAttr("version");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 1, 2, 1, 3 });
         initialize_directory(dir / "concatenated", "foobar");
     }
-    expect_error("satisfy the 'DATA_FRAME'");
+    expect_error("'genomic_ranges'");
 
     {
-        initialize_directory(dir / "concatenated", "data_frame");
+        initialize_directory(dir / "concatenated", "genomic_ranges");
     }
     expect_error("failed to validate the 'concatenated'");
 
     {
-        data_frame::mock(dir / "concatenated", 7, false, {});
+        genomic_ranges::mock(dir / "concatenated", 8, 5);
     }
     expect_error("sum of 'lengths'");
 
     {
-        data_frame::mock(dir / "concatenated", 10, false, {});
+        genomic_ranges::mock(dir / "concatenated", 7, 3);
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 4);
 }
 
-TEST_F(DataFrameListTest, Names) {
+TEST_F(GenomicRangesListTest, Names) {
     {
         initialize_directory(dir, name);
         auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        data_frame::mock(dir / "concatenated", 10, false, {});
+        genomic_ranges::mock(dir / "concatenated", 10, 5);
 
         hdf5_utils::spawn_string_data(ghandle, "names", H5T_VARIABLE, { "Aaron", "Charlie", "Echo", "Fooblewooble" });
     }
@@ -98,14 +99,14 @@ TEST_F(DataFrameListTest, Names) {
     expect_error("same length");
 }
 
-TEST_F(DataFrameListTest, Metadata) {
+TEST_F(GenomicRangesListTest, Metadata) {
     {
         initialize_directory(dir, name);
         auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        data_frame::mock(dir / "concatenated", 10, false, {});
+        genomic_ranges::mock(dir / "concatenated", 10, 11); 
     }
 
     auto cdir = dir / "element_annotations";
@@ -115,7 +116,7 @@ TEST_F(DataFrameListTest, Metadata) {
     expect_error("'DATA_FRAME'"); 
 
     data_frame::mock(cdir, 4, false, {});
-    initialize_directory(odir, "data_frame");
+    initialize_directory(odir, "genomic_ranges");
     expect_error("'SIMPLE_LIST'");
 
     initialize_directory(odir, "simple_list");

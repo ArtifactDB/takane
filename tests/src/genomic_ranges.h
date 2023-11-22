@@ -53,6 +53,24 @@ inline void mock(
     sequence_information::mock(dir / "sequence_information", mock_names, seq_length, is_circular, mock_genomes);
 }
 
+inline void mock(const std::filesystem::path& dir, hsize_t num_ranges, hsize_t num_seq) {
+    std::vector<int> seq_id, start, width, strand;
+    for (hsize_t i = 0; i < num_ranges; ++i) {
+        seq_id.push_back(i % num_seq);
+        start.push_back(i * 10); 
+        width.push_back((i % 2) * 10 + 1); 
+        strand.push_back((i % 3) - 1);
+    }
+
+    std::vector<int> seq_length, is_circular;
+    for (hsize_t s = 0; s < num_seq; ++s) {
+        seq_length.push_back(num_ranges * 100);
+        is_circular.push_back(s % 5 == 0);
+    }
+
+    mock(dir, seq_id, start, width, strand, seq_length, is_circular);
+}
+
 }
 
 #endif
