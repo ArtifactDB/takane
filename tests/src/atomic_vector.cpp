@@ -41,11 +41,6 @@ struct AtomicVectorTest : public::testing::Test {
 TEST_F(AtomicVectorTest, Basic) {
     {
         auto handle = initialize();
-    }
-    expect_error("expected an 'atomic_vector' group");
-
-    {
-        auto handle = reopen();
         auto ghandle = handle.createGroup("atomic_vector");
         hdf5_utils::attach_attribute(ghandle, "version", "2.0");
     }

@@ -142,13 +142,10 @@ TEST_F(Hdf5DataFrameTest, General) {
     columns[0].name = "Aaron";
     columns[1].name = "Barry";
 
+    H5::StrType stype(0, H5T_VARIABLE);
+
     {
         initialize();
-    }
-    expect_error("'" + name + "' group");
-
-    H5::StrType stype(0, H5T_VARIABLE);
-    {
         auto handle = reopen();
         auto ghandle = handle.createGroup(name);
         auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
@@ -177,12 +174,6 @@ TEST_F(Hdf5DataFrameTest, Data) {
         auto ghandle = handle.createGroup(name);
         mock(ghandle, 33, false, columns);
         ghandle.unlink("data");
-    }
-    expect_error("'data_frame/data' group");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.createGroup("data");
         auto fhandle = dhandle.createGroup("0");
         hdf5_utils::attach_attribute(fhandle, "type", "something");

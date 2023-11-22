@@ -29,41 +29,32 @@ namespace sequence_information {
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const Options& options) try {
-    auto fpath  = path / "info.h5";
-    H5::H5File handle(fpath, H5F_ACC_RDONLY);
-
-    const char* parent = "sequence_information";
-    if (!handle.exists(parent) || handle.childObjType(parent) != H5O_TYPE_GROUP) {
-        throw std::runtime_error("expected an 'sequence_information' group");
-    }
-    auto ghandle = handle.openGroup(parent);
+    auto handle = ritsuko::hdf5::open_file(path / "info.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, "sequence_information");
 
     size_t nseq = 0;
     {
-        auto nhandle = ritsuko::hdf5::get_dataset(ghandle, "name");
+        auto nhandle = ritsuko::hdf5::open_dataset(ghandle, "name");
         if (nhandle.getTypeClass() != H5T_STRING) {
             throw std::runtime_error("expected a string datatype class for 'name'");
         }
 
         nseq = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), false);
         std::unordered_set<std::string> collected;
-        ritsuko::hdf5::load_1d_string_dataset(
-            nhandle,
-            nseq,
-            options.hdf5_buffer_size,
-            [&](size_t, const char* s, size_t l) {
-                std::string x(s, s + l);
-                if (collected.find(x) != collected.end()) {
-                    throw std::runtime_error("detected duplicated sequence name '" + x + "'");
-                }
-                collected.insert(std::move(x));
+        ritsuko::hdf5::Stream1dStringDataset stream(&nhandle, nseq, options.hdf5_buffer_size);
+        for (size_t s = 0; s < nseq; ++s, stream.next()) {
+            auto x = stream.steal();
+            if (collected.find(x) != collected.end()) {
+                throw std::runtime_error("detected duplicated sequence name '" + x + "'");
             }
-        );
+            collected.insert(std::move(x));
+        }
     }
 
     const char* missing_attr_name = "missing-value-placeholder";
+
     {
-        auto lhandle = ritsuko::hdf5::get_dataset(ghandle, "length");
+        auto lhandle = ritsuko::hdf5::open_dataset(ghandle, "length");
         if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
             throw std::runtime_error("expected a datatype for 'length' that fits in a 64-bit unsigned integer");
         }
@@ -71,12 +62,13 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
             throw std::runtime_error("expected lengths of 'length' and 'name' to be equal");
         }
         if (lhandle.attrExists(missing_attr_name)) {
-            ritsuko::hdf5::get_missing_placeholder_attribute(lhandle, missing_attr_name);
+            auto ahandle = lhandle.openAttribute(missing_attr_name);
+            ritsuko::hdf5::check_missing_placeholder_attribute(lhandle, ahandle);
         }
     }
 
     {
-        auto chandle = ritsuko::hdf5::get_dataset(ghandle, "circular");
+        auto chandle = ritsuko::hdf5::open_dataset(ghandle, "circular");
         if (ritsuko::hdf5::exceeds_integer_limit(chandle, 32, true)) {
             throw std::runtime_error("expected a datatype for 'length' that fits in a 32-bit signed integer");
         }
@@ -84,12 +76,13 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
             throw std::runtime_error("expected lengths of 'length' and 'circular' to be equal");
         }
         if (chandle.attrExists(missing_attr_name)) {
-            ritsuko::hdf5::get_missing_placeholder_attribute(chandle, missing_attr_name);
+            auto ahandle = chandle.openAttribute(missing_attr_name);
+            ritsuko::hdf5::check_missing_placeholder_attribute(chandle, ahandle);
         }
     }
 
     {
-        auto gnhandle = ritsuko::hdf5::get_dataset(ghandle, "genome");
+        auto gnhandle = ritsuko::hdf5::open_dataset(ghandle, "genome");
         if (gnhandle.getTypeClass() != H5T_STRING) {
             throw std::runtime_error("expected a string datatype class for 'genome'");
         }
@@ -97,7 +90,8 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
             throw std::runtime_error("expected lengths of 'length' and 'genome' to be equal");
         }
         if (gnhandle.attrExists(missing_attr_name)) {
-            ritsuko::hdf5::get_missing_placeholder_attribute(gnhandle, missing_attr_name, /* type_class_only = */ true);
+            auto ahandle = gnhandle.openAttribute(missing_attr_name);
+            ritsuko::hdf5::check_missing_placeholder_attribute(gnhandle, ahandle);
         }
     }
 } catch (std::exception& e) {
