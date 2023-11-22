@@ -2,9 +2,93 @@
 #include <gmock/gmock.h>
 
 #include "takane/takane.hpp"
+#include "sequence_information.h"
 
 #include <fstream>
 #include <string>
+
+struct GenomicRangesTest : public ::testing::Test {
+    GenomicRangesTest() {
+        dir = "TEST_genomic_ranges";
+        name = "genomic_ranges";
+    }
+
+    std::filesystem::path dir;
+    std::string name;
+
+    H5::H5File initialize() {
+        initialize_directory(dir, name);
+        auto path = dir / "ranges.h5";
+        return H5::H5File(std::string(path), H5F_ACC_TRUNC);
+    }
+};
+
+TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
+    auto sidir = dir / "sequence_information";
+
+    {
+        initialize();
+        initialize_directory(sidir, "sequence_information");
+        H5::H5File handle(sidir / "info.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("sequence_information");
+        sequence_information::mock(ghandle, { "chrA", "chrB" }, { 100, 20 }, { 1, 0 }, { "mm10", "mm10 "});
+    }
+    {
+        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
+        std::vector<unsigned char> expected_restricted { 0, 1 };
+        EXPECT_EQ(out.restricted, expected_restricted);
+        std::vector<uint64_t> expected_seqlen { 100, 20 };
+        EXPECT_EQ(out.seqlen, expected_seqlen);
+    }
+
+    // Injecting some missing values.
+    {
+        H5::H5File handle(sidir / "info.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("sequence_information");
+        {
+            auto dhandle = ghandle.openDataSet("length");
+            auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+            int val = 20;
+            ahandle.write(H5::PredType::NATIVE_INT, &val);
+        }
+        {
+            auto dhandle = ghandle.openDataSet("circular");
+            auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+            int val = 1;
+            ahandle.write(H5::PredType::NATIVE_INT, &val);
+        }
+    }
+    {
+        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
+        std::vector<unsigned char> expected_restricted { 1, 0 };
+        EXPECT_EQ(out.restricted, expected_restricted);
+    }
+
+    // Shifting the placeholders to be ineffective.
+    {
+        H5::H5File handle(sidir / "info.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("sequence_information");
+        {
+            auto dhandle = ghandle.openDataSet("length");
+            dhandle.removeAttr("missing-value-placeholder");
+            auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+            int val = 10;
+            ahandle.write(H5::PredType::NATIVE_INT, &val);
+        }
+        {
+            auto dhandle = ghandle.openDataSet("circular");
+            dhandle.removeAttr("missing-value-placeholder");
+            auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+            int val = -1;
+            ahandle.write(H5::PredType::NATIVE_INT, &val);
+        }
+    }
+    {
+        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
+        std::vector<unsigned char> expected_restricted { 0, 1 };
+        EXPECT_EQ(out.restricted, expected_restricted);
+    }
+}
 
 //TEST(GenomicRanges, Names) {
 //    std::string buffer = "\"names\",\"seqnames\",\"start\",\"end\",\"strand\"\n";

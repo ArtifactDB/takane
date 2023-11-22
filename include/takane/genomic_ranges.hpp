@@ -94,7 +94,7 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, co
  */
 
 /**
- * @param path Path to the directory containing the data frame.
+ * @param path Path to the directory containing the genomic ranges.
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const Options& options) try {
