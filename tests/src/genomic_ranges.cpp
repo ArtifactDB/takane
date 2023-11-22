@@ -113,6 +113,7 @@ TEST_F(GenomicRangesTest, Sequence) {
         { 0, 0, 0 }
     );
     takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 4);
 
     {
         auto handle = reopen();

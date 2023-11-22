@@ -202,6 +202,22 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     throw std::runtime_error("failed to validate 'genomic_ranges' object at '" + path.string() + "'; " + std::string(e.what()));
 }
 
+/**
+ * @param path Path to a directory containing genomic ranges.
+ * @param options Validation options, mostly for input performance.
+ * @return The number of ranges.
+ */
+inline size_t height(const std::filesystem::path& path, const Options&) {
+    auto h5path = path / "ranges.h5";
+
+    // Assume it's all valid already.
+    H5::H5File handle(h5path, H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup("genomic_ranges");
+    auto dhandle = ghandle.openDataSet("sequence");
+    return ritsuko::hdf5::get_1d_length(dhandle, false);
+}
+
+
 }
 
 }
