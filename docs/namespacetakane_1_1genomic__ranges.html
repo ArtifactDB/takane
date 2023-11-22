@@ -76,7 +76,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">takane::genomic_ranges Namespace Reference</div></div>
 </div><!--header-->
@@ -85,25 +84,18 @@ $(function() {
 <p>Definitions for genomic ranges.  
 <a href="namespacetakane_1_1genomic__ranges.html#details">More...</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html" title="Parameters for validating the genomic ranges file.">Parameters</a> for validating the genomic ranges file.  <a href="structtakane_1_1genomic__ranges_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a983c2b1db337ffc972139015dc340ecc"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:a983c2b1db337ffc972139015dc340ecc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#a983c2b1db337ffc972139015dc340ecc">validate</a> (Reader &amp;reader, const <a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">Parameters</a> &amp;params)</td></tr>
-<tr class="separator:a983c2b1db337ffc972139015dc340ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45ca6ee1074db860322c838eb77a43f4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#a45ca6ee1074db860322c838eb77a43f4">validate</a> (const char *path, const <a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">Parameters</a> &amp;params)</td></tr>
-<tr class="separator:a45ca6ee1074db860322c838eb77a43f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a197b8c31b41fae882a1ec70ba8367a4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#a197b8c31b41fae882a1ec70ba8367a4a">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a197b8c31b41fae882a1ec70ba8367a4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6bb721a9c9fb283f85723a7a43b2430"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#ad6bb721a9c9fb283f85723a7a43b2430">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)</td></tr>
+<tr class="separator:ad6bb721a9c9fb283f85723a7a43b2430"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for genomic ranges. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a45ca6ee1074db860322c838eb77a43f4" name="a45ca6ee1074db860322c838eb77a43f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a45ca6ee1074db860322c838eb77a43f4">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="ad6bb721a9c9fb283f85723a7a43b2430" name="ad6bb721a9c9fb283f85723a7a43b2430"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6bb721a9c9fb283f85723a7a43b2430">&#9670;&#160;</a></span>height()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -112,16 +104,16 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void takane::genomic_ranges::validate </td>
+          <td class="memname">size_t takane::genomic_ranges::height </td>
           <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname">&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -135,36 +127,37 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Checks if a CSV data frame is correctly formatted for genomic ranges. An error is raised if the file does not meet the specifications.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the CSV file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+    <tr><td class="paramname">path</td><td>Path to a directory containing genomic ranges. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, mostly for input performance. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of ranges. </dd></dl>
 
 </div>
 </div>
-<a id="a983c2b1db337ffc972139015dc340ecc" name="a983c2b1db337ffc972139015dc340ecc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a983c2b1db337ffc972139015dc340ecc">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+<a id="a197b8c31b41fae882a1ec70ba8367a4a" name="a197b8c31b41fae882a1ec70ba8367a4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a197b8c31b41fae882a1ec70ba8367a4a">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class Reader &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void takane::genomic_ranges::validate </td>
           <td>(</td>
-          <td class="paramtype">Reader &amp;&#160;</td>
-          <td class="paramname"><em>reader</em>, </td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -172,18 +165,16 @@ template&lt;class Reader &gt; </div>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p >Checks if a CSV data frame is correctly formatted for genomic ranges. An error is raised if the file does not meet the specifications.</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">Reader</td><td>A <b>byteme</b> reader class.</td></tr>
-  </table>
-  </dd>
-</dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">reader</td><td>A stream of bytes from the CSV file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+    <tr><td class="paramname">path</td><td>Path to the directory containing the genomic ranges. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>
 </dl>

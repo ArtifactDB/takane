@@ -1,10 +1,13 @@
 <map id="takane/genomic_ranges.hpp" name="takane/genomic_ranges.hpp">
-<area shape="rect" id="node1" title="Validation for genomic ranges." alt="" coords="436,5,620,31"/>
+<area shape="rect" id="node1" title="Validation for genomic ranges." alt="" coords="575,5,759,31"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,79,133,104"/>
 <area shape="rect" id="node3" title=" " alt="" coords="158,79,365,104"/>
 <area shape="rect" id="node4" href="$WrappedOption_8hpp_source.html" title=" " alt="" coords="389,79,523,104"/>
-<area shape="rect" id="node6" title=" " alt="" coords="548,79,652,104"/>
-<area shape="rect" id="node7" title=" " alt="" coords="677,79,731,104"/>
-<area shape="rect" id="node8" title=" " alt="" coords="755,79,834,104"/>
+<area shape="rect" id="node6" title=" " alt="" coords="547,79,602,104"/>
+<area shape="rect" id="node7" title=" " alt="" coords="627,79,707,104"/>
+<area shape="rect" id="node8" title=" " alt="" coords="731,79,810,104"/>
+<area shape="rect" id="node9" title=" " alt="" coords="835,79,896,104"/>
+<area shape="rect" id="node10" title=" " alt="" coords="920,79,1003,104"/>
+<area shape="rect" id="node11" title=" " alt="" coords="1027,79,1080,104"/>
 <area shape="rect" id="node5" title=" " alt="" coords="422,152,490,177"/>
 </map>

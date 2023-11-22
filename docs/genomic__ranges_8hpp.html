@@ -76,7 +76,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">genomic_ranges.hpp File Reference</div></div>
@@ -88,33 +87,43 @@ $(function() {
 <div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
 <code>#include &quot;comservatory/comservatory.hpp&quot;</code><br />
 <code>#include &quot;WrappedOption.hpp&quot;</code><br />
-<code>#include &lt;unordered_set&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
+<code>#include &lt;type_traits&gt;</code><br />
+<code>#include &lt;limits&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for genomic_ranges.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="genomic__ranges_8hpp__incl.png" border="0" usemap="#atakane_2genomic__ranges_8hpp" alt=""/></div>
 <map name="atakane_2genomic__ranges_8hpp" id="atakane_2genomic__ranges_8hpp">
-<area shape="rect" title="Validation for genomic ranges." alt="" coords="436,5,620,31"/>
+<area shape="rect" title="Validation for genomic ranges." alt="" coords="575,5,759,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,133,104"/>
 <area shape="rect" title=" " alt="" coords="158,79,365,104"/>
 <area shape="rect" href="WrappedOption_8hpp_source.html" title=" " alt="" coords="389,79,523,104"/>
-<area shape="rect" title=" " alt="" coords="548,79,652,104"/>
-<area shape="rect" title=" " alt="" coords="677,79,731,104"/>
-<area shape="rect" title=" " alt="" coords="755,79,834,104"/>
+<area shape="rect" title=" " alt="" coords="547,79,602,104"/>
+<area shape="rect" title=" " alt="" coords="627,79,707,104"/>
+<area shape="rect" title=" " alt="" coords="731,79,810,104"/>
+<area shape="rect" title=" " alt="" coords="835,79,896,104"/>
+<area shape="rect" title=" " alt="" coords="920,79,1003,104"/>
+<area shape="rect" title=" " alt="" coords="1027,79,1080,104"/>
 <area shape="rect" title=" " alt="" coords="422,152,490,177"/>
+</map>
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><img src="genomic__ranges_8hpp__dep__incl.png" border="0" usemap="#atakane_2genomic__ranges_8hppdep" alt=""/></div>
+<map name="atakane_2genomic__ranges_8hppdep" id="atakane_2genomic__ranges_8hppdep">
+<area shape="rect" title="Validation for genomic ranges." alt="" coords="5,5,189,31"/>
+<area shape="rect" href="__validate_8hpp.html" title="Validation dispatch function." alt="" coords="27,79,168,104"/>
+<area shape="rect" href="takane_8hpp_source.html" title=" " alt="" coords="33,152,161,177"/>
 </map>
 </div>
 </div>
 <p><a href="genomic__ranges_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html">takane::genomic_ranges::Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1genomic__ranges_1_1Parameters.html" title="Parameters for validating the genomic ranges file.">Parameters</a> for validating the genomic ranges file.  <a href="structtakane_1_1genomic__ranges_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacetakane"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
@@ -126,11 +135,10 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a983c2b1db337ffc972139015dc340ecc"><td class="memTemplParams" colspan="2">template&lt;class Reader &gt; </td></tr>
-<tr class="memitem:a983c2b1db337ffc972139015dc340ecc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#a983c2b1db337ffc972139015dc340ecc">takane::genomic_ranges::validate</a> (Reader &amp;reader, const Parameters &amp;params)</td></tr>
-<tr class="separator:a983c2b1db337ffc972139015dc340ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45ca6ee1074db860322c838eb77a43f4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#a45ca6ee1074db860322c838eb77a43f4">takane::genomic_ranges::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
-<tr class="separator:a45ca6ee1074db860322c838eb77a43f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a197b8c31b41fae882a1ec70ba8367a4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#a197b8c31b41fae882a1ec70ba8367a4a">takane::genomic_ranges::validate</a> (const std::filesystem::path &amp;path, const Options &amp;options)</td></tr>
+<tr class="separator:a197b8c31b41fae882a1ec70ba8367a4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6bb721a9c9fb283f85723a7a43b2430"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#ad6bb721a9c9fb283f85723a7a43b2430">takane::genomic_ranges::height</a> (const std::filesystem::path &amp;path, const Options &amp;)</td></tr>
+<tr class="separator:ad6bb721a9c9fb283f85723a7a43b2430"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation for genomic ranges. </p>
