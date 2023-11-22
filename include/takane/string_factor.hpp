@@ -31,7 +31,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "string_factor");
 
-    auto vstring = internal_hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
+    auto vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

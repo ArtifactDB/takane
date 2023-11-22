@@ -31,7 +31,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "atomic_vector");
 
-    auto vstring = internal_hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
+    auto vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -39,7 +39,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
 
     auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "values");
     auto vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-    auto type = internal_hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
+    auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
 
     const char* missing_attr_name = "missing-value-placeholder";
 
@@ -47,7 +47,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         if (dhandle.getTypeClass() != H5T_STRING) {
             throw std::runtime_error("expected a string datatype for 'values'");
         }
-        auto missingness = ritsuko::hdf5::load_string_missing_placeholder(dhandle, missing_attr_name);
+        auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);
         std::string format = internal_hdf5::fetch_format_attribute(ghandle);
         internal_hdf5::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, options.hdf5_buffer_size);
 

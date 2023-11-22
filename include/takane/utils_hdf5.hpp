@@ -15,24 +15,6 @@ namespace takane {
 namespace internal_hdf5 {
 
 template<class H5Object_>
-inline H5::Attribute open_scalar_attribute(const H5Object_& handle, const std::string& name) {
-    auto attr = ritsuko::hdf5::open_attribute(handle, name.c_str());
-    if (!ritsuko::hdf5::is_scalar(attr)) {
-        throw std::runtime_error("expected '" + name + "' attribute to be a scalar");
-    }
-    return attr;
-}
-
-template<class H5Object_>
-std::string open_and_load_scalar_string_attribute(const H5Object_& handle, const std::string& name) {
-    auto attr = internal_hdf5::open_scalar_attribute(handle, name.c_str());
-    if (attr.getTypeClass() != H5T_STRING) {
-        throw std::runtime_error("expected '" + name + "' attribute to be a string");
-    }
-    return ritsuko::hdf5::load_scalar_string_attribute(attr);
-}
-
-template<class H5Object_>
 std::string fetch_format_attribute(const H5Object_& handle) {
     if (!handle.attrExists("format")) {
         return "none";
@@ -126,7 +108,7 @@ inline hsize_t validate_factor_codes(const H5::Group& handle, const std::string&
     bool has_missing = false;
     int32_t missing_placeholder = 0;
     if (allow_missing) {
-        auto missingness = ritsuko::hdf5::load_numeric_missing_placeholder<int32_t>(chandle, "missing-value-placeholder");
+        auto missingness = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<int32_t>(chandle, "missing-value-placeholder");
         has_missing = missingness.first;
         missing_placeholder = missingness.second;
     }
