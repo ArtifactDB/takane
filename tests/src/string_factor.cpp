@@ -122,6 +122,17 @@ TEST_F(StringFactorTest, Ordered) {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
         ghandle.removeAttr("ordered");
+
+        hsize_t dim = 10;
+        H5::DataSpace dspace(1, &dim);
+        ghandle.createAttribute("ordered", H5::PredType::NATIVE_INT, dspace);
+    }
+    expect_error("scalar");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup("string_factor");
+        ghandle.removeAttr("ordered");
         auto ahandle = ghandle.createAttribute("ordered", H5::PredType::NATIVE_INT8, H5S_SCALAR);
         int val = 1;
         ahandle.write(H5::PredType::NATIVE_INT, &val);
