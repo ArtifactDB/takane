@@ -1,139 +1,73 @@
 #ifndef TAKANE_COMPRESSED_LIST_HPP
 #define TAKANE_COMPRESSED_LIST_HPP
 
-#include "comservatory/comservatory.hpp"
+#include "H5Cpp.h"
+#include "ritsuko/ritsuko.hpp"
+#include "ritsuko/hdf5/hdf5.hpp"
 
-#include "utils_csv.hpp"
-
+#include <cstdint>
+#include <string>
 #include <stdexcept>
+#include <vector>
+#include <filesystem>
 
-/**
- * @file compressed_list.hpp
- * @brief Validation for compressed lists.
- */
+#include "utils_public.hpp"
+#include "utils_hdf5.hpp"
+#include "utils_other.hpp"
 
 namespace takane {
 
-/**
- * @namespace takane::compressed_list
- * @brief Definitions for compressed lists.
- */
+void validate(const std::filesystem::path&, const std::string&, const Options&);
+size_t height(const std::filesystem::path&, const std::string&, const Options&);
+bool satisfies_interface(const std::string&, const std::string&);
+
 namespace compressed_list {
 
-/**
- * @brief Parameters for validating the compressed list file.
- */
-struct Parameters {
-    /**
-     * Length of the compressed list.
-     */
-    size_t length = 0;
- 
-    /**
-     * Total length of the concatenated elements.
-     */
-    size_t concatenated = 0;
+template<bool satisfies_interface_>
+void validate(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const Options& options) try {
+    auto handle = ritsuko::hdf5::open_file(path / "partitions.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, object_type.c_str());
 
-    /**
-     * Whether the compressed list is named.
-     */
-    bool has_names = false;
-
-    /**
-     * Whether to load and parse the file in parallel, see `comservatory::ReadOptions` for details.
-     */
-    bool parallel = false;
-
-    /**
-     * Version of the `compressed_list` format.
-     */
-    int version = 1;
-};
-
-/**
- * @cond
- */
-template<class ParseCommand>
-CsvContents validate_base(ParseCommand parse, const Parameters& params, CsvFieldCreator* creator = NULL) {
-    DummyCsvFieldCreator default_creator;
-    if (creator == NULL) {
-        creator = &default_creator;
+    auto vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+    if (version.major != 1) {
+        throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    comservatory::Contents contents;
-    CsvContents output;
-    if (params.has_names) {
-        auto ptr = creator->string();
-        output.fields.emplace_back(ptr); 
-        contents.fields.emplace_back(new CsvNameField(false, ptr));
+    auto catdir = path / "concatenated";
+    auto cattype = read_object_type(catdir);
+    if constexpr(satisfies_interface_) {
+        if (!satisfies_interface(cattype, concatenated_type)) {
+            throw std::runtime_error("'concatenated' should satisfy the '" + concatenated_type + "' interface");
+        }
+    } else {
+        if (cattype != concatenated_type) {
+            throw std::runtime_error("'concatenated' should contain an 'atomic_vector' object");
+        }
     }
 
-    auto ptr0 = creator->integer();
-    output.fields.emplace_back(ptr0);
-    auto ptr = new CsvCompressedLengthField(static_cast<int>(params.has_names), ptr0);
-    contents.fields.emplace_back(ptr);
-
-    comservatory::ReadOptions opt;
-    opt.parallel = params.parallel;
-    parse(contents, opt);
-    if (contents.num_records() != params.length) {
-        throw std::runtime_error("number of records in the CSV file does not match the expected length");
+    try {
+        validate(catdir, cattype, options);
+    } catch (std::exception& e) {
+        throw std::runtime_error("failed to validate the 'concatenated' object; " + std::string(e.what()));
     }
+    size_t catheight = height(catdir, cattype, options);
 
-    if (params.concatenated != ptr->total) {
-        throw std::runtime_error("sum of lengths in the compressed list did not equal the expected concatenated total");
-    }
+    size_t len = internal_hdf5::validate_compressed_list(ghandle, catheight, options.hdf5_buffer_size);
 
-    if (contents.names.back() != "number") {
-        throw std::runtime_error("column containing the compressed list lengths should be named 'number'");
-    }
+    internal_hdf5::validate_names(ghandle, "names", len, options.hdf5_buffer_size);
+    internal_other::validate_mcols(path, "element_annotations", len, options);
+    internal_other::validate_metadata(path, "other_annotations", options);
 
-    return output;
-}
-/**
- * @endcond
- */
-
-/**
- * Checks if a CSV is correctly formatted for the `compressed_list` format.
- * An error is raised if the file does not meet the specifications.
- *
- * @tparam Reader A **byteme** reader class.
- *
- * @param reader A stream of bytes from the CSV file.
- * @param params Validation parameters.
- * @param creator Factory to create objects for holding the contents of each CSV field.
- * Defaults to a pointer to a `DummyFieldCreator` instance.
- *
- * @return Contents of the loaded CSV.
- * Whether the `fields` member actually contains the CSV data depends on `creator`.
- * If `params.has_names = true`, an additional field containing the names is present at the start.
- */
-template<class Reader>
-CsvContents validate(Reader& reader, const Parameters& params, CsvFieldCreator* creator = NULL) {
-    return validate_base(
-        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read(reader, contents, opts); },
-        params,
-        creator
-    );
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to validate an '" + object_type + "' object at '" + path.string() + "'; " + std::string(e.what()));
 }
 
-/**
- * Overload of `compressed_list::validate()` that accepts a file path.
- *
- * @param path Path to the CSV file.
- * @param params Validation parameters.
- * @param creator Factory to create objects for holding the contents of each CSV field.
- * Defaults to a pointer to a `DummyFieldCreator` instance.
- *
- * @return Contents of the loaded CSV.
- */
-inline CsvContents validate(const char* path, const Parameters& params, CsvFieldCreator* creator = NULL) {
-    return validate_base(
-        [&](comservatory::Contents& contents, const comservatory::ReadOptions& opts) -> void { comservatory::read_file(path, contents, opts); },
-        params,
-        creator
-    );
+inline size_t height(const std::filesystem::path& path, const std::string& name, [[maybe_unused]] const Options& options) {
+    H5::H5File handle(path / "partitions.h5", H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup(name);
+    auto dhandle = ghandle.openDataSet("lengths");
+    return ritsuko::hdf5::get_1d_length(dhandle, false);
 }
 
 }

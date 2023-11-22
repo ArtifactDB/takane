@@ -3,7 +3,7 @@
 
 #include "takane/takane.hpp"
 #include "utils.h"
-#include "atomic_vector.h"
+#include "data_frame.h"
 #include "data_frame.h"
 #include "simple_list.h"
 
@@ -11,10 +11,10 @@
 #include <filesystem>
 #include <fstream>
 
-struct AtomicVectorListTest : public::testing::Test {
-    AtomicVectorListTest() {
-        dir = "TEST_atomic_vector_list";
-        name = "atomic_vector_list";
+struct DataFrameListTest : public::testing::Test {
+    DataFrameListTest() {
+        dir = "TEST_data_frame_list";
+        name = "data_frame_list";
     }
 
     std::filesystem::path dir;
@@ -42,7 +42,7 @@ struct AtomicVectorListTest : public::testing::Test {
     }
 };
 
-TEST_F(AtomicVectorListTest, Basic) {
+TEST_F(DataFrameListTest, Basic) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -58,33 +58,33 @@ TEST_F(AtomicVectorListTest, Basic) {
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
         initialize_directory(dir / "concatenated", "foobar");
     }
-    expect_error("should contain an 'atomic_vector'");
+    expect_error("satisfy the 'DATA_FRAME'");
 
     {
-        initialize_directory(dir / "concatenated", "atomic_vector");
+        initialize_directory(dir / "concatenated", "data_frame");
     }
     expect_error("failed to validate the 'concatenated'");
 
     {
-        atomic_vector::mock(dir / "concatenated", 7, atomic_vector::Type::INTEGER);
+        data_frame::mock(dir / "concatenated", 7, false, {});
     }
     expect_error("sum of 'lengths'");
 
     {
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
+        data_frame::mock(dir / "concatenated", 10, false, {});
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 4);
 }
 
-TEST_F(AtomicVectorListTest, Names) {
+TEST_F(DataFrameListTest, Names) {
     {
         initialize_directory(dir, name);
         auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::NUMBER);
+        data_frame::mock(dir / "concatenated", 10, false, {});
 
         hdf5_utils::spawn_string_data(ghandle, "names", H5T_VARIABLE, { "Aaron", "Charlie", "Echo", "Fooblewooble" });
     }
@@ -99,14 +99,14 @@ TEST_F(AtomicVectorListTest, Names) {
     expect_error("same length");
 }
 
-TEST_F(AtomicVectorListTest, Metadata) {
+TEST_F(DataFrameListTest, Metadata) {
     {
         initialize_directory(dir, name);
         auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::BOOLEAN);
+        data_frame::mock(dir / "concatenated", 10, false, {});
     }
 
     auto cdir = dir / "element_annotations";

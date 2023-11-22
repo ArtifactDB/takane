@@ -139,6 +139,7 @@ inline void mock(const H5::Group& handle, hsize_t num_rows, bool has_row_names, 
 }
 
 inline void mock(const std::filesystem::path& path, hsize_t num_rows, bool has_row_names, const std::vector<data_frame::ColumnDetails>& columns) {
+    initialize_directory(path, "data_frame");
     H5::H5File handle(path / "basic_columns.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("data_frame");
     mock(ghandle, num_rows, has_row_names, columns);

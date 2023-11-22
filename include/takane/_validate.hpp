@@ -15,6 +15,7 @@
 #include "sequence_information.hpp"
 #include "genomic_ranges.hpp"
 #include "atomic_vector_list.hpp"
+#include "data_frame_list.hpp"
 
 /**
  * @file _validate.hpp
@@ -38,6 +39,7 @@ inline auto default_registry() {
     registry["sequence_information"] = [](const std::filesystem::path& p, const Options& o) { sequence_information::validate(p, o); };
     registry["genomic_ranges"] = [](const std::filesystem::path& p, const Options& o) { genomic_ranges::validate(p, o); };
     registry["atomic_vector_list"] = [](const std::filesystem::path& p, const Options& o) { atomic_vector_list::validate(p, o); };
+    registry["data_frame_list"] = [](const std::filesystem::path& p, const Options& o) { data_frame_list::validate(p, o); };
     return registry;
 } 
 
