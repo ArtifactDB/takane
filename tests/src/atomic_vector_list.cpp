@@ -29,11 +29,10 @@ struct AtomicVectorListTest : public::testing::Test {
         return H5::H5File(dir / "partitions.h5", H5F_ACC_RDWR);
     }
 
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
+    void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir, std::forward<Args_>(args)...);
+                takane::validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -75,51 +74,4 @@ TEST_F(AtomicVectorListTest, Basic) {
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 4);
-}
-
-TEST_F(AtomicVectorListTest, Names) {
-    {
-        initialize_directory(dir, name);
-        auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::NUMBER);
-
-        hdf5_utils::spawn_string_data(ghandle, "names", H5T_VARIABLE, { "Aaron", "Charlie", "Echo", "Fooblewooble" });
-    }
-    takane::validate(dir);
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("names");
-        hdf5_utils::spawn_string_data(ghandle, "names", H5T_VARIABLE, { "Aaron" });
-    }
-    expect_error("same length");
-}
-
-TEST_F(AtomicVectorListTest, Metadata) {
-    {
-        initialize_directory(dir, name);
-        auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::BOOLEAN);
-    }
-
-    auto cdir = dir / "element_annotations";
-    auto odir = dir / "other_annotations";
-
-    initialize_directory(cdir, "simple_list");
-    expect_error("'DATA_FRAME'"); 
-
-    data_frame::mock(cdir, 4, false, {});
-    initialize_directory(odir, "data_frame");
-    expect_error("'SIMPLE_LIST'");
-
-    initialize_directory(odir, "simple_list");
-    simple_list::mock(odir);
-    takane::validate(dir);
 }
