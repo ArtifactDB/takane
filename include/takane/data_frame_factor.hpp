@@ -49,15 +49,10 @@ inline std::function<bool(const std::filesystem::path&, const std::string&, cons
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const Options& options) try {
-    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
+    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, "data_frame_factor");
 
-    const char* parent = "data_frame_factor";
-    if (!handle.exists(parent) || handle.childObjType(parent) != H5O_TYPE_GROUP) {
-        throw std::runtime_error("expected a 'data_frame_factor' group");
-    }
-    auto ghandle = handle.openGroup(parent);
-
-    auto vstring = ritsuko::hdf5::load_scalar_string_attribute(ghandle, "version");
+    auto vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -86,7 +81,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     size_t num_codes = internal_hdf5::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
 
     if (ghandle.exists("names")) {
-        auto nhandle = ritsuko::hdf5::get_dataset(ghandle, "names");
+        auto nhandle = ritsuko::hdf5::open_dataset(ghandle, "names");
         if (nhandle.getTypeClass() != H5T_STRING) {
             throw std::runtime_error("'names' should be a string datatype class");
         }
