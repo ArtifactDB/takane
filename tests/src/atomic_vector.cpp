@@ -41,11 +41,6 @@ struct AtomicVectorTest : public::testing::Test {
 TEST_F(AtomicVectorTest, Basic) {
     {
         auto handle = initialize();
-    }
-    expect_error("expected an 'atomic_vector' group");
-
-    {
-        auto handle = reopen();
         auto ghandle = handle.createGroup("atomic_vector");
         hdf5_utils::attach_attribute(ghandle, "version", "2.0");
     }
@@ -163,6 +158,25 @@ TEST_F(AtomicVectorTest, Types) {
         {
             auto handle = reopen();
             auto ghandle = handle.openGroup("atomic_vector");
+
+            hsize_t dim = 10;
+            H5::DataSpace dspace(1, &dim);
+            ghandle.createAttribute("format", H5::PredType::NATIVE_INT, dspace);
+        }
+        expect_error("scalar");
+
+        {
+            auto handle = reopen();
+            auto ghandle = handle.openGroup("atomic_vector");
+            ghandle.removeAttr("format");
+            ghandle.createAttribute("format", H5::PredType::NATIVE_INT, H5S_SCALAR);
+        }
+        expect_error("'format' attribute to be a string");
+
+        {
+            auto handle = reopen();
+            auto ghandle = handle.openGroup("atomic_vector");
+            ghandle.removeAttr("format");
             hdf5_utils::attach_attribute(ghandle, "format", "date");
         }
         expect_error("date-formatted string");

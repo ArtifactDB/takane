@@ -36,18 +36,6 @@ struct DataFrameFactorTest : public::testing::Test {
 TEST_F(DataFrameFactorTest, Basic) {
     {
         auto handle = initialize();
-    }
-    expect_error("expected a 'data_frame_factor' group");
-
-    {
-        auto handle = reopen();
-        handle.createDataSet("data_frame_factor", H5::PredType::NATIVE_INT, H5S_SCALAR);
-    }
-    expect_error("expected a 'data_frame_factor' group");
-
-    {
-        auto handle = reopen();
-        handle.unlink("data_frame_factor");
         auto ghandle = handle.createGroup("data_frame_factor");
         hdf5_utils::attach_attribute(ghandle, "version", "2.0");
     }

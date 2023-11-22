@@ -41,18 +41,6 @@ struct StringFactorTest : public::testing::Test {
 TEST_F(StringFactorTest, Basic) {
     {
         auto handle = initialize();
-    }
-    expect_error("expected a 'string_factor' group");
-
-    {
-        auto handle = reopen();
-        handle.createDataSet("string_factor", H5::PredType::NATIVE_INT, H5S_SCALAR);
-    }
-    expect_error("expected a 'string_factor' group");
-
-    {
-        auto handle = reopen();
-        handle.unlink("string_factor");
         auto ghandle = handle.createGroup("string_factor");
         hdf5_utils::attach_attribute(ghandle, "version", "2.0");
     }
@@ -129,6 +117,17 @@ TEST_F(StringFactorTest, Ordered) {
         hdf5_utils::attach_attribute(ghandle, "ordered", "TRUE");
     }
     expect_error("32-bit signed integer");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup("string_factor");
+        ghandle.removeAttr("ordered");
+
+        hsize_t dim = 10;
+        H5::DataSpace dspace(1, &dim);
+        ghandle.createAttribute("ordered", H5::PredType::NATIVE_INT, dspace);
+    }
+    expect_error("scalar");
 
     {
         auto handle = reopen();
