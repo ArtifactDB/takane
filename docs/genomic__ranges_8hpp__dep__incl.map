@@ -1,5 +1,6 @@
 <map id="takane/genomic_ranges.hpp" name="takane/genomic_ranges.hpp">
-<area shape="rect" id="node1" title="Validation for genomic ranges." alt="" coords="5,5,189,31"/>
-<area shape="rect" id="node2" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="27,79,168,104"/>
-<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="33,152,161,177"/>
+<area shape="rect" id="node1" title="Validation for genomic ranges." alt="" coords="59,5,243,31"/>
+<area shape="rect" id="node2" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,79,136,104"/>
+<area shape="rect" id="node4" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,79,301,104"/>
+<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="87,152,215,177"/>
 </map>
