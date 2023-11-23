@@ -11,7 +11,7 @@
 namespace sequence_information {
 
 inline void mock(
-    const H5::Group& handle, 
+    H5::Group& handle, 
     const std::vector<std::string>& name, 
     const std::vector<int>& length, 
     const std::vector<int>& circular, 

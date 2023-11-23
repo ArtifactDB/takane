@@ -37,7 +37,7 @@ struct ColumnDetails {
     std::vector<std::string> factor_levels;
 };
 
-inline void mock(const H5::Group& handle, hsize_t num_rows, bool has_row_names, const std::vector<data_frame::ColumnDetails>& columns) {
+inline void mock(H5::Group& handle, hsize_t num_rows, bool has_row_names, const std::vector<data_frame::ColumnDetails>& columns) {
     {
         hsize_t ncol = columns.size();
         H5::DataSpace dspace(1, &ncol);

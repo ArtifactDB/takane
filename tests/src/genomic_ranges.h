@@ -12,7 +12,7 @@
 namespace genomic_ranges {
 
 inline void mock(
-    const H5::Group& handle,
+    H5::Group& handle,
     const std::vector<int>& seq_id, 
     const std::vector<int>& start, 
     const std::vector<int>& width, 

@@ -35,25 +35,25 @@ void expect_validation_error(const std::filesystem::path& dir, const std::string
 namespace hdf5_utils {
 
 template<class Handle>
-void attach_attribute(const Handle& handle, const std::string& name, const std::string& type) {
+void attach_attribute(Handle& handle, const std::string& name, const std::string& type) {
     H5::StrType stype(0, H5T_VARIABLE);
     auto attr = handle.createAttribute(name, stype, H5S_SCALAR);
     attr.write(stype, type);
 }
 
 template<class Handle>
-void attach_attribute(const Handle& handle, const std::string& name, int val) {
+void attach_attribute(Handle& handle, const std::string& name, int val) {
     auto attr = handle.createAttribute(name, H5::PredType::NATIVE_INT32, H5S_SCALAR);
     attr.write(H5::PredType::NATIVE_INT, &val);
 }
 
-inline H5::DataSet spawn_data(const H5::Group& handle, const std::string& name, hsize_t len, const H5::DataType& dtype) {
+inline H5::DataSet spawn_data(H5::Group& handle, const std::string& name, hsize_t len, const H5::DataType& dtype) {
     H5::DataSpace dspace(1, &len);
     return handle.createDataSet(name, dtype, dspace);
 }
 
 template<typename Type_>
-H5::DataSet spawn_numeric_data(const H5::Group& handle, const std::string& name, const H5::DataType& dtype, const std::vector<Type_>& values) {
+H5::DataSet spawn_numeric_data(H5::Group& handle, const std::string& name, const H5::DataType& dtype, const std::vector<Type_>& values) {
     auto dhandle = spawn_data(handle, name, values.size(), dtype);
     dhandle.write(values.data(), ritsuko::hdf5::as_numeric_datatype<Type_>());
     return dhandle;
@@ -68,7 +68,7 @@ std::vector<const char*> pointerize_strings(const Container_& x) {
     return output;
 }
 
-inline H5::DataSet spawn_string_data(const H5::Group& handle, const std::string& name, size_t strlen, const std::vector<std::string>& values) {
+inline H5::DataSet spawn_string_data(H5::Group& handle, const std::string& name, size_t strlen, const std::vector<std::string>& values) {
     auto dhandle = spawn_data(handle, name, values.size(), H5::StrType(0, strlen));
 
     if (strlen == H5T_VARIABLE) {
