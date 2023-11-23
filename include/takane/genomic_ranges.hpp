@@ -4,14 +4,16 @@
 #include "ritsuko/ritsuko.hpp"
 #include "comservatory/comservatory.hpp"
 
-#include "WrappedOption.hpp"
-
 #include <string>
 #include <filesystem>
 #include <stdexcept>
 #include <cstdint>
 #include <type_traits>
 #include <limits>
+
+#include "utils_string.hpp"
+#include "utils_public.hpp"
+#include "utils_other.hpp"
 
 /**
  * @file genomic_ranges.hpp
@@ -196,7 +198,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     internal_other::validate_mcols(path, "range_annotations", num_ranges, options);
     internal_other::validate_metadata(path, "other_annotations", options);
 
-    internal_hdf5::validate_names(ghandle, "name", num_ranges, options.hdf5_buffer_size);
+    internal_string::validate_names(ghandle, "name", num_ranges, options.hdf5_buffer_size);
 
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate 'genomic_ranges' object at '" + path.string() + "'; " + std::string(e.what()));

@@ -8,7 +8,7 @@
 #include "ritsuko/hdf5/hdf5.hpp"
 
 #include "utils_public.hpp"
-#include "utils_hdf5.hpp"
+#include "utils_string.hpp"
 
 /**
  * @file atomic_vector.hpp
@@ -48,8 +48,8 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
             throw std::runtime_error("expected a string datatype for 'values'");
         }
         auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);
-        std::string format = internal_hdf5::fetch_format_attribute(ghandle);
-        internal_hdf5::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, options.hdf5_buffer_size);
+        std::string format = internal_string::fetch_format_attribute(ghandle);
+        internal_string::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, options.hdf5_buffer_size);
 
     } else {
         if (type == "integer") {
@@ -74,7 +74,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         }
     }
 
-    internal_hdf5::validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
+    internal_string::validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
 
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate an 'atomic_vector' at '" + path.string() + "'; " + std::string(e.what()));

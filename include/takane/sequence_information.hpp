@@ -9,7 +9,6 @@
 #include <string>
 
 #include "utils_public.hpp"
-#include "utils_hdf5.hpp"
 
 /**
  * @file sequence_information.hpp

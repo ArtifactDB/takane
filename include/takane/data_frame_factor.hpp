@@ -8,7 +8,8 @@
 #include "ritsuko/hdf5/hdf5.hpp"
 
 #include "utils_public.hpp"
-#include "utils_hdf5.hpp"
+#include "utils_string.hpp"
+#include "utils_factor.hpp"
 
 /**
  * @file data_frame_factor.hpp
@@ -78,12 +79,12 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         }
     }
 
-    size_t num_codes = internal_hdf5::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
+    size_t num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
 
     internal_other::validate_mcols(path, "element_annotations", num_codes, options);
     internal_other::validate_metadata(path, "other_annotations", options);
 
-    internal_hdf5::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
+    internal_string::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate a 'data_frame_factor' at '" + path.string() + "'; " + std::string(e.what()));

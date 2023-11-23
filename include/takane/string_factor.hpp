@@ -8,7 +8,8 @@
 #include "ritsuko/hdf5/hdf5.hpp"
 
 #include "utils_public.hpp"
-#include "utils_hdf5.hpp"
+#include "utils_string.hpp"
+#include "utils_factor.hpp"
 
 /**
  * @file string_factor.hpp
@@ -37,12 +38,12 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    internal_hdf5::check_ordered_attribute(ghandle);
+    internal_factor::check_ordered_attribute(ghandle);
 
-    size_t num_levels = internal_hdf5::validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);
-    size_t num_codes = internal_hdf5::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size);
+    size_t num_levels = internal_factor::validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);
+    size_t num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size);
 
-    internal_hdf5::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
+    internal_string::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate a 'string_factor' at '" + path.string() + "'; " + std::string(e.what()));

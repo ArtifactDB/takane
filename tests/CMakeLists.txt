@@ -34,7 +34,8 @@ add_executable(
     #    src/hdf5_sparse_matrix.cpp
     #    src/hdf5_dense_array.cpp
     src/utils_compressed_list.cpp
-    src/utils_hdf5.cpp
+    src/utils_string.cpp
+    src/utils_factor.cpp
     src/utils_other.cpp
     src/dispatch.cpp
 )

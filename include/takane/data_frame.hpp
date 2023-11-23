@@ -13,7 +13,8 @@
 #include <unordered_set>
 
 #include "utils_public.hpp"
-#include "utils_hdf5.hpp"
+#include "utils_string.hpp"
+#include "utils_factor.hpp"
 #include "utils_other.hpp"
 
 /**
@@ -89,10 +90,10 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
             throw std::runtime_error("expected HDF5 groups to have a 'type' attribute set to 'factor'");
         }
 
-        internal_hdf5::check_ordered_attribute(fhandle);
+        internal_factor::check_ordered_attribute(fhandle);
 
-        auto num_levels = internal_hdf5::validate_factor_levels(fhandle, "levels", options.hdf5_buffer_size);
-        auto num_codes = internal_hdf5::validate_factor_codes(fhandle, "codes", num_levels, options.hdf5_buffer_size);
+        auto num_levels = internal_factor::validate_factor_levels(fhandle, "levels", options.hdf5_buffer_size);
+        auto num_codes = internal_factor::validate_factor_codes(fhandle, "codes", num_levels, options.hdf5_buffer_size);
         if (num_codes != num_rows) {
             throw std::runtime_error("expected column to have length equal to the number of rows");
         }
@@ -111,8 +112,8 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
                 throw std::runtime_error("expected column " + dset_name + " to be a string dataset");
             }
             auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(xhandle, missing_attr_name);
-            std::string format = internal_hdf5::fetch_format_attribute(xhandle);
-            internal_hdf5::validate_string_format(xhandle, num_rows, format, missingness.first, missingness.second, options.hdf5_buffer_size);
+            std::string format = internal_string::fetch_format_attribute(xhandle);
+            internal_string::validate_string_format(xhandle, num_rows, format, missingness.first, missingness.second, options.hdf5_buffer_size);
 
         } else {
             if (type == "integer") {

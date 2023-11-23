@@ -12,7 +12,7 @@
 #include <filesystem>
 
 #include "utils_public.hpp"
-#include "utils_hdf5.hpp"
+#include "utils_string.hpp"
 #include "utils_other.hpp"
 
 namespace takane {
@@ -74,7 +74,7 @@ void validate_directory(const std::filesystem::path& path, const std::string& ob
 
     size_t len = validate_group(ghandle, catheight, options.hdf5_buffer_size);
 
-    internal_hdf5::validate_names(ghandle, "names", len, options.hdf5_buffer_size);
+    internal_string::validate_names(ghandle, "names", len, options.hdf5_buffer_size);
     internal_other::validate_mcols(path, "element_annotations", len, options);
     internal_other::validate_metadata(path, "other_annotations", options);
 
