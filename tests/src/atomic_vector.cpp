@@ -3,33 +3,34 @@
 
 #include "takane/takane.hpp"
 #include "utils.h"
+#include "atomic_vector.h"
 
 #include <string>
 #include <filesystem>
 #include <fstream>
 
 struct AtomicVectorTest : public::testing::Test {
-    static std::filesystem::path testdir() {
-        return "TEST_atomic_vector";
+    AtomicVectorTest() {
+        dir = "TEST_atomic_vector";
+        name = "atomic_vector";
     }
 
-    static H5::H5File initialize() {
-        auto path = testdir();
-        initialize_directory(path, "atomic_vector");
-        path.append("contents.h5");
-        return H5::H5File(path, H5F_ACC_TRUNC);
+    std::filesystem::path dir;
+    std::string name;
+
+    H5::H5File initialize() {
+        initialize_directory(dir, name);
+        return H5::H5File(dir / "contents.h5", H5F_ACC_TRUNC);
     }
 
-    static H5::H5File reopen() {
-        auto path = testdir() / "contents.h5";
-        return H5::H5File(path, H5F_ACC_RDWR);
+    H5::H5File reopen() {
+        return H5::H5File(dir / "contents.h5", H5F_ACC_RDWR);
     }
 
-    template<typename ... Args_>
-    static void expect_error(const std::string& msg, Args_&& ... args) {
+    void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(testdir(), std::forward<Args_>(args)...);
+                takane::validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -71,94 +72,70 @@ TEST_F(AtomicVectorTest, Basic) {
         ghandle.removeAttr("type");
         hdf5_utils::attach_attribute(ghandle, "type", "integer");
     }
-    takane::validate(testdir());
-    EXPECT_EQ(takane::height(testdir()), 100);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 100);
 }
 
 TEST_F(AtomicVectorTest, Types) {
     // Integer.
     {
-        {
-            auto handle = initialize();
-            auto ghandle = handle.createGroup("atomic_vector");
-            hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-            hdf5_utils::attach_attribute(ghandle, "type", "integer");
-            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_FLOAT);
-        }
-        expect_error("32-bit signed integer");
+        mock(dir, 100, atomic_vector::Type::INTEGER);
+        takane::validate(dir);
 
         {
             auto handle = reopen();
-            auto ghandle = handle.openGroup("atomic_vector");
+            auto ghandle = handle.openGroup(name);
             ghandle.unlink("values");
-            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_FLOAT);
         }
-        takane::validate(testdir());
+        expect_error("32-bit signed integer");
     }
 
     // Boolean.
     {
-        {
-            auto handle = initialize();
-            auto ghandle = handle.createGroup("atomic_vector");
-            hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-            hdf5_utils::attach_attribute(ghandle, "type", "boolean");
-            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_FLOAT);
-        }
-        expect_error("32-bit signed integer");
+        mock(dir, 100, atomic_vector::Type::BOOLEAN);
+        takane::validate(dir);
 
         {
             auto handle = reopen();
-            auto ghandle = handle.openGroup("atomic_vector");
+            auto ghandle = handle.openGroup(name);
             ghandle.unlink("values");
-            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_FLOAT);
         }
-        takane::validate(testdir());
+        expect_error("32-bit signed integer");
     }
 
     // Number.
     {
-        {
-            auto handle = initialize();
-            auto ghandle = handle.createGroup("atomic_vector");
-            hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-            hdf5_utils::attach_attribute(ghandle, "type", "number");
-            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT64);
-        }
-        expect_error("64-bit float");
+        mock(dir, 100, atomic_vector::Type::NUMBER);
+        takane::validate(dir);
 
         {
             auto handle = reopen();
-            auto ghandle = handle.openGroup("atomic_vector");
+            auto ghandle = handle.openGroup(name);
             ghandle.unlink("values");
-            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_DOUBLE);
+            hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT64);
         }
-        takane::validate(testdir());
+        expect_error("64-bit float");
     }
 
     // String.
     {
+        mock(dir, 100, atomic_vector::Type::STRING);
+        takane::validate(dir);
+
         {
-            auto handle = initialize();
-            auto ghandle = handle.createGroup("atomic_vector");
-            hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-            hdf5_utils::attach_attribute(ghandle, "type", "string");
+            auto handle = reopen();
+            auto ghandle = handle.openGroup(name);
+            ghandle.unlink("values");
             hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT);
         }
         expect_error("string datatype");
 
         {
+            mock(dir, 13, atomic_vector::Type::STRING);
             auto handle = reopen();
-            auto ghandle = handle.openGroup("atomic_vector");
-            ghandle.unlink("values");
-            hdf5_utils::spawn_data(ghandle, "values", 5, H5::StrType(0, 10));
-        }
-        takane::validate(testdir());
-
-        {
-            auto handle = reopen();
-            auto ghandle = handle.openGroup("atomic_vector");
-
+            auto ghandle = handle.openGroup(name);
             hsize_t dim = 10;
             H5::DataSpace dspace(1, &dim);
             ghandle.createAttribute("format", H5::PredType::NATIVE_INT, dspace);
@@ -184,12 +161,11 @@ TEST_F(AtomicVectorTest, Types) {
 }
 
 TEST_F(AtomicVectorTest, Missingness) {
+    mock(dir, 100, atomic_vector::Type::INTEGER);
+
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup("atomic_vector");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        hdf5_utils::attach_attribute(ghandle, "type", "integer");
-        hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openDataSet("values");
         auto attr = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
@@ -197,23 +173,22 @@ TEST_F(AtomicVectorTest, Missingness) {
 
     {
         auto handle = reopen();
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openDataSet("values");
         dhandle.removeAttr("missing-value-placeholder");
         auto attr = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
         int val = -1;
         attr.write(H5::PredType::NATIVE_INT, &val);
     }
-    takane::validate(testdir());
+    takane::validate(dir);
 }
 
 TEST_F(AtomicVectorTest, NameChecks) {
+    mock(dir, 100, atomic_vector::Type::INTEGER);
+
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup("atomic_vector");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        hdf5_utils::attach_attribute(ghandle, "type", "integer");
-        hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
+        auto handle = reopen();
+        auto ghandle = handle.openGroup("atomic_vector");
         hdf5_utils::spawn_data(ghandle, "names", 100, H5::PredType::NATIVE_INT32);
     }
     expect_error("string datatype");
@@ -232,5 +207,5 @@ TEST_F(AtomicVectorTest, NameChecks) {
         ghandle.unlink("names");
         hdf5_utils::spawn_data(ghandle, "names", 100, H5::StrType(0, 10));
     }
-    takane::validate(testdir());
+    takane::validate(dir);
 }
