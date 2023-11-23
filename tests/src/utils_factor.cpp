@@ -63,11 +63,22 @@ TEST_F(Hdf5FactorTest, Codes) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         hdf5_utils::spawn_data(handle, "fab", 10, H5::PredType::NATIVE_FLOAT);
-        hdf5_utils::spawn_data(handle, "blah", ncodes, H5::PredType::NATIVE_INT32);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_codes("32-bit signed integer", handle, "fab", 10, 10000);
+        expect_error_codes("64-bit unsigned integer", handle, "fab", 10, 10000);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+        std::vector<int> stuff(ncodes);
+        for (size_t i = 0; i < ncodes; ++i) {
+            stuff[i] = static_cast<int>(i) % 10;
+        }
+        hdf5_utils::spawn_numeric_data(handle, "blah", H5::PredType::NATIVE_UINT16, stuff);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
         expect_error_codes("less than the number of levels", handle, "blah", 0, 10000);
         EXPECT_EQ(takane::internal_factor::validate_factor_codes(handle, "blah", 10, 10000), ncodes);
     }
@@ -75,27 +86,13 @@ TEST_F(Hdf5FactorTest, Codes) {
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet("blah");
-        std::vector<int> stuff(ncodes);
-        for (size_t i = 0; i < ncodes; ++i) {
-            stuff[i] = static_cast<int>(i) % 5 - 1;
-        }
-        dhandle.write(stuff.data(), H5::PredType::NATIVE_INT);
-    }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_codes("non-negative", handle, "blah", 4, 10000);
-    }
-
-    {
-        H5::H5File handle(path, H5F_ACC_RDWR);
-        auto dhandle = handle.openDataSet("blah");
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
-        int val = -1;
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT16, H5S_SCALAR);
+        int val = 9;
         ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        EXPECT_EQ(takane::internal_factor::validate_factor_codes(handle, "blah", 4, 10000), ncodes);
-        expect_error_codes("number of levels", handle, "blah", 3, 10000);
+        EXPECT_EQ(takane::internal_factor::validate_factor_codes(handle, "blah", 9, 10000), ncodes);
+        expect_error_codes("number of levels", handle, "blah", 8, 10000);
     }
 }

@@ -457,7 +457,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.unlink("codes");
-        hdf5_utils::spawn_data(fhandle, "codes", 80, H5::PredType::NATIVE_INT8);
+        hdf5_utils::spawn_data(fhandle, "codes", 80, H5::PredType::NATIVE_UINT8);
     }
     expect_error("length equal to the number of rows");
 
@@ -469,7 +469,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         fhandle.unlink("codes");
 
         std::vector<int> replacement(99, columns[0].factor_levels.size());
-        auto xhandle = hdf5_utils::spawn_data(fhandle, "codes", replacement.size(), H5::PredType::NATIVE_INT16);
+        auto xhandle = hdf5_utils::spawn_data(fhandle, "codes", replacement.size(), H5::PredType::NATIVE_UINT16);
         xhandle.write(replacement.data(), H5::PredType::NATIVE_INT);
     }
     expect_error("less than the number of levels");

@@ -106,7 +106,7 @@ inline void mock(H5::Group& handle, hsize_t num_rows, const std::vector<data_fra
             for (hsize_t i = 0; i < num_rows; ++i) {
                 codes[i] = i % nchoices;
             }
-            auto chandle = hdf5_utils::spawn_data(dhandle, "codes", num_rows, H5::PredType::NATIVE_INT16);
+            auto chandle = hdf5_utils::spawn_data(dhandle, "codes", num_rows, H5::PredType::NATIVE_UINT16);
             chandle.write(codes.data(), H5::PredType::NATIVE_INT);
         }
     }

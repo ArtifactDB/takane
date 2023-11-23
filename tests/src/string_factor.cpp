@@ -65,7 +65,7 @@ TEST_F(StringFactorTest, Basic) {
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
-        hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_INT32);
+        hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_UINT32);
     }
     takane::validate(testdir());
     EXPECT_EQ(takane::height(testdir()), 100);
@@ -77,28 +77,20 @@ TEST_F(StringFactorTest, Codes) {
         auto ghandle = handle.createGroup("string_factor");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
-        std::vector<int> codes { 0, -1, 2, 1, 3, -1, 2 };
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        std::vector<int> codes { 0, 3, 2, 1, 3, 0, 2 };
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
         hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
-    }
-    expect_error("non-negative");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("string_factor");
-        auto dhandle = ghandle.openDataSet("codes");
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
-        int val = -1;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
     expect_error("number of levels");
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("string_factor");
-        ghandle.unlink("levels");
-        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C", "D" });
+        auto dhandle = ghandle.openDataSet("codes");
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+        int val = 3;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
     takane::validate(testdir());
 }
@@ -110,7 +102,7 @@ TEST_F(StringFactorTest, Ordered) {
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
         std::vector<int> codes { 0, 2, 1, 1, 2 };
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
         hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
 
@@ -147,7 +139,7 @@ TEST_F(StringFactorTest, Names) {
         auto ghandle = handle.createGroup("string_factor");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
         hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
 

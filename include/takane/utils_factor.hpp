@@ -52,8 +52,8 @@ inline hsize_t validate_factor_levels(const H5::Group& handle, const std::string
 
 inline hsize_t validate_factor_codes(const H5::Group& handle, const std::string& name, hsize_t num_levels, hsize_t buffer_size, bool allow_missing = true) {
     auto chandle = ritsuko::hdf5::open_dataset(handle, name.c_str());
-    if (ritsuko::hdf5::exceeds_integer_limit(chandle, 32, true)) {
-        throw std::runtime_error("expected a datatype for '" + name + "' that fits in a 32-bit signed integer");
+    if (ritsuko::hdf5::exceeds_integer_limit(chandle, 64, false)) {
+        throw std::runtime_error("expected a datatype for '" + name + "' that fits in a 64-bit unsigned integer");
     }
 
     bool has_missing = false;
@@ -70,9 +70,6 @@ inline hsize_t validate_factor_codes(const H5::Group& handle, const std::string&
         auto x = stream.get();
         if (has_missing && x == missing_placeholder) {
             continue;
-        }
-        if (x < 0) {
-            throw std::runtime_error("expected factor codes to be non-negative");
         }
         if (static_cast<hsize_t>(x) >= num_levels) {
             throw std::runtime_error("expected factor codes to be less than the number of levels");

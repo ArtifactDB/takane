@@ -58,7 +58,7 @@ TEST_F(DataFrameFactorTest, Basic) {
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("data_frame_factor");
-        hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_INT32);
+        hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_UINT32);
     }
     takane::validate(testdir());
     EXPECT_EQ(takane::height(testdir()), 100);
@@ -90,21 +90,12 @@ TEST_F(DataFrameFactorTest, Codes) {
         auto ghandle = handle.createGroup("data_frame_factor");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
-        std::vector<int> codes { 0, -1, 2, 1, 3, -1, 2 };
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        std::vector<int> codes { 0, 4, 2, 1, 3, 5, 2 };
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
 
         auto ldir = testdir() / "levels";
         data_frame::mock(ldir, 5, {});
-    }
-    expect_error("non-negative");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("data_frame_factor");
-        auto dhandle = ghandle.openDataSet("codes");
-        std::vector<int> codes { 0, 1, 2, 1, 3, 100, 2 };
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
     }
     expect_error("number of levels");
 
@@ -125,7 +116,7 @@ TEST_F(DataFrameFactorTest, Names) {
         auto ghandle = handle.createGroup("data_frame_factor");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
         hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
 
@@ -162,7 +153,7 @@ TEST_F(DataFrameFactorTest, Metadata) {
         auto ghandle = handle.createGroup("data_frame_factor");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_INT32);
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
 
         auto ldir = dir / "levels";
