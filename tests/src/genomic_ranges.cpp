@@ -292,19 +292,12 @@ TEST_F(GenomicRangesTest, Strand) {
 }
 
 TEST_F(GenomicRangesTest, Names) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 90, 100, 50, 100 },
-        { 11, 101, 51, 201 },
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
+    genomic_ranges::mock(dir, 6, 4); 
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("genomic_ranges");
-        hdf5_utils::spawn_string_data(ghandle, "name", 2, { "A", "B", "C", "D" });
+        hdf5_utils::spawn_string_data(ghandle, "name", 2, { "A", "B", "C", "D", "E", "F" });
     }
     takane::validate(dir);
 
@@ -318,14 +311,7 @@ TEST_F(GenomicRangesTest, Names) {
 }
 
 TEST_F(GenomicRangesTest, Metadata) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 90, 100, 50, 100 },
-        { 11, 101, 51, 201 },
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
+    genomic_ranges::mock(dir, 25, 11); 
 
     auto odir = dir / "other_annotations";
     auto rdir = dir / "range_annotations";
@@ -334,7 +320,7 @@ TEST_F(GenomicRangesTest, Metadata) {
     expect_error("'DATA_FRAME'"); 
 
     initialize_directory(rdir, "data_frame");
-    data_frame::mock(rdir, 4, false, {});
+    data_frame::mock(rdir, 25, false, {});
     initialize_directory(odir, "data_frame");
     expect_error("'SIMPLE_LIST'");
 
