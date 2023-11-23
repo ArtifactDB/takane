@@ -30,11 +30,10 @@ struct Hdf5DataFrameTest : public ::testing::Test {
         return H5::H5File(path, H5F_ACC_RDWR);
     }
 
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
+    void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir, std::forward<Args_>(args)...);
+                takane::validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -48,9 +47,10 @@ TEST_F(Hdf5DataFrameTest, Rownames) {
     columns.front().name = "WHEE";
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        data_frame::mock(ghandle, 29, true, columns);
+        data_frame::mock(dir, 29, columns);
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        data_frame::attach_row_names(ghandle, 29);
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 29);
@@ -75,11 +75,7 @@ TEST_F(Hdf5DataFrameTest, Rownames) {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
         ghandle.unlink("row_names");
-
-        H5::StrType stype(0, H5T_VARIABLE);
-        hsize_t dummy = 20;
-        H5::DataSpace dspace(1, &dummy);
-        ghandle.createDataSet("row_names", stype, dspace);
+        data_frame::attach_row_names(ghandle, 20);
     }
     expect_error("expected 'row_names' to have length");
 }
@@ -89,14 +85,10 @@ TEST_F(Hdf5DataFrameTest, Colnames) {
     columns[0].name = "Aaron";
     columns[1].name = "Barry";
 
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 29, false, columns);
-    }
+    data_frame::mock(dir, 29, columns);
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 29);
-    
+
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
@@ -120,19 +112,11 @@ TEST_F(Hdf5DataFrameTest, Colnames) {
     expect_error("string dataset");
 
     columns[1].name = "Aaron";
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 29, false, columns);
-    }
+    data_frame::mock(dir, 29, columns);
     expect_error("duplicated column name");
 
     columns[0].name = "";
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 29, false, columns);
-    }
+    data_frame::mock(dir, 29, columns);
     expect_error("empty strings");
 }
 
@@ -145,11 +129,9 @@ TEST_F(Hdf5DataFrameTest, General) {
     H5::StrType stype(0, H5T_VARIABLE);
 
     {
-        initialize();
-        auto handle = reopen();
+        auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
-        attr.write(stype, std::string("2.0"));
+        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
     }
     expect_error("unsupported version");
 
@@ -157,8 +139,7 @@ TEST_F(Hdf5DataFrameTest, General) {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
         ghandle.removeAttr("version");
-        auto attr = ghandle.createAttribute("version", stype, H5S_SCALAR);
-        attr.write(stype, std::string("1.0"));
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         ghandle.createAttribute("row-count", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
     expect_error("64-bit unsigned");
@@ -170,11 +151,11 @@ TEST_F(Hdf5DataFrameTest, Data) {
     columns[1].name = "Barry";
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 33, false, columns);
-        ghandle.unlink("data");
-        auto dhandle = ghandle.createGroup("data");
+        data_frame::mock(dir, 33, columns);
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.unlink("0");
         auto fhandle = dhandle.createGroup("0");
         hdf5_utils::attach_attribute(fhandle, "type", "something");
     }
@@ -190,9 +171,9 @@ TEST_F(Hdf5DataFrameTest, Data) {
     expect_error("length equal to the number of rows");
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 33, false, columns);
+        data_frame::mock(dir, 33, columns);
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
         auto dhandle = ghandle.openGroup("data");
         dhandle.createGroup("foo");
     }
@@ -207,9 +188,7 @@ TEST_F(Hdf5DataFrameTest, Other) {
     columns[1].type = data_frame::ColumnType::OTHER;
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 51, false, columns);
+        data_frame::mock(dir, 51, columns);
 
         std::filesystem::create_directory(dir / "other_columns");
         for (size_t i = 0; i < 2; ++i) {
@@ -222,7 +201,7 @@ TEST_F(Hdf5DataFrameTest, Other) {
             subcolumns[0].name = "version" + std::to_string(i + 1);
             H5::H5File handle(subdir / "basic_columns.h5", H5F_ACC_TRUNC);
             auto ghandle = handle.createGroup(name);
-            mock(ghandle, 51, false, subcolumns);
+            data_frame::mock(ghandle, 51, subcolumns);
         }
     }
     takane::validate(dir);
@@ -231,9 +210,7 @@ TEST_F(Hdf5DataFrameTest, Other) {
         auto subdir = dir / "other_columns" / "0";
         std::vector<data_frame::ColumnDetails> subcolumns(1);
         subcolumns[0].name = "version3";
-        H5::H5File handle(subdir / "basic_columns.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup(name);
-        mock(ghandle, 32, false, subcolumns);
+        data_frame::mock(subdir, 32, subcolumns);
     }
     expect_error("height of column 0 of class 'data_frame'");
 
@@ -249,11 +226,7 @@ TEST_F(Hdf5DataFrameTest, Integer) {
     columns[0].name = "Aaron";
     columns[0].type = data_frame::ColumnType::INTEGER;
 
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        data_frame::mock(ghandle, 33, false, columns);
-    }
+    data_frame::mock(dir, 33, columns);
     takane::validate(dir);
 
     {
@@ -294,11 +267,7 @@ TEST_F(Hdf5DataFrameTest, Boolean) {
     columns[0].name = "Aaron";
     columns[0].type = data_frame::ColumnType::BOOLEAN;
 
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        data_frame::mock(ghandle, 55, false, columns);
-    }
+    data_frame::mock(dir, 55, columns);
     takane::validate(dir);
 
     {
@@ -339,11 +308,7 @@ TEST_F(Hdf5DataFrameTest, Number) {
     columns[0].name = "Aaron";
     columns[0].type = data_frame::ColumnType::NUMBER;
 
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        data_frame::mock(ghandle, 99, false, columns);
-    }
+    data_frame::mock(dir, 99, columns);
     takane::validate(dir);
 
     {
@@ -387,7 +352,7 @@ TEST_F(Hdf5DataFrameTest, String) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        mock(ghandle, 72, false, columns);
+        mock(ghandle, 72, columns);
     }
     takane::validate(dir);
 
@@ -453,7 +418,7 @@ TEST_F(Hdf5DataFrameTest, StringFormat) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        mock(ghandle, 72, false, columns);
+        mock(ghandle, 72, columns);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         hdf5_utils::attach_attribute(xhandle, "format", "date-time");
@@ -482,7 +447,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        mock(ghandle, 99, false, columns);
+        mock(ghandle, 99, columns);
     }
     takane::validate(dir);
 
@@ -512,7 +477,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        mock(ghandle, 99, false, columns);
+        mock(ghandle, 99, columns);
 
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
@@ -527,7 +492,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        mock(ghandle, 99, false, columns);
+        mock(ghandle, 99, columns);
         auto fhandle = ghandle.openGroup("data/0");
         fhandle.createAttribute("ordered", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
@@ -552,15 +517,11 @@ TEST_F(Hdf5DataFrameTest, Metadata) {
     auto cdir = dir / "column_annotations";
     auto odir = dir / "other_annotations";
 
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        data_frame::mock(ghandle, 99, false, columns);
-        initialize_directory(cdir, "simple_list");
-    }
+    data_frame::mock(dir, 99, columns);
+    initialize_directory(cdir, "simple_list");
     expect_error("'DATA_FRAME'"); 
 
-    data_frame::mock(cdir, columns.size(), false, {});
+    data_frame::mock(cdir, columns.size(), {});
     initialize_directory(odir, "data_frame");
     expect_error("'SIMPLE_LIST'");
 

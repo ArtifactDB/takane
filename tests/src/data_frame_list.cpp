@@ -64,12 +64,12 @@ TEST_F(DataFrameListTest, Basic) {
     expect_error("failed to validate the 'concatenated'");
 
     {
-        data_frame::mock(dir / "concatenated", 7, false, {});
+        data_frame::mock(dir / "concatenated", 7, {});
     }
     expect_error("sum of 'lengths'");
 
     {
-        data_frame::mock(dir / "concatenated", 10, false, {});
+        data_frame::mock(dir / "concatenated", 10, {});
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 4);

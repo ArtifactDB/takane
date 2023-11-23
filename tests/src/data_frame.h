@@ -19,25 +19,17 @@ enum class ColumnType {
     OTHER
 };
 
-enum class StringFormat {
-    NONE,
-    DATE,
-    DATE_TIME
-};
-
 struct ColumnDetails {
     std::string name;
 
     ColumnType type = ColumnType::INTEGER;
-
-    StringFormat string_format = StringFormat::NONE;
 
     bool factor_ordered = false;
 
     std::vector<std::string> factor_levels;
 };
 
-inline void mock(H5::Group& handle, hsize_t num_rows, bool has_row_names, const std::vector<data_frame::ColumnDetails>& columns) {
+inline void mock(H5::Group& handle, hsize_t num_rows, const std::vector<data_frame::ColumnDetails>& columns) {
     {
         hsize_t ncol = columns.size();
         H5::DataSpace dspace(1, &ncol);
@@ -51,24 +43,6 @@ inline void mock(H5::Group& handle, hsize_t num_rows, bool has_row_names, const 
         }
 
         dhandle.write(column_names.data(), stype);
-    }
-
-    if (has_row_names) {
-        H5::DataSpace dspace(1, &num_rows);
-        H5::StrType stype(0, H5T_VARIABLE);
-        auto dhandle = handle.createDataSet("row_names", stype, dspace);
-
-        std::vector<std::string> row_names;
-        row_names.reserve(num_rows);
-        std::vector<const char*> row_names_ptr;
-        row_names_ptr.reserve(num_rows);
-
-        for (hsize_t i = 0; i < num_rows; ++i) {
-            row_names.push_back(std::to_string(i));
-            row_names_ptr.push_back(row_names.back().c_str());
-        }
-
-        dhandle.write(row_names_ptr.data(), stype);
     }
 
     auto attr = handle.createAttribute("row-count", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
@@ -138,11 +112,29 @@ inline void mock(H5::Group& handle, hsize_t num_rows, bool has_row_names, const 
     }
 }
 
-inline void mock(const std::filesystem::path& path, hsize_t num_rows, bool has_row_names, const std::vector<data_frame::ColumnDetails>& columns) {
+inline void mock(const std::filesystem::path& path, hsize_t num_rows, const std::vector<data_frame::ColumnDetails>& columns) {
     initialize_directory(path, "data_frame");
     H5::H5File handle(path / "basic_columns.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("data_frame");
-    mock(ghandle, num_rows, has_row_names, columns);
+    mock(ghandle, num_rows, columns);
+}
+
+inline void attach_row_names(H5::Group& handle, hsize_t num_rows) {
+    H5::DataSpace dspace(1, &num_rows);
+    H5::StrType stype(0, H5T_VARIABLE);
+    auto dhandle = handle.createDataSet("row_names", stype, dspace);
+
+    std::vector<std::string> row_names;
+    row_names.reserve(num_rows);
+    std::vector<const char*> row_names_ptr;
+    row_names_ptr.reserve(num_rows);
+
+    for (hsize_t i = 0; i < num_rows; ++i) {
+        row_names.push_back(std::to_string(i));
+        row_names_ptr.push_back(row_names.back().c_str());
+    }
+
+    dhandle.write(row_names_ptr.data(), stype);
 }
 
 }

@@ -41,7 +41,7 @@ TEST_F(ValidateMetadataTest, Mcols) {
     auto path = testdir();
     std::filesystem::create_directory(path);
     auto subpath = path / "mcols";
-    data_frame::mock(subpath, 10, true, {});
+    data_frame::mock(subpath, 10, {});
 
     takane::internal_other::validate_mcols(path, "mcols", 10, takane::Options());
     expect_error_mcols("unexpected number of rows", path, "mcols", 20, takane::Options());

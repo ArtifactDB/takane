@@ -319,7 +319,7 @@ TEST_F(GenomicRangesTest, Metadata) {
     initialize_directory(rdir, "simple_list");
     expect_error("'DATA_FRAME'"); 
 
-    data_frame::mock(rdir, 25, false, {});
+    data_frame::mock(rdir, 25, {});
     initialize_directory(odir, "data_frame");
     expect_error("'SIMPLE_LIST'");
 

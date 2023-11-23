@@ -51,7 +51,7 @@ TEST_F(DataFrameFactorTest, Basic) {
     }
     expect_error("'levels'");
 
-    data_frame::mock(ldir, 5, false, {});
+    data_frame::mock(ldir, 5, {});
     expect_error("'codes'");
 
     // Success at last.
@@ -78,7 +78,7 @@ TEST_F(DataFrameFactorTest, Levels) {
     expect_error("'DATA_FRAME'");
 
     takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> bool { return true; };
-    data_frame::mock(ldir, 5, false, {});
+    data_frame::mock(ldir, 5, {});
     expect_error("duplicated rows");
 
     takane::data_frame_factor::any_duplicated = nullptr;
@@ -95,7 +95,7 @@ TEST_F(DataFrameFactorTest, Codes) {
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
 
         auto ldir = testdir() / "levels";
-        data_frame::mock(ldir, 5, false, {});
+        data_frame::mock(ldir, 5, {});
     }
     expect_error("non-negative");
 
@@ -130,7 +130,7 @@ TEST_F(DataFrameFactorTest, Names) {
         hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
 
         auto ldir = testdir() / "levels";
-        data_frame::mock(ldir, 5, false, {});
+        data_frame::mock(ldir, 5, {});
     }
     expect_error("string datatype");
 
@@ -166,13 +166,13 @@ TEST_F(DataFrameFactorTest, Metadata) {
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
 
         auto ldir = dir / "levels";
-        data_frame::mock(ldir, 5, false, {});
+        data_frame::mock(ldir, 5, {});
 
         initialize_directory(edir, "simple_list");
     }
     expect_error("'element_annotations'");
 
-    data_frame::mock(edir, codes.size(), false, {});
+    data_frame::mock(edir, codes.size(), {});
     initialize_directory(odir, "data_frame");
     expect_error("'other_annotations'");
 

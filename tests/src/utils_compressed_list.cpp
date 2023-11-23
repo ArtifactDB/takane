@@ -132,7 +132,7 @@ TEST_F(CompressedListListTest, Metadata) {
     initialize_directory(cdir, "simple_list");
     expect_error("'DATA_FRAME'"); 
 
-    data_frame::mock(cdir, 4, false, {});
+    data_frame::mock(cdir, 4, {});
     initialize_directory(odir, "data_frame");
     expect_error("'SIMPLE_LIST'");
 
