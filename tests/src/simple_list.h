@@ -5,6 +5,7 @@
 #include <string>
 
 #include "byteme/byteme.hpp"
+#include "utils.h"
 
 namespace simple_list {
 
@@ -15,6 +16,7 @@ inline void dump_compressed_json(const std::filesystem::path& dir, const std::st
 }
 
 inline void mock(const std::filesystem::path& dir) {
+    initialize_directory(dir, "simple_list");
     dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [] }");
 }
 

@@ -41,7 +41,6 @@ TEST_F(ValidateMetadataTest, Mcols) {
     auto path = testdir();
     std::filesystem::create_directory(path);
     auto subpath = path / "mcols";
-    initialize_directory(subpath, "data_frame");
     data_frame::mock(subpath, 10, true, {});
 
     takane::internal_other::validate_mcols(path, "mcols", 10, takane::Options());
@@ -55,7 +54,6 @@ TEST_F(ValidateMetadataTest, Metadata) {
     auto path = testdir();
     std::filesystem::create_directory(path);
     auto subpath = path / "metadata";
-    initialize_directory(subpath, "simple_list");
     simple_list::mock(subpath);
 
     takane::internal_other::validate_metadata(path, "metadata", takane::Options());

@@ -51,10 +51,7 @@ TEST_F(DataFrameFactorTest, Basic) {
     }
     expect_error("'levels'");
 
-    {
-        initialize_directory(ldir, "data_frame");
-        data_frame::mock(ldir, 5, false, {});
-    }
+    data_frame::mock(ldir, 5, false, {});
     expect_error("'codes'");
 
     // Success at last.
@@ -81,10 +78,7 @@ TEST_F(DataFrameFactorTest, Levels) {
     expect_error("'DATA_FRAME'");
 
     takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> bool { return true; };
-    {
-        initialize_directory(ldir, "data_frame");
-        data_frame::mock(ldir, 5, false, {});
-    }
+    data_frame::mock(ldir, 5, false, {});
     expect_error("duplicated rows");
 
     takane::data_frame_factor::any_duplicated = nullptr;
@@ -101,7 +95,6 @@ TEST_F(DataFrameFactorTest, Codes) {
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
 
         auto ldir = testdir() / "levels";
-        initialize_directory(ldir, "data_frame");
         data_frame::mock(ldir, 5, false, {});
     }
     expect_error("non-negative");
@@ -137,7 +130,6 @@ TEST_F(DataFrameFactorTest, Names) {
         hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
 
         auto ldir = testdir() / "levels";
-        initialize_directory(ldir, "data_frame");
         data_frame::mock(ldir, 5, false, {});
     }
     expect_error("string datatype");
@@ -174,23 +166,16 @@ TEST_F(DataFrameFactorTest, Metadata) {
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
 
         auto ldir = dir / "levels";
-        initialize_directory(ldir, "data_frame");
         data_frame::mock(ldir, 5, false, {});
 
         initialize_directory(edir, "simple_list");
     }
     expect_error("'element_annotations'");
 
-    {
-        initialize_directory(edir, "data_frame");
-        data_frame::mock(edir, codes.size(), false, {});
-        initialize_directory(odir, "data_frame");
-    }
+    data_frame::mock(edir, codes.size(), false, {});
+    initialize_directory(odir, "data_frame");
     expect_error("'other_annotations'");
 
-    {
-        initialize_directory(odir, "simple_list");
-        simple_list::mock(odir);
-    }
+    simple_list::mock(odir);
     takane::validate(testdir());
 }

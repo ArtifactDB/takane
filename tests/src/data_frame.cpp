@@ -560,12 +560,10 @@ TEST_F(Hdf5DataFrameTest, Metadata) {
     }
     expect_error("'DATA_FRAME'"); 
 
-    initialize_directory(cdir, "data_frame");
     data_frame::mock(cdir, columns.size(), false, {});
     initialize_directory(odir, "data_frame");
     expect_error("'SIMPLE_LIST'");
 
-    initialize_directory(odir, "simple_list");
     simple_list::mock(odir);
     takane::validate(dir);
 }

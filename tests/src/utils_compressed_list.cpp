@@ -136,7 +136,6 @@ TEST_F(CompressedListListTest, Metadata) {
     initialize_directory(odir, "data_frame");
     expect_error("'SIMPLE_LIST'");
 
-    initialize_directory(odir, "simple_list");
     simple_list::mock(odir);
     takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", takane::Options());
 }
