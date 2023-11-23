@@ -70,7 +70,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
     {
         auto chandle = ritsuko::hdf5::open_dataset(ghandle, "circular");
         if (ritsuko::hdf5::exceeds_integer_limit(chandle, 32, true)) {
-            throw std::runtime_error("expected a datatype for 'length' that fits in a 32-bit signed integer");
+            throw std::runtime_error("expected a datatype for 'circular' that fits in a 32-bit signed integer");
         }
         if (ritsuko::hdf5::get_1d_length(chandle.getSpace(), false) != nseq) {
             throw std::runtime_error("expected lengths of 'length' and 'circular' to be equal");
