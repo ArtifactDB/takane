@@ -12,6 +12,7 @@
 #include "simple_list.hpp"
 #include "data_frame.hpp"
 #include "data_frame_factor.hpp"
+#include "genomic_ranges.hpp"
 #include "atomic_vector_list.hpp"
 #include "data_frame_list.hpp"
 #include "genomic_ranges_list.hpp"
