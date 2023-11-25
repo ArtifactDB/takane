@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.5"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>takane: takane/hdf5_dense_array.hpp File Reference</title>
+<title>takane: takane/dense_array.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -76,63 +76,74 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">hdf5_dense_array.hpp File Reference</div></div>
+  <div class="headertitle"><div class="title">dense_array.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Validation for HDF5 dense arrays.  
+<p>Validation for dense arrays.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
 <code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
-<code>#include &quot;array.hpp&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__public_8hpp_source.html">utils_public.hpp</a>&quot;</code><br />
+<code>#include &quot;utils_array.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;filesystem&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
-Include dependency graph for hdf5_dense_array.hpp:</div>
+Include dependency graph for dense_array.hpp:</div>
 <div class="dyncontent">
-<div class="center"><img src="hdf5__dense__array_8hpp__incl.png" border="0" usemap="#atakane_2hdf5__dense__array_8hpp" alt=""/></div>
-<map name="atakane_2hdf5__dense__array_8hpp" id="atakane_2hdf5__dense__array_8hpp">
-<area shape="rect" title="Validation for HDF5 dense arrays." alt="" coords="221,5,412,31"/>
-<area shape="rect" title=" " alt="" coords="5,152,148,177"/>
-<area shape="rect" title=" " alt="" coords="269,152,397,177"/>
-<area shape="rect" href="array_8hpp_source.html" title=" " alt="" coords="171,79,246,104"/>
-<area shape="rect" title=" " alt="" coords="321,79,379,104"/>
-<area shape="rect" title=" " alt="" coords="404,79,459,104"/>
-<area shape="rect" title=" " alt="" coords="483,79,561,104"/>
-<area shape="rect" title=" " alt="" coords="173,152,245,177"/>
+<div class="center"><img src="dense__array_8hpp__incl.png" border="0" usemap="#atakane_2dense__array_8hpp" alt=""/></div>
+<map name="atakane_2dense__array_8hpp" id="atakane_2dense__array_8hpp">
+<area shape="rect" title="Validation for dense arrays." alt="" coords="421,5,579,31"/>
+<area shape="rect" title=" " alt="" coords="23,152,166,177"/>
+<area shape="rect" title=" " alt="" coords="191,152,319,177"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="445,152,555,177"/>
+<area shape="rect" title=" " alt="" coords="310,225,365,251"/>
+<area shape="rect" title=" " alt="" coords="701,225,781,251"/>
+<area shape="rect" href="utils__array_8hpp_source.html" title=" " alt="" coords="355,79,461,104"/>
+<area shape="rect" title=" " alt="" coords="580,152,639,177"/>
+<area shape="rect" title=" " alt="" coords="663,152,742,177"/>
+<area shape="rect" title=" " alt="" coords="817,79,879,104"/>
+<area shape="rect" title=" " alt="" coords="389,225,461,251"/>
+<area shape="rect" title=" " alt="" coords="486,225,621,251"/>
+</map>
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><img src="dense__array_8hpp__dep__incl.png" border="0" usemap="#atakane_2dense__array_8hppdep" alt=""/></div>
+<map name="atakane_2dense__array_8hppdep" id="atakane_2dense__array_8hppdep">
+<area shape="rect" title="Validation for dense arrays." alt="" coords="71,5,230,31"/>
+<area shape="rect" href="__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,79,136,104"/>
+<area shape="rect" href="__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,79,301,104"/>
+<area shape="rect" href="takane_8hpp_source.html" title=" " alt="" coords="87,152,215,177"/>
 </map>
 </div>
 </div>
-<p><a href="hdf5__dense__array_8hpp_source.html">Go to the source code of this file.</a></p>
+<p><a href="dense__array_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">takane::hdf5_dense_array::Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html" title="Parameters for validating a HDF5 dense array file.">Parameters</a> for validating a HDF5 dense array file.  <a href="structtakane_1_1hdf5__dense__array_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacetakane"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacetakane_1_1hdf5__dense__array"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__dense__array.html">takane::hdf5_dense_array</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1hdf5__dense__array"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for HDF5 dense arrays. <br /></td></tr>
+<tr class="memitem:namespacetakane_1_1dense__array"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html">takane::dense_array</a></td></tr>
+<tr class="memdesc:namespacetakane_1_1dense__array"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for dense arrays. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a96348087c0c895d61860a3af253311a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__dense__array.html#a96348087c0c895d61860a3af253311a8">takane::hdf5_dense_array::validate</a> (const H5::H5File &amp;handle, const Parameters &amp;params)</td></tr>
-<tr class="separator:a96348087c0c895d61860a3af253311a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a944983ec7af1488e1bcd0fda52f85c7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__dense__array.html#a944983ec7af1488e1bcd0fda52f85c7a">takane::hdf5_dense_array::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
-<tr class="separator:a944983ec7af1488e1bcd0fda52f85c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26b963754e458ef788dfcd99563c0915"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">takane::dense_array::validate</a> (const std::filesystem::path &amp;path, const Options &amp;options)</td></tr>
+<tr class="separator:a26b963754e458ef788dfcd99563c0915"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabf8d7dcc221183fd8227074610bbfac"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">takane::dense_array::height</a> (const std::filesystem::path &amp;path, const Options &amp;options)</td></tr>
+<tr class="separator:aabf8d7dcc221183fd8227074610bbfac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p >Validation for HDF5 dense arrays. </p>
+<div class="textblock"><p >Validation for dense arrays. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

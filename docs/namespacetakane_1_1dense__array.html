@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.5"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>takane: takane::hdf5_dense_array Namespace Reference</title>
+<title>takane: takane::dense_array Namespace Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,38 +71,31 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetakane.html">takane</a></li><li class="navelem"><a class="el" href="namespacetakane_1_1hdf5__dense__array.html">hdf5_dense_array</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetakane.html">takane</a></li><li class="navelem"><a class="el" href="namespacetakane_1_1dense__array.html">dense_array</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">takane::hdf5_dense_array Namespace Reference</div></div>
+  <div class="headertitle"><div class="title">takane::dense_array Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Definitions for HDF5 dense arrays.  
-<a href="namespacetakane_1_1hdf5__dense__array.html#details">More...</a></p>
+<p>Definitions for dense arrays.  
+<a href="namespacetakane_1_1dense__array.html#details">More...</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html" title="Parameters for validating a HDF5 dense array file.">Parameters</a> for validating a HDF5 dense array file.  <a href="structtakane_1_1hdf5__dense__array_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a96348087c0c895d61860a3af253311a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__dense__array.html#a96348087c0c895d61860a3af253311a8">validate</a> (const H5::H5File &amp;handle, const <a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">Parameters</a> &amp;params)</td></tr>
-<tr class="separator:a96348087c0c895d61860a3af253311a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a944983ec7af1488e1bcd0fda52f85c7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__dense__array.html#a944983ec7af1488e1bcd0fda52f85c7a">validate</a> (const char *path, const <a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">Parameters</a> &amp;params)</td></tr>
-<tr class="separator:a944983ec7af1488e1bcd0fda52f85c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26b963754e458ef788dfcd99563c0915"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a26b963754e458ef788dfcd99563c0915"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabf8d7dcc221183fd8227074610bbfac"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:aabf8d7dcc221183fd8227074610bbfac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p >Definitions for HDF5 dense arrays. </p>
+<div class="textblock"><p >Definitions for dense arrays. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a944983ec7af1488e1bcd0fda52f85c7a" name="a944983ec7af1488e1bcd0fda52f85c7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a944983ec7af1488e1bcd0fda52f85c7a">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+<a id="aabf8d7dcc221183fd8227074610bbfac" name="aabf8d7dcc221183fd8227074610bbfac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aabf8d7dcc221183fd8227074610bbfac">&#9670;&#160;</a></span>height()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -111,16 +104,16 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void takane::hdf5_dense_array::validate </td>
+          <td class="memname">size_t takane::dense_array::height </td>
           <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -134,19 +127,19 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Overload for <code><a class="el" href="namespacetakane_1_1hdf5__dense__array.html#a96348087c0c895d61860a3af253311a8">hdf5_dense_array::validate()</a></code> that accepts a file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+    <tr><td class="paramname">path</td><td>Path to the directory containing a dense array. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, mostly related to reading performance. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Extent of the first dimension. </dd></dl>
 
 </div>
 </div>
-<a id="a96348087c0c895d61860a3af253311a8" name="a96348087c0c895d61860a3af253311a8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a96348087c0c895d61860a3af253311a8">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+<a id="a26b963754e458ef788dfcd99563c0915" name="a26b963754e458ef788dfcd99563c0915"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26b963754e458ef788dfcd99563c0915">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -155,16 +148,16 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void takane::hdf5_dense_array::validate </td>
+          <td class="memname">void takane::dense_array::validate </td>
           <td>(</td>
-          <td class="paramtype">const H5::H5File &amp;&#160;</td>
-          <td class="paramname"><em>handle</em>, </td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1hdf5__dense__array_1_1Parameters.html">Parameters</a> &amp;&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -178,11 +171,10 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Validate a file containing a HDF5 dense array. An error is raised if the file does not meet the specifications.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">handle</td><td>Handle to the file. </td></tr>
-    <tr><td class="paramname">params</td><td>Validation parameters. </td></tr>
+    <tr><td class="paramname">path</td><td>Path to the directory containing a dense array. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, mostly related to reading performance. </td></tr>
   </table>
   </dd>
 </dl>

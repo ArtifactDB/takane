@@ -33,11 +33,9 @@ var menudata={children:[
 {text:"h",url:"namespacemembers.html#index_h"},
 {text:"r",url:"namespacemembers.html#index_r"},
 {text:"s",url:"namespacemembers.html#index_s"},
-{text:"t",url:"namespacemembers.html#index_t"},
 {text:"v",url:"namespacemembers.html#index_v"}]},
 {text:"Functions",url:"namespacemembers_func.html"},
-{text:"Variables",url:"namespacemembers_vars.html"},
-{text:"Enumerations",url:"namespacemembers_enum.html"}]}]},
+{text:"Variables",url:"namespacemembers_vars.html"}]}]},
 {text:"Classes",url:"annotated.html",children:[
 {text:"Class List",url:"annotated.html"},
 {text:"Class Index",url:"classes.html"},
