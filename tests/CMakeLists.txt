@@ -30,13 +30,13 @@ add_executable(
     src/genomic_ranges_list.cpp
     #    src/factor.cpp
     #    src/compressed_list.cpp
-    #    src/array.cpp
     #    src/hdf5_sparse_matrix.cpp
-    #    src/hdf5_dense_array.cpp
+    src/dense_array.cpp
     src/utils_compressed_list.cpp
     src/utils_string.cpp
     src/utils_factor.cpp
     src/utils_other.cpp
+    src/utils_array.cpp
     src/dispatch.cpp
 )
 
