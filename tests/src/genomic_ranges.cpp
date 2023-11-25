@@ -103,6 +103,20 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
     }
 }
 
+TEST_F(GenomicRangesTest, BasicChecks) {
+    genomic_ranges::mock(dir, 58, 13);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 58);
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup("genomic_ranges");
+        ghandle.removeAttr("version");
+        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
+    }
+    expect_error("unsupported version");
+}
+
 TEST_F(GenomicRangesTest, Sequence) {
     genomic_ranges::mock(dir, 
         { 0, 1, 0, 2 },
@@ -112,8 +126,6 @@ TEST_F(GenomicRangesTest, Sequence) {
         { 100, 200, 300 },
         { 0, 0, 0 }
     );
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 4);
 
     {
         auto handle = reopen();

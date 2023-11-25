@@ -18,6 +18,8 @@ inline void mock(
     const std::vector<int>& width, 
     const std::vector<int>& strand)
 {
+    hdf5_utils::attach_attribute(handle, "version", "1.0");
+
     auto qhandle = hdf5_utils::spawn_data(handle, "sequence", seq_id.size(), H5::PredType::NATIVE_UINT32);
     qhandle.write(seq_id.data(), H5::PredType::NATIVE_INT);
 

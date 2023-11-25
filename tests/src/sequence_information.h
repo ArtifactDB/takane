@@ -17,6 +17,7 @@ inline void mock(
     const std::vector<int>& circular, 
     const std::vector<std::string>& genome)
 {
+    hdf5_utils::attach_attribute(handle, "version", "1.0");
     hdf5_utils::spawn_string_data(handle, "name", H5T_VARIABLE, name);
     auto lhandle = hdf5_utils::spawn_data(handle, "length", length.size(), H5::PredType::NATIVE_UINT32);
     lhandle.write(length.data(), H5::PredType::NATIVE_INT);

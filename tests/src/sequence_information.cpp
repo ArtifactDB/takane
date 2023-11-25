@@ -49,13 +49,15 @@ TEST_F(SequenceInformationTest, Basic) {
     {
         auto handle = reopen();
         handle.unlink(name);
-        handle.createGroup(name);
+        auto ghandle = handle.createGroup(name);
+        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
     }
-    expect_error("expected a dataset at 'name'");
+    expect_error("unsupported version");
 
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("sequence_information");
+        ghandle.removeAttr("version");
         sequence_information::mock(
             ghandle, 
             { "chrA", "chrB", "chrC" },
@@ -71,6 +73,7 @@ TEST_F(SequenceInformationTest, Seqnames) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
+        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_data(ghandle, "name", 10, H5::PredType::NATIVE_INT32);
     }
     expect_error("string datatype class");
