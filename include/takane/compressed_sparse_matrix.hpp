@@ -203,8 +203,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
 inline size_t height(const std::filesystem::path& path, const Options& options) {
     auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "compressed_sparse_matrix");
-
-    auto shandle = ritsuko::hdf5::open_dataset(handle, "shape");
+    auto shandle = ritsuko::hdf5::open_dataset(ghandle, "shape");
     std::array<uint64_t, 2> output;
     shandle.read(output.data(), H5::PredType::NATIVE_INT64);
     return output.front();

@@ -48,6 +48,7 @@ TEST_F(SparseMatrixTest, Basic) {
     // Success with lots of zero-length columns.
     compressed_sparse_matrix::mock(path, 20, 30, 0.02);
     takane::validate(path);
+    EXPECT_EQ(takane::height(path), 20);
 
     // Success with no zero-length columns.
     compressed_sparse_matrix::mock(path, 20, 30, 0.5);
@@ -60,6 +61,7 @@ TEST_F(SparseMatrixTest, Layout) {
     config.csc = false;
     compressed_sparse_matrix::mock(path, 40, 50, 0.2, config);
     takane::validate(path);
+    EXPECT_EQ(takane::height(path), 40);
 
     // Fails with unknown layout: 
     {
