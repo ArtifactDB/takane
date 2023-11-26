@@ -137,6 +137,15 @@ TEST_F(SparseMatrixTest, Data) {
         hdf5_utils::attach_attribute(ghandle, "type", "number");
     }
     expect_error("64-bit float");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        size_t len = ritsuko::hdf5::get_1d_length(ghandle.openDataSet("data"), false);
+        ghandle.removeAttr("type");
+        hdf5_utils::attach_attribute(ghandle, "type", "YAYYA");
+    }
+    expect_error("unknown matrix type");
 }
 
 TEST_F(SparseMatrixTest, MissingPlaceholder) {

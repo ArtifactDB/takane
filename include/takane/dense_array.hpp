@@ -179,6 +179,8 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
             throw std::runtime_error("expected string array to have a string datatype class");
         }
         internal::validate_string_contents(dhandle, extents, options.hdf5_buffer_size);
+    } else {
+        throw std::runtime_error("unknown array type '" + type + "'");
     }
 
     if (dhandle.attrExists("missing-value-placeholder")) {

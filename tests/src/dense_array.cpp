@@ -96,6 +96,14 @@ TEST_F(DenseArrayTest, TypeChecks) {
         hdf5_utils::attach_attribute(ghandle, "type", "number");
     }
     expect_error("64-bit float");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.removeAttr("type");
+        hdf5_utils::attach_attribute(ghandle, "type", "YAYYA");
+    }
+    expect_error("unknown array type");
 }
 
 TEST_F(DenseArrayTest, StringContents) {

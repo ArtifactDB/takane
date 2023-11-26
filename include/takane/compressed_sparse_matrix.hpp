@@ -67,6 +67,8 @@ inline size_t validate_data(const H5::Group& handle, const Options& version) try
         if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
             throw std::runtime_error("expected a number 'data' to fit inside a 64-bit float");
         }
+    } else {
+        throw std::runtime_error("unknown matrix type '" + type + "'");
     }
 
     if (dhandle.attrExists("missing-value-placeholder")) {
