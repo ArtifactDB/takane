@@ -143,7 +143,6 @@ TEST_F(SparseMatrixTest, Data) {
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup(name);
-        size_t len = ritsuko::hdf5::get_1d_length(ghandle.openDataSet("data"), false);
         ghandle.removeAttr("type");
         hdf5_utils::attach_attribute(ghandle, "type", "YAYYA");
     }

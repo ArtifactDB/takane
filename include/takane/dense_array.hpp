@@ -202,7 +202,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
  * @param options Validation options, mostly related to reading performance.
  * @return Extent of the first dimension.
  */
-inline size_t height(const std::filesystem::path& path, const Options& options) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const Options& options) {
     auto handle = ritsuko::hdf5::open_file(path / "array.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "dense_array");
 

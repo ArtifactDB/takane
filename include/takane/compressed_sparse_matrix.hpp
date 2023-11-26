@@ -32,7 +32,7 @@ namespace compressed_sparse_matrix {
  */
 namespace internal {
 
-inline std::array<uint64_t, 2> validate_shape(const H5::Group& handle, const Options& params) try {
+inline std::array<uint64_t, 2> validate_shape(const H5::Group& handle, const Options&) try {
     auto shandle = ritsuko::hdf5::open_dataset(handle, "shape");
     if (ritsuko::hdf5::exceeds_integer_limit(shandle, 64, false)) {
         throw std::runtime_error("expected the datatype to be a subset of a 64-bit unsigned integer");
@@ -51,7 +51,7 @@ inline std::array<uint64_t, 2> validate_shape(const H5::Group& handle, const Opt
     throw std::runtime_error("failed to validate sparse matrix shape at '" + ritsuko::hdf5::get_name(handle) + "/shape'; " + std::string(e.what()));
 }
 
-inline size_t validate_data(const H5::Group& handle, const Options& version) try {
+inline size_t validate_data(const H5::Group& handle, const Options&) try {
     auto dhandle = ritsuko::hdf5::open_dataset(handle, "data");
 
     auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(handle, "type");
@@ -200,7 +200,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
  * @param options Validation options, mostly related to reading performance.
  * @return Number of rows in the matrix.
  */
-inline size_t height(const std::filesystem::path& path, const Options& options) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const Options& options) {
     auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "compressed_sparse_matrix");
     auto shandle = ritsuko::hdf5::open_dataset(ghandle, "shape");
