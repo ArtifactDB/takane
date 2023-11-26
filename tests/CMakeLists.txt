@@ -30,7 +30,7 @@ add_executable(
     src/genomic_ranges_list.cpp
     #    src/factor.cpp
     #    src/compressed_list.cpp
-    #    src/hdf5_sparse_matrix.cpp
+    src/compressed_sparse_matrix.cpp
     src/dense_array.cpp
     src/utils_compressed_list.cpp
     src/utils_string.cpp
