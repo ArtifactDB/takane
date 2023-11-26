@@ -106,7 +106,8 @@ TEST_F(DenseArrayTest, TypeChecks) {
     expect_error("unknown array type");
 }
 
-TEST_F(DenseArrayTest, StringContents) {
+TEST_F(DenseArrayTest, NullStrings) {
+    // Check for NULL pointers.
     {
         initialize_directory(dir, name);
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
@@ -120,48 +121,38 @@ TEST_F(DenseArrayTest, StringContents) {
     }
     expect_error("NULL pointer");
 
-    // To check correct iteration, our strategy is to add a NULL pointer at every corner,
-    // turn the buffer size down, and verify that everything is touched.
-    std::vector<hsize_t> dims { 10, 20, 5 };
-    const char* dummy = "Aaron";
-    takane::Options options;
-    options.hdf5_buffer_size = dims.back();
+    // Doesn't throw if it's empty.
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("data");
+        ghandle.removeAttr("type");
 
-    H5::DataSpace dspace(dims.size(), dims.data());
-    for (size_t i = 0; i < 2; ++i) {
-        for (size_t j = 0; j < 2; ++j) {
-            for (size_t k = 0; k < 2; ++k) {
-                std::vector<const char*> ptrs(1000, dummy);
-
-                // Note that we go in reverse order of dimensions as HDF5 stores the fastest-changing dimension last.
-                size_t multiplier = 1;
-                size_t offset = k * (dims[2] - 1) * multiplier;
-                multiplier *= dims[2];
-                offset += j * (dims[1] - 1) * multiplier;
-                multiplier *= dims[1];
-                offset += i * (dims[0] - 1) * multiplier;
-
-                ptrs[offset] = NULL;
-
-                {
-                    auto handle = reopen();
-                    auto ghandle = handle.openGroup(name);
-                    ghandle.unlink("data");
-                    auto dhandle = ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
-                    dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
-                }
-
-                EXPECT_ANY_THROW({
-                    try {
-                        takane::validate(dir, options);
-                    } catch (std::exception& e) {
-                        EXPECT_THAT(e.what(), ::testing::HasSubstr("NULL pointer"));
-                        throw;
-                    }
-                });
-            }
-        }
+        std::vector<hsize_t> dims { 10, 0 };
+        H5::DataSpace dspace(dims.size(), dims.data());
+        ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
+        hdf5_utils::attach_attribute(ghandle, "type", "string");
     }
+    takane::validate(dir);
+
+    // Works if it's compressed.
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("data");
+        ghandle.removeAttr("type");
+
+        std::vector<hsize_t> chunks { 10, 20 };
+        H5::DSetCreatPropList cplist;
+        cplist.setChunk(2, chunks.data());
+        cplist.setDeflate(6);
+
+        std::vector<hsize_t> dims { 33, 45 };
+        H5::DataSpace dspace(dims.size(), dims.data());
+        ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace, cplist);
+        hdf5_utils::attach_attribute(ghandle, "type", "string");
+    }
+    expect_error("NULL pointer");
 }
 
 TEST_F(DenseArrayTest, MissingPlaceholder) {
@@ -242,3 +233,61 @@ TEST_F(DenseArrayTest, Transposed) {
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 20);
 }
+
+struct DenseArrayStringCheckTest : public ::testing::TestWithParam<int> {};
+
+TEST_P(DenseArrayStringCheckTest, NullCheck) {
+    std::filesystem::path dir = "TEST_dense_array";
+    std::string name = "dense_array";
+
+    // To check correct iteration, our strategy is to add a NULL pointer at every corner,
+    // turn the buffer size down, and verify that everything is touched.
+    std::vector<hsize_t> dims { 10, 20, 5 };
+    const char* dummy = "Aaron";
+    takane::Options options;
+    options.hdf5_buffer_size = GetParam();
+
+    H5::DataSpace dspace(dims.size(), dims.data());
+    for (size_t i = 0; i < 2; ++i) {
+        for (size_t j = 0; j < 2; ++j) {
+            for (size_t k = 0; k < 2; ++k) {
+                std::vector<const char*> ptrs(1000, dummy);
+
+                // Note that we go in reverse order of dimensions as HDF5 stores the fastest-changing dimension last.
+                size_t multiplier = 1;
+                size_t offset = k * (dims[2] - 1) * multiplier;
+                multiplier *= dims[2];
+                offset += j * (dims[1] - 1) * multiplier;
+                multiplier *= dims[1];
+                offset += i * (dims[0] - 1) * multiplier;
+
+                ptrs[offset] = NULL;
+
+                {
+                    initialize_directory(dir, name);
+                    H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+                    auto ghandle = handle.createGroup(name);
+                    hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+                    hdf5_utils::attach_attribute(ghandle, "type", "string");
+                    auto dhandle = ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
+                    dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
+                }
+
+                EXPECT_ANY_THROW({
+                    try {
+                        takane::validate(dir, options);
+                    } catch (std::exception& e) {
+                        EXPECT_THAT(e.what(), ::testing::HasSubstr("NULL pointer"));
+                        throw;
+                    }
+                });
+            }
+        }
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    DenseArray,
+    DenseArrayStringCheckTest,
+    ::testing::Values(2, 5, 10, 20, 100) // buffer size.
+);

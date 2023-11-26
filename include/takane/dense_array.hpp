@@ -47,15 +47,20 @@ inline bool is_transposed(const H5::Group& ghandle) {
     return ritsuko::hdf5::load_scalar_numeric_attribute<int32_t>(attr) != 0;
 }
 
-inline void validate_string_contents(const H5::DataSet& dhandle, const std::vector<hsize_t>& extents, hsize_t buffer_size) {
+inline void validate_string_contents(const H5::DataSet& dhandle, const std::vector<hsize_t>& data_extent, hsize_t buffer_size) {
     auto stype = dhandle.getDataType();
     if (!stype.isVariableStr()) {
         return;
     }
 
-    hsize_t ndims = extents.size();
-    std::vector<hsize_t> chunk_extent(ndims, 1);
+    for (auto ex : data_extent) {
+        if (ex == 0) {
+            return;
+        }
+    }
 
+    hsize_t ndims = data_extent.size();
+    std::vector<hsize_t> chunk_extent(ndims, 1);
     auto cplist = dhandle.getCreatePlist();
     if (cplist.getLayout() == H5D_CHUNKED) {
         cplist.getChunk(chunk_extent.size(), chunk_extent.data());
@@ -67,8 +72,9 @@ inline void validate_string_contents(const H5::DataSet& dhandle, const std::vect
     // buffer size is exhausted.
     auto block_extent = chunk_extent;
     hsize_t block_size = 1;
-    for (auto x : block_extent) {
-        block_size *= x;
+    for (hsize_t d = 0; d < ndims; ++d) {
+        block_extent[d] = std::min(block_extent[d], data_extent[d]); // should be a no-op, but we do this just in case.
+        block_size *= block_extent[d];
     }
 
     for (hsize_t i = ndims; i > 0; --i) {
@@ -76,23 +82,18 @@ inline void validate_string_contents(const H5::DataSet& dhandle, const std::vect
         if (multiple <= 1) {
             break;
         }
-        block_extent[i - 1] *= multiple;
-        block_size *= multiple;
+        auto d = i - 1;
+        block_size /= block_extent[d];
+        block_extent[d] = std::min(data_extent[d], block_extent[d] * multiple);
+        block_size *= block_extent[d];
     }
 
     // Now iterating through the array.
-    std::vector<hsize_t> starts(ndims), counts(ndims);
-    for (hsize_t d = 0; d < ndims; ++d) {
-        counts[d] = std::min(extents[d], block_extent[d]);
-    }
+    std::vector<hsize_t> starts(ndims), counts(block_extent.begin(), block_extent.end());
+    std::vector<char*> buffer(block_size);
+    hsize_t buffer_length = block_size;
 
-    std::vector<char*> buffer;
-    hsize_t buffer_length = 1;
-    for (hsize_t d = 0; d < ndims; ++d) {
-        buffer_length *= counts[d];
-    }
-
-    H5::DataSpace mspace, dspace(ndims, extents.data());
+    H5::DataSpace mspace, dspace(ndims, data_extent.data());
     bool finished = false;
 
     while (!finished) {
@@ -112,18 +113,18 @@ inline void validate_string_contents(const H5::DataSet& dhandle, const std::vect
         for (hsize_t i = ndims; i > 0; --i) {
             auto d = i - 1;
             starts[d] += block_extent[d];
-            if (starts[d] >= extents[d]) {
+            if (starts[d] >= data_extent[d]) {
                 if (d == 0) {
                     finished = true;
                 } else {
                     starts[d] = 0;
                     buffer_length /= counts[d];
-                    counts[d] = std::min(extents[d], block_extent[d]);
+                    counts[d] = std::min(data_extent[d], block_extent[d]);
                     buffer_length *= counts[d];
                 }
             } else {
                 buffer_length /= counts[d];
-                counts[d] = std::min(extents[d] - starts[d], block_extent[d]);
+                counts[d] = std::min(data_extent[d] - starts[d], block_extent[d]);
                 buffer_length *= counts[d];
                 break;
             }
