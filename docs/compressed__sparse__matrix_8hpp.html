@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.5"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>takane: takane/hdf5_sparse_matrix.hpp File Reference</title>
+<title>takane: takane/compressed_sparse_matrix.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -76,64 +76,76 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">hdf5_sparse_matrix.hpp File Reference</div></div>
+  <div class="headertitle"><div class="title">compressed_sparse_matrix.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Validation for HDF5 sparse matrices.  
+<p>Validation for compressed sparse matrices.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
 <code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
-<code>#include &quot;array.hpp&quot;</code><br />
-<code>#include &lt;array&gt;</code><br />
+<code>#include &quot;<a class="el" href="utils__public_8hpp_source.html">utils_public.hpp</a>&quot;</code><br />
+<code>#include &quot;utils_array.hpp&quot;</code><br />
+<code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
+<code>#include &lt;array&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
-Include dependency graph for hdf5_sparse_matrix.hpp:</div>
+Include dependency graph for compressed_sparse_matrix.hpp:</div>
 <div class="dyncontent">
-<div class="center"><img src="hdf5__sparse__matrix_8hpp__incl.png" border="0" usemap="#atakane_2hdf5__sparse__matrix_8hpp" alt=""/></div>
-<map name="atakane_2hdf5__sparse__matrix_8hpp" id="atakane_2hdf5__sparse__matrix_8hpp">
-<area shape="rect" title="Validation for HDF5 sparse matrices." alt="" coords="381,5,517,45"/>
-<area shape="rect" title=" " alt="" coords="5,93,133,119"/>
-<area shape="rect" title=" " alt="" coords="158,93,301,119"/>
-<area shape="rect" title=" " alt="" coords="325,93,400,119"/>
-<area shape="rect" title=" " alt="" coords="424,93,475,119"/>
-<area shape="rect" title=" " alt="" coords="499,93,578,119"/>
-<area shape="rect" title=" " alt="" coords="602,93,657,119"/>
-<area shape="rect" title=" " alt="" coords="681,93,743,119"/>
+<div class="center"><img src="compressed__sparse__matrix_8hpp__incl.png" border="0" usemap="#atakane_2compressed__sparse__matrix_8hpp" alt=""/></div>
+<map name="atakane_2compressed__sparse__matrix_8hpp" id="atakane_2compressed__sparse__matrix_8hpp">
+<area shape="rect" title="Validation for compressed sparse matrices." alt="" coords="477,5,659,45"/>
+<area shape="rect" title=" " alt="" coords="23,167,151,192"/>
+<area shape="rect" title=" " alt="" coords="175,167,318,192"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="445,167,555,192"/>
+<area shape="rect" title=" " alt="" coords="310,240,365,265"/>
+<area shape="rect" title=" " alt="" coords="701,240,781,265"/>
+<area shape="rect" href="utils__array_8hpp_source.html" title=" " alt="" coords="369,93,474,119"/>
+<area shape="rect" title=" " alt="" coords="580,167,639,192"/>
+<area shape="rect" title=" " alt="" coords="663,167,742,192"/>
+<area shape="rect" title=" " alt="" coords="817,93,879,119"/>
+<area shape="rect" title=" " alt="" coords="903,93,953,119"/>
+<area shape="rect" title=" " alt="" coords="389,240,461,265"/>
+<area shape="rect" title=" " alt="" coords="486,240,621,265"/>
+</map>
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><img src="compressed__sparse__matrix_8hpp__dep__incl.png" border="0" usemap="#atakane_2compressed__sparse__matrix_8hppdep" alt=""/></div>
+<map name="atakane_2compressed__sparse__matrix_8hppdep" id="atakane_2compressed__sparse__matrix_8hppdep">
+<area shape="rect" title="Validation for compressed sparse matrices." alt="" coords="59,5,242,45"/>
+<area shape="rect" href="__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,93,136,119"/>
+<area shape="rect" href="__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,93,301,119"/>
+<area shape="rect" href="takane_8hpp_source.html" title=" " alt="" coords="87,167,215,192"/>
 </map>
 </div>
 </div>
-<p><a href="hdf5__sparse__matrix_8hpp_source.html">Go to the source code of this file.</a></p>
+<p><a href="compressed__sparse__matrix_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html">takane::hdf5_sparse_matrix::Parameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html" title="Parameters for validating a HDF5 sparse matrix file.">Parameters</a> for validating a HDF5 sparse matrix file.  <a href="structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacetakane"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacetakane_1_1hdf5__sparse__matrix"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__sparse__matrix.html">takane::hdf5_sparse_matrix</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1hdf5__sparse__matrix"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for HDF5 sparse matrices. <br /></td></tr>
+<tr class="memitem:namespacetakane_1_1compressed__sparse__matrix"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1compressed__sparse__matrix.html">takane::compressed_sparse_matrix</a></td></tr>
+<tr class="memdesc:namespacetakane_1_1compressed__sparse__matrix"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for compressed sparse matrices. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a56a4ca611382b9671625d2d8d202beb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__sparse__matrix.html#a56a4ca611382b9671625d2d8d202beb0">takane::hdf5_sparse_matrix::validate</a> (const H5::H5File &amp;handle, const Parameters &amp;params)</td></tr>
-<tr class="separator:a56a4ca611382b9671625d2d8d202beb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a6f11265c5317d74663b4fdf949cd9a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1hdf5__sparse__matrix.html#a5a6f11265c5317d74663b4fdf949cd9a">takane::hdf5_sparse_matrix::validate</a> (const char *path, const Parameters &amp;params)</td></tr>
-<tr class="separator:a5a6f11265c5317d74663b4fdf949cd9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99542dfebdac59d7063b624866724c0c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1compressed__sparse__matrix.html#a99542dfebdac59d7063b624866724c0c">takane::compressed_sparse_matrix::validate</a> (const std::filesystem::path &amp;path, const Options &amp;options)</td></tr>
+<tr class="separator:a99542dfebdac59d7063b624866724c0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7eb216a542aad581083a649c240a64bc"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1compressed__sparse__matrix.html#a7eb216a542aad581083a649c240a64bc">takane::compressed_sparse_matrix::height</a> (const std::filesystem::path &amp;path, const Options &amp;options)</td></tr>
+<tr class="separator:a7eb216a542aad581083a649c240a64bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p >Validation for HDF5 sparse matrices. </p>
+<div class="textblock"><p >Validation for compressed sparse matrices. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -115,170 +115,173 @@ $(function() {
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordflow">return</span> ritsuko::hdf5::load_scalar_numeric_attribute&lt;int32_t&gt;(attr) != 0;</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>}</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">inline</span> <span class="keywordtype">void</span> validate_string_contents(<span class="keyword">const</span> H5::DataSet&amp; dhandle, <span class="keyword">const</span> std::vector&lt;hsize_t&gt;&amp; extents, hsize_t buffer_size) {</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">inline</span> <span class="keywordtype">void</span> validate_string_contents(<span class="keyword">const</span> H5::DataSet&amp; dhandle, <span class="keyword">const</span> std::vector&lt;hsize_t&gt;&amp; data_extent, hsize_t buffer_size) {</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">auto</span> stype = dhandle.getDataType();</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordflow">if</span> (!stype.isVariableStr()) {</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <span class="keywordflow">return</span>;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    }</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    hsize_t ndims = extents.size();</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    std::vector&lt;hsize_t&gt; chunk_extent(ndims, 1);</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">auto</span> cplist = dhandle.getCreatePlist();</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordflow">if</span> (cplist.getLayout() == H5D_CHUNKED) {</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        cplist.getChunk(chunk_extent.size(), chunk_extent.data());</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    }</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="comment">// Scaling up the block size as much as possible. We start from the</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="comment">// fastest-changing dimension (i.e., the last one in HDF5) and increase it,</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="comment">// and then we move onto the next-fastest dimension, and so on until the</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="comment">// buffer size is exhausted.</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">auto</span> block_extent = chunk_extent;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    hsize_t block_size = 1;</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> x : block_extent) {</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        block_size *= x;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    }</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordflow">for</span> (hsize_t i = ndims; i &gt; 0; --i) {</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        <span class="keywordtype">int</span> multiple = buffer_size / block_size;</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        <span class="keywordflow">if</span> (multiple &lt;= 1) {</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        }</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        block_extent[i - 1] *= multiple;</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        block_size *= multiple;</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    }</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="comment">// Now iterating through the array.</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    std::vector&lt;hsize_t&gt; starts(ndims), counts(ndims);</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="keywordflow">for</span> (hsize_t d = 0; d &lt; ndims; ++d) {</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        counts[d] = std::min(extents[d], block_extent[d]);</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    }</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    std::vector&lt;char*&gt; buffer;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    hsize_t buffer_length = 1;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordflow">for</span> (hsize_t d = 0; d &lt; ndims; ++d) {</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        buffer_length *= counts[d];</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    }</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    H5::DataSpace mspace, dspace(ndims, extents.data());</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">bool</span> finished = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordflow">while</span> (!finished) {</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        buffer.resize(buffer_length);</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        dspace.selectHyperslab(H5S_SELECT_SET, counts.data(), starts.data());</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        mspace.setExtentSimple(ndims, counts.data());</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        [[maybe_unused]] ritsuko::hdf5::VariableStringCleaner stream(stype.getId(), mspace.getId(), buffer.data());</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        dhandle.read(buffer.data(), stype, mspace, dspace);</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span> x : buffer) {</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            <span class="keywordflow">if</span> (x == NULL) {</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;detected NULL pointer in a variable-length string dataset&quot;</span>);</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>            }</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        }</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        <span class="comment">// Attempting a shift from the last dimension as this is the fastest-changing.</span></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keywordflow">for</span> (hsize_t i = ndims; i &gt; 0; --i) {</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>            <span class="keyword">auto</span> d = i - 1;</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>            starts[d] += block_extent[d];</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>            <span class="keywordflow">if</span> (starts[d] &gt;= extents[d]) {</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>                <span class="keywordflow">if</span> (d == 0) {</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                    finished = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                    starts[d] = 0;</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                    buffer_length /= counts[d];</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>                    counts[d] = std::min(extents[d], block_extent[d]);</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>                    buffer_length *= counts[d];</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                }</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>            } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>                buffer_length /= counts[d];</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>                counts[d] = std::min(extents[d] - starts[d], block_extent[d]);</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                buffer_length *= counts[d];</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>            }</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        }</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    }</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>}</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>}</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno"><a class="line" href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">  143</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) <span class="keyword">try</span> {</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;array.h5&quot;</span>);</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;dense_array&quot;</span>);</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keyword">auto</span> vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, <span class="stringliteral">&quot;version&quot;</span>);</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    }</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    internal::is_transposed(ghandle); <span class="comment">// just a check, not used here.</span></div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keyword">auto</span> dhandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;data&quot;</span>);</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    <span class="keyword">auto</span> dspace = dhandle.getSpace();</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    <span class="keywordtype">size_t</span> ndims = dspace.getSimpleExtentNdims();</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keywordflow">if</span> (ndims == 0) {</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;data&#39; array to have at least one dimension&quot;</span>);</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    }</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    std::vector&lt;hsize_t&gt; extents(ndims);</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    dspace.getSimpleExtentDims(extents.data());</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keyword">auto</span> type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, <span class="stringliteral">&quot;type&quot;</span>);</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;integer&quot;</span>) {</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, <span class="keyword">true</span>)) {</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected integer array to have a datatype that fits into a 32-bit signed integer&quot;</span>);</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        }</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;boolean&quot;</span>) {</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, <span class="keyword">true</span>)) {</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected boolean array to have a datatype that fits into a 32-bit signed integer&quot;</span>);</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        }</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;number&quot;</span>) {</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected number array to have a datatype that fits into a 64-bit float&quot;</span>);</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>        }</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;string&quot;</span>) {</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>        <span class="keywordflow">if</span> (dhandle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected string array to have a string datatype class&quot;</span>);</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>        }</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>        internal::validate_string_contents(dhandle, extents, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>);</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    }</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordflow">if</span> (dhandle.attrExists(<span class="stringliteral">&quot;missing-value-placeholder&quot;</span>)) {</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>        <span class="keyword">auto</span> attr = dhandle.openAttribute(<span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>        ritsuko::hdf5::check_missing_placeholder_attribute(dhandle, attr);</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    }</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">if</span> (ghandle.exists(<span class="stringliteral">&quot;names&quot;</span>)) {</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>        internal_array::check_dimnames(ghandle, <span class="stringliteral">&quot;names&quot;</span>, extents, options);</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    }</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>        </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>} <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;dense_array&#39; object at &#39;&quot;</span> + path.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>}</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno"><a class="line" href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">  202</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;array.h5&quot;</span>);</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;dense_array&quot;</span>);</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keyword">auto</span> dhandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;data&quot;</span>);</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="keyword">auto</span> dspace = dhandle.getSpace();</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordtype">size_t</span> ndims = dspace.getSimpleExtentNdims();</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    std::vector&lt;hsize_t&gt; extents(ndims);</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    dspace.getSimpleExtentDims(extents.data());</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordflow">if</span> (internal::is_transposed(ghandle)) {</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>        <span class="keywordflow">return</span> extents.back();</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>        <span class="keywordflow">return</span> extents.front();</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    }</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>}</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>}</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>}</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_1_1dense__array_html_a26b963754e458ef788dfcd99563c0915"><div class="ttname"><a href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">takane::dense_array::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> dense_array.hpp:143</div></div>
-<div class="ttc" id="anamespacetakane_1_1dense__array_html_aabf8d7dcc221183fd8227074610bbfac"><div class="ttname"><a href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">takane::dense_array::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> dense_array.hpp:202</div></div>
-<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _height.hpp:26</div></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> ex : data_extent) {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keywordflow">if</span> (ex == 0) {</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        }</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    hsize_t ndims = data_extent.size();</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    std::vector&lt;hsize_t&gt; chunk_extent(ndims, 1);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keyword">auto</span> cplist = dhandle.getCreatePlist();</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">if</span> (cplist.getLayout() == H5D_CHUNKED) {</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        cplist.getChunk(chunk_extent.size(), chunk_extent.data());</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    }</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="comment">// Scaling up the block size as much as possible. We start from the</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="comment">// fastest-changing dimension (i.e., the last one in HDF5) and increase it,</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="comment">// and then we move onto the next-fastest dimension, and so on until the</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="comment">// buffer size is exhausted.</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keyword">auto</span> block_extent = chunk_extent;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    hsize_t block_size = 1;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordflow">for</span> (hsize_t d = 0; d &lt; ndims; ++d) {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        block_extent[d] = std::min(block_extent[d], data_extent[d]); <span class="comment">// should be a no-op, but we do this just in case.</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        block_size *= block_extent[d];</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    }</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordflow">for</span> (hsize_t i = ndims; i &gt; 0; --i) {</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        <span class="keywordtype">int</span> multiple = buffer_size / block_size;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        <span class="keywordflow">if</span> (multiple &lt;= 1) {</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        }</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        <span class="keyword">auto</span> d = i - 1;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        block_size /= block_extent[d];</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        block_extent[d] = std::min(data_extent[d], block_extent[d] * multiple);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        block_size *= block_extent[d];</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    }</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="comment">// Now iterating through the array.</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    std::vector&lt;hsize_t&gt; starts(ndims), counts(block_extent.begin(), block_extent.end());</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    std::vector&lt;char*&gt; buffer(block_size);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    hsize_t buffer_length = block_size;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    H5::DataSpace mspace, dspace(ndims, data_extent.data());</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">bool</span> finished = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">while</span> (!finished) {</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        buffer.resize(buffer_length);</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        dspace.selectHyperslab(H5S_SELECT_SET, counts.data(), starts.data());</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        mspace.setExtentSimple(ndims, counts.data());</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        [[maybe_unused]] ritsuko::hdf5::VariableStringCleaner stream(stype.getId(), mspace.getId(), buffer.data());</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        dhandle.read(buffer.data(), stype, mspace, dspace);</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span> x : buffer) {</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>            <span class="keywordflow">if</span> (x == NULL) {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;detected NULL pointer in a variable-length string dataset&quot;</span>);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            }</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        }</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="comment">// Attempting a shift from the last dimension as this is the fastest-changing.</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        <span class="keywordflow">for</span> (hsize_t i = ndims; i &gt; 0; --i) {</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>            <span class="keyword">auto</span> d = i - 1;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>            starts[d] += block_extent[d];</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>            <span class="keywordflow">if</span> (starts[d] &gt;= data_extent[d]) {</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                <span class="keywordflow">if</span> (d == 0) {</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                    finished = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                    starts[d] = 0;</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>                    buffer_length /= counts[d];</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>                    counts[d] = std::min(data_extent[d], block_extent[d]);</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                    buffer_length *= counts[d];</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>                }</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>            } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>                buffer_length /= counts[d];</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                counts[d] = std::min(data_extent[d] - starts[d], block_extent[d]);</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                buffer_length *= counts[d];</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>            }</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>        }</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    }</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>}</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>}</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno"><a class="line" href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">  144</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) <span class="keyword">try</span> {</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;array.h5&quot;</span>);</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;dense_array&quot;</span>);</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span> </div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keyword">auto</span> vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, <span class="stringliteral">&quot;version&quot;</span>);</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    }</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    internal::is_transposed(ghandle); <span class="comment">// just a check, not used here.</span></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    <span class="keyword">auto</span> dhandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;data&quot;</span>);</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    <span class="keyword">auto</span> dspace = dhandle.getSpace();</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keywordtype">size_t</span> ndims = dspace.getSimpleExtentNdims();</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordflow">if</span> (ndims == 0) {</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;data&#39; array to have at least one dimension&quot;</span>);</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    }</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    std::vector&lt;hsize_t&gt; extents(ndims);</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    dspace.getSimpleExtentDims(extents.data());</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keyword">auto</span> type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, <span class="stringliteral">&quot;type&quot;</span>);</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;integer&quot;</span>) {</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, <span class="keyword">true</span>)) {</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected integer array to have a datatype that fits into a 32-bit signed integer&quot;</span>);</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        }</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;boolean&quot;</span>) {</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, <span class="keyword">true</span>)) {</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected boolean array to have a datatype that fits into a 32-bit signed integer&quot;</span>);</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        }</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;number&quot;</span>) {</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected number array to have a datatype that fits into a 64-bit float&quot;</span>);</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>        }</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;string&quot;</span>) {</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>        <span class="keywordflow">if</span> (dhandle.getTypeClass() != H5T_STRING) {</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected string array to have a string datatype class&quot;</span>);</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>        }</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>        internal::validate_string_contents(dhandle, extents, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>);</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unknown array type &#39;&quot;</span> + type + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    }</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordflow">if</span> (dhandle.attrExists(<span class="stringliteral">&quot;missing-value-placeholder&quot;</span>)) {</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>        <span class="keyword">auto</span> attr = dhandle.openAttribute(<span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>        ritsuko::hdf5::check_missing_placeholder_attribute(dhandle, attr);</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    }</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keywordflow">if</span> (ghandle.exists(<span class="stringliteral">&quot;names&quot;</span>)) {</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>        internal_array::check_dimnames(ghandle, <span class="stringliteral">&quot;names&quot;</span>, extents, options);</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    }</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>        </div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>} <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;dense_array&#39; object at &#39;&quot;</span> + path.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>}</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno"><a class="line" href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">  205</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;array.h5&quot;</span>);</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;dense_array&quot;</span>);</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keyword">auto</span> dhandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;data&quot;</span>);</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="keyword">auto</span> dspace = dhandle.getSpace();</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordtype">size_t</span> ndims = dspace.getSimpleExtentNdims();</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    std::vector&lt;hsize_t&gt; extents(ndims);</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    dspace.getSimpleExtentDims(extents.data());</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <span class="keywordflow">if</span> (internal::is_transposed(ghandle)) {</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>        <span class="keywordflow">return</span> extents.back();</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>        <span class="keywordflow">return</span> extents.front();</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    }</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>}</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>}</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>}</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_1_1dense__array_html_a26b963754e458ef788dfcd99563c0915"><div class="ttname"><a href="namespacetakane_1_1dense__array.html#a26b963754e458ef788dfcd99563c0915">takane::dense_array::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> dense_array.hpp:144</div></div>
+<div class="ttc" id="anamespacetakane_1_1dense__array_html_aabf8d7dcc221183fd8227074610bbfac"><div class="ttname"><a href="namespacetakane_1_1dense__array.html#aabf8d7dcc221183fd8227074610bbfac">takane::dense_array::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> dense_array.hpp:205</div></div>
+<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _height.hpp:27</div></div>
 <div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:44</div></div>
 <div class="ttc" id="astructtakane_1_1Options_html_a3a9ebb8a77372c852d87f5368b6516c3"><div class="ttname"><a href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">takane::Options::hdf5_buffer_size</a></div><div class="ttdeci">hsize_t hdf5_buffer_size</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:53</div></div>
 <div class="ttc" id="autils__public_8hpp_html"><div class="ttname"><a href="utils__public_8hpp.html">utils_public.hpp</a></div><div class="ttdoc">Exported utilities.</div></div>

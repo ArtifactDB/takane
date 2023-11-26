@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['group_0',['group',['../structtakane_1_1hdf5__sparse__matrix_1_1Parameters.html#a7160e35d19a88f566f162209c3e3b664',1,'takane::hdf5_sparse_matrix::Parameters']]]
+  ['length_0',['length',['../structtakane_1_1factor_1_1Parameters.html#a71a8f44bad098b26af5c990cb45c6617',1,'takane::factor::Parameters']]]
 ];
