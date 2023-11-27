@@ -74,5 +74,16 @@ TEST_F(ArrayUtilsTest, Names) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         expect_error_names("to be a group", handle, "names", dims, takane::Options());
     }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("names");
+        hdf5_utils::spawn_data(ghandle, "asdasd", 10, H5::PredType::NATIVE_INT32);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        expect_error_names("more objects", handle, "names", dims, takane::Options());
+    }
+
 }
 

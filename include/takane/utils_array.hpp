@@ -21,6 +21,7 @@ void check_dimnames(const H5::Group& handle, const std::string& name, const std:
     }
     auto nhandle = handle.openGroup(name);
 
+    size_t found = 0;
     for (size_t d = 0, ndim = dimensions.size(); d < ndim; ++d) {
         std::string dname = std::to_string(d);
         if (!nhandle.exists(dname)) {
@@ -44,7 +45,13 @@ void check_dimnames(const H5::Group& handle, const std::string& name, const std:
         }
 
         ritsuko::hdf5::validate_1d_string_dataset(dhandle, len, options.hdf5_buffer_size);
+        ++found;
     }
+
+    if (found != nhandle.getNumObjs()) {
+        throw std::runtime_error("more objects present in the '" + name + "' group than expected");
+    }
+
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate dimnames for '" + ritsuko::hdf5::get_name(handle) + "'; " + std::string(e.what()));
 }
