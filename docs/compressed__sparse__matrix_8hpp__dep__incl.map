@@ -1,6 +1,7 @@
 <map id="takane/compressed_sparse_matrix.hpp" name="takane/compressed_sparse_matrix.hpp">
-<area shape="rect" id="node1" title="Validation for compressed sparse matrices." alt="" coords="59,5,242,45"/>
-<area shape="rect" id="node2" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,93,136,119"/>
-<area shape="rect" id="node4" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,93,301,119"/>
-<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="87,167,215,192"/>
+<area shape="rect" id="node1" title="Validation for compressed sparse matrices." alt="" coords="166,5,349,45"/>
+<area shape="rect" id="node2" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,93,168,119"/>
+<area shape="rect" id="node4" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="192,93,323,119"/>
+<area shape="rect" id="node5" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="347,93,488,119"/>
+<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="193,167,321,192"/>
 </map>

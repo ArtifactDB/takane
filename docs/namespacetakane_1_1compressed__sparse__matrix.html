@@ -90,10 +90,56 @@ Functions</h2></td></tr>
 <tr class="separator:a99542dfebdac59d7063b624866724c0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7eb216a542aad581083a649c240a64bc"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1compressed__sparse__matrix.html#a7eb216a542aad581083a649c240a64bc">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="separator:a7eb216a542aad581083a649c240a64bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1280ede8b1ac5c5117fb4cdade9fc0e7"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1compressed__sparse__matrix.html#a1280ede8b1ac5c5117fb4cdade9fc0e7">dimensions</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a1280ede8b1ac5c5117fb4cdade9fc0e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for compressed sparse matrices. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a1280ede8b1ac5c5117fb4cdade9fc0e7" name="a1280ede8b1ac5c5117fb4cdade9fc0e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1280ede8b1ac5c5117fb4cdade9fc0e7">&#9670;&#160;</a></span>dimensions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; size_t &gt; takane::compressed_sparse_matrix::dimensions </td>
+          <td>(</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to the directory containing a compressed sparse matrix. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, mostly related to reading performance. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Dimensions of the matrix. </dd></dl>
+
+</div>
+</div>
 <a id="a7eb216a542aad581083a649c240a64bc" name="a7eb216a542aad581083a649c240a64bc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7eb216a542aad581083a649c240a64bc">&#9670;&#160;</a></span>height()</h2>
 

@@ -95,14 +95,14 @@ $(function() {
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">namespace </span>internal_array {</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> Size_&gt;</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keywordtype">void</span> check_dimnames(<span class="keyword">const</span> H5::Group&amp; handle, <span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> std::vector&lt;Size_&gt;&amp; dimensions, <span class="keyword">const</span> Options&amp; options) <span class="keyword">try</span> {</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keywordtype">void</span> check_dimnames(<span class="keyword">const</span> H5::Group&amp; handle, <span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> std::vector&lt;Size_&gt;&amp; <a class="code hl_function" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">dimensions</a>, <span class="keyword">const</span> Options&amp; options) <span class="keyword">try</span> {</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keywordflow">if</span> (handle.childObjType(name) != H5O_TYPE_GROUP) {</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;&quot;</span> + name + <span class="stringliteral">&quot;&#39; to be a group&quot;</span>);</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    }</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">auto</span> nhandle = handle.openGroup(name);</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keywordtype">size_t</span> found = 0;</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> d = 0, ndim = dimensions.size(); d &lt; ndim; ++d) {</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> d = 0, ndim = <a class="code hl_function" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">dimensions</a>.size(); d &lt; ndim; ++d) {</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        std::string dname = std::to_string(d);</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keywordflow">if</span> (!nhandle.exists(dname)) {</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>            <span class="keywordflow">continue</span>;</div>
@@ -114,10 +114,10 @@ $(function() {
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        <span class="keyword">auto</span> dhandle = nhandle.openDataSet(dname);</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        <span class="keyword">auto</span> len = ritsuko::hdf5::get_1d_length(dhandle, <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keywordflow">if</span> (len != dimensions[d]) {</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keywordflow">if</span> (len != <a class="code hl_function" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">dimensions</a>[d]) {</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;&quot;</span> + name + <span class="stringliteral">&quot;/&quot;</span> + dname + </div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                <span class="stringliteral">&quot;&#39; to have the same length as the extent of the corresponding dimension (got &quot;</span> +</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>                std::to_string(len) + <span class="stringliteral">&quot;, expected &quot;</span> + std::to_string(dimensions[d]) + <span class="stringliteral">&quot;)&quot;</span>); </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>                std::to_string(len) + <span class="stringliteral">&quot;, expected &quot;</span> + std::to_string(<a class="code hl_function" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">dimensions</a>[d]) + <span class="stringliteral">&quot;)&quot;</span>); </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        }</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="keywordflow">if</span> (dhandle.getTypeClass() != H5T_STRING) {</div>
@@ -140,7 +140,8 @@ $(function() {
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>}</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _height.hpp:27</div></div>
+<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:18</div></div>
+<div class="ttc" id="anamespacetakane_html_a2f252a2481209b1f72e6b5dadc7155dd"><div class="ttname"><a href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">takane::dimensions</a></div><div class="ttdeci">std::vector&lt; size_t &gt; dimensions(const std::filesystem::path &amp;path, const std::string &amp;type, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:53</div></div>
 <div class="ttc" id="autils__public_8hpp_html"><div class="ttname"><a href="utils__public_8hpp.html">utils_public.hpp</a></div><div class="ttdoc">Exported utilities.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
