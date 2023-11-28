@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['operator_2a_0',['operator*',['../structtakane_1_1WrappedOption.html#af48d965d7c5c90116625a94e3ccfc2e0',1,'takane::WrappedOption']]],
-  ['operator_2d_3e_1',['operator-&gt;',['../structtakane_1_1WrappedOption.html#af82dabe312c2dae05d85b8bdbdfad1ef',1,'takane::WrappedOption']]],
-  ['operator_3d_2',['operator=',['../structtakane_1_1WrappedOption.html#a75091f00dccdcb84605c50b2b944802f',1,'takane::WrappedOption::operator=(const T *ptr)'],['../structtakane_1_1WrappedOption.html#a27fa123b4d76c73a7932996b1042f4f4',1,'takane::WrappedOption::operator=(T val)']]],
-  ['options_3',['Options',['../structtakane_1_1Options.html',1,'takane']]]
+  ['parallel_0',['parallel',['../structtakane_1_1csv__data__frame_1_1Parameters.html#adf4fc1f417a915b197af6bb7bee043fa',1,'takane::csv_data_frame::Parameters']]],
+  ['parallel_5freads_1',['parallel_reads',['../structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e',1,'takane::Options']]],
+  ['parameters_2',['Parameters',['../structtakane_1_1csv__data__frame_1_1Parameters.html',1,'takane::csv_data_frame']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['satisfies_5finterface_5fregistry_0',['satisfies_interface_registry',['../namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889',1,'takane']]]
+  ['validate_5fregistry_0',['validate_registry',['../namespacetakane.html#adfe1399ce43c36b9f127731f19381595',1,'takane']]]
 ];
