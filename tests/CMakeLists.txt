@@ -32,6 +32,7 @@ add_executable(
     #    src/compressed_list.cpp
     src/compressed_sparse_matrix.cpp
     src/dense_array.cpp
+    src/summarized_experiment.cpp
     src/utils_compressed_list.cpp
     src/utils_string.cpp
     src/utils_factor.cpp

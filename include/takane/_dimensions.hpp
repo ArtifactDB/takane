@@ -26,6 +26,7 @@ inline auto default_registry() {
     std::unordered_map<std::string, std::function<std::vector<size_t>(const std::filesystem::path&, const Options&)> > registry;
     registry["dense_array"] = [](const std::filesystem::path& p, const Options& o) -> std::vector<size_t> { return dense_array::dimensions(p, o); };
     registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const Options& o) -> std::vector<size_t> { return compressed_sparse_matrix::dimensions(p, o); };
+    registry["summarized_experiment"] = [](const std::filesystem::path& p, const Options& o) -> std::vector<size_t> { return summarized_experiment::dimensions(p, o); };
     return registry;
 } 
 
