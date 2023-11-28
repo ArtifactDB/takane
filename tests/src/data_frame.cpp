@@ -54,6 +54,8 @@ TEST_F(Hdf5DataFrameTest, Rownames) {
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 29);
+    std::vector<size_t> expected_dim{ 29, 1 };
+    EXPECT_EQ(takane::dimensions(dir), expected_dim);
 
     {
         auto handle = reopen();
@@ -88,6 +90,8 @@ TEST_F(Hdf5DataFrameTest, Colnames) {
     data_frame::mock(dir, 29, columns);
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 29);
+    std::vector<size_t> expected_dim{ 29, 2 };
+    EXPECT_EQ(takane::dimensions(dir), expected_dim);
 
     {
         auto handle = reopen();
