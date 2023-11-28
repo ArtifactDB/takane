@@ -20,6 +20,7 @@
 #include "dense_array.hpp"
 #include "compressed_sparse_matrix.hpp"
 #include "summarized_experiment.hpp"
+#include "ranged_summarized_experiment.hpp"
 
 /**
  * @file _validate.hpp
@@ -48,6 +49,7 @@ inline auto default_registry() {
     registry["dense_array"] = [](const std::filesystem::path& p, const Options& o) { dense_array::validate(p, o); };
     registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const Options& o) { compressed_sparse_matrix::validate(p, o); };
     registry["summarized_experiment"] = [](const std::filesystem::path& p, const Options& o) { summarized_experiment::validate(p, o); };
+    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const Options& o) { ranged_summarized_experiment::validate(p, o); };
     return registry;
 } 
 

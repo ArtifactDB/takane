@@ -31,10 +31,11 @@ std::vector<size_t> dimensions(const std::filesystem::path&, const std::string&,
 namespace summarized_experiment {
 
 /**
- * @param path Path to the directory containing the summarized experiment.
- * @param options Validation options, typically for reading performance.
+ * @cond
  */
-inline void validate(const std::filesystem::path& path, const Options& options) try {
+namespace internal {
+
+inline void validate(const std::filesystem::path& path, const std::string& objname, const Options& options) {
     auto mpath = path / "summarized_experiment.json";
     auto parsed = millijson::parse_file(mpath.c_str());
 
@@ -149,10 +150,10 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
                 throw std::runtime_error("object in 'assays/" + aname + "' should have two or more dimensions");
             }
             if (dims[0] != num_rows) {
-                throw std::runtime_error("object in 'assays/" + aname + "' should have the same number of rows as its 'summarized_experiment'");
+                throw std::runtime_error("object in 'assays/" + aname + "' should have the same number of rows as its parent '" + objname + "'");
             }
             if (dims[1] != num_cols) {
-                throw std::runtime_error("object in 'assays/" + aname + "' should have the same number of columns as its 'summarized_experiment'");
+                throw std::runtime_error("object in 'assays/" + aname + "' should have the same number of columns as its parent '" + objname + "'");
             }
         }
 
@@ -173,7 +174,7 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         }
         ::takane::validate(rd_path, rd_type, options);
         if (::takane::height(rd_path, rd_type, options) != num_rows) {
-            throw std::runtime_error("data frame at 'row_data' should have number of rows equal to that of the 'summarized_experiment'");
+            throw std::runtime_error("data frame at 'row_data' should have number of rows equal to that of the '" + objname + "'");
         }
     }
 
@@ -185,12 +186,24 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
         }
         ::takane::validate(cd_path, cd_type, options);
         if (::takane::height(cd_path, cd_type, options) != num_cols) {
-            throw std::runtime_error("data frame at 'column_data' should have number of rows equal to the number of columns of the 'summarized_experiment'");
+            throw std::runtime_error("data frame at 'column_data' should have number of rows equal to the number of columns of its parent '" + objname + "'");
         }
     }
 
     internal_other::validate_metadata(path, "other_data", options);
+}
 
+}
+/**
+ * @endcond
+ */
+
+/**
+ * @param path Path to the directory containing the summarized experiment.
+ * @param options Validation options, typically for reading performance.
+ */
+inline void validate(const std::filesystem::path& path, const Options& options) try {
+    internal::validate(path, "summarized_experiment", options);
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate 'summarized_experiment' object at '" + path.string() + "'; " + std::string(e.what()));
 }

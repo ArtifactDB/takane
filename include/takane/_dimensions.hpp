@@ -27,6 +27,7 @@ inline auto default_registry() {
     registry["dense_array"] = [](const std::filesystem::path& p, const Options& o) -> std::vector<size_t> { return dense_array::dimensions(p, o); };
     registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const Options& o) -> std::vector<size_t> { return compressed_sparse_matrix::dimensions(p, o); };
     registry["summarized_experiment"] = [](const std::filesystem::path& p, const Options& o) -> std::vector<size_t> { return summarized_experiment::dimensions(p, o); };
+    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const Options& o) -> std::vector<size_t> { return summarized_experiment::dimensions(p, o); }; // yes, we're deliberately re-using the SE method here.
     return registry;
 } 
 
