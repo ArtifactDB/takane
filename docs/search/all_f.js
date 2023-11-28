@@ -9,5 +9,6 @@ var searchData=
   ['sequence_5finformation_6',['sequence_information',['../namespacetakane_1_1sequence__information.html',1,'takane']]],
   ['simple_5flist_7',['simple_list',['../namespacetakane_1_1simple__list.html',1,'takane']]],
   ['string_5ffactor_8',['string_factor',['../namespacetakane_1_1string__factor.html',1,'takane']]],
-  ['takane_9',['takane',['../namespacetakane.html',1,'']]]
+  ['summarized_5fexperiment_9',['summarized_experiment',['../namespacetakane_1_1summarized__experiment.html',1,'takane']]],
+  ['takane_10',['takane',['../namespacetakane.html',1,'']]]
 ];
