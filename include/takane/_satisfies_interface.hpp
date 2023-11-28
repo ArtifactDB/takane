@@ -16,7 +16,6 @@ inline auto default_registry() {
     std::unordered_map<std::string, std::unordered_set<std::string> > registry;
     registry["SIMPLE_LIST"] = { "simple_list" };
     registry["DATA_FRAME"] = { "data_frame" };
-    registry["ARRAY"] = { "dense_array", "compressed_sparse_matrix" };
     return registry;
 }
 

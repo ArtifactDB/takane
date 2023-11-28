@@ -127,7 +127,7 @@ TEST_F(SummarizedExperimentTest, Assays) {
         handle << "[\"aaron\",\"jayaram\"]";
         simple_list::mock(dir / "assays" / "0");
     }
-    expect_error("'ARRAY' interface");
+    expect_error("no registered 'dimensions' method");
 
     {
         dense_array::mock(dir / "assays" / "0", dense_array::Type::INTEGER, { 10 });

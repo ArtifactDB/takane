@@ -140,9 +140,6 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
             auto aname = std::to_string(i);
             auto apath = path / "assays" / aname;
             auto atype = read_object_type(apath);
-            if (!satisfies_interface(atype, "ARRAY")) {
-                throw std::runtime_error("object in 'assays/" + aname + "' should satisfy the 'ARRAY' interface");
-            }
             ::takane::validate(apath, atype, options);
 
             auto dims = ::takane::dimensions(apath, atype, options);
