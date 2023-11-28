@@ -51,6 +51,9 @@ TEST_F(DenseArrayTest, Basics) {
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 10);
+
+    std::vector<size_t> expected_dims { 10, 20 };
+    EXPECT_EQ(takane::dimensions(dir), expected_dims);
 }
 
 TEST_F(DenseArrayTest, TypeChecks) {
@@ -232,6 +235,9 @@ TEST_F(DenseArrayTest, Transposed) {
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 20);
+
+    std::vector<size_t> expected_dims { 20, 10 };
+    EXPECT_EQ(takane::dimensions(dir), expected_dims);
 }
 
 struct DenseArrayStringCheckTest : public ::testing::TestWithParam<int> {};

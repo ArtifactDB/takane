@@ -209,6 +209,22 @@ inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const O
     return output.front();
 }
 
+/**
+ * @param path Path to the directory containing a compressed sparse matrix.
+ * @param options Validation options, mostly related to reading performance.
+ * @return Dimensions of the matrix.
+ */
+inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const Options& options) {
+    auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, "compressed_sparse_matrix");
+    auto shandle = ritsuko::hdf5::open_dataset(ghandle, "shape");
+
+    std::array<uint64_t, 2> output;
+    shandle.read(output.data(), H5::PredType::NATIVE_UINT64);
+    return std::vector<size_t>(output.begin(), output.end());
+}
+
+
 }
 
 }

@@ -50,6 +50,9 @@ TEST_F(SparseMatrixTest, Basic) {
     takane::validate(path);
     EXPECT_EQ(takane::height(path), 20);
 
+    std::vector<size_t> expected_dims { 20, 30 };
+    EXPECT_EQ(takane::dimensions(path), expected_dims);
+
     // Success with no zero-length columns.
     compressed_sparse_matrix::mock(path, 20, 30, 0.5);
     takane::validate(path);
