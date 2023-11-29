@@ -27,6 +27,11 @@ void mock(const std::filesystem::path& dir, const Options& options) {
     }
 
     {
+        std::ofstream handle(dir / "single_cell_experiment.json");
+        handle << "{ \"version\": \"1.0\" }";
+    }
+
+    {
         auto rddir = dir / "reduced_dimensions";
         std::filesystem::create_directory(rddir);
 

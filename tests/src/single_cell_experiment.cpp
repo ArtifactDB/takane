@@ -47,6 +47,13 @@ TEST_F(SingleCellExperimentTest, Basic) {
     EXPECT_EQ(takane::height(dir), 20);
     std::vector<size_t> expected_dim{ 20, 15 };
     EXPECT_EQ(takane::dimensions(dir), expected_dim);
+
+    // Check the version checks.
+    {
+        std::ofstream handle(dir / "single_cell_experiment.json");
+        handle << "{ \"version\": \"2.0\" }";
+    }
+    expect_error("unsupported version");
 }
 
 TEST_F(SingleCellExperimentTest, ReducedDims) {
@@ -110,4 +117,37 @@ TEST_F(SingleCellExperimentTest, AlternativeExps) {
         std::filesystem::remove_all(dir / "alternative_experiments");
     }
     takane::validate(dir); 
+}
+
+TEST_F(SingleCellExperimentTest, MainExperimentName) {
+    single_cell_experiment::Options options(100, 20);
+    options.num_reduced_dims = 2;
+    options.num_alt_exps = 2;
+    single_cell_experiment::mock(dir, options);
+
+    {
+        std::ofstream handle(dir / "single_cell_experiment.json");
+        handle << "{ \"version\": \"1.0\", \"main_experiment_name\": 2 }";
+    }
+    expect_error("to be a string");
+
+    {
+        std::ofstream handle(dir / "single_cell_experiment.json");
+        handle << "{ \"version\": \"1.0\", \"main_experiment_name\": \"\" }";
+    }
+    expect_error("empty string");
+
+    {
+        std::ofstream mhandle(dir / "single_cell_experiment.json");
+        mhandle << "{ \"version\": \"1.0\", \"main_experiment_name\": \"foo\" }";
+        std::ofstream ahandle(dir / "alternative_experiments" / "names.json");
+        ahandle << "[ \"foo\", \"bar\" ]";
+    }
+    expect_error("not overlap");
+
+    {
+        std::ofstream mhandle(dir / "single_cell_experiment.json");
+        mhandle << "{ \"version\": \"1.0\", \"main_experiment_name\": \"stuff\" }";
+    }
+    takane::validate(dir);
 }

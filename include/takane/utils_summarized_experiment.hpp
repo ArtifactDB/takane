@@ -12,7 +12,7 @@ namespace takane {
 
 namespace internal_summarized_experiment {
 
-inline size_t check_names_json(const std::filesystem::path& dir) try {
+inline void check_names_json(const std::filesystem::path& dir, std::unordered_set<std::string>& present) try {
     auto npath = dir / "names.json";
     auto parsed = millijson::parse_file(npath.c_str());
     if (parsed->type() != millijson::ARRAY) {
@@ -21,7 +21,6 @@ inline size_t check_names_json(const std::filesystem::path& dir) try {
 
     auto aptr = reinterpret_cast<const millijson::Array*>(parsed.get());
     size_t number = aptr->values.size();
-    std::unordered_set<std::string> present;
     present.reserve(number);
 
     for (size_t i = 0; i < number; ++i) {
@@ -41,9 +40,26 @@ inline size_t check_names_json(const std::filesystem::path& dir) try {
         present.insert(std::move(name));
     }
 
-    return number;
 } catch (std::exception& e) {
     throw std::runtime_error("invalid '" + dir.string() + "/names.json' file; " + std::string(e.what()));
+}
+
+inline size_t check_names_json(const std::filesystem::path& dir) {
+    std::unordered_set<std::string> present;
+    check_names_json(dir, present);
+    return present.size();
+}
+
+inline const std::string& validate_version_json(const millijson::Object* optr) {
+    auto vIt = optr->values.find("version");
+    if (vIt == optr->values.end()) {
+        throw std::runtime_error("expected a 'version' property");
+    }
+    const auto& ver = vIt->second;
+    if (ver->type() != millijson::STRING) {
+        throw std::runtime_error("expected 'version' to be a string");
+    }
+    return reinterpret_cast<const millijson::String*>(ver.get())->value;
 }
 
 }
