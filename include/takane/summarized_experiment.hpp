@@ -139,9 +139,10 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
             throw std::runtime_error("invalid 'assays/names.json' file; " + std::string(e.what()));
         }
 
+        auto adir = path / "assays";
         for (size_t i = 0; i < num_assays; ++i) {
             auto aname = std::to_string(i);
-            auto apath = path / "assays" / aname;
+            auto apath = adir / aname;
             auto atype = read_object_type(apath);
             ::takane::validate(apath, atype, options);
 
@@ -157,10 +158,7 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
             }
         }
 
-        size_t num_dir_obj = 0;
-        for ([[maybe_unused]] const auto& entry : std::filesystem::directory_iterator(path / "assays")) {
-            ++num_dir_obj;
-        }
+        size_t num_dir_obj = internal_other::count_directory_entries(adir);
         if (num_dir_obj - 1 != num_assays) { // -1 to account for the names.json file itself.
             throw std::runtime_error("more objects than expected inside the 'assays' subdirectory");
         }

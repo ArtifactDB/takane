@@ -61,3 +61,13 @@ TEST_F(ValidateMetadataTest, Metadata) {
     initialize_directory(subpath, "data_frame");
     expect_error_metadata("'SIMPLE_LIST'", path, "metadata", takane::Options());
 }
+
+TEST(CountDirectoryEntries, Basic) {
+    std::filesystem::path path = "TEST_countdir";
+    std::filesystem::create_directory(path);
+    std::filesystem::create_directory(path / "_whee");
+    std::filesystem::create_directory(path / ".foo");
+    std::filesystem::create_directory(path / "blah");
+    std::filesystem::create_directory(path / "asdasd");
+    EXPECT_EQ(takane::internal_other::count_directory_entries(path), 2);
+}

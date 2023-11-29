@@ -210,8 +210,8 @@ TEST_F(Hdf5DataFrameTest, Other) {
     }
     takane::validate(dir);
 
+    auto subdir = dir / "other_columns" / "0";
     {
-        auto subdir = dir / "other_columns" / "0";
         std::vector<data_frame::ColumnDetails> subcolumns(1);
         subcolumns[0].name = "version3";
         data_frame::mock(subdir, 32, subcolumns);
@@ -219,10 +219,15 @@ TEST_F(Hdf5DataFrameTest, Other) {
     expect_error("height of column 0 of class 'data_frame'");
 
     {
-        auto subdir = dir / "other_columns" / "0";
         std::filesystem::remove(subdir / "basic_columns.h5");
     }
     expect_error("failed to validate 'other' column 0");
+
+    {
+        data_frame::mock(subdir, 51, {});
+        data_frame::mock(dir / "other_columns" / "foobar", 51, {});
+    }
+    expect_error("more objects than expected");
 }
 
 TEST_F(Hdf5DataFrameTest, Integer) {
