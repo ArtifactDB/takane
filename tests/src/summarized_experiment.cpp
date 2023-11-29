@@ -124,6 +124,12 @@ TEST_F(SummarizedExperimentTest, Assays) {
 
     {
         std::ofstream handle(dir / "assays" / "names.json");
+        handle << "[\"aaron\",\"\"]";
+    }
+    expect_error("empty string");
+
+    {
+        std::ofstream handle(dir / "assays" / "names.json");
         handle << "[\"aaron\",\"jayaram\"]";
         simple_list::mock(dir / "assays" / "0");
     }

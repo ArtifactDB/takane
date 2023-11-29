@@ -126,6 +126,9 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
 
                 auto nptr = reinterpret_cast<const millijson::String*>(eptr.get());
                 auto name = nptr->value;
+                if (name.empty()) {
+                    throw std::runtime_error("assay name should not be an empty string");
+                }
                 if (present.find(name) != present.end()) {
                     throw std::runtime_error("detected duplicated assay name '" + name + "'");
                 }
