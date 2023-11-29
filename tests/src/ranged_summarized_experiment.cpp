@@ -50,6 +50,13 @@ TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
     takane::validate(dir); 
     std::vector<size_t> expected_dim{ 30, 9 };
     EXPECT_EQ(takane::dimensions(dir), expected_dim);
+
+    // Check the version checks.
+    {
+        std::ofstream handle(dir / "ranged_summarized_experiment.json");
+        handle << "{ \"version\": \"2.0\" }";
+    }
+    expect_error("unsupported version");
 }
 
 TEST_F(RangedSummarizedExperimentTest, RowRanges) {

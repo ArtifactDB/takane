@@ -25,6 +25,11 @@ inline void mock(const std::filesystem::path& dir, const Options& options) {
         ohandle << "ranged_summarized_experiment";
     }
 
+    {
+        std::ofstream handle(dir / "ranged_summarized_experiment.json");
+        handle << "{ \"version\": \"1.0\" }";
+    }
+
     auto rdir = dir / "row_ranges";
     if (options.use_grl) {
         initialize_directory(rdir, "genomic_ranges_list");
