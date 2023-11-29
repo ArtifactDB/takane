@@ -95,6 +95,12 @@ TEST_F(SummarizedExperimentTest, TopLevelJson) {
         handle << "{ \"version\": \"1.0\", \"dimensions\": [ 10, 1.5 ] }";
     }
     expect_error("non-negative integers");
+
+    {
+        std::ofstream handle(dir / "summarized_experiment.json");
+        handle << "{ \"version\": \"1.0\", \"dimensions\": [ 10, 20 ] }";
+    }
+    takane::validate(dir); // works without any assays!
 }
 
 TEST_F(SummarizedExperimentTest, Assays) {

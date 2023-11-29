@@ -103,10 +103,11 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
         throw std::runtime_error("invalid 'summarized_experiment.json' file; " + std::string(e.what()));
     }
 
-    // Checking the assays.
-    {
-        size_t num_assays = internal_summarized_experiment::check_names_json(path / "assays");
-        auto adir = path / "assays";
+    // Checking the assays. The directory is also allowed to not exist, 
+    // in which case we have no assays.
+    auto adir = path / "assays";
+    if (std::filesystem::exists(adir)) {
+        size_t num_assays = internal_summarized_experiment::check_names_json(adir);
         for (size_t i = 0; i < num_assays; ++i) {
             auto aname = std::to_string(i);
             auto apath = adir / aname;
