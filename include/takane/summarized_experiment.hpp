@@ -47,22 +47,10 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
         }
         auto optr = reinterpret_cast<const millijson::Object*>(parsed.get());
 
-        // Validating the version.
-        {
-            auto vIt = optr->values.find("version");
-            if (vIt == optr->values.end()) {
-                throw std::runtime_error("expected a 'version' property");
-            }
-            const auto& ver = vIt->second;
-            if (ver->type() != millijson::STRING) {
-                throw std::runtime_error("expected 'version' to be a string");
-            }
-
-            const auto& vstring = reinterpret_cast<const millijson::String*>(ver.get())->value;
-            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-            if (version.major != 1) {
-                throw std::runtime_error("unsupported version string '" + vstring + "'");
-            }
+        const auto& vstring = internal_summarized_experiment::validate_version_json(optr);
+        auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+        if (version.major != 1) {
+            throw std::runtime_error("unsupported version string '" + vstring + "'");
         }
 
         // Validating the dimensions.
