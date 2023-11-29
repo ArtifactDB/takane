@@ -41,19 +41,19 @@ TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
     expect_error("top-level object");
 
     // With a GRL:
-    ranged_summarized_experiment::mock(dir, /* use_grl = */ true, 20, 15, 2);
+    ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(20, 15, true));
     takane::validate(dir); 
     EXPECT_EQ(takane::height(dir), 20);
 
     // With a GRanges:
-    ranged_summarized_experiment::mock(dir, /* use_grl = */ false, 30, 9, 2);
+    ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(30, 9, false));
     takane::validate(dir); 
     std::vector<size_t> expected_dim{ 30, 9 };
     EXPECT_EQ(takane::dimensions(dir), expected_dim);
 }
 
 TEST_F(RangedSummarizedExperimentTest, RowRanges) {
-    ranged_summarized_experiment::mock(dir, /* use_grl = */ true, 10, 15, 2);
+    ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(10, 15, true));
 
     {
         data_frame::mock(dir / "row_ranges", 10, {});

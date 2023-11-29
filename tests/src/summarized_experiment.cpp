@@ -104,7 +104,7 @@ TEST_F(SummarizedExperimentTest, TopLevelJson) {
 }
 
 TEST_F(SummarizedExperimentTest, Assays) {
-    summarized_experiment::mock(dir, 10, 15, 2);
+    summarized_experiment::mock(dir, summarized_experiment::Options(10, 15, 2));
     takane::validate(dir); // success!
     EXPECT_EQ(takane::height(dir), 10);
     std::vector<size_t> expected_dim{10, 15};
@@ -149,7 +149,11 @@ TEST_F(SummarizedExperimentTest, Assays) {
 
 
 TEST_F(SummarizedExperimentTest, AllOtherData) {
-    summarized_experiment::mock(dir, 10, 15, 2, true, true, true);
+    summarized_experiment::Options options(10, 15, 2);
+    options.has_row_data = true;
+    options.has_column_data = true;
+    options.has_other_data = true;
+    summarized_experiment::mock(dir, options);
     takane::validate(dir); // success!
 
     {
