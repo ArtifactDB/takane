@@ -105,24 +105,8 @@ TEST_F(SummarizedExperimentTest, Assays) {
     EXPECT_EQ(takane::dimensions(dir), expected_dim);
 
     {
-        std::ofstream handle(dir / "assays" / "names.json");
-        handle << "{}";
-    }
-    expect_error("an array");
-
-    {
-        std::ofstream handle(dir / "assays" / "names.json");
-        handle << "[1,2]";
-    }
-    expect_error("an array of strings");
-
-    {
-        std::ofstream handle(dir / "assays" / "names.json");
-        handle << "[\"aaron\",\"aaron\"]";
-    }
-    expect_error("duplicated assay name 'aaron'");
-
-    {
+        // Most checks are handled by utils_summarized_experiment.cpp,
+        // we just do a cursory check to ensure that it does get called.
         std::ofstream handle(dir / "assays" / "names.json");
         handle << "[\"aaron\",\"\"]";
     }

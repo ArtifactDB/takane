@@ -6,6 +6,7 @@
 
 #include "utils_public.hpp"
 #include "utils_other.hpp"
+#include "utils_summarized_experiment.hpp"
 
 #include <filesystem>
 #include <stdexcept>
@@ -104,41 +105,7 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
 
     // Checking the assays.
     {
-        size_t num_assays = 0;
-        auto mpath = path / "assays" / "names.json";
-        auto parsed = millijson::parse_file(mpath.c_str());
-
-        try {
-            if (parsed->type() != millijson::ARRAY) {
-                throw std::runtime_error("expected an array");
-            }
-
-            auto aptr = reinterpret_cast<const millijson::Array*>(parsed.get());
-            num_assays = aptr->values.size();
-            std::unordered_set<std::string> present;
-            present.reserve(num_assays);
-
-            for (size_t i = 0; i < num_assays; ++i) {
-                auto eptr = aptr->values[i];
-                if (eptr->type() != millijson::STRING) {
-                    throw std::runtime_error("expected an array of strings");
-                }
-
-                auto nptr = reinterpret_cast<const millijson::String*>(eptr.get());
-                auto name = nptr->value;
-                if (name.empty()) {
-                    throw std::runtime_error("assay name should not be an empty string");
-                }
-                if (present.find(name) != present.end()) {
-                    throw std::runtime_error("detected duplicated assay name '" + name + "'");
-                }
-                present.insert(std::move(name));
-            }
-
-        } catch (std::exception& e) {
-            throw std::runtime_error("invalid 'assays/names.json' file; " + std::string(e.what()));
-        }
-
+        size_t num_assays = internal_summarized_experiment::check_names_json(path / "assays");
         auto adir = path / "assays";
         for (size_t i = 0; i < num_assays; ++i) {
             auto aname = std::to_string(i);
