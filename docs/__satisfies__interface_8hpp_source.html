@@ -93,28 +93,27 @@ $(function() {
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    std::unordered_map&lt;std::string, std::unordered_set&lt;std::string&gt; &gt; registry;</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    registry[<span class="stringliteral">&quot;SIMPLE_LIST&quot;</span>] = { <span class="stringliteral">&quot;simple_list&quot;</span> };</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    registry[<span class="stringliteral">&quot;DATA_FRAME&quot;</span>] = { <span class="stringliteral">&quot;data_frame&quot;</span> };</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    registry[<span class="stringliteral">&quot;ARRAY&quot;</span>] = { <span class="stringliteral">&quot;dense_array&quot;</span>, <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span> };</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keywordflow">return</span> registry;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>}</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>}</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">   33</a></span><span class="keyword">inline</span> std::unordered_map&lt;std::string, std::unordered_set&lt;std::string&gt; &gt; <a class="code hl_variable" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a> = internal_satisfies_interface::default_registry();</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">   43</a></span><span class="keyword">inline</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(<span class="keyword">const</span> std::string&amp; type, <span class="keyword">const</span> std::string&amp; interface) {</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keyword">auto</span> it = <a class="code hl_variable" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a>.find(interface);</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordflow">if</span> (it == <a class="code hl_variable" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a>.end()) {</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    }</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; listing = it-&gt;second;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordflow">return</span> listing.find(type) != listing.end();</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>}</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>}</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:18</div></div>
-<div class="ttc" id="anamespacetakane_html_a91b48ec2eb7d6f86852b954e4351d889"><div class="ttname"><a href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">takane::satisfies_interface_registry</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::unordered_set&lt; std::string &gt; &gt; satisfies_interface_registry</div><div class="ttdef"><b>Definition:</b> _satisfies_interface.hpp:33</div></div>
-<div class="ttc" id="anamespacetakane_html_ae45905f4234f2875eb1ad9993829e09a"><div class="ttname"><a href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">takane::satisfies_interface</a></div><div class="ttdeci">bool satisfies_interface(const std::string &amp;type, const std::string &amp;interface)</div><div class="ttdef"><b>Definition:</b> _satisfies_interface.hpp:43</div></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keywordflow">return</span> registry;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>}</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>}</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">   32</a></span><span class="keyword">inline</span> std::unordered_map&lt;std::string, std::unordered_set&lt;std::string&gt; &gt; <a class="code hl_variable" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a> = internal_satisfies_interface::default_registry();</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">   42</a></span><span class="keyword">inline</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(<span class="keyword">const</span> std::string&amp; type, <span class="keyword">const</span> std::string&amp; interface) {</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">auto</span> it = <a class="code hl_variable" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a>.find(interface);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordflow">if</span> (it == <a class="code hl_variable" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a>.end()) {</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    }</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; listing = it-&gt;second;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordflow">return</span> listing.find(type) != listing.end();</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>}</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:19</div></div>
+<div class="ttc" id="anamespacetakane_html_a91b48ec2eb7d6f86852b954e4351d889"><div class="ttname"><a href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">takane::satisfies_interface_registry</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::unordered_set&lt; std::string &gt; &gt; satisfies_interface_registry</div><div class="ttdef"><b>Definition:</b> _satisfies_interface.hpp:32</div></div>
+<div class="ttc" id="anamespacetakane_html_ae45905f4234f2875eb1ad9993829e09a"><div class="ttname"><a href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">takane::satisfies_interface</a></div><div class="ttdeci">bool satisfies_interface(const std::string &amp;type, const std::string &amp;interface)</div><div class="ttdef"><b>Definition:</b> _satisfies_interface.hpp:42</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

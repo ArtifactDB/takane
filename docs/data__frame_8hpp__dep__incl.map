@@ -1,7 +1,8 @@
 <map id="takane/data_frame.hpp" name="takane/data_frame.hpp">
-<area shape="rect" id="node1" title="Validation for data frames." alt="" coords="153,5,308,31"/>
-<area shape="rect" id="node2" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,79,136,104"/>
-<area shape="rect" id="node4" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,79,301,104"/>
-<area shape="rect" id="node5" href="$csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="326,79,509,104"/>
-<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="87,152,215,177"/>
+<area shape="rect" id="node1" title="Validation for data frames." alt="" coords="260,5,415,31"/>
+<area shape="rect" id="node2" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,79,168,104"/>
+<area shape="rect" id="node4" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="192,79,323,104"/>
+<area shape="rect" id="node5" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="347,79,488,104"/>
+<area shape="rect" id="node6" href="$csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="513,79,695,104"/>
+<area shape="rect" id="node3" href="$takane_8hpp_source.html" title=" " alt="" coords="193,152,321,177"/>
 </map>
