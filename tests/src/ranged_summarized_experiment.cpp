@@ -64,4 +64,11 @@ TEST_F(RangedSummarizedExperimentTest, RowRanges) {
         genomic_ranges::mock(dir / "row_ranges", 20, 10);
     }
     expect_error("length equal to the number of rows");
+
+    // Absence of row ranges is allowed, in which case we are assumed
+    // to have non-informative ranges for the RangedSummarizedExperiment.
+    {
+        std::filesystem::remove_all(dir / "row_ranges");
+    }
+    takane::validate(dir); 
 }

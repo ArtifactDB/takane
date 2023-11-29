@@ -35,14 +35,16 @@ inline void validate(const std::filesystem::path& path, const std::string& objna
     auto num_row = ::takane::summarized_experiment::height(path, options);
 
     auto rangedir = path / "row_ranges";
-    auto rangetype = read_object_type(rangedir);
-    if (rangetype != "genomic_ranges" && rangetype != "genomic_ranges_list") {
-        throw std::runtime_error("object in 'row_ranges' must be a 'genomic_ranges' or 'genomic_ranges_list'");
-    }
+    if (std::filesystem::exists(rangedir)) {
+        auto rangetype = read_object_type(rangedir);
+        if (rangetype != "genomic_ranges" && rangetype != "genomic_ranges_list") {
+            throw std::runtime_error("object in 'row_ranges' must be a 'genomic_ranges' or 'genomic_ranges_list'");
+        }
 
-    ::takane::validate(rangedir, rangetype, options);
-    if (::takane::height(rangedir, options) != num_row) {
-        throw std::runtime_error("object in 'row_ranges' must have length equal to the number of rows of its parent '" + objname + "'");
+        ::takane::validate(rangedir, rangetype, options);
+        if (::takane::height(rangedir, options) != num_row) {
+            throw std::runtime_error("object in 'row_ranges' must have length equal to the number of rows of its parent '" + objname + "'");
+        }
     }
 }
 
