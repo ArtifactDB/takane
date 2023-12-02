@@ -51,6 +51,12 @@ TEST_F(SingleCellExperimentTest, Basic) {
     // Check the version checks.
     {
         std::ofstream handle(dir / "single_cell_experiment.json");
+        handle << "[]";
+    }
+    expect_error("top-level object");
+
+    {
+        std::ofstream handle(dir / "single_cell_experiment.json");
         handle << "{ \"version\": \"2.0\" }";
     }
     expect_error("unsupported version");

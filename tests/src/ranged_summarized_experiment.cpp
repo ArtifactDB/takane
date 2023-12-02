@@ -51,7 +51,13 @@ TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
     std::vector<size_t> expected_dim{ 30, 9 };
     EXPECT_EQ(takane::dimensions(dir), expected_dim);
 
-    // Check the version checks.
+    // Check the RSE's metadata.
+    {
+        std::ofstream handle(dir / "ranged_summarized_experiment.json");
+        handle << "[]";
+    }
+    expect_error("top-level object");
+
     {
         std::ofstream handle(dir / "ranged_summarized_experiment.json");
         handle << "{ \"version\": \"2.0\" }";
