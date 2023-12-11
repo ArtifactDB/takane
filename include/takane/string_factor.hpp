@@ -26,18 +26,18 @@ namespace string_factor {
 
 /**
  * @param path Path to the directory containing the string factor.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::filesystem::path& path, const Options& options) try {
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "string_factor");
-
-    auto vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) try {
+    auto vstring = internal_json::extract_version_string(metadata.other, "string_factor");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
+    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, "string_factor");
     internal_factor::check_ordered_attribute(ghandle);
 
     size_t num_levels = internal_factor::validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);
@@ -51,10 +51,11 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
 
 /**
  * @param path Path to the directory containing the string factor.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  * @return Length of the factor.
  */
-inline size_t height(const std::filesystem::path& path, const Options&) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     H5::H5File handle((path / "contents.h5").string(), H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup("string_factor");
     auto dhandle = ghandle.openDataSet("codes");

@@ -11,8 +11,8 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, const std::string&, const Options&);
-size_t height(const std::filesystem::path&, const std::string&, const Options&);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
+size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
 bool satisfies_interface(const std::string&, const std::string&);
 /**
  * @endcond

@@ -139,18 +139,18 @@ inline void validate_string_contents(const H5::DataSet& dhandle, const std::vect
 
 /**
  * @param path Path to the directory containing a dense array.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, mostly related to reading performance.
  */
-inline void validate(const std::filesystem::path& path, const Options& options) try {
-    auto handle = ritsuko::hdf5::open_file(path / "array.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "dense_array");
-
-    auto vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) try {
+    auto vstring = internal_json::extract_version_string(metadata.other, "dense_array");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version '" + vstring + "'");
     }
 
+    auto handle = ritsuko::hdf5::open_file(path / "array.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, "dense_array");
     internal::is_transposed(ghandle); // just a check, not used here.
     auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "data");
 
@@ -199,10 +199,11 @@ inline void validate(const std::filesystem::path& path, const Options& options) 
 
 /**
  * @param path Path to the directory containing a dense array.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, mostly related to reading performance.
  * @return Extent of the first dimension.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const Options& options) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     auto handle = ritsuko::hdf5::open_file(path / "array.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "dense_array");
 
@@ -221,10 +222,11 @@ inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const O
 
 /**
  * @param path Path to the directory containing a dense array.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, mostly related to reading performance.
  * @return Dimensions of the array.
  */
-inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const Options& options) {
+inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     auto handle = ritsuko::hdf5::open_file(path / "array.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "dense_array");
 

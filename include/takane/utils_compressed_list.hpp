@@ -14,6 +14,7 @@
 #include "utils_public.hpp"
 #include "utils_string.hpp"
 #include "utils_other.hpp"
+#include "utils_json.hpp"
 
 namespace takane {
 
@@ -43,11 +44,8 @@ inline hsize_t validate_group(const H5::Group& handle, size_t concatenated_lengt
 }
 
 template<bool satisfies_interface_>
-void validate_directory(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const Options& options) try {
-    auto handle = ritsuko::hdf5::open_file(path / "partitions.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, object_type.c_str());
-
-    auto vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "version");
+void validate_directory(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const ObjectMetadata& metadata, const Options& options) try {
+    auto vstring = internal_json::extract_version_string(metadata.other, object_type);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -72,6 +70,8 @@ void validate_directory(const std::filesystem::path& path, const std::string& ob
     }
     size_t catheight = ::takane::height(catdir, cattype, options);
 
+    auto handle = ritsuko::hdf5::open_file(path / "partitions.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, object_type.c_str());
     size_t len = validate_group(ghandle, catheight, options.hdf5_buffer_size);
 
     internal_string::validate_names(ghandle, "names", len, options.hdf5_buffer_size);
@@ -82,7 +82,7 @@ void validate_directory(const std::filesystem::path& path, const std::string& ob
     throw std::runtime_error("failed to validate an '" + object_type + "' object at '" + path.string() + "'; " + std::string(e.what()));
 }
 
-inline size_t height(const std::filesystem::path& path, const std::string& name, [[maybe_unused]] const Options& options) {
+inline size_t height(const std::filesystem::path& path, const std::string& name, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     H5::H5File handle(path / "partitions.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup(name);
     auto dhandle = ghandle.openDataSet("lengths");
