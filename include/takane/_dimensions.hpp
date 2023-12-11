@@ -71,7 +71,7 @@ inline std::vector<size_t> dimensions(const std::filesystem::path& path, const O
 
     auto vrIt = dimensions_registry.find(metadata.type);
     if (vrIt == dimensions_registry.end()) {
-        throw std::runtime_error("no registered 'dimensions' function for object type '" + type + "' at '" + path.string() + "'");
+        throw std::runtime_error("no registered 'dimensions' function for object type '" + metadata.type + "' at '" + path.string() + "'");
     }
 
     return (vrIt->second)(path, metadata, options);

@@ -18,8 +18,8 @@
 
 namespace takane {
 
-void validate(const std::filesystem::path&, const std::string&, const Options&);
-size_t height(const std::filesystem::path&, const std::string&, const Options&);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
+size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
 bool satisfies_interface(const std::string&, const std::string&);
 
 namespace internal_compressed_list {
@@ -52,23 +52,23 @@ void validate_directory(const std::filesystem::path& path, const std::string& ob
     }
 
     auto catdir = path / "concatenated";
-    auto cattype = read_object_type(catdir);
+    auto catmeta = read_object_metadata(catdir);
     if constexpr(satisfies_interface_) {
-        if (!satisfies_interface(cattype, concatenated_type)) {
+        if (!satisfies_interface(catmeta.type, concatenated_type)) {
             throw std::runtime_error("'concatenated' should satisfy the '" + concatenated_type + "' interface");
         }
     } else {
-        if (cattype != concatenated_type) {
+        if (catmeta.type != concatenated_type) {
             throw std::runtime_error("'concatenated' should contain an '" + concatenated_type + "' object");
         }
     }
 
     try {
-        ::takane::validate(catdir, cattype, options);
+        ::takane::validate(catdir, catmeta, options);
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate the 'concatenated' object; " + std::string(e.what()));
     }
-    size_t catheight = ::takane::height(catdir, cattype, options);
+    size_t catheight = ::takane::height(catdir, catmeta, options);
 
     auto handle = ritsuko::hdf5::open_file(path / "partitions.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, object_type.c_str());

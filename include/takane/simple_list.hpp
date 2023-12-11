@@ -32,23 +32,13 @@ void validate(const std::filesystem::path&, const Options&);
  */
 namespace simple_list {
 
-namespace internal {
-
-inline const std::string& extract_version_string(const JsonObjectMap& x, const std::string& type) try {
-    return extract_string(extract_object(metadata.other, type), "version");
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to extract version from metadata for object type '" + type + "'; " + std::string(e.what()));
-}
-
-}
-
 /**
  * @param path Path to the directory containing the simple list.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) try {
-    const JsonObjectMap* metamap;
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+    const internal_json::JsonObjectMap* metamap;
     try {
         metamap = &(internal_json::extract_object(metadata.other, "simple_list"));
     } catch (std::exception& e) {
@@ -83,7 +73,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
         for (const auto& entry : std::filesystem::directory_iterator(other_dir)) {
             try {
-                ::takane::validate(entry.path().string(), options);
+                ::takane::validate(entry.path(), options);
             } catch (std::exception& e) {
                 throw std::runtime_error("failed to validate external list object at '" + std::filesystem::relative(entry.path(), path).string() + "'; " + std::string(e.what()));
             }
@@ -103,8 +93,6 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     } else {
         throw std::runtime_error("unknown format '" + *format + "'");
     }
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate a 'simple_list' at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 /**

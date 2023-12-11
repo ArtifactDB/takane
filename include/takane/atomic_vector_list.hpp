@@ -24,10 +24,8 @@ namespace atomic_vector_list {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) try {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     internal_compressed_list::validate_directory<false>(path, "atomic_vector_list", "atomic_vector", metadata, options);
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate an 'atomic_vector_list' object at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 /**
@@ -36,7 +34,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options, mostly for input performance.
  * @return The length of the list.
  */
-inline size_t height(const std::filesystem::path& path, const ObjectMeadata& metadata, const Options& options) {
+inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     return internal_compressed_list::height(path, "atomic_vector_list", metadata, options);
 }
 

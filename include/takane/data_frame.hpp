@@ -1,4 +1,4 @@
-edifndef TAKANE_HDF5_FRAME_HPP
+#ifndef TAKANE_HDF5_FRAME_HPP
 #define TAKANE_HDF5_FRAME_HPP
 
 #include "H5Cpp.h"
@@ -196,7 +196,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             } catch (std::exception& e) {
                 throw std::runtime_error("failed to validate 'other' column " + dset_name + "; " + std::string(e.what()));
             }
-            if (::takane::height(opath, options) != num_rows) {
+            if (::takane::height(opath, ometa, options) != num_rows) {
                 throw std::runtime_error("height of column " + dset_name + " of class '" + ometa.type + "' is not the same as the number of rows");
             }
 

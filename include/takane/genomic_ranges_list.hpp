@@ -24,10 +24,8 @@ namespace genomic_ranges_list {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) try {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     internal_compressed_list::validate_directory<false>(path, "genomic_ranges_list", "genomic_ranges", metadata, options);
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate an 'genomic_ranges_list' object at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 /**

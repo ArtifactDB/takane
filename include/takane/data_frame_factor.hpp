@@ -38,20 +38,20 @@ namespace data_frame_factor {
 /**
  * Application-specific function to determine whether there are duplicated rows in the data frame containing the levels of a `data_frame_factor`.
  *
- * This should accept a path to the directory containing the data frame, a string specifying the object type, and additional reading options.
+ * This should accept a path to the directory containing the data frame, the object metadata, and additional reading options.
  * It should return a boolean indicating whether any duplicate rows were found. 
  *
  * If provided, this enables stricter checking of the uniqueness of the data frame levels.
  * Currently, we don't provide a default method for `data_frame` objects, as it's kind of tedious and we haven't gotten around to it yet.
  */
-inline std::function<bool(const std::filesystem::path&, const std::string&, const Options& options)> any_duplicated;
+inline std::function<bool(const std::filesystem::path&, const ObjectMetadata&, const Options& options)> any_duplicated;
 
 /**
  * @param path Path to the directory containing the data frame factor.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) try {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const auto& vstring = internal_json::extract_version_string(metadata.other, "data_frame_factor");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
@@ -70,10 +70,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate 'levels'; " + std::string(e.what()));
     }
-    size_t num_levels = ::takane::height(lpath, xtype, options);
+    size_t num_levels = ::takane::height(lpath, lmeta, options);
 
     if (any_duplicated) {
-        if (any_duplicated(lpath, xtype, options)) {
+        if (any_duplicated(lpath, lmeta, options)) {
             throw std::runtime_error("'levels' should not contain duplicated rows");
         }
     }
@@ -86,9 +86,6 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     internal_other::validate_metadata(path, "other_annotations", options);
 
     internal_string::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
-
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate a 'data_frame_factor' at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 /**

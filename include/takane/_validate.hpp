@@ -86,10 +86,14 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     auto vrIt = validate_registry.find(metadata.type);
     if (vrIt == validate_registry.end()) {
-        throw std::runtime_error("no registered 'validate' function for object type '" + type + "' at '" + path.string() + "'");
+        throw std::runtime_error("no registered 'validate' function for object type '" + metadata.type + "' at '" + path.string() + "'");
     }
 
-    (vrIt->second)(path, metadata, options);
+    try {
+        (vrIt->second)(path, metadata, options);
+    } catch (std::exception& e) {
+        throw std::runtime_error("failed to validate '" + metadata.type + "' object at '" + path.string() + "'; " + std::string(e.what()));
+    }
 }
 
 /**

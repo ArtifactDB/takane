@@ -29,7 +29,7 @@ namespace string_factor {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) try {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     auto vstring = internal_json::extract_version_string(metadata.other, "string_factor");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
@@ -44,9 +44,6 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     size_t num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size);
 
     internal_string::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
-
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate a 'string_factor' at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 /**

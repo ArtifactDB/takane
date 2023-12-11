@@ -16,7 +16,7 @@ typedef std::unordered_map<std::string, std::shared_ptr<millijson::Base> > JsonO
 inline const JsonObjectMap& extract_object(const JsonObjectMap& x, const std::string& name) {
     auto xIt = x.find(name);
     if (xIt == x.end()) {
-        throw std::runtime_error("expected JSON object to contain '" + name + "'");
+        throw std::runtime_error("property is not present");
     }
     const auto& val = xIt->second;
     if (val->type() != millijson::OBJECT) {
@@ -28,7 +28,7 @@ inline const JsonObjectMap& extract_object(const JsonObjectMap& x, const std::st
 inline const std::string& extract_string(const JsonObjectMap& x, const std::string& name) {
     auto xIt = x.find(name);
     if (xIt == x.end()) {
-        throw std::runtime_error("expected JSON object to contain '" + name + "'");
+        throw std::runtime_error("property is not present");
     }
     const auto& val = xIt->second;
     if (val->type() != millijson::STRING) {
@@ -38,7 +38,7 @@ inline const std::string& extract_string(const JsonObjectMap& x, const std::stri
 }
 
 inline const std::string& extract_version_string(const JsonObjectMap& x, const std::string& type) try {
-    return extract_string(extract_object(metadata.other, type), "version");
+    return extract_string(extract_object(x, type), "version");
 } catch (std::exception& e) {
     throw std::runtime_error("failed to extract '" + type + ".version' from the object metadata; " + std::string(e.what()));
 }

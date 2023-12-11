@@ -6,7 +6,7 @@
 
 #include "H5Cpp.h"
 
-#include "millijson/millijson.hpp";
+#include "millijson/millijson.hpp"
 #include "byteme/byteme.hpp"
 
 /**
@@ -48,7 +48,7 @@ inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) tr
         obj = millijson::parse_file(cpath.c_str());
     }
 
-    if (obj->type != millijson::OBJECT) {
+    if (obj->type() != millijson::OBJECT) {
         throw std::runtime_error("metadata should be a JSON object");
     }
 
@@ -65,7 +65,7 @@ inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) tr
         throw std::runtime_error("metadata should be have a 'type' string");
     }
 
-    output.type = std::move(reinterpret_cast<millijson::String>*>(tval.get())->value);
+    output.type = std::move(reinterpret_cast<millijson::String*>(tval.get())->value);
     output.other.erase(tIt);
     return output;
 

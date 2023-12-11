@@ -90,7 +90,7 @@ inline size_t height(const std::filesystem::path& path, const ObjectMetadata& me
 
     auto vrIt = height_registry.find(metadata.type);
     if (vrIt == height_registry.end()) {
-        throw std::runtime_error("no registered 'height' function for object type '" + type + "' at '" + path.string() + "'");
+        throw std::runtime_error("no registered 'height' function for object type '" + metadata.type + "' at '" + path.string() + "'");
     }
 
     return (vrIt->second)(path, metadata, options);

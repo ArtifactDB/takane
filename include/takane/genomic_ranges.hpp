@@ -26,7 +26,7 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, const std::string&, const Options& options);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options& options);
 /**
  * @endcond
  */
@@ -101,8 +101,8 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, co
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& object, const Options& options) try {
-    const auto& vstring = internal_json::extract_version_string(object, "genomic_ranges");
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+    const auto& vstring = internal_json::extract_version_string(metadata.other, "genomic_ranges");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -206,9 +206,6 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& ob
     internal_other::validate_metadata(path, "other_annotations", options);
 
     internal_string::validate_names(ghandle, "name", num_ranges, options.hdf5_buffer_size);
-
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate 'genomic_ranges' object at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 /**
