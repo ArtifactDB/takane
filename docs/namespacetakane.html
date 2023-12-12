@@ -171,6 +171,8 @@ Functions</h2></td></tr>
 <tr class="separator:a38ab20fca5772904875fcd8951f49979"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c4dfc3dc5ee51fa250ff1a3fe5169b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a1c4dfc3dc5ee51fa250ff1a3fe5169b4">validate</a> (const std::filesystem::path &amp;path)</td></tr>
 <tr class="separator:a1c4dfc3dc5ee51fa250ff1a3fe5169b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb6711d9cf4ba4e408c1890914ad84b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#aeb6711d9cf4ba4e408c1890914ad84b2">reformat_object_metadata</a> (millijson::Base *raw)</td></tr>
+<tr class="separator:aeb6711d9cf4ba4e408c1890914ad84b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4202d62d10c0d3d6ad07085f01736372"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">read_object_metadata</a> (const std::filesystem::path &amp;path)</td></tr>
 <tr class="separator:a4202d62d10c0d3d6ad07085f01736372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -524,6 +526,40 @@ Variables</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to a directory containing an object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Object metadata, including the type and other fields. </dd></dl>
+
+</div>
+</div>
+<a id="aeb6711d9cf4ba4e408c1890914ad84b2" name="aeb6711d9cf4ba4e408c1890914ad84b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb6711d9cf4ba4e408c1890914ad84b2">&#9670;&#160;</a></span>reformat_object_metadata()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> takane::reformat_object_metadata </td>
+          <td>(</td>
+          <td class="paramtype">millijson::Base *&#160;</td>
+          <td class="paramname"><em>raw</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Parses a JSON object to obtain the object metadata.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">raw</td><td>Raw JSON object, typically obtained by <code>millijson::parse_file</code>. Note that <code>raw</code> is consumed by this function and should no longer be used by the caller. </td></tr>
   </table>
   </dd>
 </dl>
