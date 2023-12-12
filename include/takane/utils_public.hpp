@@ -57,12 +57,12 @@ inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) tr
 
     auto tIt = output.other.find("type");
     if (tIt == output.other.end()) {
-        throw std::runtime_error("metadata should be have a 'type' property");
+        throw std::runtime_error("metadata should have a 'type' property");
     }
 
     const auto& tval = tIt->second;
-    if (tval->type() == millijson::STRING) {
-        throw std::runtime_error("metadata should be have a 'type' string");
+    if (tval->type() != millijson::STRING) {
+        throw std::runtime_error("metadata should have a 'type' string");
     }
 
     output.type = std::move(reinterpret_cast<millijson::String*>(tval.get())->value);

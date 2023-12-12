@@ -9,15 +9,24 @@
 #include "H5Cpp.h"
 #include "takane/takane.hpp"
 
-inline void initialize_directory(const std::filesystem::path& dir, const std::string& type) {
+inline void initialize_directory(const std::filesystem::path& dir) {
     if (std::filesystem::exists(dir)) {
         std::filesystem::remove_all(dir);
     }
     std::filesystem::create_directory(dir);
+}
 
-    auto objpath = dir / "OBJECT";
-    std::ofstream output(objpath);
-    output << "{ \"type\": \"" << type << "\" }";
+inline void dump_object_metadata(const std::filesystem::path& dir, const std::string& contents) {
+    std::ofstream handle(dir / "OBJECT");
+    handle << contents;
+}
+
+inline void initialize_directory(const std::filesystem::path& dir, const std::string& contents) {
+    if (std::filesystem::exists(dir)) {
+        std::filesystem::remove_all(dir);
+    }
+    std::filesystem::create_directory(dir);
+    dump_object_metadata(dir, contents);
 }
 
 template<typename ... Args_>
