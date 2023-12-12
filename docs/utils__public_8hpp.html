@@ -88,17 +88,23 @@ $(function() {
 <div class="textblock"><code>#include &lt;string&gt;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &quot;H5Cpp.h&quot;</code><br />
+<code>#include &quot;millijson/millijson.hpp&quot;</code><br />
 <code>#include &quot;byteme/byteme.hpp&quot;</code><br />
+<code>#include &quot;utils_json.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for utils_public.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="utils__public_8hpp__incl.png" border="0" usemap="#atakane_2utils__public_8hpp" alt=""/></div>
 <map name="atakane_2utils__public_8hpp" id="atakane_2utils__public_8hpp">
-<area shape="rect" title="Exported utilities." alt="" coords="97,5,251,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,60,104"/>
-<area shape="rect" title=" " alt="" coords="85,79,165,104"/>
-<area shape="rect" title=" " alt="" coords="189,79,261,104"/>
-<area shape="rect" title=" " alt="" coords="285,79,420,104"/>
+<area shape="rect" title="Exported utilities." alt="" coords="203,5,358,31"/>
+<area shape="rect" title=" " alt="" coords="5,152,60,177"/>
+<area shape="rect" title=" " alt="" coords="85,152,165,177"/>
+<area shape="rect" title=" " alt="" coords="362,79,434,104"/>
+<area shape="rect" title=" " alt="" coords="427,152,571,177"/>
+<area shape="rect" title=" " alt="" coords="459,79,593,104"/>
+<area shape="rect" href="utils__json_8hpp_source.html" title=" " alt="" coords="186,79,287,104"/>
+<area shape="rect" title=" " alt="" coords="324,152,403,177"/>
+<area shape="rect" title=" " alt="" coords="189,152,300,177"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -137,6 +143,8 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html">takane::Options</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation options, mostly related to input performance.  <a href="structtakane_1_1Options.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,8 +157,8 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aeac4379cea28b6a163f6450a396c6b62"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#aeac4379cea28b6a163f6450a396c6b62">takane::read_object_type</a> (const std::filesystem::path &amp;path)</td></tr>
-<tr class="separator:aeac4379cea28b6a163f6450a396c6b62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4202d62d10c0d3d6ad07085f01736372"><td class="memItemLeft" align="right" valign="top">ObjectMetadata&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">takane::read_object_metadata</a> (const std::filesystem::path &amp;path)</td></tr>
+<tr class="separator:a4202d62d10c0d3d6ad07085f01736372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Exported utilities. </p>

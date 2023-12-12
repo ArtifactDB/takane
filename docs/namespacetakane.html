@@ -74,6 +74,7 @@ $(function() {
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">takane Namespace Reference</div></div>
@@ -133,49 +134,106 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1DummyCsvFieldCreator.html">DummyCsvFieldCreator</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy column creator.  <a href="structtakane_1_1DummyCsvFieldCreator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html">Options</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation options, mostly related to input performance.  <a href="structtakane_1_1Options.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a9adaa6a04a9dd268aa6e02812c8ad004"><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map&lt; std::string, std::function&lt; std::vector&lt; size_t &gt;(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a9adaa6a04a9dd268aa6e02812c8ad004">DimensionsRegistry</a></td></tr>
+<tr class="separator:a9adaa6a04a9dd268aa6e02812c8ad004"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bcee4e9aafdd63c119620a92ea53e45"><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map&lt; std::string, std::function&lt; size_t(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;m, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a5bcee4e9aafdd63c119620a92ea53e45">HeightRegistry</a></td></tr>
+<tr class="separator:a5bcee4e9aafdd63c119620a92ea53e45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1eacecd56d95b3fa70f2d83a61495d56"><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map&lt; std::string, std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a1eacecd56d95b3fa70f2d83a61495d56">ValidateRegistry</a></td></tr>
+<tr class="separator:a1eacecd56d95b3fa70f2d83a61495d56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a2f252a2481209b1f72e6b5dadc7155dd"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">dimensions</a> (const std::filesystem::path &amp;path, const std::string &amp;type, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a2f252a2481209b1f72e6b5dadc7155dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a4317954961c6b43b899f1c7d053704"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">dimensions</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a2a4317954961c6b43b899f1c7d053704"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a502c043e19ea8a2469dd2e623c7bfbf8"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a502c043e19ea8a2469dd2e623c7bfbf8">dimensions</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="separator:a502c043e19ea8a2469dd2e623c7bfbf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75c436fa62cca35c131e5e35384e8819"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a75c436fa62cca35c131e5e35384e8819">dimensions</a> (const std::filesystem::path &amp;path)</td></tr>
 <tr class="separator:a75c436fa62cca35c131e5e35384e8819"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2df8277ad2e1eb1644293aa594b9ec51"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height</a> (const std::filesystem::path &amp;path, const std::string &amp;type, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a2df8277ad2e1eb1644293aa594b9ec51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18f9f859762cef04c0850388c1208b46"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a18f9f859762cef04c0850388c1208b46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e229ff0859857d245317f95bf53895f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2e229ff0859857d245317f95bf53895f">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="separator:a2e229ff0859857d245317f95bf53895f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86a148d13def52648b5f7733ede8dc6e"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a86a148d13def52648b5f7733ede8dc6e">height</a> (const std::filesystem::path &amp;path)</td></tr>
 <tr class="separator:a86a148d13def52648b5f7733ede8dc6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae45905f4234f2875eb1ad9993829e09a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a> (const std::string &amp;type, const std::string &amp;interface)</td></tr>
 <tr class="separator:ae45905f4234f2875eb1ad9993829e09a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a262fb03bd251b0b4a696f0d2d0b6dac2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate</a> (const std::filesystem::path &amp;path, const std::string &amp;type, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a262fb03bd251b0b4a696f0d2d0b6dac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb4796393d6e41245226e3104dce67e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:aeb4796393d6e41245226e3104dce67e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38ab20fca5772904875fcd8951f49979"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a38ab20fca5772904875fcd8951f49979">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="separator:a38ab20fca5772904875fcd8951f49979"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c4dfc3dc5ee51fa250ff1a3fe5169b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a1c4dfc3dc5ee51fa250ff1a3fe5169b4">validate</a> (const std::filesystem::path &amp;path)</td></tr>
 <tr class="separator:a1c4dfc3dc5ee51fa250ff1a3fe5169b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeac4379cea28b6a163f6450a396c6b62"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#aeac4379cea28b6a163f6450a396c6b62">read_object_type</a> (const std::filesystem::path &amp;path)</td></tr>
-<tr class="separator:aeac4379cea28b6a163f6450a396c6b62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4202d62d10c0d3d6ad07085f01736372"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">read_object_metadata</a> (const std::filesystem::path &amp;path)</td></tr>
+<tr class="separator:a4202d62d10c0d3d6ad07085f01736372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:afbf99986b041c3b6c6e1b9f0067b2e75"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; std::vector&lt; size_t &gt;(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#afbf99986b041c3b6c6e1b9f0067b2e75">dimensions_registry</a> = internal_dimensions::default_registry()</td></tr>
-<tr class="separator:afbf99986b041c3b6c6e1b9f0067b2e75"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab68b0822f2450305203a7887c6802ac8"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; size_t(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ab68b0822f2450305203a7887c6802ac8">height_registry</a> = internal_height::default_registry()</td></tr>
-<tr class="separator:ab68b0822f2450305203a7887c6802ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac408e4044773b311a1cc0e66d12f8d23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetakane.html#a9adaa6a04a9dd268aa6e02812c8ad004">DimensionsRegistry</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ac408e4044773b311a1cc0e66d12f8d23">dimensions_registry</a> = internal_dimensions::default_registry()</td></tr>
+<tr class="separator:ac408e4044773b311a1cc0e66d12f8d23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a965574a652d9bd7f9764f80a38bf8373"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetakane.html#a5bcee4e9aafdd63c119620a92ea53e45">HeightRegistry</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a965574a652d9bd7f9764f80a38bf8373">height_registry</a> = internal_height::default_registry()</td></tr>
+<tr class="separator:a965574a652d9bd7f9764f80a38bf8373"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91b48ec2eb7d6f86852b954e4351d889"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::unordered_set&lt; std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a91b48ec2eb7d6f86852b954e4351d889">satisfies_interface_registry</a> = internal_satisfies_interface::default_registry()</td></tr>
 <tr class="separator:a91b48ec2eb7d6f86852b954e4351d889"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfe1399ce43c36b9f127731f19381595"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#adfe1399ce43c36b9f127731f19381595">validate_registry</a> = internal_validate::default_registry()</td></tr>
-<tr class="separator:adfe1399ce43c36b9f127731f19381595"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6be95c4e70730bd4cb1920311191b61d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetakane.html#a1eacecd56d95b3fa70f2d83a61495d56">ValidateRegistry</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a6be95c4e70730bd4cb1920311191b61d">validate_registry</a> = internal_validate::default_registry()</td></tr>
+<tr class="separator:a6be95c4e70730bd4cb1920311191b61d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p ><b>takane</b> validation functions. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a9adaa6a04a9dd268aa6e02812c8ad004" name="a9adaa6a04a9dd268aa6e02812c8ad004"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9adaa6a04a9dd268aa6e02812c8ad004">&#9670;&#160;</a></span>DimensionsRegistry</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::unordered_map&lt;std::string, std::function&lt;std::vector&lt;size_t&gt;(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; <a class="el" href="namespacetakane.html#a9adaa6a04a9dd268aa6e02812c8ad004">takane::DimensionsRegistry</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Class to map object types to <code><a class="el" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">dimensions()</a></code> functions. </p>
+
+</div>
+</div>
+<a id="a5bcee4e9aafdd63c119620a92ea53e45" name="a5bcee4e9aafdd63c119620a92ea53e45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5bcee4e9aafdd63c119620a92ea53e45">&#9670;&#160;</a></span>HeightRegistry</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::unordered_map&lt;std::string, std::function&lt;size_t(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; m, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; <a class="el" href="namespacetakane.html#a5bcee4e9aafdd63c119620a92ea53e45">takane::HeightRegistry</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Class to map object types to <code><a class="el" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height()</a></code> functions. </p>
+
+</div>
+</div>
+<a id="a1eacecd56d95b3fa70f2d83a61495d56" name="a1eacecd56d95b3fa70f2d83a61495d56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1eacecd56d95b3fa70f2d83a61495d56">&#9670;&#160;</a></span>ValidateRegistry</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::unordered_map&lt;std::string, std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; <a class="el" href="namespacetakane.html#a1eacecd56d95b3fa70f2d83a61495d56">takane::ValidateRegistry</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Class to map object types to <code><a class="el" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">validate()</a></code> functions. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
 <a id="a75c436fa62cca35c131e5e35384e8819" name="a75c436fa62cca35c131e5e35384e8819"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a75c436fa62cca35c131e5e35384e8819">&#9670;&#160;</a></span>dimensions() <span class="overload">[1/3]</span></h2>
 
@@ -199,7 +257,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Overload of <code><a class="el" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">dimensions()</a></code> with default options.</p>
+<p >Overload of <code><a class="el" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">dimensions()</a></code> with default options.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to a directory containing an object. </td></tr>
@@ -210,8 +268,60 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a2a4317954961c6b43b899f1c7d053704" name="a2a4317954961c6b43b899f1c7d053704"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a4317954961c6b43b899f1c7d053704">&#9670;&#160;</a></span>dimensions() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; size_t &gt; takane::dimensions </td>
+          <td>(</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Get the dimensions of a multi-dimensional object in a subdirectory, based on the supplied object type. This searches the <code>dimensions_registry</code> to find a dimension function for the given type.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically determined from its <code>OBJECT</code> file. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, mostly for input performance.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Vector containing the object's dimensions. </dd></dl>
+
+</div>
+</div>
 <a id="a502c043e19ea8a2469dd2e623c7bfbf8" name="a502c043e19ea8a2469dd2e623c7bfbf8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a502c043e19ea8a2469dd2e623c7bfbf8">&#9670;&#160;</a></span>dimensions() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a502c043e19ea8a2469dd2e623c7bfbf8">&#9670;&#160;</a></span>dimensions() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -255,58 +365,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a2f252a2481209b1f72e6b5dadc7155dd" name="a2f252a2481209b1f72e6b5dadc7155dd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f252a2481209b1f72e6b5dadc7155dd">&#9670;&#160;</a></span>dimensions() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::vector&lt; size_t &gt; takane::dimensions </td>
-          <td>(</td>
-          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>type</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
-          <td class="paramname"><em>options</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Get the dimensions of a multi-dimensional object in a subdirectory, based on the supplied object type. This searches the <code>dimensions_registry</code> to find a dimension function for the given type.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
-    <tr><td class="paramname">type</td><td>Type of the object, typically determined from its <code>OBJECT</code> file. </td></tr>
-    <tr><td class="paramname">options</td><td>Validation options, mostly for input performance.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Vector containing the object's dimensions. </dd></dl>
-
-</div>
-</div>
 <a id="a86a148d13def52648b5f7733ede8dc6e" name="a86a148d13def52648b5f7733ede8dc6e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a86a148d13def52648b5f7733ede8dc6e">&#9670;&#160;</a></span>height() <span class="overload">[1/3]</span></h2>
 
@@ -330,7 +388,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Overload of <code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code> with default options.</p>
+<p >Overload of <code><a class="el" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height()</a></code> with default options.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to a directory containing an object. </td></tr>
@@ -341,8 +399,61 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a18f9f859762cef04c0850388c1208b46" name="a18f9f859762cef04c0850388c1208b46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18f9f859762cef04c0850388c1208b46">&#9670;&#160;</a></span>height() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t takane::height </td>
+          <td>(</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Get the height of an object in a subdirectory, based on the supplied object type. This searches the <code>height_registry</code> to find a height function for the given type.</p>
+<p ><code><a class="el" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height()</a></code> is used to check the shape of objects stored in vertical containers, e.g., columns of a <code>data_frame</code>. For vectors or other 1-dimensional objects, the height is usually just the length of the object (for some object-specific definition of "length"). For higher-dimensional objects, the height is usually the extent of the first dimension.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically determined from its <code>OBJECT</code> file. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, mostly for input performance.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The object's height. </dd></dl>
+
+</div>
+</div>
 <a id="a2e229ff0859857d245317f95bf53895f" name="a2e229ff0859857d245317f95bf53895f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e229ff0859857d245317f95bf53895f">&#9670;&#160;</a></span>height() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e229ff0859857d245317f95bf53895f">&#9670;&#160;</a></span>height() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -386,8 +497,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a2df8277ad2e1eb1644293aa594b9ec51" name="a2df8277ad2e1eb1644293aa594b9ec51"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2df8277ad2e1eb1644293aa594b9ec51">&#9670;&#160;</a></span>height() <span class="overload">[3/3]</span></h2>
+<a id="a4202d62d10c0d3d6ad07085f01736372" name="a4202d62d10c0d3d6ad07085f01736372"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4202d62d10c0d3d6ad07085f01736372">&#9670;&#160;</a></span>read_object_metadata()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -396,60 +507,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">size_t takane::height </td>
-          <td>(</td>
-          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>type</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
-          <td class="paramname"><em>options</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Get the height of an object in a subdirectory, based on the supplied object type. This searches the <code>height_registry</code> to find a height function for the given type.</p>
-<p ><code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code> is used to check the shape of objects stored in vertical containers, e.g., columns of a <code>data_frame</code>. For vectors or other 1-dimensional objects, the height is usually just the length of the object (for some object-specific definition of "length"). For higher-dimensional objects, the height is usually the extent of the first dimension.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
-    <tr><td class="paramname">type</td><td>Type of the object, typically determined from its <code>OBJECT</code> file. </td></tr>
-    <tr><td class="paramname">options</td><td>Validation options, mostly for input performance.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The object's height. </dd></dl>
-
-</div>
-</div>
-<a id="aeac4379cea28b6a163f6450a396c6b62" name="aeac4379cea28b6a163f6450a396c6b62"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeac4379cea28b6a163f6450a396c6b62">&#9670;&#160;</a></span>read_object_type()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string takane::read_object_type </td>
+          <td class="memname"><a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> takane::read_object_metadata </td>
           <td>(</td>
           <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em></td><td>)</td>
@@ -469,7 +527,7 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>String containing the object type. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Object metadata, including the type and other fields. </dd></dl>
 
 </div>
 </div>
@@ -541,7 +599,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Overload of <code><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate()</a></code> with default options.</p>
+<p >Overload of <code><a class="el" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">validate()</a></code> with default options.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to a directory containing an object. </td></tr>
@@ -551,8 +609,59 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="aeb4796393d6e41245226e3104dce67e7" name="aeb4796393d6e41245226e3104dce67e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb4796393d6e41245226e3104dce67e7">&#9670;&#160;</a></span>validate() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void takane::validate </td>
+          <td>(</td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Validate an object in a subdirectory, based on the supplied object type. This searches the <code>validate_registry</code> to find a validation function for the given type.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically determined from its <code>OBJECT</code> file. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options, mostly for input performance. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a38ab20fca5772904875fcd8951f49979" name="a38ab20fca5772904875fcd8951f49979"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38ab20fca5772904875fcd8951f49979">&#9670;&#160;</a></span>validate() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a38ab20fca5772904875fcd8951f49979">&#9670;&#160;</a></span>validate() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -595,60 +704,9 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a262fb03bd251b0b4a696f0d2d0b6dac2" name="a262fb03bd251b0b4a696f0d2d0b6dac2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a262fb03bd251b0b4a696f0d2d0b6dac2">&#9670;&#160;</a></span>validate() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void takane::validate </td>
-          <td>(</td>
-          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>type</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
-          <td class="paramname"><em>options</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Validate an object in a subdirectory, based on the supplied object type. This searches the <code>validate_registry</code> to find a validation function for the given type.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>Path to a directory representing an object. </td></tr>
-    <tr><td class="paramname">type</td><td>Type of the object, typically determined from its <code>OBJECT</code> file. </td></tr>
-    <tr><td class="paramname">options</td><td>Validation options, mostly for input performance. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="afbf99986b041c3b6c6e1b9f0067b2e75" name="afbf99986b041c3b6c6e1b9f0067b2e75"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afbf99986b041c3b6c6e1b9f0067b2e75">&#9670;&#160;</a></span>dimensions_registry</h2>
+<a id="ac408e4044773b311a1cc0e66d12f8d23" name="ac408e4044773b311a1cc0e66d12f8d23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac408e4044773b311a1cc0e66d12f8d23">&#9670;&#160;</a></span>dimensions_registry</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -657,7 +715,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;std::vector&lt;size_t&gt;(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; takane::dimensions_registry = internal_dimensions::default_registry()</td>
+          <td class="memname"><a class="el" href="namespacetakane.html#a9adaa6a04a9dd268aa6e02812c8ad004">DimensionsRegistry</a> takane::dimensions_registry = internal_dimensions::default_registry()</td>
         </tr>
       </table>
   </td>
@@ -666,12 +724,12 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">dimensions()</a></code>. Applications can extend <b>takane</b> by adding new dimension functions for custom object types. </p>
+<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">dimensions()</a></code>. Applications can extend <b>takane</b> by adding new dimension functions for custom object types. </p>
 
 </div>
 </div>
-<a id="ab68b0822f2450305203a7887c6802ac8" name="ab68b0822f2450305203a7887c6802ac8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab68b0822f2450305203a7887c6802ac8">&#9670;&#160;</a></span>height_registry</h2>
+<a id="a965574a652d9bd7f9764f80a38bf8373" name="a965574a652d9bd7f9764f80a38bf8373"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a965574a652d9bd7f9764f80a38bf8373">&#9670;&#160;</a></span>height_registry</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -680,7 +738,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;size_t(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; takane::height_registry = internal_height::default_registry()</td>
+          <td class="memname"><a class="el" href="namespacetakane.html#a5bcee4e9aafdd63c119620a92ea53e45">HeightRegistry</a> takane::height_registry = internal_height::default_registry()</td>
         </tr>
       </table>
   </td>
@@ -689,7 +747,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a2df8277ad2e1eb1644293aa594b9ec51">height()</a></code>. Applications can extend <b>takane</b> by adding new height functions for custom object types. </p>
+<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height()</a></code>. Applications can extend <b>takane</b> by adding new height functions for custom object types. </p>
 
 </div>
 </div>
@@ -716,8 +774,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="adfe1399ce43c36b9f127731f19381595" name="adfe1399ce43c36b9f127731f19381595"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adfe1399ce43c36b9f127731f19381595">&#9670;&#160;</a></span>validate_registry</h2>
+<a id="a6be95c4e70730bd4cb1920311191b61d" name="a6be95c4e70730bd4cb1920311191b61d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6be95c4e70730bd4cb1920311191b61d">&#9670;&#160;</a></span>validate_registry</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -726,7 +784,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; takane::validate_registry = internal_validate::default_registry()</td>
+          <td class="memname"><a class="el" href="namespacetakane.html#a1eacecd56d95b3fa70f2d83a61495d56">ValidateRegistry</a> takane::validate_registry = internal_validate::default_registry()</td>
         </tr>
       </table>
   </td>
@@ -735,7 +793,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate()</a></code>. Applications can extend <b>takane</b> by adding new validation functions for custom object types. </p>
+<p >Registry of functions to be used by <code><a class="el" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">validate()</a></code>. Applications can extend <b>takane</b> by adding new validation functions for custom object types. </p>
 
 </div>
 </div>

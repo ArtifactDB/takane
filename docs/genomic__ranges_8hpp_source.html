@@ -94,82 +94,81 @@ $(function() {
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;utils_string.hpp&quot;</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;<a class="code" href="utils__public_8hpp.html">utils_public.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &quot;utils_other.hpp&quot;</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacetakane.html">takane</a> {</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> std::string&amp;, <span class="keyword">const</span> Options&amp; options);</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keyword">namespace </span>genomic_ranges {</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">namespace </span>internal {</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">struct </span>SequenceLimits {</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    SequenceLimits(<span class="keywordtype">size_t</span> n) : restricted(n), seqlen(n) {}</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    std::vector&lt;unsigned char&gt; restricted;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    std::vector&lt;uint64_t&gt; seqlen;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>};</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">inline</span> SequenceLimits find_sequence_limits(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> Options&amp; options) {</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">auto</span> xtype = <a class="code hl_function" href="namespacetakane.html#aeac4379cea28b6a163f6450a396c6b62">read_object_type</a>(path);</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordflow">if</span> (xtype != <span class="stringliteral">&quot;sequence_information&quot;</span>) {</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;sequence_information&#39; directory should contain a &#39;sequence_information&#39; object&quot;</span>);</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    }</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <a class="code hl_function" href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">::takane::validate</a>(path, xtype, options);</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keyword">auto</span> fpath = path / <span class="stringliteral">&quot;info.h5&quot;</span>;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    H5::H5File handle(fpath, H5F_ACC_RDONLY);</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(<span class="stringliteral">&quot;sequence_information&quot;</span>);</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">auto</span> lhandle = ghandle.openDataSet(<span class="stringliteral">&quot;length&quot;</span>);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">auto</span> num_seq = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    ritsuko::hdf5::Stream1dNumericDataset&lt;uint64_t&gt; lstream(&amp;lhandle, num_seq, options.hdf5_buffer_size);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keyword">auto</span> lmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder&lt;uint64_t&gt;(lhandle, <span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keyword">auto</span> chandle = ghandle.openDataSet(<span class="stringliteral">&quot;circular&quot;</span>);</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    ritsuko::hdf5::Stream1dNumericDataset&lt;int32_t&gt; cstream(&amp;chandle, num_seq, options.hdf5_buffer_size);</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">auto</span> cmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder&lt;int32_t&gt;(chandle, <span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    SequenceLimits output(num_seq);</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keyword">auto</span>&amp; restricted = output.restricted;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keyword">auto</span>&amp; seqlen = output.seqlen;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; num_seq; ++i, lstream.next(), cstream.next()) {</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        <span class="keyword">auto</span> slen = lstream.get();</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        <span class="keyword">auto</span> circ = cstream.get();</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        seqlen[i] = slen;</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="comment">// Skipping restriction if the sequence length is missing OR the sequence is circular.</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        <span class="keywordflow">if</span> (lmissing.first &amp;&amp; lmissing.second == slen) {</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>            <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        }</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keywordflow">if</span> (circ &amp;&amp; !(cmissing.first &amp;&amp; cmissing.second == circ)) {</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>            <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        }</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        restricted[i] = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    }</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordflow">return</span> output;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>}</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>}</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="namespacetakane_1_1genomic__ranges.html#a197b8c31b41fae882a1ec70ba8367a4a">  102</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1genomic__ranges.html#a197b8c31b41fae882a1ec70ba8367a4a">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) <span class="keyword">try</span> {</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="comment">// Figuring out the sequence length constraints.</span></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keyword">auto</span> limits = internal::find_sequence_limits(path / <span class="stringliteral">&quot;sequence_information&quot;</span>, options);</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; restricted = limits.restricted;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; seqlen = limits.seqlen;</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">size_t</span> num_sequences = restricted.size();</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="comment">// Handling the preamble.</span></div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;ranges.h5&quot;</span>);</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;genomic_ranges&quot;</span>);</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">auto</span> vstring = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, <span class="stringliteral">&quot;version&quot;</span>);</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    }</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="comment">// Now loading all three components.</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &quot;utils_json.hpp&quot;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacetakane.html">takane</a> {</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> ObjectMetadata&amp;, <span class="keyword">const</span> Options&amp; options);</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keyword">namespace </span>genomic_ranges {</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">namespace </span>internal {</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">struct </span>SequenceLimits {</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    SequenceLimits(<span class="keywordtype">size_t</span> n) : restricted(n), seqlen(n) {}</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    std::vector&lt;unsigned char&gt; restricted;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    std::vector&lt;uint64_t&gt; seqlen;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">inline</span> SequenceLimits find_sequence_limits(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> Options&amp; options) {</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">auto</span> smeta = <a class="code hl_function" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">read_object_metadata</a>(path);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">if</span> (smeta.type != <span class="stringliteral">&quot;sequence_information&quot;</span>) {</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;sequence_information&#39; directory should contain a &#39;sequence_information&#39; object&quot;</span>);</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    }</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">::takane::validate</a>(path, smeta, options);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">auto</span> fpath = path / <span class="stringliteral">&quot;info.h5&quot;</span>;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    H5::H5File handle(fpath, H5F_ACC_RDONLY);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(<span class="stringliteral">&quot;sequence_information&quot;</span>);</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">auto</span> lhandle = ghandle.openDataSet(<span class="stringliteral">&quot;length&quot;</span>);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keyword">auto</span> num_seq = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), <span class="keyword">false</span>);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    ritsuko::hdf5::Stream1dNumericDataset&lt;uint64_t&gt; lstream(&amp;lhandle, num_seq, options.hdf5_buffer_size);</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keyword">auto</span> lmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder&lt;uint64_t&gt;(lhandle, <span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keyword">auto</span> chandle = ghandle.openDataSet(<span class="stringliteral">&quot;circular&quot;</span>);</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    ritsuko::hdf5::Stream1dNumericDataset&lt;int32_t&gt; cstream(&amp;chandle, num_seq, options.hdf5_buffer_size);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keyword">auto</span> cmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder&lt;int32_t&gt;(chandle, <span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    SequenceLimits output(num_seq);</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keyword">auto</span>&amp; restricted = output.restricted;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keyword">auto</span>&amp; seqlen = output.seqlen;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; num_seq; ++i, lstream.next(), cstream.next()) {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        <span class="keyword">auto</span> slen = lstream.get();</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        <span class="keyword">auto</span> circ = cstream.get();</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        seqlen[i] = slen;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        <span class="comment">// Skipping restriction if the sequence length is missing OR the sequence is circular.</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        <span class="keywordflow">if</span> (lmissing.first &amp;&amp; lmissing.second == slen) {</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>            <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        }</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keywordflow">if</span> (circ &amp;&amp; !(cmissing.first &amp;&amp; cmissing.second == circ)) {</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>            <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        }</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        restricted[i] = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    }</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordflow">return</span> output;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>}</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>}</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="namespacetakane_1_1genomic__ranges.html#aa7205c244e5c09480bcb9b305f38cd39">  104</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1genomic__ranges.html#aa7205c244e5c09480bcb9b305f38cd39">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vstring = internal_json::extract_version_for_type(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;genomic_ranges&quot;</span>);</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    }</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="comment">// Figuring out the sequence length constraints.</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keyword">auto</span> limits = internal::find_sequence_limits(path / <span class="stringliteral">&quot;sequence_information&quot;</span>, options);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; restricted = limits.restricted;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; seqlen = limits.seqlen;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordtype">size_t</span> num_sequences = restricted.size();</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="comment">// Now loading all three components.</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;ranges.h5&quot;</span>);</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;genomic_ranges&quot;</span>);</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">auto</span> id_handle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;sequence&quot;</span>);</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keyword">auto</span> num_ranges = ritsuko::hdf5::get_1d_length(id_handle, <span class="keyword">false</span>);</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_integer_limit(id_handle, 64, <span class="keyword">false</span>)) {</div>
@@ -259,34 +258,33 @@ $(function() {
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    internal_other::validate_metadata(path, <span class="stringliteral">&quot;other_annotations&quot;</span>, options);</div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    internal_string::validate_names(ghandle, <span class="stringliteral">&quot;name&quot;</span>, num_ranges, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>);</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span> </div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>} <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;genomic_ranges&#39; object at &#39;&quot;</span> + path.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>}</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno"><a class="line" href="namespacetakane_1_1genomic__ranges.html#ad6bb721a9c9fb283f85723a7a43b2430">  219</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1genomic__ranges.html#ad6bb721a9c9fb283f85723a7a43b2430">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp;) {</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keyword">auto</span> h5path = path / <span class="stringliteral">&quot;ranges.h5&quot;</span>;</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="comment">// Assume it&#39;s all valid already.</span></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    H5::H5File handle(h5path, H5F_ACC_RDONLY);</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(<span class="stringliteral">&quot;genomic_ranges&quot;</span>);</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;sequence&quot;</span>);</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <span class="keywordflow">return</span> ritsuko::hdf5::get_1d_length(dhandle, <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>}</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>}</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno"><a class="line" href="namespacetakane_1_1genomic__ranges.html#af81b4453366f72f5208e96be49edcb6a">  217</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1genomic__ranges.html#af81b4453366f72f5208e96be49edcb6a">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keyword">auto</span> h5path = path / <span class="stringliteral">&quot;ranges.h5&quot;</span>;</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="comment">// Assume it&#39;s all valid already.</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    H5::H5File handle(h5path, H5F_ACC_RDONLY);</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(<span class="stringliteral">&quot;genomic_ranges&quot;</span>);</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;sequence&quot;</span>);</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">return</span> ritsuko::hdf5::get_1d_length(dhandle, <span class="keyword">false</span>);</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>}</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>}</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>}</div>
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>}</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span> </div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_1_1genomic__ranges_html_a197b8c31b41fae882a1ec70ba8367a4a"><div class="ttname"><a href="namespacetakane_1_1genomic__ranges.html#a197b8c31b41fae882a1ec70ba8367a4a">takane::genomic_ranges::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> genomic_ranges.hpp:102</div></div>
-<div class="ttc" id="anamespacetakane_1_1genomic__ranges_html_ad6bb721a9c9fb283f85723a7a43b2430"><div class="ttname"><a href="namespacetakane_1_1genomic__ranges.html#ad6bb721a9c9fb283f85723a7a43b2430">takane::genomic_ranges::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const Options &amp;)</div><div class="ttdef"><b>Definition:</b> genomic_ranges.hpp:219</div></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_1_1genomic__ranges_html_aa7205c244e5c09480bcb9b305f38cd39"><div class="ttname"><a href="namespacetakane_1_1genomic__ranges.html#aa7205c244e5c09480bcb9b305f38cd39">takane::genomic_ranges::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> genomic_ranges.hpp:104</div></div>
+<div class="ttc" id="anamespacetakane_1_1genomic__ranges_html_af81b4453366f72f5208e96be49edcb6a"><div class="ttname"><a href="namespacetakane_1_1genomic__ranges.html#af81b4453366f72f5208e96be49edcb6a">takane::genomic_ranges::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> genomic_ranges.hpp:217</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:19</div></div>
-<div class="ttc" id="anamespacetakane_html_a262fb03bd251b0b4a696f0d2d0b6dac2"><div class="ttname"><a href="namespacetakane.html#a262fb03bd251b0b4a696f0d2d0b6dac2">takane::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const std::string &amp;type, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _validate.hpp:77</div></div>
-<div class="ttc" id="anamespacetakane_html_aeac4379cea28b6a163f6450a396c6b62"><div class="ttname"><a href="namespacetakane.html#aeac4379cea28b6a163f6450a396c6b62">takane::read_object_type</a></div><div class="ttdeci">std::string read_object_type(const std::filesystem::path &amp;path)</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:24</div></div>
-<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:44</div></div>
-<div class="ttc" id="astructtakane_1_1Options_html_a3a9ebb8a77372c852d87f5368b6516c3"><div class="ttname"><a href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">takane::Options::hdf5_buffer_size</a></div><div class="ttdeci">hsize_t hdf5_buffer_size</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:53</div></div>
+<div class="ttc" id="anamespacetakane_html_a4202d62d10c0d3d6ad07085f01736372"><div class="ttname"><a href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">takane::read_object_metadata</a></div><div class="ttdeci">ObjectMetadata read_object_metadata(const std::filesystem::path &amp;path)</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:41</div></div>
+<div class="ttc" id="anamespacetakane_html_aeb4796393d6e41245226e3104dce67e7"><div class="ttname"><a href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">takane::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _validate.hpp:82</div></div>
+<div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdef"><b>Definition:</b> utils_public.hpp:23</div></div>
+<div class="ttc" id="astructtakane_1_1ObjectMetadata_html_a3b46efa17e6ca667bc902073cf7151cd"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">takane::ObjectMetadata::other</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::shared_ptr&lt; millijson::Base &gt; &gt; other</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:32</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:71</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html_a3a9ebb8a77372c852d87f5368b6516c3"><div class="ttname"><a href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">takane::Options::hdf5_buffer_size</a></div><div class="ttdeci">hsize_t hdf5_buffer_size</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:80</div></div>
 <div class="ttc" id="autils__public_8hpp_html"><div class="ttname"><a href="utils__public_8hpp.html">utils_public.hpp</a></div><div class="ttdoc">Exported utilities.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

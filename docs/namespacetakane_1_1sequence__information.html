@@ -86,14 +86,14 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ac3af2cd984382046a5c4358e16755376"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1sequence__information.html#ac3af2cd984382046a5c4358e16755376">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:ac3af2cd984382046a5c4358e16755376"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55eaa6c0e476d5f965306b547dca281a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1sequence__information.html#a55eaa6c0e476d5f965306b547dca281a">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a55eaa6c0e476d5f965306b547dca281a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for sequence information objects. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ac3af2cd984382046a5c4358e16755376" name="ac3af2cd984382046a5c4358e16755376"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac3af2cd984382046a5c4358e16755376">&#9670;&#160;</a></span>validate()</h2>
+<a id="a55eaa6c0e476d5f965306b547dca281a" name="a55eaa6c0e476d5f965306b547dca281a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55eaa6c0e476d5f965306b547dca281a">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -106,6 +106,12 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -128,6 +134,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the directory containing the data frame. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically read from its <code>OBJECT</code> file. </td></tr>
     <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>

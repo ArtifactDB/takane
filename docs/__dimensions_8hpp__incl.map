@@ -1,23 +1,26 @@
 <map id="takane/_dimensions.hpp" name="takane/_dimensions.hpp">
-<area shape="rect" id="node1" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="458,5,621,31"/>
+<area shape="rect" id="node1" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="1035,5,1198,31"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,79,84,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="1016,299,1071,324"/>
-<area shape="rect" id="node4" title=" " alt="" coords="613,225,692,251"/>
-<area shape="rect" id="node5" title=" " alt="" coords="2030,299,2110,324"/>
-<area shape="rect" id="node6" title=" " alt="" coords="725,225,783,251"/>
-<area shape="rect" id="node7" href="$data__frame_8hpp.html" title="Validation for data frames." alt="" coords="1529,79,1640,104"/>
-<area shape="rect" id="node18" href="$dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="855,79,971,104"/>
-<area shape="rect" id="node20" href="$compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="601,79,806,104"/>
-<area shape="rect" id="node8" title=" " alt="" coords="1827,299,1899,324"/>
-<area shape="rect" id="node9" title=" " alt="" coords="878,225,1006,251"/>
-<area shape="rect" id="node10" title=" " alt="" coords="1183,225,1325,251"/>
-<area shape="rect" id="node11" title=" " alt="" coords="1478,225,1539,251"/>
-<area shape="rect" id="node12" title=" " alt="" coords="1350,225,1454,251"/>
-<area shape="rect" id="node13" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="1744,225,1855,251"/>
-<area shape="rect" id="node15" href="$utils__string_8hpp_source.html" title=" " alt="" coords="1023,152,1133,177"/>
-<area shape="rect" id="node16" href="$utils__factor_8hpp_source.html" title=" " alt="" coords="1157,152,1268,177"/>
-<area shape="rect" id="node17" href="$utils__other_8hpp_source.html" title=" " alt="" coords="1850,152,1957,177"/>
-<area shape="rect" id="node14" title=" " alt="" coords="1668,299,1803,324"/>
-<area shape="rect" id="node19" href="$utils__array_8hpp_source.html" title=" " alt="" coords="792,152,897,177"/>
-<area shape="rect" id="node21" title=" " alt="" coords="463,152,514,177"/>
+<area shape="rect" id="node3" title=" " alt="" coords="927,372,981,397"/>
+<area shape="rect" id="node4" title=" " alt="" coords="1872,372,1951,397"/>
+<area shape="rect" id="node5" title=" " alt="" coords="335,372,415,397"/>
+<area shape="rect" id="node6" title=" " alt="" coords="1823,225,1882,251"/>
+<area shape="rect" id="node7" href="$data__frame_8hpp.html" title="Validation for data frames." alt="" coords="897,79,1008,104"/>
+<area shape="rect" id="node21" href="$dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="1173,79,1289,104"/>
+<area shape="rect" id="node23" href="$compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="1427,79,1633,104"/>
+<area shape="rect" id="node8" title=" " alt="" coords="1155,299,1227,324"/>
+<area shape="rect" id="node9" title=" " alt="" coords="1017,225,1145,251"/>
+<area shape="rect" id="node10" title=" " alt="" coords="1169,225,1312,251"/>
+<area shape="rect" id="node11" title=" " alt="" coords="702,225,763,251"/>
+<area shape="rect" id="node12" title=" " alt="" coords="787,225,891,251"/>
+<area shape="rect" id="node13" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="1489,225,1600,251"/>
+<area shape="rect" id="node16" href="$utils__json_8hpp_source.html" title=" " alt="" coords="1563,299,1665,324"/>
+<area shape="rect" id="node18" href="$utils__string_8hpp_source.html" title=" " alt="" coords="898,152,1007,177"/>
+<area shape="rect" id="node19" href="$utils__factor_8hpp_source.html" title=" " alt="" coords="1032,152,1143,177"/>
+<area shape="rect" id="node20" href="$utils__other_8hpp_source.html" title=" " alt="" coords="362,152,469,177"/>
+<area shape="rect" id="node14" title=" " alt="" coords="1454,372,1598,397"/>
+<area shape="rect" id="node15" title=" " alt="" coords="1353,299,1488,324"/>
+<area shape="rect" id="node17" title=" " alt="" coords="1623,372,1733,397"/>
+<area shape="rect" id="node22" href="$utils__array_8hpp_source.html" title=" " alt="" coords="1523,152,1628,177"/>
+<area shape="rect" id="node24" title=" " alt="" coords="2109,152,2159,177"/>
 </map>

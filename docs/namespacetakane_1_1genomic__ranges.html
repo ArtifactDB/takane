@@ -86,16 +86,16 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a197b8c31b41fae882a1ec70ba8367a4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#a197b8c31b41fae882a1ec70ba8367a4a">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a197b8c31b41fae882a1ec70ba8367a4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6bb721a9c9fb283f85723a7a43b2430"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#ad6bb721a9c9fb283f85723a7a43b2430">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)</td></tr>
-<tr class="separator:ad6bb721a9c9fb283f85723a7a43b2430"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7205c244e5c09480bcb9b305f38cd39"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#aa7205c244e5c09480bcb9b305f38cd39">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:aa7205c244e5c09480bcb9b305f38cd39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af81b4453366f72f5208e96be49edcb6a"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1genomic__ranges.html#af81b4453366f72f5208e96be49edcb6a">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:af81b4453366f72f5208e96be49edcb6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for genomic ranges. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ad6bb721a9c9fb283f85723a7a43b2430" name="ad6bb721a9c9fb283f85723a7a43b2430"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad6bb721a9c9fb283f85723a7a43b2430">&#9670;&#160;</a></span>height()</h2>
+<a id="af81b4453366f72f5208e96be49edcb6a" name="af81b4453366f72f5208e96be49edcb6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af81b4453366f72f5208e96be49edcb6a">&#9670;&#160;</a></span>height()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -112,8 +112,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
-          <td class="paramname">&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -130,6 +136,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to a directory containing genomic ranges. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically read from its <code>OBJECT</code> file. </td></tr>
     <tr><td class="paramname">options</td><td>Validation options, mostly for input performance. </td></tr>
   </table>
   </dd>
@@ -138,8 +145,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a197b8c31b41fae882a1ec70ba8367a4a" name="a197b8c31b41fae882a1ec70ba8367a4a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a197b8c31b41fae882a1ec70ba8367a4a">&#9670;&#160;</a></span>validate()</h2>
+<a id="aa7205c244e5c09480bcb9b305f38cd39" name="aa7205c244e5c09480bcb9b305f38cd39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7205c244e5c09480bcb9b305f38cd39">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -152,6 +159,12 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -174,6 +187,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the directory containing the genomic ranges. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically read from its <code>OBJECT</code> file. </td></tr>
     <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>

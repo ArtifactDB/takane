@@ -77,6 +77,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">_dimensions.hpp File Reference</div></div>
@@ -98,27 +99,30 @@ Include dependency graph for _dimensions.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="__dimensions_8hpp__incl.png" border="0" usemap="#atakane_2__dimensions_8hpp" alt=""/></div>
 <map name="atakane_2__dimensions_8hpp" id="atakane_2__dimensions_8hpp">
-<area shape="rect" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="458,5,621,31"/>
+<area shape="rect" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="1035,5,1198,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,84,104"/>
-<area shape="rect" title=" " alt="" coords="1016,299,1071,324"/>
-<area shape="rect" title=" " alt="" coords="613,225,692,251"/>
-<area shape="rect" title=" " alt="" coords="2030,299,2110,324"/>
-<area shape="rect" title=" " alt="" coords="725,225,783,251"/>
-<area shape="rect" href="data__frame_8hpp.html" title="Validation for data frames." alt="" coords="1529,79,1640,104"/>
-<area shape="rect" href="dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="855,79,971,104"/>
-<area shape="rect" href="compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="601,79,806,104"/>
-<area shape="rect" title=" " alt="" coords="1827,299,1899,324"/>
-<area shape="rect" title=" " alt="" coords="878,225,1006,251"/>
-<area shape="rect" title=" " alt="" coords="1183,225,1325,251"/>
-<area shape="rect" title=" " alt="" coords="1478,225,1539,251"/>
-<area shape="rect" title=" " alt="" coords="1350,225,1454,251"/>
-<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="1744,225,1855,251"/>
-<area shape="rect" href="utils__string_8hpp_source.html" title=" " alt="" coords="1023,152,1133,177"/>
-<area shape="rect" href="utils__factor_8hpp_source.html" title=" " alt="" coords="1157,152,1268,177"/>
-<area shape="rect" href="utils__other_8hpp_source.html" title=" " alt="" coords="1850,152,1957,177"/>
-<area shape="rect" title=" " alt="" coords="1668,299,1803,324"/>
-<area shape="rect" href="utils__array_8hpp_source.html" title=" " alt="" coords="792,152,897,177"/>
-<area shape="rect" title=" " alt="" coords="463,152,514,177"/>
+<area shape="rect" title=" " alt="" coords="927,372,981,397"/>
+<area shape="rect" title=" " alt="" coords="1872,372,1951,397"/>
+<area shape="rect" title=" " alt="" coords="335,372,415,397"/>
+<area shape="rect" title=" " alt="" coords="1823,225,1882,251"/>
+<area shape="rect" href="data__frame_8hpp.html" title="Validation for data frames." alt="" coords="897,79,1008,104"/>
+<area shape="rect" href="dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="1173,79,1289,104"/>
+<area shape="rect" href="compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="1427,79,1633,104"/>
+<area shape="rect" title=" " alt="" coords="1155,299,1227,324"/>
+<area shape="rect" title=" " alt="" coords="1017,225,1145,251"/>
+<area shape="rect" title=" " alt="" coords="1169,225,1312,251"/>
+<area shape="rect" title=" " alt="" coords="702,225,763,251"/>
+<area shape="rect" title=" " alt="" coords="787,225,891,251"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="1489,225,1600,251"/>
+<area shape="rect" href="utils__json_8hpp_source.html" title=" " alt="" coords="1563,299,1665,324"/>
+<area shape="rect" href="utils__string_8hpp_source.html" title=" " alt="" coords="898,152,1007,177"/>
+<area shape="rect" href="utils__factor_8hpp_source.html" title=" " alt="" coords="1032,152,1143,177"/>
+<area shape="rect" href="utils__other_8hpp_source.html" title=" " alt="" coords="362,152,469,177"/>
+<area shape="rect" title=" " alt="" coords="1454,372,1598,397"/>
+<area shape="rect" title=" " alt="" coords="1353,299,1488,324"/>
+<area shape="rect" title=" " alt="" coords="1623,372,1733,397"/>
+<area shape="rect" href="utils__array_8hpp_source.html" title=" " alt="" coords="1523,152,1628,177"/>
+<area shape="rect" title=" " alt="" coords="2109,152,2159,177"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -139,10 +143,15 @@ Namespaces</h2></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a9adaa6a04a9dd268aa6e02812c8ad004"><td class="memItemLeft" align="right" valign="top">typedef std::unordered_map&lt; std::string, std::function&lt; std::vector&lt; size_t &gt;(const std::filesystem::path &amp;, const ObjectMetadata &amp;, const Options &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a9adaa6a04a9dd268aa6e02812c8ad004">takane::DimensionsRegistry</a></td></tr>
+<tr class="separator:a9adaa6a04a9dd268aa6e02812c8ad004"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a2f252a2481209b1f72e6b5dadc7155dd"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2f252a2481209b1f72e6b5dadc7155dd">takane::dimensions</a> (const std::filesystem::path &amp;path, const std::string &amp;type, const Options &amp;options)</td></tr>
-<tr class="separator:a2f252a2481209b1f72e6b5dadc7155dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a4317954961c6b43b899f1c7d053704"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">takane::dimensions</a> (const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</td></tr>
+<tr class="separator:a2a4317954961c6b43b899f1c7d053704"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a502c043e19ea8a2469dd2e623c7bfbf8"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a502c043e19ea8a2469dd2e623c7bfbf8">takane::dimensions</a> (const std::filesystem::path &amp;path, const Options &amp;options)</td></tr>
 <tr class="separator:a502c043e19ea8a2469dd2e623c7bfbf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75c436fa62cca35c131e5e35384e8819"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a75c436fa62cca35c131e5e35384e8819">takane::dimensions</a> (const std::filesystem::path &amp;path)</td></tr>
@@ -150,8 +159,8 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:afbf99986b041c3b6c6e1b9f0067b2e75"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; std::vector&lt; size_t &gt;(const std::filesystem::path &amp;, const Options &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#afbf99986b041c3b6c6e1b9f0067b2e75">takane::dimensions_registry</a> = internal_dimensions::default_registry()</td></tr>
-<tr class="separator:afbf99986b041c3b6c6e1b9f0067b2e75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac408e4044773b311a1cc0e66d12f8d23"><td class="memItemLeft" align="right" valign="top">DimensionsRegistry&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ac408e4044773b311a1cc0e66d12f8d23">takane::dimensions_registry</a> = internal_dimensions::default_registry()</td></tr>
+<tr class="separator:ac408e4044773b311a1cc0e66d12f8d23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Dispatch to functions for the object's dimensions. </p>

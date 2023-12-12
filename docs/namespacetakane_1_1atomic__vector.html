@@ -86,16 +86,16 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa83e4fbe34cc3f6f1dead5105934f997"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#aa83e4fbe34cc3f6f1dead5105934f997">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:aa83e4fbe34cc3f6f1dead5105934f997"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada50290bd831730b3852440572c67291"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#ada50290bd831730b3852440572c67291">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)</td></tr>
-<tr class="separator:ada50290bd831730b3852440572c67291"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5438b6e0231b6634ad00a70fe2cad3d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#af5438b6e0231b6634ad00a70fe2cad3d">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:af5438b6e0231b6634ad00a70fe2cad3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc01dd8ff698bde907ea9a3fe79bffe5"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1atomic__vector.html#acc01dd8ff698bde907ea9a3fe79bffe5">height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)</td></tr>
+<tr class="separator:acc01dd8ff698bde907ea9a3fe79bffe5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for atomic vectors. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ada50290bd831730b3852440572c67291" name="ada50290bd831730b3852440572c67291"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ada50290bd831730b3852440572c67291">&#9670;&#160;</a></span>height()</h2>
+<a id="acc01dd8ff698bde907ea9a3fe79bffe5" name="acc01dd8ff698bde907ea9a3fe79bffe5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc01dd8ff698bde907ea9a3fe79bffe5">&#9670;&#160;</a></span>height()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -108,6 +108,12 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -130,6 +136,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the directory containing the atomic vector. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically read from its <code>OBJECT</code> file. </td></tr>
     <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>
@@ -138,8 +145,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa83e4fbe34cc3f6f1dead5105934f997" name="aa83e4fbe34cc3f6f1dead5105934f997"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa83e4fbe34cc3f6f1dead5105934f997">&#9670;&#160;</a></span>validate()</h2>
+<a id="af5438b6e0231b6634ad00a70fe2cad3d" name="af5438b6e0231b6634ad00a70fe2cad3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5438b6e0231b6634ad00a70fe2cad3d">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -152,6 +159,12 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;&#160;</td>
+          <td class="paramname"><em>metadata</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -174,6 +187,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the directory containing the atomic vector. </td></tr>
+    <tr><td class="paramname">metadata</td><td>Metadata for the object, typically read from its <code>OBJECT</code> file. </td></tr>
     <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
   </table>
   </dd>
