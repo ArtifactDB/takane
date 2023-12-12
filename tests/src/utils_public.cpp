@@ -24,7 +24,6 @@ struct ReadObjectTest : public::testing::Test {
 };
 
 TEST_F(ReadObjectTest, Basic) {
-    std::filesystem::path dir = "TEST_readObj";
     initialize_directory(dir);
 
     auto objpath = dir / "OBJECT";
@@ -45,7 +44,6 @@ TEST_F(ReadObjectTest, Basic) {
 }
 
 TEST_F(ReadObjectTest, Fails) {
-    std::filesystem::path dir = "TEST_readObj";
     initialize_directory(dir);
 
     auto objpath = dir / "OBJECT";
