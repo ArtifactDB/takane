@@ -41,6 +41,9 @@ add_executable(
     src/utils_other.cpp
     src/utils_array.cpp
     src/utils_summarized_experiment.cpp
+    src/utils_public.cpp
+    src/utils_json.cpp
+    src/utils.cpp
     src/dispatch.cpp
 )
 

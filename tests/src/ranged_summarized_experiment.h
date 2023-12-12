@@ -17,22 +17,28 @@ struct Options : public ::summarized_experiment::Options {
     bool use_grl = false;
 };
 
+inline void add_object_metadata(millijson::Base* input, const std::string& version) {
+    auto& remap = reinterpret_cast<millijson::Object*>(input)->values;
+    auto optr = new millijson::Object;
+    remap["ranged_summarized_experiment"] = std::shared_ptr<millijson::Base>(optr);
+    optr->add("version", std::shared_ptr<millijson::Base>(new millijson::String(version)));
+}
+
 inline void mock(const std::filesystem::path& dir, const Options& options) {
     ::summarized_experiment::mock(dir, options);
 
+    auto opath = dir / "OBJECT";
     {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "ranged_summarized_experiment";
-    }
-
-    {
-        std::ofstream handle(dir / "ranged_summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\" }";
+        auto parsed = millijson::parse_file(opath.c_str());
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("ranged_summarized_experiment"));
+        add_object_metadata(parsed.get(), "1.0");
+        json_utils::dump(parsed.get(), opath);
     }
 
     auto rdir = dir / "row_ranges";
     if (options.use_grl) {
-        initialize_directory(rdir, "genomic_ranges_list");
+        initialize_directory_simple(rdir, "genomic_ranges_list", "1.0");
         H5::H5File handle(rdir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("genomic_ranges_list");
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");

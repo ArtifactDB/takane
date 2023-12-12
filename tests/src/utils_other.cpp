@@ -46,7 +46,7 @@ TEST_F(ValidateMetadataTest, Mcols) {
     takane::internal_other::validate_mcols(path, "mcols", 10, takane::Options());
     expect_error_mcols("unexpected number of rows", path, "mcols", 20, takane::Options());
 
-    initialize_directory(subpath, "simple_list");
+    initialize_directory_simple(subpath, "simple_list", "1.0");
     expect_error_mcols("'DATA_FRAME'", path, "mcols", 10, takane::Options());
 }
 
@@ -58,7 +58,7 @@ TEST_F(ValidateMetadataTest, Metadata) {
 
     takane::internal_other::validate_metadata(path, "metadata", takane::Options());
 
-    initialize_directory(subpath, "data_frame");
+    initialize_directory_simple(subpath, "data_frame", "1.0");
     expect_error_metadata("'SIMPLE_LIST'", path, "metadata", takane::Options());
 }
 

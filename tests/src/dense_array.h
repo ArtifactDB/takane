@@ -18,10 +18,9 @@ enum class Type {
 };
 
 inline void mock(const std::filesystem::path& dir, Type type, std::vector<hsize_t> dims) {
-    initialize_directory(dir, "dense_array");
+    initialize_directory_simple(dir, "dense_array", "1.0");
     H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("dense_array");
-    hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
     H5::DataSpace dspace(dims.size(), dims.data());
     if (type == Type::INTEGER) {

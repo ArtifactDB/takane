@@ -6,7 +6,9 @@
 
 #include "H5Cpp.h"
 
+#include "millijson/millijson.hpp"
 #include "byteme/byteme.hpp"
+#include "utils_json.hpp"
 
 /**
  * @file utils_public.hpp
@@ -16,26 +18,51 @@
 namespace takane {
 
 /**
+ * Object metadata, including the type and other fields.
+ */
+struct ObjectMetadata {
+    /**
+     * Type of the object.
+     */
+    std::string type;
+    
+    /**
+     * Other fields, depending on the object type.
+     */
+    std::unordered_map<std::string, std::shared_ptr<millijson::Base> > other;
+};
+
+/**
  * Reads the `OBJECT` file inside a directory to determine the object type.
  *
  * @param path Path to a directory containing an object.
- * @return String containing the object type.
+ * @return Object metadata, including the type and other fields.
  */
-inline std::string read_object_type(const std::filesystem::path& path) {
-    auto full = path / "OBJECT";
-    byteme::RawFileReader reader(full.c_str());
-    std::string output;
-    while (reader.load()) {
-        auto buffer = reinterpret_cast<const char*>(reader.buffer());
-        size_t available = reader.available();
-        output.insert(output.end(), buffer, buffer + available);
+inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) try {
+    std::shared_ptr<millijson::Base> obj = internal_json::parse_file(path / "OBJECT");
+    if (obj->type() != millijson::OBJECT) {
+        throw std::runtime_error("metadata should be a JSON object");
     }
 
-    // Removing trailing newline.
-    if (output.size() && output.back() == '\n') {
-        output.pop_back();
+    ObjectMetadata output;
+    output.other = std::move(reinterpret_cast<millijson::Object*>(obj.get())->values);
+
+    auto tIt = output.other.find("type");
+    if (tIt == output.other.end()) {
+        throw std::runtime_error("metadata should have a 'type' property");
     }
+
+    const auto& tval = tIt->second;
+    if (tval->type() != millijson::STRING) {
+        throw std::runtime_error("metadata should have a 'type' string");
+    }
+
+    output.type = std::move(reinterpret_cast<millijson::String*>(tval.get())->value);
+    output.other.erase(tIt);
     return output;
+
+} catch (std::exception& e) {
+    throw std::runtime_error("failed to read the OBJECT file at '" + path.string() + "'; " + std::string(e.what()));
 }
 
 /**

@@ -5,19 +5,26 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 #include "H5Cpp.h"
 #include "takane/takane.hpp"
 
-inline void initialize_directory(const std::filesystem::path& dir, const std::string& type) {
+inline void initialize_directory(const std::filesystem::path& dir) {
     if (std::filesystem::exists(dir)) {
         std::filesystem::remove_all(dir);
     }
     std::filesystem::create_directory(dir);
+}
 
-    auto objpath = dir / "OBJECT";
-    std::ofstream output(objpath);
-    output << type;
+inline void dump_object_metadata_simple(const std::filesystem::path& dir, const std::string& name, const std::string& version) {
+    std::ofstream handle(dir / "OBJECT");
+    handle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"" << version << "\" } }";
+}
+
+inline void initialize_directory_simple(const std::filesystem::path& dir, const std::string& name, const std::string& version) {
+    initialize_directory(dir);
+    dump_object_metadata_simple(dir, name, version);
 }
 
 template<typename ... Args_>
@@ -85,6 +92,75 @@ inline H5::DataSet spawn_string_data(H5::Group& handle, const std::string& name,
     }
 
     return dhandle;
+}
+
+}
+
+namespace json_utils {
+
+inline void dump(const millijson::Base* ptr, std::ostream& output) {
+    if (ptr->type() == millijson::ARRAY) {
+        const auto& vals = reinterpret_cast<const millijson::Array*>(ptr)->values;
+        output << "[";
+        bool first = true;
+        for (const auto& x : vals) {
+            if (!first) {
+                output << ", ";
+            }
+            dump(x.get(), output);
+            first = false;
+        }
+        output << "]";
+
+    } else if (ptr->type() == millijson::OBJECT) {
+        const auto& vals = reinterpret_cast<const millijson::Object*>(ptr)->values;
+
+        // Sorting them so we have a stable output.
+        std::vector<std::string> all_names;
+        for (const auto& x : vals) {
+            all_names.push_back(x.first);
+        }
+        std::sort(all_names.begin(), all_names.end());
+
+        output << "{";
+        bool first = true;
+        for (const auto& n : all_names) {
+            if (!first) {
+                output << ", ";
+            }
+            output << "\"" << n << "\": "; // hope there's no weird characters in here.
+            dump(vals.find(n)->second.get(), output);
+            first = false;
+        }
+        output << "}";
+
+    } else if (ptr->type() == millijson::STRING) {
+        const auto& val = reinterpret_cast<const millijson::String*>(ptr)->value;
+        output << "\"" << val << "\"";
+
+    } else if (ptr->type() == millijson::NUMBER) {
+        const auto& val = reinterpret_cast<const millijson::Number*>(ptr)->value;
+        output << val;
+
+    } else if (ptr->type() == millijson::BOOLEAN) {
+        const auto& val = reinterpret_cast<const millijson::Boolean*>(ptr)->value;
+        if (val) {
+            output << "true";
+        } else {
+            output << "false";
+        }
+
+    } else if (ptr->type() == millijson::NOTHING) {
+        output << "null";
+
+    } else {
+        throw std::runtime_error("unknown millijson type");
+    }
+}
+
+inline void dump(const millijson::Base* ptr, const std::filesystem::path& path) {
+    std::ofstream output(path);
+    json_utils::dump(ptr, output);
 }
 
 }

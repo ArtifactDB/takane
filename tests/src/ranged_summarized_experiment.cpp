@@ -33,12 +33,27 @@ struct RangedSummarizedExperimentTest : public ::testing::Test {
 };
 
 TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
+    // Hits the base SE checks.
+    initialize_directory_simple(dir, name, "1.0");
+    expect_error("failed to extract 'summarized_experiment'");
+
+    // Check the RSE's metadata.
+    auto opath = dir / "OBJECT";
+    auto parsed = millijson::parse_file(opath.c_str());
     {
-        initialize_directory(dir, name);
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "[]";
+        ::summarized_experiment::add_object_metadata(parsed.get(), "1.0", 99, 23);
+        ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "2.0");
+        json_utils::dump(parsed.get(), opath);
     }
-    expect_error("top-level object");
+    expect_error("unsupported version");
+
+    // Works without anything at all.
+    {
+        ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "1.0");
+        json_utils::dump(parsed.get(), opath);
+    }
+    takane::validate(dir); 
+    EXPECT_EQ(takane::height(dir), 99);
 
     // With a GRL:
     ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(20, 15, true));
@@ -50,19 +65,6 @@ TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
     takane::validate(dir); 
     std::vector<size_t> expected_dim{ 30, 9 };
     EXPECT_EQ(takane::dimensions(dir), expected_dim);
-
-    // Check the RSE's metadata.
-    {
-        std::ofstream handle(dir / "ranged_summarized_experiment.json");
-        handle << "[]";
-    }
-    expect_error("top-level object");
-
-    {
-        std::ofstream handle(dir / "ranged_summarized_experiment.json");
-        handle << "{ \"version\": \"2.0\" }";
-    }
-    expect_error("unsupported version");
 }
 
 TEST_F(RangedSummarizedExperimentTest, RowRanges) {

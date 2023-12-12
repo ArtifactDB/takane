@@ -37,12 +37,7 @@ struct DenseArrayTest : public ::testing::Test {
 };
 
 TEST_F(DenseArrayTest, Basics) {
-    {
-        initialize_directory(dir, name);
-        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
+    initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version");
 
     // Success!
@@ -112,10 +107,9 @@ TEST_F(DenseArrayTest, TypeChecks) {
 TEST_F(DenseArrayTest, NullStrings) {
     // Check for NULL pointers.
     {
-        initialize_directory(dir, name);
+        initialize_directory_simple(dir, name, "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
         std::vector<hsize_t> dims { 10, 20 };
         H5::DataSpace dspace(dims.size(), dims.data());
@@ -270,10 +264,9 @@ TEST_P(DenseArrayStringCheckTest, NullCheck) {
                 ptrs[offset] = NULL;
 
                 {
-                    initialize_directory(dir, name);
+                    initialize_directory_simple(dir, name, "1.0");
                     H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
                     auto ghandle = handle.createGroup(name);
-                    hdf5_utils::attach_attribute(ghandle, "version", "1.0");
                     hdf5_utils::attach_attribute(ghandle, "type", "string");
                     auto dhandle = ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
                     dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));

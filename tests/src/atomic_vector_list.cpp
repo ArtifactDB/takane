@@ -21,7 +21,7 @@ struct AtomicVectorListTest : public::testing::Test {
     std::string name;
 
     H5::H5File initialize() {
-        initialize_directory(dir, name);
+        initialize_directory_simple(dir, name, "1.0");
         return H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
     }
 
@@ -42,25 +42,19 @@ struct AtomicVectorListTest : public::testing::Test {
 };
 
 TEST_F(AtomicVectorListTest, Basic) {
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
+    initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("version");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        initialize_directory(dir / "concatenated", "foobar");
+        initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
     }
     expect_error("should contain an 'atomic_vector'");
 
     {
-        initialize_directory(dir / "concatenated", "atomic_vector");
+        initialize_directory_simple(dir / "concatenated", "atomic_vector", "1.0");
     }
     expect_error("failed to validate the 'concatenated'");
 

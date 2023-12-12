@@ -20,7 +20,7 @@ struct Hdf5DataFrameTest : public ::testing::Test {
     std::string name;
 
     H5::H5File initialize() {
-        initialize_directory(dir, "data_frame");
+        initialize_directory_simple(dir, "data_frame", "1.0");
         auto path = dir / "basic_columns.h5";
         return H5::H5File(std::string(path), H5F_ACC_TRUNC);
     }
@@ -132,18 +132,12 @@ TEST_F(Hdf5DataFrameTest, General) {
 
     H5::StrType stype(0, H5T_VARIABLE);
 
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
+    initialize_directory_simple(dir, "data_frame", "2.0");
     expect_error("unsupported version");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("version");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
         ghandle.createAttribute("row-count", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
     expect_error("64-bit unsigned");
@@ -197,9 +191,7 @@ TEST_F(Hdf5DataFrameTest, Other) {
         std::filesystem::create_directory(dir / "other_columns");
         for (size_t i = 0; i < 2; ++i) {
             auto subdir = dir / "other_columns" / std::to_string(i);
-            std::filesystem::create_directory(subdir);
-            std::ofstream output(subdir / "OBJECT");
-            output << "data_frame";
+            initialize_directory_simple(subdir, "data_frame", "1.0");
 
             std::vector<data_frame::ColumnDetails> subcolumns(1);
             subcolumns[0].name = "version" + std::to_string(i + 1);
@@ -527,11 +519,11 @@ TEST_F(Hdf5DataFrameTest, Metadata) {
     auto odir = dir / "other_annotations";
 
     data_frame::mock(dir, 99, columns);
-    initialize_directory(cdir, "simple_list");
+    initialize_directory_simple(cdir, "simple_list", "1.0");
     expect_error("'DATA_FRAME'"); 
 
     data_frame::mock(cdir, columns.size(), {});
-    initialize_directory(odir, "data_frame");
+    initialize_directory_simple(odir, "data_frame", "1.0");
     expect_error("'SIMPLE_LIST'");
 
     simple_list::mock(odir);

@@ -19,7 +19,7 @@ struct AtomicVectorTest : public::testing::Test {
     std::string name;
 
     H5::H5File initialize() {
-        initialize_directory(dir, name);
+        initialize_directory_simple(dir, name, "1.0");
         return H5::H5File(dir / "contents.h5", H5F_ACC_TRUNC);
     }
 
@@ -40,18 +40,13 @@ struct AtomicVectorTest : public::testing::Test {
 };
 
 TEST_F(AtomicVectorTest, Basic) {
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup("atomic_vector");
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
+    initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
 
     {
+        initialize();
         auto handle = reopen();
-        auto ghandle = handle.openGroup("atomic_vector");
-        ghandle.removeAttr("version");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        auto ghandle = handle.createGroup("atomic_vector");
         ghandle.createDataSet("values", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
     expect_error("1-dimensional dataset");

@@ -18,8 +18,6 @@ inline void mock(
     const std::vector<int>& width, 
     const std::vector<int>& strand)
 {
-    hdf5_utils::attach_attribute(handle, "version", "1.0");
-
     auto qhandle = hdf5_utils::spawn_data(handle, "sequence", seq_id.size(), H5::PredType::NATIVE_UINT32);
     qhandle.write(seq_id.data(), H5::PredType::NATIVE_INT);
 
@@ -42,7 +40,7 @@ inline void mock(
     const std::vector<int>& seq_length, 
     const std::vector<int>& is_circular)
 {
-    initialize_directory(dir, "genomic_ranges");
+    initialize_directory_simple(dir, "genomic_ranges", "1.0");
     H5::H5File handle(dir / "ranges.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("genomic_ranges");
     mock(ghandle, seq_id, start, width, strand);
