@@ -40,8 +40,8 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
     auto sidir = dir / "sequence_information";
 
     {
-        initialize_directory(dir, "genomic_ranges");
-        initialize_directory(sidir, "sequence_information");
+        initialize_directory_simple(dir, "genomic_ranges", "1.0");
+        initialize_directory_simple(sidir, "sequence_information", "1.0");
         H5::H5File handle(sidir / "info.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("sequence_information");
         sequence_information::mock(ghandle, { "chrA", "chrB" }, { 100, 20 }, { 1, 0 }, { "mm10", "mm10 "});
@@ -104,17 +104,12 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
 }
 
 TEST_F(GenomicRangesTest, BasicChecks) {
+    initialize_directory_simple(dir, name, "2.0");
+    expect_error("unsupported version");
+
     genomic_ranges::mock(dir, 58, 13);
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 58);
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.removeAttr("version");
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
-    expect_error("unsupported version");
 }
 
 TEST_F(GenomicRangesTest, Sequence) {
@@ -328,11 +323,11 @@ TEST_F(GenomicRangesTest, Metadata) {
     auto odir = dir / "other_annotations";
     auto rdir = dir / "range_annotations";
 
-    initialize_directory(rdir, "simple_list");
+    initialize_directory_simple(rdir, "simple_list", "1.0");
     expect_error("'DATA_FRAME'"); 
 
     data_frame::mock(rdir, 25, {});
-    initialize_directory(odir, "data_frame");
+    initialize_directory_simple(odir, "data_frame", "1.0");
     expect_error("'SIMPLE_LIST'");
 
     simple_list::mock(odir);

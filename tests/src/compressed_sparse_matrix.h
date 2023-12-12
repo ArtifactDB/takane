@@ -28,7 +28,6 @@ static void mock(
         dhandle.write(dimensions.data(), H5::PredType::NATIVE_INT);
     }
 
-    hdf5_utils::attach_attribute(handle, "version", "1.0");
     if (config.csc) {
         hdf5_utils::attach_attribute(handle, "layout", "CSC");
     } else {
@@ -57,7 +56,7 @@ static void mock(
 }
 
 void mock(const std::filesystem::path& path, int nr, int nc, double density, Config config = Config()) {
-    initialize_directory(path, "compressed_sparse_matrix");
+    initialize_directory_simple(path, "compressed_sparse_matrix", "1.0");
 
     int nprimary = (config.csc ? nc : nr);
     int nsecondary = (config.csc ? nr : nc);

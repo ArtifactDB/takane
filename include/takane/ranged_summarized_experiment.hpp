@@ -36,22 +36,12 @@ namespace ranged_summarized_experiment {
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     ::takane::summarized_experiment::validate(path, metadata, options);
 
-    const internal_json::JsonObjectMap* rsemap;
-    try {
-        rsemap = &(internal_json::extract_object(metadata.other, "ranged_summarized_experiment"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'ranged_summarized_experiment' from the object metadata");
-    }
+    const auto& rsemap = internal_json::extract_typed_object_from_metadata(metadata.other, "ranged_summarized_experiment");
 
-    const std::string* vstring;
-    try {
-        vstring = &(internal_json::extract_string(*rsemap, "version"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'ranged_summarized_experiment.version' from the object metadata");
-    }
-    auto version = ritsuko::parse_version_string(vstring->c_str(), vstring->size(), /* skip_patch = */ true);
+    const std::string& vstring = internal_json::extract_string_from_typed_object(rsemap, "version", "ranged_summarized_experiment");
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + *vstring + "'");
+        throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
     auto rangedir = path / "row_ranges";

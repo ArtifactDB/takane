@@ -10,23 +10,23 @@
 #include <fstream>
 
 struct SimpleListTest : public::testing::Test {
-    static std::filesystem::path testdir() {
-        return "TEST_simple_list";
+    SimpleListTest() {
+        dir = "TEST_simple_list";
+        name = "simple_list";
     }
 
-    static void initialize() {
-        initialize_directory(testdir(), "simple_list");
-    }
+    std::filesystem::path dir;
+    std::string name;
 
-    static void dump_json(const std::string& buffer) {
-        simple_list::dump_compressed_json(testdir(), buffer);
+    void dump_json(const std::string& buffer) {
+        simple_list::dump_compressed_json(dir, buffer);
     }
 
     template<typename ... Args_>
-    static void expect_error(const std::string& msg, Args_&& ... args) {
+    void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(testdir(), std::forward<Args_>(args)...);
+                takane::validate(dir, std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -35,21 +35,23 @@ struct SimpleListTest : public::testing::Test {
     }
 };
 
-TEST_F(SimpleListTest, Json) {
-    {
-        initialize();
-    }
-    expect_error("could not determine format");
+TEST_F(SimpleListTest, Basics) {
+    simple_list::initialize_with_metadata(dir, "2.0", "whee");
+    expect_error("unsupported version");
 
+    simple_list::initialize_with_metadata(dir, "1.0", "whee");
+    expect_error("unsupported format");
+}
+
+TEST_F(SimpleListTest, Json) {
     // Success!
     {
         dump_json("{ \"type\": \"list\", \"values\": [] }");
     }
-    takane::validate(testdir());
-    EXPECT_EQ(takane::height(testdir()), 0);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 0);
 
     // Throwing in some externals.
-    auto dir = testdir();
     dir.append("other_contents");
     {
         std::ofstream x(dir);
@@ -88,15 +90,14 @@ TEST_F(SimpleListTest, Json) {
     {
         dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"external\", \"index\": 0 } ] }");
     }
-    takane::validate(testdir());
-    EXPECT_EQ(takane::height(testdir()), 1);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 1);
 }
 
 TEST_F(SimpleListTest, Hdf5) {
     // Success!
     {
-        initialize();
-        auto dir = testdir();
+        simple_list::initialize_with_metadata(dir, "1.0", "hdf5");
         dir.append("list_contents.h5");
 
         H5::H5File handle(dir, H5F_ACC_TRUNC);
@@ -106,11 +107,15 @@ TEST_F(SimpleListTest, Hdf5) {
         ahandle.write(stype, std::string("list"));
         ghandle.createGroup("data");
     }
-    takane::validate(testdir());
-    EXPECT_EQ(takane::height(testdir()), 0);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 0);
+
+    // Still works with an implicit default format of HDF5.
+    dump_object_metadata_simple(dir, "simple_list", "1.0");
+    takane::validate(dir);
 
     // Throwing in some externals.
-    auto dir2 = testdir();
+    auto dir2 = dir;
     dir2.append("other_contents");
     dir2.append("0");
     {
@@ -131,11 +136,9 @@ TEST_F(SimpleListTest, Hdf5) {
     }
     expect_error("fewer instances");
 
-    // Success again!
+    // Actually referencing those externals, so we get success again!
     {
-        auto dir = testdir();
-        dir.append("list_contents.h5");
-        H5::H5File handle(dir, H5F_ACC_TRUNC);
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
 
         H5::StrType stype(0, H5T_VARIABLE);
@@ -153,6 +156,6 @@ TEST_F(SimpleListTest, Hdf5) {
         int val = 0;
         xhandle.write(&val, H5::PredType::NATIVE_INT);
     }
-    takane::validate(testdir());
-    EXPECT_EQ(takane::height(testdir()), 1);
+    takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 1);
 }

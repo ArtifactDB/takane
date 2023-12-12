@@ -17,7 +17,6 @@ inline void mock(
     const std::vector<int>& circular, 
     const std::vector<std::string>& genome)
 {
-    hdf5_utils::attach_attribute(handle, "version", "1.0");
     hdf5_utils::spawn_string_data(handle, "name", H5T_VARIABLE, name);
     auto lhandle = hdf5_utils::spawn_data(handle, "length", length.size(), H5::PredType::NATIVE_UINT32);
     lhandle.write(length.data(), H5::PredType::NATIVE_INT);
@@ -33,7 +32,7 @@ inline void mock(
     const std::vector<int>& circular, 
     const std::vector<std::string>& genome)
 {
-    initialize_directory(dir, "sequence_information");
+    initialize_directory_simple(dir, "sequence_information", "1.0");
     H5::H5File handle(dir / "info.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("sequence_information");
     mock(ghandle, name, length, circular, genome);

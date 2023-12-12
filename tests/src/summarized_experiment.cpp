@@ -33,73 +33,44 @@ struct SummarizedExperimentTest : public ::testing::Test {
     }
 };
 
-TEST_F(SummarizedExperimentTest, TopLevelJson) {
-    {
-        initialize_directory(dir, name);
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "[]";
-    }
-    expect_error("top-level object");
+TEST_F(SummarizedExperimentTest, Metadata) {
+    initialize_directory(dir);
+    auto dump = [&](const std::string& contents) {
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"" + name + "\", \"" + name + "\": " + contents + " }";
+    };
 
-    {
-        initialize_directory(dir, name);
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{}";
-    }
-    expect_error("expected a 'version'");
+    dump("[]");
+    expect_error("should be a JSON object");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": 1.0 }";
-    }
-    expect_error("to be a string");
+    dump("{}");
+    expect_error("'summarized_experiment.version'");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"2.0\" }";
-    }
+    dump("{ \"version\": 1.0 }");
+    expect_error("should be a JSON string");
+
+    dump("{ \"version\": \"2.0\" }");
     expect_error("unsupported version");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\" }";
-    }
+    dump("{ \"version\": \"1.0\" }");
     expect_error("expected a 'dimensions'");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\", \"dimensions\": 1 }";
-    }
+    dump("{ \"version\": \"1.0\", \"dimensions\": 1 }");
     expect_error("to be an array");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\", \"dimensions\": [] }";
-    }
+    dump("{ \"version\": \"1.0\", \"dimensions\": [] }");
     expect_error("array of length 2");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\", \"dimensions\": [ true, false ] }";
-    }
+    dump("{ \"version\": \"1.0\", \"dimensions\": [ true, false ] }");
     expect_error("array of numbers");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\", \"dimensions\": [ -1, 1 ] }";
-    }
+    dump("{ \"version\": \"1.0\", \"dimensions\": [ -1, 1 ] }");
     expect_error("non-negative integers");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\", \"dimensions\": [ 10, 1.5 ] }";
-    }
+    dump("{ \"version\": \"1.0\", \"dimensions\": [ 10, 1.5 ] }");
     expect_error("non-negative integers");
 
-    {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\", \"dimensions\": [ 10, 20 ] }";
-    }
+    dump("{ \"version\": \"1.0\", \"dimensions\": [ 10, 20 ] }");
     takane::validate(dir); // works without any assays!
 }
 
@@ -146,7 +117,6 @@ TEST_F(SummarizedExperimentTest, Assays) {
     }
     expect_error("more objects than expected");
 }
-
 
 TEST_F(SummarizedExperimentTest, AllOtherData) {
     summarized_experiment::Options options(10, 15, 2);

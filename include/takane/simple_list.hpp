@@ -38,29 +38,22 @@ namespace simple_list {
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const internal_json::JsonObjectMap* metamap;
-    try {
-        metamap = &(internal_json::extract_object(metadata.other, "simple_list"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'simple_list' from the object metadata");
-    }
+    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, "simple_list");
 
-    const std::string* vstring;
-    try {
-        vstring = &(internal_json::extract_string(*metamap, "version"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'simple_list.version' from the object metadata");
-    }
-    auto version = ritsuko::parse_version_string(vstring->c_str(), vstring->size(), /* skip_patch = */ true);
+    const std::string& vstring = internal_json::extract_string_from_typed_object(metamap, "version", "simple_list");
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + *vstring + "'");
+        throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    const std::string* format;
-    try {
-        format = &(internal_json::extract_string(*metamap, "format"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'simple_list.format' from the object metadata");
+    auto fIt = metamap.find("format");
+    std::string format = "hdf5";
+    if (fIt != metamap.end()) {
+        const auto& val = fIt->second;
+        if (val->type() != millijson::STRING) {
+            throw std::runtime_error("'simple_list.format' in the object metadata should be a JSON string");
+        }
+        format = reinterpret_cast<millijson::String*>(val.get())->value;
     }
 
     auto other_dir = path / "other_contents";
@@ -81,17 +74,17 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
     }
 
-    if (*format == "json.gz") {
+    if (format == "json.gz") {
         auto candidate = path / "list_contents.json.gz";
         uzuki2::json::Options opt;
         opt.parallel = options.parallel_reads;
         byteme::SomeFileReader gzreader(candidate.string());
         uzuki2::json::validate(gzreader, num_external, opt);
-    } else if (*format == "hdf5") {
+    } else if (format == "hdf5") {
         auto candidate = path / "list_contents.h5";
         uzuki2::hdf5::validate(candidate.string(), "simple_list", num_external);
     } else {
-        throw std::runtime_error("unknown format '" + *format + "'");
+        throw std::runtime_error("unknown format '" + format + "'");
     }
 }
 

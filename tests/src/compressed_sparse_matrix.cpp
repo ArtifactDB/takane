@@ -37,12 +37,7 @@ public:
 };
 
 TEST_F(SparseMatrixTest, Basic) {
-    {
-        initialize_directory(path, name);
-        H5::H5File handle(path / "matrix.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
+    initialize_directory_simple(path, name, "2.0");
     expect_error("unsupported version");
 
     // Success with lots of zero-length columns.

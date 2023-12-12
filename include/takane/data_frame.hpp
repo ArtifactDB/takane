@@ -156,7 +156,7 @@ inline void validate_column(const H5::Group& dhandle, const std::string& dset_na
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const auto& vstring = internal_json::extract_version_string(metadata.other, "data_frame");
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, "data_frame");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version '" + vstring + "'");

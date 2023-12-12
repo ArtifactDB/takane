@@ -52,7 +52,7 @@ inline std::function<bool(const std::filesystem::path&, const ObjectMetadata&, c
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const auto& vstring = internal_json::extract_version_string(metadata.other, "data_frame_factor");
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, "data_frame_factor");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

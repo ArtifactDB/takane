@@ -102,7 +102,7 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, co
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const auto& vstring = internal_json::extract_version_string(metadata.other, "genomic_ranges");
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, "genomic_ranges");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

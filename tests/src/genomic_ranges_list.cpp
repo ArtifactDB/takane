@@ -21,7 +21,7 @@ struct GenomicRangesListTest : public::testing::Test {
     std::string name;
 
     H5::H5File initialize() {
-        initialize_directory(dir, name);
+        initialize_directory_simple(dir, name, "1.0");
         return H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
     }
 
@@ -42,25 +42,19 @@ struct GenomicRangesListTest : public::testing::Test {
 };
 
 TEST_F(GenomicRangesListTest, Basic) {
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
+    initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("version");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 1, 2, 1, 3 });
-        initialize_directory(dir / "concatenated", "foobar");
+        initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
     }
     expect_error("'genomic_ranges'");
 
     {
-        initialize_directory(dir / "concatenated", "genomic_ranges");
+        initialize_directory_simple(dir / "concatenated", "genomic_ranges", "1.0");
     }
     expect_error("failed to validate the 'concatenated'");
 

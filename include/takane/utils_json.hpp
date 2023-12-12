@@ -37,10 +37,43 @@ inline const std::string& extract_string(const JsonObjectMap& x, const std::stri
     return reinterpret_cast<millijson::String*>(val.get())->value;
 }
 
-inline const std::string& extract_version_string(const JsonObjectMap& x, const std::string& type) try {
-    return extract_string(extract_object(x, type), "version");
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to extract '" + type + ".version' from the object metadata; " + std::string(e.what()));
+template<class Function_>
+const JsonObjectMap& extract_object(const JsonObjectMap& x, const std::string& name, Function_ rethrow) { 
+    const JsonObjectMap* output = NULL;
+    try {
+        output = &(extract_object(x, name));
+    } catch (std::exception& e) {
+        rethrow(e);
+    }
+    return *output;
+}
+
+template<class Function_>
+const std::string& extract_string(const JsonObjectMap& x, const std::string& name, Function_ rethrow) {
+    const std::string* output = NULL;
+    try {
+        output = &(extract_string(x, name));
+    } catch (std::exception& e) {
+        rethrow(e);
+    }
+    return *output;
+}
+
+inline const JsonObjectMap& extract_typed_object_from_metadata(const JsonObjectMap& x, const std::string& type) {
+    return internal_json::extract_object(x, type, [&](std::exception& e) {
+        throw std::runtime_error("failed to extract '" + type + "' from the object metadata; " + std::string(e.what())); 
+    });
+}
+
+inline const std::string& extract_string_from_typed_object(const JsonObjectMap& x, const std::string& name, const std::string& type) {
+    return extract_string(x, name, [&](std::exception& e) { 
+        throw std::runtime_error("failed to extract '" + type + "." + name + "' from the object metadata; " + std::string(e.what())); 
+    });
+}
+
+inline const std::string& extract_version_for_type(const JsonObjectMap& x, const std::string& type) {
+    const auto& obj = extract_typed_object_from_metadata(x, type);
+    return extract_string_from_typed_object(obj, "version", type);
 }
 
 }

@@ -17,12 +17,8 @@ enum class Type {
     BOOLEAN
 };
 
-inline std::string generate_metadata(std::string version = "1.0") {
-    return "{ \"type\": \"atomic_vector\", \"atomic_vector\": { \"version\": \"" + version + "\" } }";
-}
-
 inline void mock(const std::filesystem::path& path, hsize_t length, Type type) {
-    initialize_directory(path, generate_metadata());
+    initialize_directory_simple(path, "atomic_vector", "1.0");
     H5::H5File handle(path / "contents.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("atomic_vector");
 

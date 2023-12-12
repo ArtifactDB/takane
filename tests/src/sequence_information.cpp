@@ -18,7 +18,7 @@ struct SequenceInformationTest : public ::testing::Test {
     std::string name;
 
     H5::H5File initialize() {
-        initialize_directory(dir, "sequence_information");
+        initialize_directory_simple(dir, "sequence_information", "1.0");
         auto path = dir / "info.h5";
         return H5::H5File(std::string(path), H5F_ACC_TRUNC);
     }
@@ -35,6 +35,9 @@ struct SequenceInformationTest : public ::testing::Test {
 };
 
 TEST_F(SequenceInformationTest, Basic) {
+    initialize_directory_simple(dir, name, "2.0");
+    expect_error("unsupported version");
+
     {
         auto handle = initialize();
     }
@@ -50,14 +53,6 @@ TEST_F(SequenceInformationTest, Basic) {
         auto handle = reopen();
         handle.unlink(name);
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
-    expect_error("unsupported version");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("sequence_information");
-        ghandle.removeAttr("version");
         sequence_information::mock(
             ghandle, 
             { "chrA", "chrB", "chrC" },

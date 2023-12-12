@@ -33,26 +33,18 @@ struct SingleCellExperimentTest : public ::testing::Test {
 };
 
 TEST_F(SingleCellExperimentTest, Basic) {
-    // Just checking that the checks for the base objects are called.
-    {
-        initialize_directory(dir, name);
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "[]";
-    }
-    expect_error("top-level object");
+    // Hits the base SE checks.
+    initialize_directory_simple(dir, name, "1.0");
+    expect_error("'summarized_experiment' property");
 
-    single_cell_experiment::Options options(20, 15);
-    single_cell_experiment::mock(dir, options);
-    takane::validate(dir); 
-    EXPECT_EQ(takane::height(dir), 20);
-    std::vector<size_t> expected_dim{ 20, 15 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dim);
+    // Hits the base RSE checks.
+    initialize_directory(dir);
+    ::summarized_experiment::dump_object_file(dir, 28, 13);
+    expect_error("'ranged_summarized_experiment' property");
 
     // Check the version checks.
-    {
-        std::ofstream handle(dir / "single_cell_experiment.json");
-        handle << "[]";
-    }
+    ::summarized_experiment::mutate_object_file(dir, "ranged_summarized_experiment", "{ \"version\": \"1.0\" }");
+    ::summarized_experiment::mutate_object_file(dir, "single_cell_experiment", "{ \"version\": \"1.0\" }");
     expect_error("top-level object");
 
     {
@@ -60,6 +52,13 @@ TEST_F(SingleCellExperimentTest, Basic) {
         handle << "{ \"version\": \"2.0\" }";
     }
     expect_error("unsupported version");
+
+    single_cell_experiment::Options options(20, 15);
+    single_cell_experiment::mock(dir, options);
+    takane::validate(dir); 
+    EXPECT_EQ(takane::height(dir), 20);
+    std::vector<size_t> expected_dim{ 20, 15 };
+    EXPECT_EQ(takane::dimensions(dir), expected_dim);
 }
 
 TEST_F(SingleCellExperimentTest, ReducedDims) {

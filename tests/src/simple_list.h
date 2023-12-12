@@ -9,6 +9,10 @@
 
 namespace simple_list {
 
+inline void initialize_with_metadata(const std::filesystem::path& dir, const std::string& version, const std::string& format) {
+    initialize_directory(dir, "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"" + version + "\", \"format\": \"" + format + "\" } }");
+}
+
 inline void dump_compressed_json(const std::filesystem::path& dir, const std::string& buffer) {
     auto path = dir / "list_contents.json.gz";
     byteme::GzipFileWriter writer(path.c_str());
@@ -16,7 +20,7 @@ inline void dump_compressed_json(const std::filesystem::path& dir, const std::st
 }
 
 inline void mock(const std::filesystem::path& dir) {
-    initialize_directory(dir, "simple_list");
+    initialize_with_metadata(dir, "1.0", "json.gz");
     dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [] }");
 }
 

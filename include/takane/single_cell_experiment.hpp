@@ -39,22 +39,12 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     auto sedims = ::takane::summarized_experiment::dimensions(path, metadata, options);
     size_t num_cols = sedims[1];
 
-    const internal_json::JsonObjectMap* scemap;
-    try {
-        scemap = &(internal_json::extract_object(metadata.other, "single_cell_experiment"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'single_cell_experiment' from the object metadata");
-    }
+    const auto& scemap = internal_json::extract_typed_object_from_metadata(metadata.other, "single_cell_experiment");
 
-    const std::string* vstring;
-    try {
-        vstring = &(internal_json::extract_string(*scemap, "version"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'single_cell_experiment.version' from the object metadata");
-    }
-    auto version = ritsuko::parse_version_string(vstring->c_str(), vstring->size(), /* skip_patch = */ true);
+    const std::string& vstring = internal_json::extract_string_from_typed_object(scemap, "version", "single_cell_experiment");
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + *vstring + "'");
+        throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
     // Check the reduced dimensions.
@@ -112,8 +102,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     // Validating the main experiment name.
-    auto mIt = scemap->find("main_experiment_name");
-    if (mIt != scemap->end()) {
+    auto mIt = scemap.find("main_experiment_name");
+    if (mIt != scemap.end()) {
         const auto& ver = mIt->second;
         if (ver->type() != millijson::STRING) {
             throw std::runtime_error("expected 'main_experiment_name' to be a string");

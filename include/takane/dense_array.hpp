@@ -143,7 +143,7 @@ inline void validate_string_contents(const H5::DataSet& dhandle, const std::vect
  * @param options Validation options, mostly related to reading performance.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    auto vstring = internal_json::extract_version_string(metadata.other, "dense_array");
+    auto vstring = internal_json::extract_version_for_type(metadata.other, "dense_array");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version '" + vstring + "'");

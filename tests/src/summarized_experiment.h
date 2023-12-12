@@ -23,13 +23,31 @@ struct Options {
     bool has_other_data = false;
 };
 
-inline void mock(const std::filesystem::path& dir, const Options& options) {
-    initialize_directory(dir, "summarized_experiment");
-
+inline void mutate_object_file(const std::filesystem::path& dir, const std::string& type, const std::string extras) {
+    std::string str;
     {
-        std::ofstream handle(dir / "summarized_experiment.json");
-        handle << "{ \"version\": \"1.0\", \"dimensions\": [ " << options.num_rows << ", " << options.num_cols << "] }";
+        std::ifstream input(dir / "OBJECT");
+        std::stringstream stream;
+        stream << input.rdbuf(); 
+        str = stream.str();
     }
+
+    std::stringstream stream2(dir / "OBJECT");
+    auto i = str.find(",");
+    auto j = str.rfind("}");
+    stream2 << "{ \"type\": \"" + type + "\", " + str.substr(i + 1, j) + ", \"" + type + "\": " + extras + "}";
+}
+
+inline void dump_object_file(const std::filesystem::path& dir, size_t num_rows, size_t num_cols) {
+    std::ofstream handle(dir / "OBJECT");
+    handle << "{ \"type\": \"summarized_experiment\", \"summarized_experiment\": ";
+    handle << "{ \"version\": \"1.0\", \"dimensions\": [ " << num_rows << ", " << num_cols << "] }";
+    handle << "}";
+}
+
+inline void mock(const std::filesystem::path& dir, const Options& options) {
+    initialize_directory(dir);
+    dump_object_file(dir, options.num_rows, options.num_cols);
 
     {
         auto adir = dir / "assays";

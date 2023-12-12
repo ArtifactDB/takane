@@ -166,7 +166,7 @@ inline void validate_indices(const H5::Group& handle, const std::vector<uint64_t
  * @param options Validation options, usually for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const auto& vstring = internal_json::extract_version_string(metadata.other, "compressed_sparse_matrix");
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, "compressed_sparse_matrix");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version '" + vstring + "'");

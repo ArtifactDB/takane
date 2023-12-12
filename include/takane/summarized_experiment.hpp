@@ -37,29 +37,19 @@ namespace summarized_experiment {
  * @param options Validation options, typically for reading performance.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const internal_json::JsonObjectMap* semap;
-    try {
-        semap = &(internal_json::extract_object(metadata.other, "summarized_experiment"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'summarized_experiment' from the object metadata");
-    }
+    const auto& semap = internal_json::extract_typed_object_from_metadata(metadata.other, "summarized_experiment");
 
-    const std::string* vstring;
-    try {
-        vstring = &(internal_json::extract_string(*semap, "version"));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract 'summarized_experiment.version' from the object metadata");
-    }
-    auto version = ritsuko::parse_version_string(vstring->c_str(), vstring->size(), /* skip_patch = */ true);
+    const std::string& vstring = internal_json::extract_string_from_typed_object(semap, "version", "summarized_experiment");
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + *vstring + "'");
+        throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
     // Validating the dimensions.
     size_t num_rows = 0, num_cols = 0;
     {
-        auto dIt = semap->find("dimensions");
-        if (dIt == semap->end()) {
+        auto dIt = semap.find("dimensions");
+        if (dIt == semap.end()) {
             throw std::runtime_error("expected a 'dimensions' property");
         }
         const auto& dims = dIt->second;

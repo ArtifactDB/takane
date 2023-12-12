@@ -21,12 +21,23 @@ inline void dump_object_metadata(const std::filesystem::path& dir, const std::st
     handle << contents;
 }
 
+inline std::string generate_metadata_simple(const std::string& name, const std::string& version) {
+    return "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"" + version + "\" } }";
+}
+
+inline void dump_object_metadata_simple(const std::filesystem::path& dir, const std::string& name, const std::string& version) {
+    std::ofstream handle(dir / "OBJECT");
+    handle << generate_metadata_simple(name, version);
+}
+
 inline void initialize_directory(const std::filesystem::path& dir, const std::string& contents) {
-    if (std::filesystem::exists(dir)) {
-        std::filesystem::remove_all(dir);
-    }
-    std::filesystem::create_directory(dir);
+    initialize_directory(dir);
     dump_object_metadata(dir, contents);
+}
+
+inline void initialize_directory_simple(const std::filesystem::path& dir, const std::string& name, const std::string& version) {
+    initialize_directory(dir);
+    dump_object_metadata_simple(dir, name, version);
 }
 
 template<typename ... Args_>
