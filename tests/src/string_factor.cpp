@@ -71,7 +71,6 @@ TEST_F(StringFactorTest, Codes) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
         std::vector<int> codes { 0, 3, 2, 1, 3, 0, 2 };
         auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
@@ -95,7 +94,6 @@ TEST_F(StringFactorTest, Ordered) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
         std::vector<int> codes { 0, 2, 1, 1, 2 };
         auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
@@ -133,7 +131,6 @@ TEST_F(StringFactorTest, Names) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
 
         auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);

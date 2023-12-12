@@ -72,7 +72,6 @@ TEST_F(CompressedListUtilsTest, Lengths) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_INT32, { 4, 3, 2, 1 });
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
     }
@@ -92,7 +91,6 @@ TEST_F(CompressedListUtilsTest, Names) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::NUMBER);
 
@@ -114,7 +112,6 @@ TEST_F(CompressedListUtilsTest, Metadata) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::BOOLEAN);
     }

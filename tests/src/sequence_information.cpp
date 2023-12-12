@@ -68,7 +68,6 @@ TEST_F(SequenceInformationTest, Seqnames) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_data(ghandle, "name", 10, H5::PredType::NATIVE_INT32);
     }
     expect_error("string datatype class");
