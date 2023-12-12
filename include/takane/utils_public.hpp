@@ -33,19 +33,19 @@ struct ObjectMetadata {
 };
 
 /**
- * Reads the `OBJECT` file inside a directory to determine the object type.
+ * Parses a JSON object to obtain the object metadata.
  *
- * @param path Path to a directory containing an object.
+ * @param raw Raw JSON object, typically obtained by `millijson::parse_file`.
+ * Note that `raw` is consumed by this function and should no longer be used by the caller.
  * @return Object metadata, including the type and other fields.
  */
-inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) try {
-    std::shared_ptr<millijson::Base> obj = internal_json::parse_file(path / "OBJECT");
-    if (obj->type() != millijson::OBJECT) {
+inline ObjectMetadata reformat_object_metadata(millijson::Base* raw) {
+    if (raw->type() != millijson::OBJECT) {
         throw std::runtime_error("metadata should be a JSON object");
     }
 
     ObjectMetadata output;
-    output.other = std::move(reinterpret_cast<millijson::Object*>(obj.get())->values);
+    output.other = std::move(reinterpret_cast<millijson::Object*>(raw)->values);
 
     auto tIt = output.other.find("type");
     if (tIt == output.other.end()) {
@@ -60,7 +60,17 @@ inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) tr
     output.type = std::move(reinterpret_cast<millijson::String*>(tval.get())->value);
     output.other.erase(tIt);
     return output;
+}
 
+/**
+ * Reads the `OBJECT` file inside a directory to determine the object type.
+ *
+ * @param path Path to a directory containing an object.
+ * @return Object metadata, including the type and other fields.
+ */
+inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) try {
+    std::shared_ptr<millijson::Base> obj = internal_json::parse_file(path / "OBJECT");
+    return reformat_object_metadata(obj.get());
 } catch (std::exception& e) {
     throw std::runtime_error("failed to read the OBJECT file at '" + path.string() + "'; " + std::string(e.what()));
 }
