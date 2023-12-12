@@ -110,6 +110,10 @@ TEST_F(GenomicRangesTest, BasicChecks) {
     genomic_ranges::mock(dir, 58, 13);
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 58);
+
+    auto sidir = dir / "sequence_information";
+    initialize_directory_simple(sidir, "FOOBAR", "1.0");
+    expect_error("'sequence_information' object");
 }
 
 TEST_F(GenomicRangesTest, Sequence) {

@@ -10,7 +10,9 @@
 namespace simple_list {
 
 inline void initialize_with_metadata(const std::filesystem::path& dir, const std::string& version, const std::string& format) {
-    initialize_directory(dir, "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"" + version + "\", \"format\": \"" + format + "\" } }");
+    initialize_directory(dir);
+    std::ofstream output(dir / "OBJECT");
+    output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"" << version << "\", \"format\": \"" << format << "\" } }";
 }
 
 inline void dump_compressed_json(const std::filesystem::path& dir, const std::string& buffer) {

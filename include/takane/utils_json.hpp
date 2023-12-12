@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <unordered_map>
+#include <filesystem>
 
 #include "millijson/millijson.hpp"
 
@@ -12,6 +13,15 @@ namespace takane {
 namespace internal_json {
 
 typedef std::unordered_map<std::string, std::shared_ptr<millijson::Base> > JsonObjectMap;
+
+inline std::shared_ptr<millijson::Base> parse_file(const std::filesystem::path& path) {
+    if constexpr(std::is_same<std::filesystem::path::value_type, char>::value) {
+        return millijson::parse_file(path.c_str());
+    } else {
+        auto cpath = path.string();
+        return millijson::parse_file(cpath.c_str());
+    }
+}
 
 inline const JsonObjectMap& extract_object(const JsonObjectMap& x, const std::string& name) {
     auto xIt = x.find(name);

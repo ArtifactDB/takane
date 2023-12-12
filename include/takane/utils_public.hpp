@@ -8,6 +8,7 @@
 
 #include "millijson/millijson.hpp"
 #include "byteme/byteme.hpp"
+#include "utils_json.hpp"
 
 /**
  * @file utils_public.hpp
@@ -38,16 +39,7 @@ struct ObjectMetadata {
  * @return Object metadata, including the type and other fields.
  */
 inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) try {
-    std::shared_ptr<millijson::Base> obj;
-
-    auto full = path / "OBJECT";
-    if constexpr(std::is_same<std::filesystem::path::value_type, char>::value) {
-        obj = millijson::parse_file(full.c_str());
-    } else {
-        auto cpath = path.string();
-        obj = millijson::parse_file(cpath.c_str());
-    }
-
+    std::shared_ptr<millijson::Base> obj = internal_json::parse_file(path / "OBJECT");
     if (obj->type() != millijson::OBJECT) {
         throw std::runtime_error("metadata should be a JSON object");
     }

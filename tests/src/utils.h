@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 #include "H5Cpp.h"
 #include "takane/takane.hpp"
@@ -16,23 +17,9 @@ inline void initialize_directory(const std::filesystem::path& dir) {
     std::filesystem::create_directory(dir);
 }
 
-inline void dump_object_metadata(const std::filesystem::path& dir, const std::string& contents) {
-    std::ofstream handle(dir / "OBJECT");
-    handle << contents;
-}
-
-inline std::string generate_metadata_simple(const std::string& name, const std::string& version) {
-    return "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"" + version + "\" } }";
-}
-
 inline void dump_object_metadata_simple(const std::filesystem::path& dir, const std::string& name, const std::string& version) {
     std::ofstream handle(dir / "OBJECT");
-    handle << generate_metadata_simple(name, version);
-}
-
-inline void initialize_directory(const std::filesystem::path& dir, const std::string& contents) {
-    initialize_directory(dir);
-    dump_object_metadata(dir, contents);
+    handle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"" << version << "\" } }";
 }
 
 inline void initialize_directory_simple(const std::filesystem::path& dir, const std::string& name, const std::string& version) {
@@ -127,14 +114,22 @@ inline void dump(const millijson::Base* ptr, std::ostream& output) {
 
     } else if (ptr->type() == millijson::OBJECT) {
         const auto& vals = reinterpret_cast<const millijson::Object*>(ptr)->values;
+
+        // Sorting them so we have a stable output.
+        std::vector<std::string> all_names;
+        for (const auto& x : vals) {
+            all_names.push_back(x.first);
+        }
+        std::sort(all_names.begin(), all_names.end());
+
         output << "{";
         bool first = true;
-        for (const auto& x : vals) {
+        for (const auto& n : all_names) {
             if (!first) {
                 output << ", ";
             }
-            output << "\"" << x.first << "\": "; // hope there's no weird characters in here.
-            dump(x.second.get(), output);
+            output << "\"" << n << "\": "; // hope there's no weird characters in here.
+            dump(vals.find(n)->second.get(), output);
             first = false;
         }
         output << "}";
@@ -149,7 +144,11 @@ inline void dump(const millijson::Base* ptr, std::ostream& output) {
 
     } else if (ptr->type() == millijson::BOOLEAN) {
         const auto& val = reinterpret_cast<const millijson::Boolean*>(ptr)->value;
-        output << val;
+        if (val) {
+            output << "true";
+        } else {
+            output << "false";
+        }
 
     } else if (ptr->type() == millijson::NOTHING) {
         output << "null";

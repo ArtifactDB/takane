@@ -13,8 +13,7 @@ namespace takane {
 namespace internal_summarized_experiment {
 
 inline void check_names_json(const std::filesystem::path& dir, std::unordered_set<std::string>& present) try {
-    auto npath = dir / "names.json";
-    auto parsed = millijson::parse_file(npath.c_str());
+    auto parsed = internal_json::parse_file(dir / "names.json");
     if (parsed->type() != millijson::ARRAY) {
         throw std::runtime_error("expected an array");
     }

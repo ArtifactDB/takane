@@ -47,6 +47,14 @@ TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
     }
     expect_error("unsupported version");
 
+    // Works without anything at all.
+    {
+        ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "1.0");
+        json_utils::dump(parsed.get(), opath);
+    }
+    takane::validate(dir); 
+    EXPECT_EQ(takane::height(dir), 99);
+
     // With a GRL:
     ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(20, 15, true));
     takane::validate(dir); 

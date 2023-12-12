@@ -39,22 +39,14 @@ TEST_F(DataFrameFactorTest, Basic) {
     initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
 
-    auto ldir = dir / "levels";
+    // Success.
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
-        initialize_directory_simple(ldir, "foobar", "2.0");
-    }
-    expect_error("'levels'");
-
-    data_frame::mock(ldir, 5, {});
-    expect_error("'codes'");
-
-    // Success at last.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
         hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_UINT32);
+
+        auto ldir = dir / "levels";
+        data_frame::mock(ldir, 5, {});
     }
     takane::validate(dir);
     EXPECT_EQ(takane::height(dir), 100);
@@ -65,6 +57,9 @@ TEST_F(DataFrameFactorTest, Levels) {
     auto ldir = dir / "levels";
     initialize_directory_simple(ldir, "simple_list", "1.0");
     expect_error("'DATA_FRAME'");
+
+    initialize_directory_simple(ldir, "data_frame", "1.0");
+    expect_error("failed to validate 'levels'");
 
     takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> bool { return true; };
     data_frame::mock(ldir, 5, {});
@@ -78,12 +73,17 @@ TEST_F(DataFrameFactorTest, Codes) {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
 
+        auto ldir = dir / "levels";
+        data_frame::mock(ldir, 5, {});
+    }
+    expect_error("codes");
+
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
         std::vector<int> codes { 0, 4, 2, 1, 3, 5, 2 };
         auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-
-        auto ldir = dir / "levels";
-        data_frame::mock(ldir, 5, {});
     }
     expect_error("number of levels");
 

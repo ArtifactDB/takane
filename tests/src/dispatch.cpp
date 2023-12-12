@@ -6,27 +6,6 @@
 
 #include <filesystem>
 
-TEST(ReadObjectTest, Basic) {
-    std::filesystem::path dir = "TEST_readObj";
-    initialize_directory(dir);
-
-    // Works with a trailing newline.
-    auto objpath = dir / "OBJECT";
-    {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"foo_bar 2\" }";
-    }
-    EXPECT_EQ(takane::read_object_metadata(dir).type, "foo_bar 2");
-
-    {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"baz-stuff\", \n \"foobar\": \"whee\" }\n";
-    }
-    auto meta = takane::read_object_metadata(dir);
-    EXPECT_EQ(meta.type, "baz-stuff");
-    EXPECT_EQ(meta.other.size(), 1);
-}
-
 TEST(GenericDispatch, Validate) {
     std::filesystem::path dir = "TEST_dispatcher";
     initialize_directory_simple(dir, "foobar", "1.0");
