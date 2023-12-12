@@ -77,7 +77,7 @@ TEST_F(DataFrameFactorTest, Levels) {
     }
     expect_error("'DATA_FRAME'");
 
-    takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const std::string&, const takane::Options&) -> bool { return true; };
+    takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> bool { return true; };
     data_frame::mock(ldir, 5, {});
     expect_error("duplicated rows");
 

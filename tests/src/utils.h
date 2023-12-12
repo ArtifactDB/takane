@@ -17,7 +17,7 @@ inline void initialize_directory(const std::filesystem::path& dir, const std::st
 
     auto objpath = dir / "OBJECT";
     std::ofstream output(objpath);
-    output << type;
+    output << "{ \"type\": \"" << type << "\" }";
 }
 
 template<typename ... Args_>

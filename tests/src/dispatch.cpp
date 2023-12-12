@@ -19,13 +19,13 @@ TEST(ReadObjectTest, Basic) {
         std::ofstream output(objpath);
         output << "foo_bar 2\n";
     }
-    EXPECT_EQ(takane::read_object_type(dir), "foo_bar 2");
+    EXPECT_EQ(takane::read_object_metadata(dir).type, "foo_bar 2");
 
     {
         std::ofstream output(objpath);
         output << "baz-stuff";
     }
-    EXPECT_EQ(takane::read_object_type(dir), "baz-stuff");
+    EXPECT_EQ(takane::read_object_metadata(dir).type, "baz-stuff");
 }
 
 TEST(GenericDispatch, Validate) {
@@ -33,7 +33,7 @@ TEST(GenericDispatch, Validate) {
     initialize_directory(dir, "foobar");
     expect_validation_error(dir, "no registered 'validate' function");
 
-    takane::validate_registry["foobar"] = [](const std::filesystem::path&, const takane::Options&) -> void {};
+    takane::validate_registry["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void {};
     takane::validate(dir);
     takane::validate_registry.erase("foobar");
 }
@@ -55,7 +55,7 @@ TEST(GenericDispatch, Height) {
     initialize_directory(dir, "foobar");
     expect_height_error(dir, "no registered 'height' function");
 
-    takane::height_registry["foobar"] = [](const std::filesystem::path&, const takane::Options&) -> size_t { return 11; };
+    takane::height_registry["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> size_t { return 11; };
     EXPECT_EQ(takane::height(dir), 11);
     takane::height_registry.erase("foobar");
 }

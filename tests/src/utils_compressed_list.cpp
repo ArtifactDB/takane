@@ -31,9 +31,10 @@ struct CompressedListListTest : public::testing::Test {
 
     template<bool satisfactory = false>
     void expect_error(const std::string& msg) {
+        auto meta = takane::read_object_metadata(dir);
         EXPECT_ANY_THROW({
             try {
-                takane::internal_compressed_list::validate_directory<satisfactory>(dir, name, "atomic_vector", takane::Options());
+                takane::internal_compressed_list::validate_directory<satisfactory>(dir, name, "atomic_vector", meta, takane::Options());
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -70,8 +71,9 @@ TEST_F(CompressedListListTest, Basic) {
     {
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
     }
-    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", takane::Options());
-    EXPECT_EQ(takane::internal_compressed_list::height(dir, name, takane::Options()), 4);
+    auto meta = takane::read_object_metadata(dir);
+    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, takane::Options());
+    EXPECT_EQ(takane::internal_compressed_list::height(dir, name, meta, takane::Options()), 4);
 }
 
 TEST_F(CompressedListListTest, Lengths) {
@@ -105,7 +107,8 @@ TEST_F(CompressedListListTest, Names) {
 
         hdf5_utils::spawn_string_data(ghandle, "names", H5T_VARIABLE, { "Aaron", "Charlie", "Echo", "Fooblewooble" });
     }
-    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", takane::Options());
+    auto meta = takane::read_object_metadata(dir);
+    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, takane::Options());
 
     {
         auto handle = reopen();
@@ -137,5 +140,7 @@ TEST_F(CompressedListListTest, Metadata) {
     expect_error("'SIMPLE_LIST'");
 
     simple_list::mock(odir);
-    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", takane::Options());
+
+    auto meta = takane::read_object_metadata(dir);
+    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, takane::Options());
 }
