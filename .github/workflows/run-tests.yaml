@@ -57,7 +57,7 @@ jobs:
     - name: Run the tests
       run: |
         cd build
-        ctest --rerun-failed --output-on-failure
+        ctest
 
     - name: Generate code coverage
       if: ${{ matrix.config.cov }}
