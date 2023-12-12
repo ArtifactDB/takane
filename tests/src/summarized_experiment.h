@@ -23,31 +23,26 @@ struct Options {
     bool has_other_data = false;
 };
 
-inline void mutate_object_file(const std::filesystem::path& dir, const std::string& type, const std::string extras) {
-    std::string str;
-    {
-        std::ifstream input(dir / "OBJECT");
-        std::stringstream stream;
-        stream << input.rdbuf(); 
-        str = stream.str();
-    }
+inline void add_object_metadata(millijson::Base* input, const std::string& version, size_t num_rows, size_t num_cols) {
+    auto& remap = reinterpret_cast<millijson::Object*>(input)->values;
+    auto optr = new millijson::Object;
+    remap["summarized_experiment"] = std::shared_ptr<millijson::Base>(optr);
+    optr->add("version", std::shared_ptr<millijson::Base>(new millijson::String(version)));
 
-    std::stringstream stream2(dir / "OBJECT");
-    auto i = str.find(",");
-    auto j = str.rfind("}");
-    stream2 << "{ \"type\": \"" + type + "\", " + str.substr(i + 1, j) + ", \"" + type + "\": " + extras + "}";
-}
-
-inline void dump_object_file(const std::filesystem::path& dir, size_t num_rows, size_t num_cols) {
-    std::ofstream handle(dir / "OBJECT");
-    handle << "{ \"type\": \"summarized_experiment\", \"summarized_experiment\": ";
-    handle << "{ \"version\": \"1.0\", \"dimensions\": [ " << num_rows << ", " << num_cols << "] }";
-    handle << "}";
+    auto aptr = new millijson::Array;
+    optr->add("dimensions", std::shared_ptr<millijson::Base>(aptr));
+    aptr->add(std::shared_ptr<millijson::Base>(new millijson::Number(num_rows)));
+    aptr->add(std::shared_ptr<millijson::Base>(new millijson::Number(num_cols)));
 }
 
 inline void mock(const std::filesystem::path& dir, const Options& options) {
     initialize_directory(dir);
-    dump_object_file(dir, options.num_rows, options.num_cols);
+
+    auto optr = new millijson::Object;
+    std::shared_ptr<millijson::Base> contents(optr);
+    optr->values["type"] = std::shared_ptr<millijson::Base>(new millijson::String("summarized_experiment"));
+    add_object_metadata(contents.get(), "1.0", options.num_rows, options.num_cols);
+    json_utils::dump(contents.get(), dir / "OBJECT");
 
     {
         auto adir = dir / "assays";

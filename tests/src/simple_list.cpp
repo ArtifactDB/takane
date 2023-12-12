@@ -3,6 +3,7 @@
 
 #include "takane/takane.hpp"
 #include "utils.h"
+#include "atomic_vector.h"
 #include "simple_list.h"
 
 #include <string>
@@ -40,10 +41,12 @@ TEST_F(SimpleListTest, Basics) {
     expect_error("unsupported version");
 
     simple_list::initialize_with_metadata(dir, "1.0", "whee");
-    expect_error("unsupported format");
+    expect_error("unknown format");
 }
 
 TEST_F(SimpleListTest, Json) {
+    simple_list::initialize_with_metadata(dir, "1.0", "json.gz");
+
     // Success!
     {
         dump_json("{ \"type\": \"list\", \"values\": [] }");
@@ -52,38 +55,20 @@ TEST_F(SimpleListTest, Json) {
     EXPECT_EQ(takane::height(dir), 0);
 
     // Throwing in some externals.
-    dir.append("other_contents");
+    auto odir = dir / "other_contents";
     {
-        std::ofstream x(dir);
+        std::ofstream x(odir);
     }
     expect_error("expected 'other_contents' to be a directory");
 
-    auto dir2 = dir;
-    dir2.append("0");
+    initialize_directory(odir);
+    auto dir0 = odir / "0";
     {
-        std::filesystem::remove(dir);
-        std::filesystem::create_directory(dir);
-        std::ofstream x(dir2);
+        std::ofstream x(dir0);
     }
     expect_error("failed to validate external list object at 'other_contents/0'");
 
-    {
-        std::filesystem::remove(dir2);
-        std::filesystem::create_directory(dir2);
-        auto opath = dir2;
-        opath.append("contents.h5");
-
-        H5::H5File handle(opath, H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("atomic_vector");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        hdf5_utils::attach_attribute(ghandle, "type", "integer");
-        hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
-
-        auto objpath = dir2;
-        objpath.append("OBJECT");
-        std::ofstream output(objpath);
-        output << "atomic_vector";
-    }
+    ::atomic_vector::mock(dir0, 23, ::atomic_vector::Type::INTEGER);
     expect_error("fewer instances");
 
     // Success again!
@@ -98,9 +83,7 @@ TEST_F(SimpleListTest, Hdf5) {
     // Success!
     {
         simple_list::initialize_with_metadata(dir, "1.0", "hdf5");
-        dir.append("list_contents.h5");
-
-        H5::H5File handle(dir, H5F_ACC_TRUNC);
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
         H5::StrType stype(0, H5T_VARIABLE);
         auto ahandle = ghandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
@@ -113,27 +96,13 @@ TEST_F(SimpleListTest, Hdf5) {
     // Still works with an implicit default format of HDF5.
     dump_object_metadata_simple(dir, "simple_list", "1.0");
     takane::validate(dir);
+    EXPECT_EQ(takane::height(dir), 0);
 
     // Throwing in some externals.
-    auto dir2 = dir;
-    dir2.append("other_contents");
-    dir2.append("0");
-    {
-        std::filesystem::create_directories(dir2);
-        auto opath = dir2;
-        opath.append("contents.h5");
-
-        H5::H5File handle(opath, H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("atomic_vector");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
-        hdf5_utils::attach_attribute(ghandle, "type", "integer");
-        hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT32);
-
-        auto objpath = dir2;
-        objpath.append("OBJECT");
-        std::ofstream output(objpath);
-        output << "atomic_vector";
-    }
+    auto odir = dir / "other_contents";
+    initialize_directory(odir);
+    auto dir0 = odir / "0";
+    ::atomic_vector::mock(dir0, 23, ::atomic_vector::Type::INTEGER);
     expect_error("fewer instances");
 
     // Actually referencing those externals, so we get success again!

@@ -144,12 +144,12 @@ TEST_F(DataFrameFactorTest, Metadata) {
         auto ldir = dir / "levels";
         data_frame::mock(ldir, 5, {});
 
-        initialize_directory(edir, "simple_list");
+        initialize_directory_simple(edir, "simple_list", "1.0");
     }
     expect_error("'element_annotations'");
 
     data_frame::mock(edir, codes.size(), {});
-    initialize_directory(odir, "data_frame");
+    initialize_directory_simple(odir, "data_frame", "1.0");
     expect_error("'other_annotations'");
 
     simple_list::mock(odir);

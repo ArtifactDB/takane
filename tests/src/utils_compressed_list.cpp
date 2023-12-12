@@ -11,8 +11,8 @@
 #include <filesystem>
 #include <fstream>
 
-struct CompressedListListTest : public::testing::Test {
-    CompressedListListTest() {
+struct CompressedListUtilsTest : public::testing::Test {
+    CompressedListUtilsTest() {
         dir = "TEST_atomic_vector_list";
         name = "atomic_vector_list";
     }
@@ -21,7 +21,7 @@ struct CompressedListListTest : public::testing::Test {
     std::string name;
 
     H5::H5File initialize() {
-        initialize_directory(dir, name);
+        initialize_directory_simple(dir, name, "1.0");
         return H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
     }
 
@@ -43,28 +43,20 @@ struct CompressedListListTest : public::testing::Test {
     }
 };
 
-TEST_F(CompressedListListTest, Basic) {
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "version", "2.0");
-    }
+TEST_F(CompressedListUtilsTest, Basic) {
+    initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("version");
-        hdf5_utils::attach_attribute(ghandle, "version", "1.0");
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        initialize_directory(dir / "concatenated", "foobar");
+        initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
     }
     expect_error("should contain an 'atomic_vector'");
     expect_error<true>("'atomic_vector' interface");
 
-    {
-        initialize_directory(dir / "concatenated", "atomic_vector");
-    }
+    initialize_directory_simple(dir / "concatenated", "atomic_vector", "1.0");
     expect_error("failed to validate the 'concatenated'");
 
     // Success at last!
@@ -76,7 +68,7 @@ TEST_F(CompressedListListTest, Basic) {
     EXPECT_EQ(takane::internal_compressed_list::height(dir, name, meta, takane::Options()), 4);
 }
 
-TEST_F(CompressedListListTest, Lengths) {
+TEST_F(CompressedListUtilsTest, Lengths) {
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -96,10 +88,9 @@ TEST_F(CompressedListListTest, Lengths) {
     expect_error("sum of 'lengths'");
 }
 
-TEST_F(CompressedListListTest, Names) {
+TEST_F(CompressedListUtilsTest, Names) {
     {
-        initialize_directory(dir, name);
-        auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
+        auto handle = initialize();
         auto ghandle = handle.createGroup(name);
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
@@ -119,10 +110,9 @@ TEST_F(CompressedListListTest, Names) {
     expect_error("same length");
 }
 
-TEST_F(CompressedListListTest, Metadata) {
+TEST_F(CompressedListUtilsTest, Metadata) {
     {
-        initialize_directory(dir, name);
-        auto handle = H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
+        auto handle = initialize();
         auto ghandle = handle.createGroup(name);
         hdf5_utils::attach_attribute(ghandle, "version", "1.0");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
@@ -132,11 +122,11 @@ TEST_F(CompressedListListTest, Metadata) {
     auto cdir = dir / "element_annotations";
     auto odir = dir / "other_annotations";
 
-    initialize_directory(cdir, "simple_list");
+    initialize_directory_simple(cdir, "simple_list", "1.0");
     expect_error("'DATA_FRAME'"); 
 
     data_frame::mock(cdir, 4, {});
-    initialize_directory(odir, "data_frame");
+    initialize_directory_simple(odir, "data_frame", "1.0");
     expect_error("'SIMPLE_LIST'");
 
     simple_list::mock(odir);

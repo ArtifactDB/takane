@@ -35,16 +35,16 @@ struct RangedSummarizedExperimentTest : public ::testing::Test {
 TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
     // Hits the base SE checks.
     initialize_directory_simple(dir, name, "1.0");
-    expect_error("'summarized_experiment' property");
+    expect_error("failed to extract 'summarized_experiment'");
 
     // Check the RSE's metadata.
-    initialize_directory(dir);
-    ::summarized_experiment::dump_object_file(dir, 28, 13);
-    ::summarized_experiment::mutate_object_file(dir, "ranged_summarized_experiment", "[]");
-    expect_error("JSON object");
-
-    ::summarized_experiment::dump_object_file(dir, 17, 22);
-    ::summarized_experiment::mutate_object_file(dir, "ranged_summarized_experiment", "{ \"version\": \"2.0\" }");
+    auto opath = dir / "OBJECT";
+    auto parsed = millijson::parse_file(opath.c_str());
+    {
+        ::summarized_experiment::add_object_metadata(parsed.get(), "1.0", 99, 23);
+        ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "2.0");
+        json_utils::dump(parsed.get(), opath);
+    }
     expect_error("unsupported version");
 
     // With a GRL:

@@ -109,4 +109,61 @@ inline H5::DataSet spawn_string_data(H5::Group& handle, const std::string& name,
 
 }
 
+namespace json_utils {
+
+inline void dump(const millijson::Base* ptr, std::ostream& output) {
+    if (ptr->type() == millijson::ARRAY) {
+        const auto& vals = reinterpret_cast<const millijson::Array*>(ptr)->values;
+        output << "[";
+        bool first = true;
+        for (const auto& x : vals) {
+            if (!first) {
+                output << ", ";
+            }
+            dump(x.get(), output);
+            first = false;
+        }
+        output << "]";
+
+    } else if (ptr->type() == millijson::OBJECT) {
+        const auto& vals = reinterpret_cast<const millijson::Object*>(ptr)->values;
+        output << "{";
+        bool first = true;
+        for (const auto& x : vals) {
+            if (!first) {
+                output << ", ";
+            }
+            output << "\"" << x.first << "\": "; // hope there's no weird characters in here.
+            dump(x.second.get(), output);
+            first = false;
+        }
+        output << "}";
+
+    } else if (ptr->type() == millijson::STRING) {
+        const auto& val = reinterpret_cast<const millijson::String*>(ptr)->value;
+        output << "\"" << val << "\"";
+
+    } else if (ptr->type() == millijson::NUMBER) {
+        const auto& val = reinterpret_cast<const millijson::Number*>(ptr)->value;
+        output << val;
+
+    } else if (ptr->type() == millijson::BOOLEAN) {
+        const auto& val = reinterpret_cast<const millijson::Boolean*>(ptr)->value;
+        output << val;
+
+    } else if (ptr->type() == millijson::NOTHING) {
+        output << "null";
+
+    } else {
+        throw std::runtime_error("unknown millijson type");
+    }
+}
+
+inline void dump(const millijson::Base* ptr, const std::filesystem::path& path) {
+    std::ofstream output(path);
+    json_utils::dump(ptr, output);
+}
+
+}
+
 #endif

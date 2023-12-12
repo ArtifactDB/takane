@@ -8,29 +8,28 @@
 
 TEST(ReadObjectTest, Basic) {
     std::filesystem::path dir = "TEST_readObj";
-    if (std::filesystem::exists(dir)) {
-        std::filesystem::remove_all(dir);
-    }
-    std::filesystem::create_directory(dir);
+    initialize_directory(dir);
 
     // Works with a trailing newline.
     auto objpath = dir / "OBJECT";
     {
         std::ofstream output(objpath);
-        output << "foo_bar 2\n";
+        output << "{ \"type\": \"foo_bar 2\" }";
     }
     EXPECT_EQ(takane::read_object_metadata(dir).type, "foo_bar 2");
 
     {
         std::ofstream output(objpath);
-        output << "baz-stuff";
+        output << "{ \"type\": \"baz-stuff\", \n \"foobar\": \"whee\" }\n";
     }
-    EXPECT_EQ(takane::read_object_metadata(dir).type, "baz-stuff");
+    auto meta = takane::read_object_metadata(dir);
+    EXPECT_EQ(meta.type, "baz-stuff");
+    EXPECT_EQ(meta.other.size(), 1);
 }
 
 TEST(GenericDispatch, Validate) {
     std::filesystem::path dir = "TEST_dispatcher";
-    initialize_directory(dir, "foobar");
+    initialize_directory_simple(dir, "foobar", "1.0");
     expect_validation_error(dir, "no registered 'validate' function");
 
     takane::validate_registry["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void {};
@@ -52,7 +51,7 @@ void expect_height_error(const std::filesystem::path& dir, const std::string& ms
 
 TEST(GenericDispatch, Height) {
     std::filesystem::path dir = "TEST_dispatcher";
-    initialize_directory(dir, "foobar");
+    initialize_directory_simple(dir, "foobar", "1.0");
     expect_height_error(dir, "no registered 'height' function");
 
     takane::height_registry["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> size_t { return 11; };

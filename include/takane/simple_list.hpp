@@ -33,6 +33,28 @@ void validate(const std::filesystem::path&, const Options&);
 namespace simple_list {
 
 /**
+ * @cond
+ */
+namespace internal {
+
+inline std::string extract_format(const internal_json::JsonObjectMap& map) {
+    auto fIt = map.find("format");
+    if (fIt == map.end()) {
+        return "hdf5";
+    }
+    const auto& val = fIt->second;
+    if (val->type() != millijson::STRING) {
+        throw std::runtime_error("'simple_list.format' in the object metadata should be a JSON string");
+    }
+    return reinterpret_cast<millijson::String*>(val.get())->value;
+}
+
+}
+/**
+ * @endcond
+ */
+
+/**
  * @param path Path to the directory containing the simple list.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
@@ -46,15 +68,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    auto fIt = metamap.find("format");
-    std::string format = "hdf5";
-    if (fIt != metamap.end()) {
-        const auto& val = fIt->second;
-        if (val->type() != millijson::STRING) {
-            throw std::runtime_error("'simple_list.format' in the object metadata should be a JSON string");
-        }
-        format = reinterpret_cast<millijson::String*>(val.get())->value;
-    }
+    std::string format = internal::extract_format(metamap);
 
     auto other_dir = path / "other_contents";
     int num_external = 0;
@@ -95,7 +109,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @return The number of list elements.
  */
 inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const auto& format = internal_json::extract_string(internal_json::extract_object(metadata.other, "simple_list"), "format");
+    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, "simple_list");
+    std::string format = internal::extract_format(metamap);
 
     if (format == "hdf5") {
         auto candidate = path / "list_contents.h5";
