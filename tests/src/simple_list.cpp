@@ -42,6 +42,13 @@ TEST_F(SimpleListTest, Basics) {
 
     simple_list::initialize_with_metadata(dir, "1.0", "whee");
     expect_error("unknown format");
+
+    {
+        initialize_directory(dir);
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.0\", \"format\": null } }";
+    }
+    expect_error("should be a JSON string");
 }
 
 TEST_F(SimpleListTest, Json) {

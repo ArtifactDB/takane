@@ -49,18 +49,6 @@ inline size_t check_names_json(const std::filesystem::path& dir) {
     return present.size();
 }
 
-inline const std::string& validate_version_json(const millijson::Object* optr) {
-    auto vIt = optr->values.find("version");
-    if (vIt == optr->values.end()) {
-        throw std::runtime_error("expected a 'version' property");
-    }
-    const auto& ver = vIt->second;
-    if (ver->type() != millijson::STRING) {
-        throw std::runtime_error("expected 'version' to be a string");
-    }
-    return reinterpret_cast<const millijson::String*>(ver.get())->value;
-}
-
 }
 
 }
