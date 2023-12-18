@@ -69,7 +69,14 @@ TEST_F(SimpleListTest, Json) {
     expect_error("expected 'other_contents' to be a directory");
 
     initialize_directory(odir);
-    auto dir0 = odir / "0";
+    auto dir0 = odir / "asdasd";
+    {
+        std::ofstream x(dir0);
+    }
+    expect_error("expected an external list object at 'other_contents/0'");
+
+    initialize_directory(odir);
+    dir0 = odir / "0";
     {
         std::ofstream x(dir0);
     }
