@@ -95,7 +95,7 @@ $(function() {
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">typedef</span> std::unordered_map&lt;std::string, std::shared_ptr&lt;millijson::Base&gt; &gt; JsonObjectMap;</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">inline</span> std::shared_ptr&lt;millijson::Base&gt; parse_file(<span class="keyword">const</span> std::filesystem::path&amp; path) {</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same&lt;std::filesystem::path::value_type, char&gt;::value) {</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same&lt;<span class="keyword">decltype</span>(path.c_str()), <span class="keyword">const</span> <span class="keywordtype">char</span>*&gt;::value) {</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="keywordflow">return</span> millijson::parse_file(path.c_str());</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    } <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keyword">auto</span> cpath = path.string();</div>
