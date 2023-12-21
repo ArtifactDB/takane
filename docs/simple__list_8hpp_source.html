@@ -110,7 +110,7 @@ $(function() {
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordflow">return</span> <span class="keyword">reinterpret_cast&lt;</span>millijson::String*<span class="keyword">&gt;</span>(val.get())-&gt;value;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>}</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Path_, <span class="keyword">class </span>Reader, <span class="keyword">typename</span> ... Args_&gt;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">template</span>&lt;<span class="keyword">class </span>Reader, <span class="keyword">typename</span> Path_, <span class="keyword">typename</span> ... Args_&gt;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>Reader open_reader(<span class="keyword">const</span> Path_&amp; path, Args_&amp;&amp; ... args) {</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same&lt;typename Path_::value_type, char&gt;::value) {</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <span class="keywordflow">return</span> Reader(path.c_str(), std::forward&lt;Args_&gt;(args)...);</div>
