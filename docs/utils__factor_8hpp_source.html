@@ -137,15 +137,15 @@ $(function() {
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    }</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">bool</span> has_missing = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    int32_t missing_placeholder = 0;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    uint64_t missing_placeholder = 0;</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">if</span> (allow_missing) {</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keyword">auto</span> missingness = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder&lt;int32_t&gt;(chandle, <span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keyword">auto</span> missingness = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder&lt;uint64_t&gt;(chandle, <span class="stringliteral">&quot;missing-value-placeholder&quot;</span>);</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        has_missing = missingness.first;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        missing_placeholder = missingness.second;</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    }</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keyword">auto</span> len = ritsuko::hdf5::get_1d_length(chandle.getSpace(), <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    ritsuko::hdf5::Stream1dNumericDataset&lt;int32_t&gt; stream(&amp;chandle, len, buffer_size);</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    ritsuko::hdf5::Stream1dNumericDataset&lt;uint64_t&gt; stream(&amp;chandle, len, buffer_size);</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordflow">for</span> (hsize_t i = 0; i &lt; len; ++i, stream.next()) {</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        <span class="keyword">auto</span> x = stream.get();</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        <span class="keywordflow">if</span> (has_missing &amp;&amp; x == missing_placeholder) {</div>
