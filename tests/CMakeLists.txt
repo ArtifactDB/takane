@@ -35,6 +35,7 @@ add_executable(
     src/summarized_experiment.cpp
     src/ranged_summarized_experiment.cpp
     src/single_cell_experiment.cpp
+    src/multi_sample_dataset.cpp
     src/utils_compressed_list.cpp
     src/utils_string.cpp
     src/utils_factor.cpp
