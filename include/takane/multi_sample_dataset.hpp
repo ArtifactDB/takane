@@ -67,6 +67,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             auto epath = edir / ename;
             auto emeta = read_object_metadata(epath);
 
+            if (!satisfies_interface(emeta.type, "SUMMARIZED_EXPERIMENT")) {
+                throw std::runtime_error("object in 'experiments/" + ename + "' should satisfy the 'SUMMARIZED_EXPERIMENT' interface");
+            }
+
             try {
                 ::takane::validate(epath, emeta, options);
             } catch (std::exception& e) {
@@ -114,7 +118,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
                 throw std::runtime_error("more objects present in the 'multi_sample_dataset' group than expected");
             }
         } catch (std::exception& e) {
-            throw std::runtime_error("failed to validate 'sample_map'; " + std::string(e.what()));
+            throw std::runtime_error("failed to validate the sample mapping; " + std::string(e.what()));
         }
     }
 
