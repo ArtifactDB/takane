@@ -9,18 +9,23 @@
 #include <limits>
 #include <cctype>
 
+/**
+ * @file sequence_string_set.hpp
+ * @brief Validation for sequence string sets.
+ */
+
 namespace takane {
 
+/**
+ * @namespace takane::sequence_string_set
+ * @brief Definitions for sequence string sets.
+ */
 namespace sequence_string_set {
 
+/**
+ * @cond
+ */
 namespace internal {
-
-inline char advance_and_check(byteme::PerByte<>& pb) {
-    if (!pb.advance()) {
-        throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
-    }
-    return pb.get();
-}
 
 inline int char2int(char val) {
     return static_cast<int>(val) - static_cast<int>(std::numeric_limits<char>::min());
@@ -29,10 +34,18 @@ inline int char2int(char val) {
 template<bool has_quality_, bool parallel_>
 size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> allowed, int lowest_quality) {
     auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path);
-    byteme::PerByte<parallel_> pb(&gzreader);
+    typedef typename std::conditional<parallel_, byteme::PerByteParallel<>, byteme::PerByte<> >::type PB;
+    PB pb(&gzreader);
 
     size_t nseq = 0;
     size_t line_count = 0;
+
+    auto advance_and_check = [&]() -> char {
+        if (!pb.advance()) {
+            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
+        }
+        return pb.get();
+    };
 
     while (pb.valid()) {
         // Processing the name. 
@@ -56,7 +69,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
             }
             empty = false;
             proposed += val - '0';
-            val = advance_and_check(&pb);
+            val = advance_and_check();
         }
         if (empty || proposed != nseq) {
             throw std::runtime_error("sequence name should be its index at line " + std::to_string(line_count + 1));
@@ -65,23 +78,29 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
 
         if constexpr(!has_quality_) {
             // Processing the sequence itself until we get to a '>' or we run out of bytes.
-            while (pb.advance()) {
-                val = pb.get();
+            val = advance_and_check();
+            while (true) {
                 if (val == '\n') {
                     ++line_count;
-                    if (!pb.advance() || pb.get() == '>') {
+                    if (!pb.advance()) {
+                        break;
+                    }
+                    val = pb.get();
+                    if (val == '>') {
                         break;
                     }
                 } else {
                     if (!allowed[char2int(val)]) {
                         throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count + 1));
                     }
+                    val = advance_and_check();
                 }
             }
 
         } else {
             // Processing the sequence itself until we get to a '+'.
             val = advance_and_check();
+            size_t seq_length = 0;
             while (true) {
                 if (val == '\n') {
                     ++line_count;
@@ -93,6 +112,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
                     if (!allowed[char2int(val)]) {
                         throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in ASCII-encoded qualities at line " + std::to_string(line_count + 1));
                     }
+                    ++seq_length;
                     val = advance_and_check();
                 }
             }
@@ -107,9 +127,9 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
             // the end of the file. Note that we can't check for '@' as a
             // delimitor, as this can be a valid score, so instead we check at each
             // newline whether we've reached the specified length, and quit if so.
-            size_t qual_length = 0, seq_length = sequence.size();
-            while (pb.advance()) {
-                val = pb.get();
+            size_t qual_length = 0;
+            while (true) {
+                val = advance_and_check();
                 if (val == '\n') {
                     ++line_count;
                     if (qual_length >= seq_length) {
@@ -125,7 +145,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
             }
 
             if (qual_length != seq_length) {
-                throw std::runtime_error("non-equal lengths for quality and sequence strings (starting line " + std::to_string(init_line + 1) + ")");
+                throw std::runtime_error("non-equal lengths for quality and sequence strings at line " + std::to_string(line_count + 1) + ")");
             }
         }
 
@@ -136,10 +156,18 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
 }
 
 }
+/**
+ * @endcond
+ */
 
+/**
+ * @param path Path to a directory containing a sequence string set.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
+ * @param options Validation options, mostly for input performance.
+ */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const auto& obj = extract_typed_object_from_metadata(metadata.other, "sequence_string_set");
-    const auto& vstring = extract_string_from_typed_object(obj, "version", "sequence_string_set");
+    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, "sequence_string_set");
+    const auto& vstring = internal_json::extract_string_from_typed_object(obj, "version", "sequence_string_set");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -168,7 +196,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     std::array<bool, 255> allowed;
     std::fill(allowed.begin(), allowed.end(), false);
     {
-        const std::string& stype = internal_other::extract_string(obj, "sequence_type", [&](std::exception& e) -> void {
+        const std::string& stype = internal_json::extract_string(obj, "sequence_type", [&](std::exception& e) -> void {
             throw std::runtime_error("failed to extract 'sequence_string_set.sequence_type' from the object metadata; " + std::string(e.what())); 
         });
 
@@ -187,8 +215,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
 
         for (auto a : allowable) {
-            allowed[char2int(a)] = true;
-            allowed[char2int(std::tolower(a))] = true;
+            allowed[internal::char2int(a)] = true;
+            allowed[internal::char2int(std::tolower(a))] = true;
         }
     }
 
@@ -208,7 +236,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
                 auto oIt = obj.find("quality_offset");
                 if (oIt == obj.end()) {
-                    throw std::runtimw_error("expected a 'sequence_string_set.quality_offset' property for Phred quality scores");
+                    throw std::runtime_error("expected a 'sequence_string_set.quality_offset' property for Phred quality scores");
                 }
 
                 const auto& val = oIt->second;
@@ -216,17 +244,17 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
                     throw std::runtime_error("'sequence_string_set.quality_offset' property should be a JSON number");
                 }
 
-                double val = reinterpret_cast<const millijson::Number*>(val.get())->value;
-                if (val != 33 && val != 64) {
+                double offset = reinterpret_cast<const millijson::Number*>(val.get())->value;
+                if (offset != 33 && offset != 64) {
                     throw std::runtime_error("'sequence_string_set.quality_offset' property should be either 33 or 64");
                 }
-                lowest_quality = val;
+                lowest_quality = offset;
 
             } else if (qtype == "solexa") {
                 lowest_quality = 64 - 5;
 
-            } else if (qtype == "none") {
-                throw std::runtime_error("invalid string '" + qtype + "' for the 'sequence_string_set.quality_offset' property");
+            } else if (qtype != "none") {
+                throw std::runtime_error("invalid string '" + qtype + "' for the 'sequence_string_set.quality_type' property");
             }
         }
     }
@@ -254,8 +282,14 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     internal_other::validate_metadata(path, "other_data", options);
 }
 
-inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
-    const auto& obj = extract_typed_object_from_metadata(metadata.other, "sequence_string_set");
+/**
+ * @param path Path to a directory containing a sequence string set.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
+ * @param options Validation options, mostly for input performance.
+ * @return The number of sequences.
+ */
+inline size_t height([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, "sequence_string_set");
     auto lIt = obj.find("length");
     const auto& val = lIt->second;
     return reinterpret_cast<const millijson::Number*>(val.get())->value;
