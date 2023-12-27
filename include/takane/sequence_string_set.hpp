@@ -39,7 +39,6 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
 
     size_t nseq = 0;
     size_t line_count = 0;
-
     auto advance_and_check = [&]() -> char {
         if (!pb.advance()) {
             throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
@@ -68,7 +67,8 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
                 throw std::runtime_error("sequence name should be a non-negative integer at line " + std::to_string(line_count + 1));
             }
             empty = false;
-            proposed += val - '0';
+            proposed *= 10;
+            proposed += (val - '0'); 
             val = advance_and_check();
         }
         if (empty || proposed != nseq) {
@@ -133,7 +133,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
                 if (val == '\n') {
                     ++line_count;
                     if (qual_length >= seq_length) {
-                        pb.advance(); // sneak past the newline.
+                        while (pb.advance() && pb.get() == '\n') {} // sneak past any newlines.
                         break;
                     }
                 } else {
@@ -212,6 +212,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             allowable = "ACDEFGHIKLMNPQRSTVWY";
         } else if (stype == "custom") {
             std::fill(allowed.begin() + 33, allowed.begin() + 127, true);
+        } else {
+            throw std::runtime_error("invalid string '" + stype + "' in the 'sequence_string_set.sequence_type' property");
         }
 
         for (auto a : allowable) {
@@ -231,9 +233,9 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             }
 
             const auto& qtype = reinterpret_cast<const millijson::String*>(val.get())->value;
-            if (qtype == "phred") {
-                has_qualities = true;
+            has_qualities = true;
 
+            if (qtype == "phred") {
                 auto oIt = obj.find("quality_offset");
                 if (oIt == obj.end()) {
                     throw std::runtime_error("expected a 'sequence_string_set.quality_offset' property for Phred quality scores");
@@ -253,21 +255,25 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             } else if (qtype == "solexa") {
                 lowest_quality = 64 - 5;
 
-            } else if (qtype != "none") {
+            } else if (qtype == "none") {
+                has_qualities = false;
+
+            } else {
                 throw std::runtime_error("invalid string '" + qtype + "' for the 'sequence_string_set.quality_type' property");
             }
         }
     }
 
     size_t nseq = 0;
-    auto spath = path / "sequences.fastq.gz";
     if (has_qualities) {
+        auto spath = path / "sequences.fastq.gz";
         if (options.parallel_reads) {
             nseq = internal::parse_sequences<true, true>(spath, allowed, lowest_quality);
         } else {
             nseq = internal::parse_sequences<true, false>(spath, allowed, lowest_quality);
         }
     } else {
+        auto spath = path / "sequences.fasta.gz";
         if (options.parallel_reads) {
             nseq = internal::parse_sequences<false, true>(spath, allowed, lowest_quality);
         } else {
