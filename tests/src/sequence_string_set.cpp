@@ -116,6 +116,14 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
     sequence_string_set::Options options;
     sequence_string_set::mock(dir, 200, options);
     takane::validate(dir); // OKAY.
+    EXPECT_EQ(takane::height(dir), 200);
+
+    // Parallelized.
+    {
+        takane::Options inopt;
+        inopt.parallel_reads = true;
+        takane::validate(dir, inopt); 
+    }
 
     // Name checks.
     auto spath = dir / "sequences.fasta.gz";
@@ -186,6 +194,13 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     options.quality_type = sequence_string_set::QualityType::PHRED33;
     sequence_string_set::mock(dir, 200, options);
     takane::validate(dir); // OKAY.
+
+    // Parallelized.
+    {
+        takane::Options inopt;
+        inopt.parallel_reads = true;
+        takane::validate(dir, inopt); 
+    }
 
     // Name checks.
     auto spath = dir / "sequences.fastq.gz";
