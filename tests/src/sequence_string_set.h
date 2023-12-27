@@ -40,6 +40,8 @@ inline void dump_fastq(byteme::GzipFileWriter& writer, size_t i, const std::stri
 }
 
 inline void mock(const std::filesystem::path& dir, size_t length, const Options& options) {
+    initialize_directory(dir);
+
     std::ofstream handle(dir / "OBJECT");
     handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\"";
     handle << ", \"length\": " << length;

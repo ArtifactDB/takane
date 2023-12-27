@@ -110,7 +110,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
                     }
                 } else {
                     if (!allowed[char2int(val)]) {
-                        throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in ASCII-encoded qualities at line " + std::to_string(line_count + 1));
+                        throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count + 1));
                     }
                     ++seq_length;
                     val = advance_and_check();

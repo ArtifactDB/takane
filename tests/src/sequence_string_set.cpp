@@ -176,6 +176,14 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
         expect_error("premature end");
     }
 
+    // Checking the count.
+    sequence_string_set::mock(dir, 5, options);
+    {
+        byteme::GzipFileWriter writer(spath.c_str());
+        sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
+    }
+    expect_error("observed number of sequences");
+
     // Simulating sequences with annoying newlines everywhere.
     sequence_string_set::mock(dir, 5, options);
     {
@@ -292,6 +300,14 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
         expect_error("premature end");
     }
 
+    // Checking the count.
+    sequence_string_set::mock(dir, 5, options);
+    {
+        byteme::GzipFileWriter writer(spath.c_str());
+        sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "~~~~!!!!AAAAFFFF");
+    }
+    expect_error("observed number of sequences");
+
     // Simulating sequences with annoying newlines everywhere.
     sequence_string_set::mock(dir, 10, options);
     {
@@ -335,6 +351,21 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
             writer.write(">2\nACGT\n");
         }
         expect_error("forbidden character 'u'");
+    }
+
+    // FASTQ, for DNA.
+    {
+        options.quality_type = sequence_string_set::QualityType::PHRED33;
+        sequence_string_set::mock(dir, 1, options);
+
+        auto spath = dir / "sequences.fastq.gz";
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write("@0\nacgu\n+\n;;;;\n");
+        }
+        expect_error("forbidden character 'u'");
+
+        options.quality_type = sequence_string_set::QualityType::NONE;
     }
 
     // RNA.
