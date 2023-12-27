@@ -155,6 +155,48 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
     return nseq;
 }
 
+template<bool parallel_>
+size_t parse_names(const std::filesystem::path& path) {
+    auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path);
+    typedef typename std::conditional<parallel_, byteme::PerByteParallel<>, byteme::PerByte<> >::type PB;
+    PB pb(&gzreader);
+
+    size_t nseq = 0;
+    size_t line_count = 0;
+    auto advance_and_check = [&]() -> char {
+        if (!pb.advance()) {
+            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
+        }
+        return pb.get();
+    };
+
+    while (pb.valid()) {
+        char val = pb.get();
+        if (val != '"') {
+            throw std::runtime_error("name should start with a quote");
+        }
+
+        while (true) {
+            val = advance_and_check();
+            if (val == '"') {
+                val = advance_and_check();
+                if (val == '\n') {
+                    ++nseq;
+                    ++line_count;
+                    pb.advance();
+                    break;
+                } else if (val != '"') {
+                    throw std::runtime_error("characters present after end quote at line " + std::to_string(line_count + 1));
+                }
+            } else if (val == '\n') {
+                ++line_count;
+            }
+        }
+    }
+
+    return nseq;
+}
+
 }
 /**
  * @endcond
@@ -287,6 +329,19 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
     if (nseq != expected_nseq) {
         throw std::runtime_error("observed number of sequences is different from the expected number (" + std::to_string(nseq) + " to " + std::to_string(expected_nseq) + ")");
+    }
+
+    auto npath = path / "names.txt.gz";
+    if (std::filesystem::exists(npath)) {
+        size_t nnames = 0;
+        if (options.parallel_reads) {
+            nnames = internal::parse_names<true>(npath);
+        } else {
+            nnames = internal::parse_names<false>(npath);
+        }
+        if (nnames != expected_nseq) {
+            throw std::runtime_error("number of names is different from the number of sequences (" + std::to_string(nnames) + " to " + std::to_string(expected_nseq) + ")");
+        }
     }
 
     internal_other::validate_mcols(path, "sequence_annotations", nseq, options);

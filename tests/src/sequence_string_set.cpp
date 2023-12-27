@@ -515,6 +515,81 @@ TEST_F(SequenceStringSetTest, QualityType) {
     }
 }
 
+TEST_F(SequenceStringSetTest, Names) {
+    sequence_string_set::Options options;
+    options.quality_type = sequence_string_set::QualityType::PHRED33;
+    sequence_string_set::mock(dir, 10, options);
+
+    auto npath = dir / "names.txt.gz";
+    {
+        byteme::GzipFileWriter writer(npath.c_str());
+        for (size_t i = 0; i < 10; ++i) {
+            std::string tmpname = "gene_" + std::to_string(i + 1);
+            writer.write("\"" + tmpname + "\"\n");
+        }
+    }
+    takane::validate(dir);
+
+    // Non-parallelized.
+    {
+        takane::Options inopt;
+        inopt.parallel_reads = false;
+        takane::validate(dir, inopt); 
+    }
+
+    // Works with newlines.
+    {
+        byteme::GzipFileWriter writer(npath.c_str());
+        for (size_t i = 0; i < 10; ++i) {
+            std::string tmpname = "gene\n" + std::to_string(i + 1);
+            writer.write("\"" + tmpname + "\"\n");
+        }
+    }
+    takane::validate(dir);
+
+    // Errors out with differences in counts.
+    {
+        byteme::GzipFileWriter writer(npath.c_str());
+        for (size_t i = 0; i < 5; ++i) {
+            std::string tmpname = "gene-" + std::to_string(i + 1);
+            writer.write("\"" + tmpname + "\"\n");
+        }
+    }
+    expect_error("number of names");
+
+    // Errors out with quotes.
+    {
+        byteme::GzipFileWriter writer(npath.c_str());
+        for (size_t i = 0; i < 10; ++i) {
+            std::string tmpname = "gene-" + std::to_string(i + 1);
+            writer.write(tmpname + "\n");
+        }
+    }
+    expect_error("should start with a quote");
+
+    {
+        byteme::GzipFileWriter writer(npath.c_str());
+        for (size_t i = 0; i < 10; ++i) {
+            std::string tmpname = "gene-" + std::to_string(i + 1);
+            writer.write("\"" + tmpname + "\"a\n");
+        }
+    }
+    expect_error("present after end quote");
+
+    // Errors out with non-newline.
+    {
+        byteme::GzipFileWriter writer(npath.c_str());
+        for (size_t i = 0; i < 10; ++i) {
+            std::string tmpname = "gene-" + std::to_string(i + 1);
+            if (i) {
+                writer.write("\n");
+            }
+            writer.write("\"" + tmpname + "\"");
+        }
+    }
+    expect_error("premature end");
+}
+
 TEST_F(SequenceStringSetTest, Metadata) {
     sequence_string_set::Options options;
     sequence_string_set::mock(dir, 20, options);
