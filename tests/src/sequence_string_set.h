@@ -74,11 +74,9 @@ inline void mock(const std::filesystem::path& dir, size_t length, const Options&
             case QualityType::SOLEXA:
                 handle << "solexa";
                 break;
-            case QualityType::ILLUMINA64:
+            default: // i.e., QualityType::ILLUMINA64:
                 handle << "phred";
                 offset = 64;
-                break;
-            case QualityType::NONE:
                 break;
         }
         handle << "\"";

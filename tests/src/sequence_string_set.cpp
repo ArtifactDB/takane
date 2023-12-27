@@ -118,10 +118,10 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
     takane::validate(dir); // OKAY.
     EXPECT_EQ(takane::height(dir), 200);
 
-    // Parallelized.
+    // Non-parallelized.
     {
         takane::Options inopt;
-        inopt.parallel_reads = true;
+        inopt.parallel_reads = false;
         takane::validate(dir, inopt); 
     }
 
@@ -203,10 +203,10 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     sequence_string_set::mock(dir, 200, options);
     takane::validate(dir); // OKAY.
 
-    // Parallelized.
+    // Non-parallelized.
     {
         takane::Options inopt;
-        inopt.parallel_reads = true;
+        inopt.parallel_reads = false;
         takane::validate(dir, inopt); 
     }
 
