@@ -9,10 +9,11 @@ var searchData=
   ['multi_5fsample_5fdataset_6',['multi_sample_dataset',['../namespacetakane_1_1multi__sample__dataset.html',1,'takane']]],
   ['ranged_5fsummarized_5fexperiment_7',['ranged_summarized_experiment',['../namespacetakane_1_1ranged__summarized__experiment.html',1,'takane']]],
   ['sequence_5finformation_8',['sequence_information',['../namespacetakane_1_1sequence__information.html',1,'takane']]],
-  ['simple_5flist_9',['simple_list',['../namespacetakane_1_1simple__list.html',1,'takane']]],
-  ['single_5fcell_5fexperiment_10',['single_cell_experiment',['../namespacetakane_1_1single__cell__experiment.html',1,'takane']]],
-  ['string_5ffactor_11',['string_factor',['../namespacetakane_1_1string__factor.html',1,'takane']]],
-  ['summarized_5fexperiment_12',['summarized_experiment',['../namespacetakane_1_1summarized__experiment.html',1,'takane']]],
-  ['takane_13',['takane',['../namespacetakane.html',1,'']]],
-  ['type_14',['type',['../structtakane_1_1ObjectMetadata.html#a9c0bbd3d3bca64a18f2e9863adf02c6d',1,'takane::ObjectMetadata']]]
+  ['sequence_5fstring_5fset_9',['sequence_string_set',['../namespacetakane_1_1sequence__string__set.html',1,'takane']]],
+  ['simple_5flist_10',['simple_list',['../namespacetakane_1_1simple__list.html',1,'takane']]],
+  ['single_5fcell_5fexperiment_11',['single_cell_experiment',['../namespacetakane_1_1single__cell__experiment.html',1,'takane']]],
+  ['string_5ffactor_12',['string_factor',['../namespacetakane_1_1string__factor.html',1,'takane']]],
+  ['summarized_5fexperiment_13',['summarized_experiment',['../namespacetakane_1_1summarized__experiment.html',1,'takane']]],
+  ['takane_14',['takane',['../namespacetakane.html',1,'']]],
+  ['type_15',['type',['../structtakane_1_1ObjectMetadata.html#a9c0bbd3d3bca64a18f2e9863adf02c6d',1,'takane::ObjectMetadata']]]
 ];
