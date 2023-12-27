@@ -17,7 +17,6 @@ enum class SequenceType : char { DNA, RNA, AA, CUSTOM };
 enum class QualityType : char { NONE, PHRED33, SOLEXA, ILLUMINA64 };
 
 struct Options {
-    size_t length = 10;
     SequenceType sequence_type = SequenceType::DNA;
     QualityType quality_type = QualityType::NONE;
 };
@@ -40,10 +39,10 @@ inline void dump_fastq(byteme::GzipFileWriter& writer, size_t i, const std::stri
     writer.write("\n");
 }
 
-inline void mock(const std::filesystem::path& dir, const Options& options) {
+inline void mock(const std::filesystem::path& dir, size_t length, const Options& options) {
     std::ofstream handle(dir / "OBJECT");
     handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\"";
-    handle << ", \"length\": " << options.length;
+    handle << ", \"length\": " << length;
 
     handle << ", \"sequence_type\": \"";
     switch (options.sequence_type) {
@@ -90,13 +89,13 @@ inline void mock(const std::filesystem::path& dir, const Options& options) {
     if (options.quality_type != QualityType::NONE) {
         auto spath = dir / "sequences.fastq.gz";
         byteme::GzipFileWriter writer(spath.c_str());
-        for (size_t i = 0; i < options.length; ++i) {
+        for (size_t i = 0; i < length; ++i) {
             dump_fastq(writer, i, "AAAAAA", "EEEEEE");
         }
     } else {
         auto spath = dir / "sequences.fasta.gz";
         byteme::GzipFileWriter writer(spath.c_str());
-        for (size_t i = 0; i < options.length; ++i) {
+        for (size_t i = 0; i < length; ++i) {
             dump_fasta(writer, i, "AAAAAA");
         }
     }

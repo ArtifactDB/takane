@@ -3,6 +3,8 @@
 
 #include "takane/takane.hpp"
 #include "sequence_string_set.h"
+#include "data_frame.h"
+#include "simple_list.h"
 
 #include <fstream>
 #include <string>
@@ -112,8 +114,7 @@ TEST_F(SequenceStringSetTest, MetadataRetrieval) {
 
 TEST_F(SequenceStringSetTest, FastaParsing) {
     sequence_string_set::Options options;
-    options.length = 200;
-    sequence_string_set::mock(dir, options);
+    sequence_string_set::mock(dir, 200, options);
     takane::validate(dir); // OKAY.
 
     // Name checks.
@@ -139,7 +140,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
-            for (size_t i = 0; i < options.length; ++i) {
+            for (size_t i = 0; i < 200; ++i) {
                 sequence_string_set::dump_fasta(writer, i % 10, "ACGT");
             }
         }
@@ -148,8 +149,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
 
     // Structural checks for correct parsing.
     {
-        options.length = 2;
-        sequence_string_set::mock(dir, options);
+        sequence_string_set::mock(dir, 2, options);
 
         // Zero length sequences are okay.
         {
@@ -169,8 +169,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
     }
 
     // Simulating sequences with annoying newlines everywhere.
-    options.length = 5;
-    sequence_string_set::mock(dir, options);
+    sequence_string_set::mock(dir, 5, options);
     {
         byteme::GzipFileWriter writer(spath.c_str());
         sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
@@ -185,8 +184,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
 TEST_F(SequenceStringSetTest, FastqParsing) {
     sequence_string_set::Options options;
     options.quality_type = sequence_string_set::QualityType::PHRED33;
-    options.length = 200;
-    sequence_string_set::mock(dir, options);
+    sequence_string_set::mock(dir, 200, options);
     takane::validate(dir); // OKAY.
 
     // Name checks.
@@ -212,7 +210,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
-            for (size_t i = 0; i < options.length; ++i) {
+            for (size_t i = 0; i < 200; ++i) {
                 sequence_string_set::dump_fastq(writer, i % 10, "ACGT", "FECD");
             }
         }
@@ -221,8 +219,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
     // Structural checks for correct parsing.
     {
-        options.length = 2;
-        sequence_string_set::mock(dir, options);
+        sequence_string_set::mock(dir, 2, options);
 
         // Ignores gunk on the + line.
         {
@@ -246,21 +243,22 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
             writer.write("@0\nACGT\n+\n@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
-        expect_error("non-equal lengths");
+        expect_error("unequal lengths");
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
             writer.write("@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
-        takane::validate(dir);
+        takane::validate(dir); // OK!
 
+        // More complicated mismatch in the lengths.
         {
             byteme::GzipFileWriter writer(spath.c_str());
             writer.write("@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
-        expect_error("non-equal lengths");
+        expect_error("unequal lengths");
 
         // Zero length sequences are okay.
         {
@@ -280,8 +278,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     }
 
     // Simulating sequences with annoying newlines everywhere.
-    options.length = 10;
-    sequence_string_set::mock(dir, options);
+    sequence_string_set::mock(dir, 10, options);
     {
         byteme::GzipFileWriter writer(spath.c_str());
         sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
@@ -298,3 +295,183 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     takane::validate(dir); // OKAY.
 }
 
+TEST_F(SequenceStringSetTest, SequenceTypes) {
+    sequence_string_set::Options options;
+    auto spath = dir / "sequences.fasta.gz";
+
+    // DNA.
+    {
+        options.sequence_type = sequence_string_set::SequenceType::DNA;
+        sequence_string_set::mock(dir, 3, options);
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write(">0\nacgt\n");
+            writer.write(">1\na.c-g.tacgryswkmbdhvn.-\n");
+            writer.write(">2\nTACGRYSWKMBDHVN.-\n");
+        }
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write(">0\nacgt\n");
+            writer.write(">1\nuuuu\n");
+            writer.write(">2\nACGT\n");
+        }
+        expect_error("forbidden character 'u'");
+    }
+
+    // RNA.
+    {
+        options.sequence_type = sequence_string_set::SequenceType::RNA;
+        sequence_string_set::mock(dir, 3, options);
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write(">0\nacgU\n");
+            writer.write(">1\na.c-g.uacgryswkmbdhvn.-\n");
+            writer.write(">2\nUACGRYSWKMBDHVN.-\n");
+        }
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write(">0\nacgu\n");
+            writer.write(">1\nTTTT\n");
+            writer.write(">2\nACGU\n");
+        }
+        expect_error("forbidden character 'T'");
+    }
+
+    // Protein.
+    {
+        options.sequence_type = sequence_string_set::SequenceType::AA;
+        sequence_string_set::mock(dir, 3, options);
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write(">0\nacgt\n");
+            writer.write(">1\nACD.EFGHIKLMNP-QRSTVWY\n");
+            writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
+        }
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write(">0\nacgt\n");
+            writer.write(">1\nxxxx\n");
+            writer.write(">2\nACGU\n");
+        }
+        expect_error("forbidden character 'x'");
+    }
+
+    // Custom.
+    {
+        options.sequence_type = sequence_string_set::SequenceType::CUSTOM;
+        sequence_string_set::mock(dir, 3, options);
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write(">0\nxxxx\n");
+            writer.write(">1\n!;;;*8acac~\n");
+            writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
+        }
+        takane::validate(dir);
+    }
+}
+
+TEST_F(SequenceStringSetTest, QualityType) {
+    sequence_string_set::Options options;
+    auto spath = dir / "sequences.fastq.gz";
+
+    // Phred+33.
+    {
+        options.quality_type = sequence_string_set::QualityType::PHRED33;
+        sequence_string_set::mock(dir, 3, options);
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write("@0\nacgt\n+\n!!!!\n");
+            writer.write("@1\nacgt\n+\n!!!!\n");
+            writer.write("@2\nacgt\n+\n!!!!\n");
+        }
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write("@0\nacgt\n+\n\1\1\1\1\n");
+            writer.write("@1\nacgt\n+\n!!!!\n");
+            writer.write("@2\nacgt\n+\n!!!!\n");
+        }
+        expect_error("out-of-range quality score");
+    }
+
+    // Phred+64.
+    {
+        options.quality_type = sequence_string_set::QualityType::ILLUMINA64;
+        sequence_string_set::mock(dir, 3, options);
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write("@0\nacgt\n+\n@@@@\n");
+            writer.write("@1\nacgt\n+\n@@@@\n");
+            writer.write("@2\nacgt\n+\n@@@@\n");
+        }
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write("@0\nacgt\n+\n????\n");
+            writer.write("@1\nacgt\n+\n@@@@\n");
+            writer.write("@2\nacgt\n+\n@@@@\n");
+        }
+        expect_error("out-of-range quality score");
+    }
+
+    // Solexa+64.
+    {
+        options.quality_type = sequence_string_set::QualityType::SOLEXA;
+        sequence_string_set::mock(dir, 3, options);
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write("@0\nacgt\n+\n;;;;\n");
+            writer.write("@1\nacgt\n+\n@@@@\n");
+            writer.write("@2\nacgt\n+\n@@@@\n");
+        }
+        takane::validate(dir);
+
+        {
+            byteme::GzipFileWriter writer(spath.c_str());
+            writer.write("@0\nacgt\n+\n::::\n");
+            writer.write("@1\nacgt\n+\n@@@@\n");
+            writer.write("@2\nacgt\n+\n@@@@\n");
+        }
+        expect_error("out-of-range quality score");
+    }
+}
+
+TEST_F(SequenceStringSetTest, Metadata) {
+    sequence_string_set::Options options;
+    sequence_string_set::mock(dir, 20, options);
+
+    auto odir = dir / "other_annotations";
+    auto rdir = dir / "sequence_annotations";
+
+    initialize_directory_simple(rdir, "simple_list", "1.0");
+    expect_error("'DATA_FRAME'"); 
+
+    data_frame::mock(rdir, 20, {});
+    initialize_directory_simple(odir, "data_frame", "1.0");
+    expect_error("'SIMPLE_LIST'");
+
+    simple_list::mock(odir);
+    takane::validate(dir);
+}

@@ -32,7 +32,7 @@ inline int char2int(char val) {
 }
 
 template<bool has_quality_, bool parallel_>
-size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> allowed, int lowest_quality) {
+size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> allowed, char lowest_quality) {
     auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path);
     typedef typename std::conditional<parallel_, byteme::PerByteParallel<>, byteme::PerByte<> >::type PB;
     PB pb(&gzreader);
@@ -137,7 +137,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
                         break;
                     }
                 } else {
-                    if (char2int(val) < lowest_quality) {
+                    if (val < lowest_quality) {
                         throw std::runtime_error("out-of-range quality score '" + std::string(1, val) + "' detected at line " + std::to_string(line_count + 1));
                     }
                     ++qual_length;
@@ -145,7 +145,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
             }
 
             if (qual_length != seq_length) {
-                throw std::runtime_error("non-equal lengths for quality and sequence strings at line " + std::to_string(line_count + 1) + ")");
+                throw std::runtime_error("unequal lengths for quality and sequence strings at line " + std::to_string(line_count + 1) + ")");
             }
         }
 
@@ -202,7 +202,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
         std::string allowable;
         if (stype == "DNA" || stype == "RNA") {
-            allowable = "ACGRYSWKMBDHVN.-";
+            allowable = "ACGRYSWKMBDHVN";
             if (stype == "DNA") {
                 allowable += "T";
             } else {
@@ -211,7 +211,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         } else if (stype == "AA") {
             allowable = "ACDEFGHIKLMNPQRSTVWY";
         } else if (stype == "custom") {
-            std::fill(allowed.begin() + 33, allowed.begin() + 127, true);
+            std::fill(allowed.begin() + internal::char2int('!'), allowed.begin() + internal::char2int('~') + 1, true);
         } else {
             throw std::runtime_error("invalid string '" + stype + "' in the 'sequence_string_set.sequence_type' property");
         }
@@ -220,10 +220,12 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             allowed[internal::char2int(a)] = true;
             allowed[internal::char2int(std::tolower(a))] = true;
         }
+        allowed[internal::char2int('.')] = true;
+        allowed[internal::char2int('-')] = true;
     }
 
     bool has_qualities = false;
-    int lowest_quality = 0;
+    char lowest_quality = 0;
     {
         auto xIt = obj.find("quality_type");
         if (xIt != obj.end()) {
@@ -247,13 +249,16 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
                 }
 
                 double offset = reinterpret_cast<const millijson::Number*>(val.get())->value;
-                if (offset != 33 && offset != 64) {
+                if (offset == 33) {
+                    lowest_quality = '!';
+                } else if (offset == 64) {
+                    lowest_quality = '@';
+                } else {
                     throw std::runtime_error("'sequence_string_set.quality_offset' property should be either 33 or 64");
                 }
-                lowest_quality = offset;
 
             } else if (qtype == "solexa") {
-                lowest_quality = 64 - 5;
+                lowest_quality = ';';
 
             } else if (qtype == "none") {
                 has_qualities = false;
@@ -284,8 +289,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("observed number of sequences is different from the expected number (" + std::to_string(nseq) + " to " + std::to_string(expected_nseq) + ")");
     }
 
-    internal_other::validate_mcols(path, "sequence_data", nseq, options);
-    internal_other::validate_metadata(path, "other_data", options);
+    internal_other::validate_mcols(path, "sequence_annotations", nseq, options);
+    internal_other::validate_metadata(path, "other_annotations", options);
 }
 
 /**
