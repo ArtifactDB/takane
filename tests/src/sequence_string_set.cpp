@@ -502,6 +502,17 @@ TEST_F(SequenceStringSetTest, QualityType) {
         }
         expect_error("out-of-range quality score");
     }
+
+    // None.
+    {
+        options.quality_type = sequence_string_set::QualityType::NONE;
+        sequence_string_set::mock(dir, 10, options);
+        {
+            std::ofstream handle(dir / "OBJECT");
+            handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }";
+        }
+        takane::validate(dir);
+    }
 }
 
 TEST_F(SequenceStringSetTest, Metadata) {
