@@ -32,7 +32,7 @@ inline void validate_coordinates(const std::filesystem::path& path, size_t ncols
     auto coord_path = path / "coordinates";
     auto coord_meta = read_object_metadata(coord_path);
     if (coord_meta.type != "dense_array") {
-        throw std::runtime_error("'spatial_coordinates' should be a dense array");
+        throw std::runtime_error("'coordinates' should be a dense array");
     }
 
     // Validating the coordinates; currently these must be a dense array of
@@ -40,16 +40,16 @@ inline void validate_coordinates(const std::filesystem::path& path, size_t ncols
     try {
         ::takane::validate(coord_path, coord_meta, options);
     } catch (std::exception& e) {
-        throw std::runtime_error("failed to validate 'spatial_coordinates'; " + std::string(e.what()));
+        throw std::runtime_error("failed to validate 'coordinates'; " + std::string(e.what()));
     }
 
     auto cdims = ::takane::dimensions(coord_path, coord_meta, options);
     if (cdims.size() != 2) {
-        throw std::runtime_error("'spatial_coordinates' should be a 2-dimensional dense array");
+        throw std::runtime_error("'coordinates' should be a 2-dimensional dense array");
     } else if (cdims[1] != 2 && cdims[1] != 3) {
-        throw std::runtime_error("'spatial_coordinates' should have 2 or 3 columns");
+        throw std::runtime_error("'coordinates' should have 2 or 3 columns");
     } else if (cdims[0] != ncols) {
-        throw std::runtime_error("number of rows in 'spatial_coordinates' should equal the number of columns in the 'spatial_experiment'");
+        throw std::runtime_error("number of rows in 'coordinates' should equal the number of columns in the 'spatial_experiment'");
     }
 
     // Checking that the values are numeric.
@@ -58,7 +58,7 @@ inline void validate_coordinates(const std::filesystem::path& path, size_t ncols
     auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "data");
     auto dclass = dhandle.getTypeClass();
     if (dclass != H5T_INTEGER && dclass != H5T_FLOAT) {
-        throw std::runtime_error("values in 'spatial_coordinates' should be numeric");
+        throw std::runtime_error("values in 'coordinates' should be numeric");
     }
 }
 
@@ -67,8 +67,8 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
 
     if (format == "PNG") {
         ipath += ".png";
-        byteme::RawFileReader reader(ipath, 8);
-        byteme::PerByte<> pb(&reader);
+        byteme::RawFileReader reader(ipath, 10);
+        byteme::PerByte<unsigned char> pb(&reader);
 
         // Magic number from http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature
         std::array<unsigned char, 8> expected { 137, 80, 78, 71, 13, 10, 26, 10 };
@@ -83,11 +83,11 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
 
     } else if (format == "TIFF") {
         ipath += ".tif";
-        byteme::RawFileReader reader(ipath, 4);
-        byteme::PerByte<> pb(&reader);
+        byteme::RawFileReader reader(ipath, 10);
+        byteme::PerByte<unsigned char> pb(&reader);
 
         std::array<unsigned char, 4> observed;
-        for (size_t i = 0; i < 8; ++i) {
+        for (size_t i = 0; i < 4; ++i) {
             observed[i] = pb.get();
             if (!pb.advance()) {
                 throw std::runtime_error("incomplete TIFF file signature for '" + ipath.string() + "'");
@@ -224,6 +224,13 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, con
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     ::takane::single_cell_experiment::validate(path, metadata, options);
+
+    const std::string& vstring = internal_json::extract_version_for_type(metadata.other, "spatial_experiment");
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+    if (version.major != 1) {
+        throw std::runtime_error("unsupported version string '" + vstring + "'");
+    }
+
     auto dims = ::takane::summarized_experiment::dimensions(path, metadata, options);
     internal::validate_coordinates(path, dims[1], options);
     internal::validate_images(path, dims[1], options);

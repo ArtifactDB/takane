@@ -17,36 +17,37 @@ enable_testing()
 # Main test executable.
 add_executable(
     libtest 
-    src/data_frame.cpp
-    #    src/csv_data_frame.cpp
-    src/genomic_ranges.cpp
-    src/sequence_information.cpp
-    src/atomic_vector.cpp
-    src/string_factor.cpp
-    src/simple_list.cpp
-    src/data_frame_factor.cpp
-    src/atomic_vector_list.cpp
-    src/data_frame_list.cpp
-    src/genomic_ranges_list.cpp
-    #    src/factor.cpp
-    #    src/compressed_list.cpp
-    src/compressed_sparse_matrix.cpp
-    src/dense_array.cpp
-    src/summarized_experiment.cpp
-    src/ranged_summarized_experiment.cpp
-    src/single_cell_experiment.cpp
-    src/multi_sample_dataset.cpp
-    src/sequence_string_set.cpp
-    src/utils_compressed_list.cpp
-    src/utils_string.cpp
-    src/utils_factor.cpp
-    src/utils_other.cpp
-    src/utils_array.cpp
-    src/utils_summarized_experiment.cpp
-    src/utils_public.cpp
-    src/utils_json.cpp
-    src/utils.cpp
-    src/dispatch.cpp
+#    src/data_frame.cpp
+#    #    src/csv_data_frame.cpp
+#    src/genomic_ranges.cpp
+#    src/sequence_information.cpp
+#    src/atomic_vector.cpp
+#    src/string_factor.cpp
+#    src/simple_list.cpp
+#    src/data_frame_factor.cpp
+#    src/atomic_vector_list.cpp
+#    src/data_frame_list.cpp
+#    src/genomic_ranges_list.cpp
+#    #    src/factor.cpp
+#    #    src/compressed_list.cpp
+#    src/compressed_sparse_matrix.cpp
+#    src/dense_array.cpp
+#    src/summarized_experiment.cpp
+#    src/ranged_summarized_experiment.cpp
+#    src/single_cell_experiment.cpp
+    src/spatial_experiment.cpp
+#    src/multi_sample_dataset.cpp
+#    src/sequence_string_set.cpp
+#    src/utils_compressed_list.cpp
+#    src/utils_string.cpp
+#    src/utils_factor.cpp
+#    src/utils_other.cpp
+#    src/utils_array.cpp
+#    src/utils_summarized_experiment.cpp
+#    src/utils_public.cpp
+#    src/utils_json.cpp
+#    src/utils.cpp
+#    src/dispatch.cpp
 )
 
 target_link_libraries(
