@@ -62,13 +62,57 @@ inline void validate_coordinates(const std::filesystem::path& path, size_t ncols
     }
 }
 
+inline void validate_image(const std::filesystem::path& path, size_t i, const std::string& format) {
+    auto ipath = path / std::to_string(i);
+
+    if (format == "PNG") {
+        ipath += ".png";
+        byteme::RawFileReader reader(ipath, 8);
+        byteme::PerByte<> pb(&reader);
+
+        // Magic number from http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature
+        std::array<unsigned char, 8> expected { 137, 80, 78, 71, 13, 10, 26, 10 };
+        for (size_t i = 0; i < 8; ++i) {
+            if (pb.get() != expected[i]) {
+                throw std::runtime_error("incorrect file signature for '" + ipath.string() + "'");
+            }
+            if (!pb.advance()) {
+                throw std::runtime_error("incomplete PNG file signature for '" + ipath.string() + "'");
+            }
+        }
+
+    } else if (format == "TIFF") {
+        ipath += ".tif";
+        byteme::RawFileReader reader(ipath, 4);
+        byteme::PerByte<> pb(&reader);
+
+        std::array<unsigned char, 4> observed;
+        for (size_t i = 0; i < 8; ++i) {
+            observed[i] = pb.get();
+            if (!pb.advance()) {
+                throw std::runtime_error("incomplete TIFF file signature for '" + ipath.string() + "'");
+            }
+        }
+
+        // Magic number from https://en.wikipedia.org/wiki/Magic_number_(programming)
+        std::array<unsigned char, 4> iisig = { 0x49, 0x49, 0x2A, 0x00 };
+        std::array<unsigned char, 4> mmsig = { 0x4D, 0x4D, 0x00, 0x2A };
+        if (observed != iisig && observed != mmsig) {
+            throw std::runtime_error("incorrect file signature for '" + ipath.string() + "'");
+        }
+
+    } else {
+        throw std::runtime_error("image format '" + format + "' is not currently supported");
+    }
+}
+
 inline void validate_images(const std::filesystem::path& path, size_t ncols, const Options& options) {
     auto image_dir = path / "images";
     auto mappath = image_dir / "mapping.h5";
     auto ihandle = ritsuko::hdf5::open_file(mappath);
     auto ghandle = ritsuko::hdf5::open_group(ihandle, "spatial_experiment");
 
-    size_t num_images = 0;
+    std::vector<std::string> image_formats;
     try {
         struct SampleMapMessenger {
             static std::string level() { return "sample name"; }
@@ -83,81 +127,83 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, con
         }
 
         // Scanning through the image information.
-        size_t num_images = 0;
-        {
-            auto ishandle = ritsuko::hdf5::open_dataset(ghandle, "image_samples");
-            if (ritsuko::hdf5::exceeds_integer_limit(ishandle, 64, false)) {
-                throw std::runtime_error("expected a datatype for 'image_samples' that fits in a 64-bit unsigned integer");
+        auto sample_handle = ritsuko::hdf5::open_dataset(ghandle, "image_samples");
+        if (ritsuko::hdf5::exceeds_integer_limit(sample_handle, 64, false)) {
+            throw std::runtime_error("expected a datatype for 'image_samples' that fits in a 64-bit unsigned integer");
+        }
+        auto num_images = ritsuko::hdf5::get_1d_length(sample_handle.getSpace(), false);
+
+        auto id_handle = ritsuko::hdf5::open_dataset(ghandle, "image_ids");
+        if (id_handle.getTypeClass() != H5T_STRING) {
+            throw std::runtime_error("expected a string datatype for 'image_ids'");
+        }
+        if (ritsuko::hdf5::get_1d_length(id_handle.getSpace(), false) != num_images) {
+            throw std::runtime_error("expected 'image_ids' to have the same length as 'image_samples'");
+        }
+
+        auto scale_handle = ritsuko::hdf5::open_dataset(ghandle, "image_scale_factors");
+        if (ritsuko::hdf5::exceeds_float_limit(scale_handle, 64)) {
+            throw std::runtime_error("expected a datatype for 'image_scale_factors' that fits in a 64-bit float");
+        }
+        if (ritsuko::hdf5::get_1d_length(scale_handle.getSpace(), false) != num_images) {
+            throw std::runtime_error("expected 'image_scale_factors' to have the same length as 'image_samples'");
+        }
+
+        auto format_handle = ritsuko::hdf5::open_dataset(ghandle, "image_formats");
+        if (id_handle.getTypeClass() != H5T_STRING) {
+            throw std::runtime_error("expected a string datatype for 'image_formats'");
+        }
+        if (ritsuko::hdf5::get_1d_length(id_handle.getSpace(), false) != num_images) {
+            throw std::runtime_error("expected 'image_formats' to have the same length as 'image_samples'");
+        }
+
+        ritsuko::hdf5::Stream1dNumericDataset<uint64_t> sample_stream(&sample_handle, num_images, options.hdf5_buffer_size);
+        ritsuko::hdf5::Stream1dStringDataset id_stream(&id_handle, num_images, options.hdf5_buffer_size);
+        ritsuko::hdf5::Stream1dNumericDataset<double> scale_stream(&scale_handle, num_images, options.hdf5_buffer_size);
+        ritsuko::hdf5::Stream1dStringDataset format_stream(&format_handle, num_images, options.hdf5_buffer_size);
+        std::vector<std::unordered_set<std::string> > collected(num_samples);
+        image_formats.reserve(num_images);
+
+        for (hsize_t i = 0; i < num_images; ++i) {
+            auto sample = sample_stream.get();
+            if (sample >= num_samples) {
+                throw std::runtime_error("entries of 'image_samples' should be less than the number of samples");
             }
-            num_images = ritsuko::hdf5::get_1d_length(ishandle.getSpace(), false);
+            sample_stream.next();
 
-            auto iihandle = ritsuko::hdf5::open_dataset(ghandle, "image_ids");
-            if (iihandle.getTypeClass() != H5T_STRING) {
-                throw std::runtime_error("expected a string datatype for 'image_ids'");
+            auto& present = collected[sample];
+            auto id = id_stream.steal();
+            if (present.find(id) != present.end()) {
+                throw std::runtime_error("'image_ids' contains duplicated image IDs for the same sample + ('" + id + "')");
             }
-            if (ritsuko::hdf5::get_1d_length(iihandle.getSpace(), false) != num_images) {
-                throw std::runtime_error("expected 'image_ids' to have the same length as 'image_samples'");
+            present.insert(std::move(id));
+            id_stream.next();
+
+            auto sc = scale_stream.get();
+            if (!std::isfinite(sc) || sc <= 0) {
+                throw std::runtime_error("entries of 'image_scale_factors' should be finite and positive");
             }
+            scale_stream.next();
 
-            ritsuko::hdf5::Stream1dNumericDataset<uint64_t> isstream(&ishandle, num_images, options.hdf5_buffer_size);
-            ritsuko::hdf5::Stream1dStringDataset iistream(&iihandle, num_images, options.hdf5_buffer_size);
-            std::vector<std::unordered_set<std::string> > collected(num_samples);
+            auto fmt = format_stream.steal();
+            image_formats.push_back(std::move(fmt));
+            format_stream.next();
+        }
 
-            for (hsize_t i = 0; i < num_images; ++i, isstream.next(), iistream.next()) {
-                auto id = isstream.get();
-                if (id >= num_samples) {
-                    throw std::runtime_error("entries of 'image_samples' should be less than the number of samples");
-                }
-
-                auto& present = collected[id];
-                auto x = iistream.steal();
-                if (present.find(x) != present.end()) {
-                    throw std::runtime_error("'image_ids' contains duplicated image IDs for the same sample + ('" + x + "')");
-                }
-                present.insert(std::move(x));
-            }
-
-            for (const auto& x : collected) {
-                if (x.empty()) {
-                    throw std::runtime_error("each sample should map to one or more images in 'image_samples'");
-                }
+        for (const auto& x : collected) {
+            if (x.empty()) {
+                throw std::runtime_error("each sample should map to one or more images in 'image_samples'");
             }
         }
 
-        {
-            auto sihandle = ritsuko::hdf5::open_dataset(ghandle, "image_scale_factors");
-            if (ritsuko::hdf5::exceeds_float_limit(sihandle, 64)) {
-                throw std::runtime_error("expected a datatype for 'image_scale_factors' that fits in a 64-bit float");
-            }
-            if (ritsuko::hdf5::get_1d_length(sihandle.getSpace(), false) != num_images) {
-                throw std::runtime_error("expected 'image_scale_factors' to have the same length as 'image_samples'");
-            }
-
-            ritsuko::hdf5::Stream1dNumericDataset<double> sistream(&sihandle, num_images, options.hdf5_buffer_size);
-            for (hsize_t i = 0; i < num_images; ++i, sistream.next()) {
-                auto x = sistream.get();
-                if (!std::isfinite(x) || x <= 0) {
-                    throw std::runtime_error("entries of 'image_scale_factors' should be finite and positive");
-                }
-            }
-        }
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate '" + mappath.string() + "'; " + std::string(e.what()));
     }
 
     // Now validating the images themselves.
+    size_t num_images = image_formats.size();
     for (size_t i = 0; i < num_images; ++i) {
-        auto image_name = std::to_string(i);
-        auto image_path = image_dir / image_name;
-        auto image_meta = read_object_metadata(image_path);
-        if (image_meta.type != "spatial_image") {
-            throw std::runtime_error("expected a 'spatial_image' object at '" + image_path.string() + "'");
-        }
-        try {
-            ::takane::validate(image_path, image_meta, options);
-        } catch (std::exception& e) {
-            throw std::runtime_error("failed to validate image at '" + image_path.string() + "'; " + std::string(e.what()));
-        }
+        validate_image(image_dir, i, image_formats[i]);
     }
 
     size_t num_dir_obj = internal_other::count_directory_entries(image_dir);
