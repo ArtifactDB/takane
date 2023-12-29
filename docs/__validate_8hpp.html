@@ -106,6 +106,7 @@ $(function() {
 <code>#include &quot;summarized_experiment.hpp&quot;</code><br />
 <code>#include &quot;ranged_summarized_experiment.hpp&quot;</code><br />
 <code>#include &quot;single_cell_experiment.hpp&quot;</code><br />
+<code>#include &quot;spatial_experiment.hpp&quot;</code><br />
 <code>#include &quot;multi_sample_dataset.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="sequence__string__set_8hpp_source.html">sequence_string_set.hpp</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -113,52 +114,54 @@ Include dependency graph for _validate.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="__validate_8hpp__incl.png" border="0" usemap="#atakane_2__validate_8hpp" alt=""/></div>
 <map name="atakane_2__validate_8hpp" id="atakane_2__validate_8hpp">
-<area shape="rect" title="Validation dispatch function." alt="" coords="4094,5,4235,31"/>
+<area shape="rect" title="Validation dispatch function." alt="" coords="4357,5,4498,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,84,104"/>
-<area shape="rect" title=" " alt="" coords="2420,519,2475,544"/>
-<area shape="rect" title=" " alt="" coords="3340,519,3419,544"/>
-<area shape="rect" title=" " alt="" coords="4761,519,4841,544"/>
-<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="3816,372,3927,397"/>
-<area shape="rect" href="atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="2662,225,2790,251"/>
-<area shape="rect" href="string__factor_8hpp.html" title="Validation for string factors." alt="" coords="591,225,709,251"/>
-<area shape="rect" href="simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="6773,225,6881,251"/>
-<area shape="rect" href="data__frame_8hpp.html" title="Validation for data frames." alt="" coords="1165,225,1276,251"/>
-<area shape="rect" href="data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="807,225,957,251"/>
-<area shape="rect" href="sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="2890,299,3063,324"/>
-<area shape="rect" href="genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="4274,225,4415,251"/>
-<area shape="rect" href="atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="3937,152,4089,177"/>
-<area shape="rect" href="data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="4892,152,5027,177"/>
-<area shape="rect" href="genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="3727,152,3893,177"/>
-<area shape="rect" href="dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="1761,225,1877,251"/>
-<area shape="rect" href="compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="2218,225,2423,251"/>
-<area shape="rect" href="summarized__experiment_8hpp_source.html" title=" " alt="" coords="5927,225,6114,251"/>
-<area shape="rect" href="ranged__summarized__experiment_8hpp_source.html" title=" " alt="" coords="6205,152,6437,177"/>
-<area shape="rect" href="single__cell__experiment_8hpp_source.html" title=" " alt="" coords="6232,79,6409,104"/>
-<area shape="rect" href="multi__sample__dataset_8hpp_source.html" title=" " alt="" coords="5101,225,5274,251"/>
-<area shape="rect" href="sequence__string__set_8hpp.html" title="Validation for sequence string sets." alt="" coords="7141,225,7308,251"/>
-<area shape="rect" title=" " alt="" coords="3742,445,3814,471"/>
-<area shape="rect" title=" " alt="" coords="6299,519,6443,544"/>
-<area shape="rect" title=" " alt="" coords="6608,445,6743,471"/>
-<area shape="rect" href="utils__json_8hpp_source.html" title=" " alt="" coords="2978,445,3079,471"/>
-<area shape="rect" title=" " alt="" coords="2973,519,3084,544"/>
-<area shape="rect" title=" " alt="" coords="1099,372,1241,397"/>
-<area shape="rect" href="utils__string_8hpp_source.html" title=" " alt="" coords="1511,299,1621,324"/>
-<area shape="rect" title=" " alt="" coords="3442,372,3546,397"/>
-<area shape="rect" title=" " alt="" coords="2141,372,2202,397"/>
-<area shape="rect" title=" " alt="" coords="1394,372,1453,397"/>
-<area shape="rect" title=" " alt="" coords="1989,372,2117,397"/>
-<area shape="rect" href="utils__factor_8hpp_source.html" title=" " alt="" coords="920,299,1031,324"/>
-<area shape="rect" title=" " alt="" coords="6941,299,7065,324"/>
-<area shape="rect" href="utils__other_8hpp_source.html" title=" " alt="" coords="4997,299,5103,324"/>
-<area shape="rect" title=" " alt="" coords="4411,299,4617,324"/>
-<area shape="rect" title=" " alt="" coords="4303,299,4386,324"/>
-<area shape="rect" title=" " alt="" coords="5709,299,5762,324"/>
-<area shape="rect" href="utils__compressed__list_8hpp_source.html" title=" " alt="" coords="3268,225,3440,251"/>
-<area shape="rect" href="utils__array_8hpp_source.html" title=" " alt="" coords="1696,299,1801,324"/>
-<area shape="rect" title=" " alt="" coords="5279,299,5330,324"/>
-<area shape="rect" href="utils__summarized__experiment_8hpp_source.html" title=" " alt="" coords="5888,299,6105,324"/>
-<area shape="rect" title=" " alt="" coords="7242,299,7317,324"/>
-<area shape="rect" title=" " alt="" coords="7341,299,7401,324"/>
+<area shape="rect" title=" " alt="" coords="1387,592,1441,617"/>
+<area shape="rect" title=" " alt="" coords="4059,592,4137,617"/>
+<area shape="rect" title=" " alt="" coords="6330,592,6410,617"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="4904,445,5015,471"/>
+<area shape="rect" href="atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="1394,299,1522,324"/>
+<area shape="rect" href="string__factor_8hpp.html" title="Validation for string factors." alt="" coords="873,299,992,324"/>
+<area shape="rect" href="simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="7093,299,7201,324"/>
+<area shape="rect" href="data__frame_8hpp.html" title="Validation for data frames." alt="" coords="2611,299,2721,324"/>
+<area shape="rect" href="data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="1016,299,1167,324"/>
+<area shape="rect" href="sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="3634,372,3807,397"/>
+<area shape="rect" href="genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="3138,299,3279,324"/>
+<area shape="rect" href="atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="5286,225,5438,251"/>
+<area shape="rect" href="data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="4360,225,4495,251"/>
+<area shape="rect" href="genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="5097,225,5262,251"/>
+<area shape="rect" href="dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="2240,299,2356,324"/>
+<area shape="rect" href="compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="2381,299,2586,324"/>
+<area shape="rect" href="summarized__experiment_8hpp_source.html" title=" " alt="" coords="6083,299,6270,324"/>
+<area shape="rect" href="ranged__summarized__experiment_8hpp_source.html" title=" " alt="" coords="6013,225,6245,251"/>
+<area shape="rect" href="single__cell__experiment_8hpp_source.html" title=" " alt="" coords="5855,152,6032,177"/>
+<area shape="rect" href="spatial__experiment_8hpp_source.html" title=" " alt="" coords="4611,79,4766,104"/>
+<area shape="rect" href="multi__sample__dataset_8hpp_source.html" title=" " alt="" coords="5563,299,5737,324"/>
+<area shape="rect" href="sequence__string__set_8hpp.html" title="Validation for sequence string sets." alt="" coords="7375,299,7541,324"/>
+<area shape="rect" title=" " alt="" coords="4242,519,4314,544"/>
+<area shape="rect" title=" " alt="" coords="6806,592,6950,617"/>
+<area shape="rect" title=" " alt="" coords="6992,519,7127,544"/>
+<area shape="rect" href="utils__json_8hpp_source.html" title=" " alt="" coords="3047,519,3149,544"/>
+<area shape="rect" title=" " alt="" coords="3043,592,3153,617"/>
+<area shape="rect" title=" " alt="" coords="1208,445,1351,471"/>
+<area shape="rect" href="utils__string_8hpp_source.html" title=" " alt="" coords="2098,372,2207,397"/>
+<area shape="rect" title=" " alt="" coords="4603,445,4707,471"/>
+<area shape="rect" title=" " alt="" coords="2538,445,2599,471"/>
+<area shape="rect" title=" " alt="" coords="1819,445,1878,471"/>
+<area shape="rect" title=" " alt="" coords="2282,445,2410,471"/>
+<area shape="rect" href="utils__factor_8hpp_source.html" title=" " alt="" coords="1579,372,1689,397"/>
+<area shape="rect" title=" " alt="" coords="7195,372,7319,397"/>
+<area shape="rect" href="utils__other_8hpp_source.html" title=" " alt="" coords="5477,372,5583,397"/>
+<area shape="rect" title=" " alt="" coords="3043,372,3249,397"/>
+<area shape="rect" title=" " alt="" coords="3274,372,3357,397"/>
+<area shape="rect" title=" " alt="" coords="6509,372,6562,397"/>
+<area shape="rect" href="utils__compressed__list_8hpp_source.html" title=" " alt="" coords="2941,299,3113,324"/>
+<area shape="rect" href="utils__array_8hpp_source.html" title=" " alt="" coords="1968,372,2073,397"/>
+<area shape="rect" title=" " alt="" coords="5149,372,5199,397"/>
+<area shape="rect" href="utils__summarized__experiment_8hpp_source.html" title=" " alt="" coords="6115,372,6332,397"/>
+<area shape="rect" title=" " alt="" coords="4693,152,4751,177"/>
+<area shape="rect" title=" " alt="" coords="7495,372,7570,397"/>
+<area shape="rect" title=" " alt="" coords="7595,372,7655,397"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
