@@ -31,7 +31,7 @@ void check_ordered_attribute(const H5Object_& handle) {
 
 struct DefaultFactorMessenger {
     static std::string level() { return "factor level"; }
-    static std::string levels() { return "factor levels"; }
+    static std::string levels() { return "levels"; }
     static std::string codes() { return "factor codes"; }
 };
 
