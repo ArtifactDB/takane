@@ -24,7 +24,7 @@ inline void add_object_metadata(millijson::Base* input, const std::string& versi
     optr->add("version", std::shared_ptr<millijson::Base>(new millijson::String(version)));
 }
 
-void mock(const std::filesystem::path& dir, const Options& options) {
+inline void mock(const std::filesystem::path& dir, const Options& options) {
     ::single_cell_experiment::mock(dir, options);
 
     auto opath = dir / "OBJECT";

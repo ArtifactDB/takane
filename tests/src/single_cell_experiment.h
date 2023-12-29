@@ -29,7 +29,7 @@ inline void add_object_metadata(millijson::Base* input, const std::string& versi
     }
 }
 
-void mock(const std::filesystem::path& dir, const Options& options) {
+inline void mock(const std::filesystem::path& dir, const Options& options) {
     ::ranged_summarized_experiment::mock(dir, options);
 
     auto opath = dir / "OBJECT";
