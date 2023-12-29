@@ -69,29 +69,33 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
         ipath += ".png";
         byteme::RawFileReader reader(ipath, 10);
         byteme::PerByte<unsigned char> pb(&reader);
+        bool okay = pb.valid();
 
         // Magic number from http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature
         std::array<unsigned char, 8> expected { 137, 80, 78, 71, 13, 10, 26, 10 };
         for (size_t i = 0; i < 8; ++i) {
+            if (!okay) {
+                throw std::runtime_error("incomplete PNG file signature for '" + ipath.string() + "'");
+            }
             if (pb.get() != expected[i]) {
                 throw std::runtime_error("incorrect file signature for '" + ipath.string() + "'");
             }
-            if (!pb.advance()) {
-                throw std::runtime_error("incomplete PNG file signature for '" + ipath.string() + "'");
-            }
+            okay = pb.advance();
         }
 
     } else if (format == "TIFF") {
         ipath += ".tif";
         byteme::RawFileReader reader(ipath, 10);
         byteme::PerByte<unsigned char> pb(&reader);
+        bool okay = pb.valid();
 
         std::array<unsigned char, 4> observed;
         for (size_t i = 0; i < 4; ++i) {
-            observed[i] = pb.get();
-            if (!pb.advance()) {
+            if (!okay) {
                 throw std::runtime_error("incomplete TIFF file signature for '" + ipath.string() + "'");
             }
+            observed[i] = pb.get();
+            okay = pb.advance();
         }
 
         // Magic number from https://en.wikipedia.org/wiki/Magic_number_(programming)
@@ -150,10 +154,10 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, con
         }
 
         auto format_handle = ritsuko::hdf5::open_dataset(ghandle, "image_formats");
-        if (id_handle.getTypeClass() != H5T_STRING) {
+        if (format_handle.getTypeClass() != H5T_STRING) {
             throw std::runtime_error("expected a string datatype for 'image_formats'");
         }
-        if (ritsuko::hdf5::get_1d_length(id_handle.getSpace(), false) != num_images) {
+        if (ritsuko::hdf5::get_1d_length(format_handle.getSpace(), false) != num_images) {
             throw std::runtime_error("expected 'image_formats' to have the same length as 'image_samples'");
         }
 
