@@ -37,13 +37,19 @@ TEST_F(BamFileTest, Basic) {
     initialize_directory_simple(dir, name, "1.0");
     {
         std::ofstream handle(dir / "file.bam");
-        handle << "foo\1";
+        handle << "FOO";
+    }
+    expect_error("incorrect GZIP file signature");
+
+    {
+        byteme::GzipFileWriter handle(dir / "file.bam");
+        handle.write("foo\1");
     }
     expect_error("incorrect BAM file signature");
 
     {
-        std::ofstream handle(dir / "file.bam");
-        handle << "BAM\1";
+        byteme::GzipFileWriter handle(dir / "file.bam");
+        handle.write("BAM\1");
     }
     takane::validate(dir);
 
@@ -60,14 +66,14 @@ TEST_F(BamFileTest, Basic) {
     takane::validate(dir);
 
     {
-        std::ofstream handle(dir / "file.bam.csi");
-        handle << "foobar\1";
+        byteme::GzipFileWriter handle(dir / "file.bam.csi");
+        handle.write("foobar\1");
     }
     expect_error("incorrect CSI index file signature");
 
     {
-        std::ofstream handle(dir / "file.bam.csi");
-        handle << "CSI\1";
+        byteme::GzipFileWriter handle(dir / "file.bam.csi");
+        handle.write("CSI\1");
     }
     takane::validate(dir);
 }
@@ -76,8 +82,8 @@ TEST_F(BamFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
 
     {
-        std::ofstream handle(dir / "file.bam");
-        handle << "BAM\1";
+        byteme::GzipFileWriter handle(dir / "file.bam");
+        handle.write("BAM\1");
     }
 
     takane::bam_file::strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };

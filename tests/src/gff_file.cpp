@@ -85,14 +85,14 @@ TEST_F(GffFileTest, Indexed) {
     expect_error("failed to open");
 
     {
-        std::ofstream ihandle(dir / "file.gff2.bgz.tbi");
-        ihandle << "";
+        byteme::GzipFileWriter ihandle(dir / "file.gff2.bgz.tbi");
+        ihandle.write("foobar");
     }
     expect_error("tabix file signature");
 
     {
-        std::ofstream ihandle(dir / "file.gff2.bgz.tbi");
-        ihandle << "TBI\1";
+        byteme::GzipFileWriter ihandle(dir / "file.gff2.bgz.tbi");
+        ihandle.write("TBI\1");
     }
     expect_error("missing BGZF index");
 

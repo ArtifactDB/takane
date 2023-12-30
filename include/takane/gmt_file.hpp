@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
-#include <array>
 
 namespace takane {
 
@@ -39,8 +38,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     auto fpath = path / "file.gmt.gz";
-    std::array<unsigned char, 2> gzmagic { 0x1f, 0x8b };
-    internal_files::check_signature(fpath, gzmagic.data(), gzmagic.size(), "GZIP");
+    internal_files::check_gzip_signature(fpath);
 
     if (strict_check) {
         strict_check(path, metadata, options);

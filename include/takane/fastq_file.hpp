@@ -77,6 +77,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         fpath += "gz";
     }
 
+    internal_files::check_gzip_signature(fpath);
     auto reader = internal_other::open_reader<byteme::GzipFileReader>(fpath, 10);
     byteme::PerByte<> pb(&reader);
     if (!pb.valid() || pb.get() != '@') {

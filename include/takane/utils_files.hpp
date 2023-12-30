@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <array>
 
 #include "utils_other.hpp"
 #include "utils_json.hpp"
@@ -13,8 +14,9 @@ namespace takane {
 
 namespace internal_files {
 
-inline void check_signature(const std::filesystem::path& path, const char* expected, size_t len, const char* msg) {
-    auto reader = internal_other::open_reader<byteme::RawFileReader>(path, /* buffer_size = */ len);
+template<class Reader_ = byteme::RawFileReader>
+void check_signature(const std::filesystem::path& path, const char* expected, size_t len, const char* msg) {
+    auto reader = internal_other::open_reader<Reader_>(path, /* buffer_size = */ len);
     byteme::PerByte<> pb(&reader);
     bool okay = pb.valid();
     for (size_t i = 0; i < len; ++i) {
@@ -28,8 +30,9 @@ inline void check_signature(const std::filesystem::path& path, const char* expec
     }
 }
 
-inline void check_signature(const std::filesystem::path& path, const unsigned char* expected, size_t len, const char* msg) {
-    auto reader = internal_other::open_reader<byteme::RawFileReader>(path, /* buffer_size = */ len);
+template<class Reader_ = byteme::RawFileReader>
+void check_signature(const std::filesystem::path& path, const unsigned char* expected, size_t len, const char* msg) {
+    auto reader = internal_other::open_reader<Reader_>(path, /* buffer_size = */ len);
     byteme::PerByte<unsigned char> pb(&reader);
     bool okay = pb.valid();
     for (size_t i = 0; i < len; ++i) {
@@ -41,6 +44,11 @@ inline void check_signature(const std::filesystem::path& path, const unsigned ch
         }
         okay = pb.advance();
     }
+}
+
+inline void check_gzip_signature(const std::filesystem::path& path) {
+    std::array<unsigned char, 2> gzmagic { 0x1f, 0x8b };
+    check_signature(path, gzmagic.data(), gzmagic.size(), "GZIP");
 }
 
 inline void extract_signature(const std::filesystem::path& path, unsigned char* store, size_t len) {

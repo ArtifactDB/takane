@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
-#include <array>
 
 namespace takane {
 
@@ -62,11 +61,9 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     // Check magic numbers.
-    if (fstring == "GFF2") {
-        std::array<unsigned char, 2> gzmagic { 0x1f, 0x8b };
-        internal_files::check_signature(fpath, gzmagic.data(), gzmagic.size(), "GZIP");
+    internal_files::check_gzip_signature(fpath);
 
-    } else if (fstring == "GFF3") {
+    if (fstring == "GFF3") {
         const std::string expected = "##gff-version 3";
         const size_t expected_len = expected.size();
 
@@ -88,7 +85,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     if (indexed) {
         auto ixpath = fpath;
         ixpath += ".tbi";
-        internal_files::check_signature(ixpath, "TBI\1", 4, "tabix");
+        internal_files::check_gzip_signature(ixpath);
+        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "TBI\1", 4, "tabix");
 
         ixpath = fpath;
         ixpath += ".gzi";

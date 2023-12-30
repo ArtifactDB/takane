@@ -60,14 +60,14 @@ TEST_F(BedFileTest, Indexed) {
     expect_error("failed to open");
 
     {
-        std::ofstream ihandle(dir / "file.bed.bgz.tbi");
-        ihandle << "";
+        byteme::GzipFileWriter ihandle(dir / "file.bed.bgz.tbi");
+        ihandle.write("YAY");
     }
     expect_error("tabix file signature");
 
     {
-        std::ofstream ihandle(dir / "file.bed.bgz.tbi");
-        ihandle << "TBI\1";
+        byteme::GzipFileWriter ihandle(dir / "file.bed.bgz.tbi");
+        ihandle.write("TBI\1");
     }
     expect_error("missing BGZF index");
 

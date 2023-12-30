@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
-#include <array>
 
 namespace takane {
 
@@ -50,13 +49,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         fpath += "gz";
     }
 
-    std::array<unsigned char, 2> gzmagic { 0x1f, 0x8b };
-    internal_files::check_signature(fpath, gzmagic.data(), gzmagic.size(), "GZIP");
+    internal_files::check_gzip_signature(fpath);
 
     if (indexed) {
         auto ixpath = fpath;
         ixpath += ".tbi";
-        internal_files::check_signature(ixpath, "TBI\1", 4, "tabix");
+        internal_files::check_gzip_signature(ixpath);
+        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "TBI\1", 4, "tabix");
 
         ixpath = fpath;
         ixpath += ".gzi";

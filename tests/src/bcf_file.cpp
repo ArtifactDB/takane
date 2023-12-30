@@ -39,35 +39,41 @@ TEST_F(BcfFileTest, Basic) {
         std::ofstream handle(dir / "file.bcf");
         handle << "foo\1";
     }
+    expect_error("incorrect GZIP file signature");
+
+    {
+        byteme::GzipFileWriter handle(dir / "file.bcf");
+        handle.write("foobar\2\1");
+    }
     expect_error("incorrect BCF file signature");
 
     {
-        std::ofstream handle(dir / "file.bcf");
-        handle << "BCF\2\1";
+        byteme::GzipFileWriter handle(dir / "file.bcf");
+        handle.write("BCF\2\1");
     }
     takane::validate(dir);
 
     {
-        std::ofstream handle(dir / "file.bcf.tbi");
-        handle << "foobar\1";
+        byteme::GzipFileWriter handle(dir / "file.bcf.tbi");
+        handle.write("foobar\1");
     }
-    expect_error("incorrect TBI index file signature");
+    expect_error("incorrect tabix file signature");
 
     {
-        std::ofstream handle(dir / "file.bcf.tbi");
-        handle << "TBI\1";
+        byteme::GzipFileWriter handle(dir / "file.bcf.tbi");
+        handle.write("TBI\1");
     }
     takane::validate(dir);
 
     {
-        std::ofstream handle(dir / "file.bcf.csi");
-        handle << "foobar\1";
+        byteme::GzipFileWriter handle(dir / "file.bcf.csi");
+        handle.write("foobar\1");
     }
     expect_error("incorrect CSI index file signature");
 
     {
-        std::ofstream handle(dir / "file.bcf.csi");
-        handle << "CSI\1";
+        byteme::GzipFileWriter handle(dir / "file.bcf.csi");
+        handle.write("CSI\1");
     }
     takane::validate(dir);
 }
@@ -76,8 +82,8 @@ TEST_F(BcfFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
 
     {
-        std::ofstream handle(dir / "file.bcf");
-        handle << "BCF\2\1";
+        byteme::GzipFileWriter handle(dir / "file.bcf");
+        handle.write("BCF\2\1");
     }
 
     takane::bcf_file::strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };

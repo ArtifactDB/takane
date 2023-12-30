@@ -39,20 +39,23 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     // Magic number taken from https://samtools.github.io/hts-specs/BCFv2_qref.pdf
     auto ipath = path / "file.bcf";
-    internal_files::check_signature(ipath, "BCF\2\1", 5, "BCF");
+    internal_files::check_gzip_signature(ipath);
+    internal_files::check_signature<byteme::GzipFileReader>(ipath, "BCF\2\1", 5, "BCF");
 
     // Magic number taken from https://samtools.github.io/hts-specs/tabix.pdf
     auto ixpath = ipath;
     ixpath += ".tbi";
     if (std::filesystem::exists(ixpath)) {
-        internal_files::check_signature(ixpath, "TBI\1", 4, "TBI index");
+        internal_files::check_gzip_signature(ixpath);
+        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "TBI\1", 4, "tabix");
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
     ixpath = ipath;
     ixpath += ".csi";
     if (std::filesystem::exists(ixpath)) {
-        internal_files::check_signature(ixpath, "CSI\1", 4, "CSI index");
+        internal_files::check_gzip_signature(ixpath);
+        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "CSI\1", 4, "CSI index");
     }
 
     if (strict_check) {
