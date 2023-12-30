@@ -40,6 +40,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
+    internal_files::check_sequence_type(famap, "fasta_file");
+
     // Check if it's indexed.
     bool indexed = internal_files::is_indexed(famap);
     auto fpath = path / "file.fasta.";

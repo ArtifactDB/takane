@@ -131,3 +131,38 @@ TEST(IsIndexed, Basic) {
     obj["indexed"] = std::shared_ptr<millijson::Base>(new millijson::Boolean(true));
     EXPECT_TRUE(takane::internal_files::is_indexed(obj));
 }
+
+TEST(CheckSequenceType, Basic) {
+    takane::internal_json::JsonObjectMap obj;
+    EXPECT_ANY_THROW({
+        try {
+            takane::internal_files::check_sequence_type(obj, "foobar");
+        } catch (std::exception& e) {
+            EXPECT_THAT(e.what(), ::testing::HasSubstr("expected a 'foobar.sequence_type' property"));
+            throw;
+        }
+    });
+
+    obj["sequence_type"] = std::shared_ptr<millijson::Base>(new millijson::Number(100));
+    EXPECT_ANY_THROW({
+        try {
+            takane::internal_files::check_sequence_type(obj, "foobar");
+        } catch (std::exception& e) {
+            EXPECT_THAT(e.what(), ::testing::HasSubstr("should be a JSON string"));
+            throw;
+        }
+    });
+
+    obj["sequence_type"] = std::shared_ptr<millijson::Base>(new millijson::String("whee"));
+    EXPECT_ANY_THROW({
+        try {
+            takane::internal_files::check_sequence_type(obj, "foobar");
+        } catch (std::exception& e) {
+            EXPECT_THAT(e.what(), ::testing::HasSubstr("unsupported value"));
+            throw;
+        }
+    });
+
+    obj["sequence_type"] = std::shared_ptr<millijson::Base>(new millijson::String("custom"));
+    takane::internal_files::check_sequence_type(obj, "foobar");
+}

@@ -34,8 +34,10 @@ TEST_F(FastqFileTest, Basic) {
     initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version");
 
-    initialize_directory_simple(dir, name, "1.0");
+    initialize_directory(dir);
     {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 33 } }";
         byteme::GzipFileWriter handle(dir / "file.fastq.gz");
         handle.write("asdasd\nACGT\n+\n!!!!\n");
     }
@@ -47,22 +49,59 @@ TEST_F(FastqFileTest, Basic) {
     }
     takane::validate(dir);
 
+    // Checking the metadata categories.
+    {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\" } }";
+    }
+    expect_error("sequence_type");
+
+    {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }";
+    }
+    expect_error("quality_type");
+
+    {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": true } }";
+    }
+    expect_error("JSON string");
+
+    {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"foo\" } }";
+    }
+    expect_error("unknown value 'foo'");
+
+    {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }";
+    }
+    takane::validate(dir);
+
     // Checking the quality offset.
     {
         std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"quality_offset\": false } }";
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\" } }";
+    }
+    expect_error("quality_offset");
+
+    {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": true } }";
     }
     expect_error("JSON number");
 
     {
         std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"quality_offset\": 20 } }";
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 20 } }";
     }
     expect_error("33 or 64");
 
     {
         std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"quality_offset\": 64 } }";
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }";
     }
     takane::validate(dir);
 }
@@ -72,7 +111,7 @@ TEST_F(FastqFileTest, Indexed) {
 
     {
         std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"indexed\": true } }";
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }";
         byteme::GzipFileWriter fhandle(dir / "file.fastq.bgz");
         fhandle.write("asdasd\nACGT\n+\n!!!!\n");
     }
@@ -98,9 +137,11 @@ TEST_F(FastqFileTest, Indexed) {
 }
 
 TEST_F(FastqFileTest, Strict) {
-    initialize_directory_simple(dir, name, "1.0");
+    initialize_directory(dir);
 
     {
+        std::ofstream ohandle(dir / "OBJECT");
+        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }";
         byteme::GzipFileWriter fhandle(dir / "file.fastq.gz");
         fhandle.write("@asdasd\nACGT\n+\n!!!!\n");
     }

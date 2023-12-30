@@ -40,17 +40,31 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    // Checking the quality offset.
-    auto oIt = fqmap.find("quality_offset");
-    if (oIt != fqmap.end()) {
-        const auto& val = oIt->second;
-        if (val->type() != millijson::NUMBER) {
-            throw std::runtime_error("'fastq_file.quality_offset' property should be a JSON number");
-        }
+    internal_files::check_sequence_type(fqmap, "fastq_file");
 
-        double offset = reinterpret_cast<const millijson::Number*>(val.get())->value;
-        if (offset != 33 && offset != 64) {
-            throw std::runtime_error("'fastq_file.quality_offset' property should be either 33 or 64");
+    // Checking the quality type and offset.
+    {
+        const std::string& qtype = internal_json::extract_string(fqmap, "quality_type", [&](std::exception& e) -> void {
+            throw std::runtime_error("failed to extract 'fastq_file.quality_type' from the object metadata; " + std::string(e.what())); 
+        });
+
+        if (qtype == "phred") {
+            auto oIt = fqmap.find("quality_offset");
+            if (oIt == fqmap.end()) {
+                throw std::runtime_error("expected a 'fastq_file.quality_offset' property");
+            }
+
+            const auto& val = oIt->second;
+            if (val->type() != millijson::NUMBER) {
+                throw std::runtime_error("'fastq_file.quality_offset' property should be a JSON number");
+            }
+
+            double offset = reinterpret_cast<const millijson::Number*>(val.get())->value;
+            if (offset != 33 && offset != 64) {
+                throw std::runtime_error("'fastq_file.quality_offset' property should be either 33 or 64");
+            }
+        } else if (qtype != "solexa") {
+            throw std::runtime_error("unknown value '" + qtype + "' for the 'fastq_file.quality_type' property");
         }
     }
 

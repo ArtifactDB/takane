@@ -70,6 +70,23 @@ inline bool is_indexed(const internal_json::JsonObjectMap& objmap) {
     return reinterpret_cast<const millijson::Boolean*>(val.get())->value;
 }
 
+inline void check_sequence_type(const internal_json::JsonObjectMap& objmap, const char* msg) {
+    auto sIt = objmap.find("sequence_type");
+    if (sIt == objmap.end()) {
+        throw std::runtime_error("expected a '" + std::string(msg) + ".sequence_type' property");
+    }
+
+    const auto& val = sIt->second;
+    if (val->type() != millijson::STRING) {
+        throw std::runtime_error("'" + std::string(msg) + ".sequence_type' property should be a JSON string");
+    }
+
+    const auto& stype = reinterpret_cast<const millijson::String*>(val.get())->value;
+    if (stype != "RNA" && stype != "DNA" && stype != "AA" && stype != "custom") {
+        throw std::runtime_error("unsupported value '" + stype + "' for the '" + std::string(msg) + ".sequence_type' property");
+    }
+}
+
 }
 
 }
