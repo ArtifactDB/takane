@@ -305,7 +305,7 @@ TEST_F(SpatialExperimentTest, ImageSignature) {
             std::ofstream ohandle(ipath);
             ohandle << "chino-chan";
         }
-        expect_error("incorrect file signature");
+        expect_error("incorrect PNG file signature");
     }
 
     spatial_experiment::mock(dir, options);
@@ -314,13 +314,13 @@ TEST_F(SpatialExperimentTest, ImageSignature) {
         {
             std::ofstream ohandle(ipath);
         }
-        expect_error("incomplete TIFF file signature");
+        expect_error("too small");
 
         {
             std::ofstream ohandle(ipath);
             ohandle << "chino-chan";
         }
-        expect_error("incorrect file signature");
+        expect_error("incorrect TIFF file signature");
     }
 
     // Replacing an image.
