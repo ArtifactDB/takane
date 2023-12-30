@@ -113,3 +113,21 @@ TEST_F(FileSignatureTest, Extraction) {
     EXPECT_EQ(cbuffer[2], 'O');
     EXPECT_EQ(cbuffer[3], 'b');
 }
+
+TEST(IsIndexed, Basic) {
+    takane::internal_json::JsonObjectMap obj;
+    EXPECT_FALSE(takane::internal_files::is_indexed(obj));
+
+    obj["indexed"] = std::shared_ptr<millijson::Base>(new millijson::Number(100));
+    EXPECT_ANY_THROW({
+        try {
+            takane::internal_files::is_indexed(obj);
+        } catch (std::exception& e) {
+            EXPECT_THAT(e.what(), ::testing::HasSubstr("JSON boolean"));
+            throw;
+        }
+    });
+
+    obj["indexed"] = std::shared_ptr<millijson::Base>(new millijson::Boolean(true));
+    EXPECT_TRUE(takane::internal_files::is_indexed(obj));
+}

@@ -42,6 +42,8 @@ add_executable(
     src/bcf_file.cpp
     src/bigwig_file.cpp
     src/bigbed_file.cpp
+    src/fasta_file.cpp
+    src/fastq_file.cpp
     src/utils_compressed_list.cpp
     src/utils_string.cpp
     src/utils_factor.cpp

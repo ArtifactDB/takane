@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "utils_other.hpp"
+#include "utils_json.hpp"
 #include "byteme/byteme.hpp"
 
 namespace takane {
@@ -53,6 +54,20 @@ inline void extract_signature(const std::filesystem::path& path, unsigned char* 
         store[i] = pb.get();
         okay = pb.advance();
     }
+}
+
+inline bool is_indexed(const internal_json::JsonObjectMap& objmap) {
+    auto iIt = objmap.find("indexed");
+    if (iIt == objmap.end()) {
+        return false;
+    }
+
+    const auto& val = iIt->second;
+    if (val->type() != millijson::BOOLEAN) {
+        throw std::runtime_error("property should be a JSON boolean");
+    }
+
+    return reinterpret_cast<const millijson::Boolean*>(val.get())->value;
 }
 
 }
