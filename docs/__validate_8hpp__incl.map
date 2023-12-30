@@ -1,52 +1,52 @@
 <map id="takane/_validate.hpp" name="takane/_validate.hpp">
-<area shape="rect" id="node1" title="Validation dispatch function." alt="" coords="3409,5,3550,31"/>
+<area shape="rect" id="node1" title="Validation dispatch function." alt="" coords="4442,5,4583,31"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,79,84,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="4011,592,4065,617"/>
-<area shape="rect" id="node4" title=" " alt="" coords="4828,592,4907,617"/>
-<area shape="rect" id="node5" title=" " alt="" coords="2489,592,2569,617"/>
-<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="3983,445,4093,471"/>
-<area shape="rect" id="node11" href="$atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="5802,299,5930,324"/>
-<area shape="rect" id="node18" href="$string__factor_8hpp.html" title="Validation for string factors." alt="" coords="6053,299,6172,324"/>
-<area shape="rect" id="node20" href="$simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="3425,299,3533,324"/>
-<area shape="rect" id="node23" href="$data__frame_8hpp.html" title="Validation for data frames." alt="" coords="4667,299,4777,324"/>
-<area shape="rect" id="node24" href="$data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="7053,299,7204,324"/>
-<area shape="rect" id="node25" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="5805,372,5978,397"/>
-<area shape="rect" id="node26" href="$genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="3149,299,3290,324"/>
-<area shape="rect" id="node30" href="$atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="1211,225,1363,251"/>
-<area shape="rect" id="node32" href="$data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="967,225,1101,251"/>
-<area shape="rect" id="node33" href="$genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="470,225,635,251"/>
-<area shape="rect" id="node34" href="$dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="4128,299,4244,324"/>
-<area shape="rect" id="node36" href="$compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="4885,299,5090,324"/>
-<area shape="rect" id="node38" href="$summarized__experiment_8hpp_source.html" title=" " alt="" coords="7741,299,7927,324"/>
-<area shape="rect" id="node40" href="$ranged__summarized__experiment_8hpp_source.html" title=" " alt="" coords="7867,225,8099,251"/>
-<area shape="rect" id="node41" href="$single__cell__experiment_8hpp_source.html" title=" " alt="" coords="7539,152,7716,177"/>
-<area shape="rect" id="node42" href="$spatial__experiment_8hpp_source.html" title=" " alt="" coords="6346,79,6501,104"/>
-<area shape="rect" id="node45" href="$multi__sample__dataset_8hpp_source.html" title=" " alt="" coords="2366,299,2539,324"/>
-<area shape="rect" id="node46" href="$sequence__string__set_8hpp.html" title="Validation for sequence string sets." alt="" coords="8053,299,8220,324"/>
-<area shape="rect" id="node47" href="$bam__file_8hpp_source.html" title=" " alt="" coords="2168,225,2263,251"/>
-<area shape="rect" id="node48" href="$bcf__file_8hpp_source.html" title=" " alt="" coords="660,225,747,251"/>
-<area shape="rect" id="node49" href="$bigwig__file_8hpp_source.html" title=" " alt="" coords="1643,225,1750,251"/>
-<area shape="rect" id="node50" href="$bigbed__file_8hpp_source.html" title=" " alt="" coords="221,225,327,251"/>
-<area shape="rect" id="node7" title=" " alt="" coords="1375,519,1447,544"/>
-<area shape="rect" id="node8" title=" " alt="" coords="7993,592,8137,617"/>
-<area shape="rect" id="node9" title=" " alt="" coords="7747,519,7881,544"/>
-<area shape="rect" id="node10" href="$utils__json_8hpp_source.html" title=" " alt="" coords="4861,519,4962,544"/>
-<area shape="rect" id="node12" title=" " alt="" coords="5627,445,5769,471"/>
-<area shape="rect" id="node13" href="$utils__string_8hpp_source.html" title=" " alt="" coords="5317,372,5426,397"/>
-<area shape="rect" id="node14" title=" " alt="" coords="6962,445,7066,471"/>
-<area shape="rect" id="node15" title=" " alt="" coords="4223,445,4285,471"/>
-<area shape="rect" id="node16" title=" " alt="" coords="4946,445,5005,471"/>
-<area shape="rect" id="node17" title=" " alt="" coords="4658,445,4786,471"/>
-<area shape="rect" id="node19" href="$utils__factor_8hpp_source.html" title=" " alt="" coords="6155,372,6265,397"/>
-<area shape="rect" id="node21" title=" " alt="" coords="3568,372,3692,397"/>
-<area shape="rect" id="node22" href="$utils__other_8hpp_source.html" title=" " alt="" coords="2541,372,2647,397"/>
-<area shape="rect" id="node27" title=" " alt="" coords="2880,372,3087,397"/>
-<area shape="rect" id="node28" title=" " alt="" coords="2773,372,2855,397"/>
-<area shape="rect" id="node29" title=" " alt="" coords="7293,372,7346,397"/>
-<area shape="rect" id="node31" href="$utils__compressed__list_8hpp_source.html" title=" " alt="" coords="1451,299,1623,324"/>
-<area shape="rect" id="node35" href="$utils__array_8hpp_source.html" title=" " alt="" coords="4477,372,4583,397"/>
-<area shape="rect" id="node37" title=" " alt="" coords="7421,372,7471,397"/>
-<area shape="rect" id="node39" href="$utils__summarized__experiment_8hpp_source.html" title=" " alt="" coords="6747,372,6964,397"/>
-<area shape="rect" id="node43" href="$utils__files_8hpp_source.html" title=" " alt="" coords="1647,299,1747,324"/>
-<area shape="rect" id="node44" title=" " alt="" coords="6461,152,6519,177"/>
+<area shape="rect" id="node3" title=" " alt="" coords="3681,592,3736,617"/>
+<area shape="rect" id="node4" title=" " alt="" coords="5109,592,5188,617"/>
+<area shape="rect" id="node5" title=" " alt="" coords="5733,592,5813,617"/>
+<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="3912,445,4023,471"/>
+<area shape="rect" id="node11" href="$atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="3625,299,3753,324"/>
+<area shape="rect" id="node18" href="$string__factor_8hpp.html" title="Validation for string factors." alt="" coords="2961,299,3080,324"/>
+<area shape="rect" id="node20" href="$simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="6551,299,6659,324"/>
+<area shape="rect" id="node23" href="$data__frame_8hpp.html" title="Validation for data frames." alt="" coords="1811,299,1921,324"/>
+<area shape="rect" id="node24" href="$data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="1319,299,1469,324"/>
+<area shape="rect" id="node25" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="5103,372,5277,397"/>
+<area shape="rect" id="node26" href="$genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="4385,299,4526,324"/>
+<area shape="rect" id="node30" href="$atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="4857,225,5009,251"/>
+<area shape="rect" id="node32" href="$data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="561,225,696,251"/>
+<area shape="rect" id="node33" href="$genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="1431,225,1597,251"/>
+<area shape="rect" id="node34" href="$dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="1179,299,1295,324"/>
+<area shape="rect" id="node36" href="$compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="3138,299,3343,324"/>
+<area shape="rect" id="node38" href="$summarized__experiment_8hpp_source.html" title=" " alt="" coords="7178,299,7365,324"/>
+<area shape="rect" id="node40" href="$ranged__summarized__experiment_8hpp_source.html" title=" " alt="" coords="7438,225,7670,251"/>
+<area shape="rect" id="node41" href="$single__cell__experiment_8hpp_source.html" title=" " alt="" coords="6356,152,6533,177"/>
+<area shape="rect" id="node42" href="$spatial__experiment_8hpp_source.html" title=" " alt="" coords="5083,79,5238,104"/>
+<area shape="rect" id="node43" href="$multi__sample__dataset_8hpp_source.html" title=" " alt="" coords="5887,299,6061,324"/>
+<area shape="rect" id="node44" href="$sequence__string__set_8hpp.html" title="Validation for sequence string sets." alt="" coords="7557,299,7724,324"/>
+<area shape="rect" id="node45" href="$bam__file_8hpp_source.html" title=" " alt="" coords="5725,519,5820,544"/>
+<area shape="rect" id="node46" href="$bcf__file_8hpp_source.html" title=" " alt="" coords="687,519,773,544"/>
+<area shape="rect" id="node47" href="$bigwig__file_8hpp_source.html" title=" " alt="" coords="3397,519,3503,544"/>
+<area shape="rect" id="node48" href="$bigbed__file_8hpp_source.html" title=" " alt="" coords="5095,519,5202,544"/>
+<area shape="rect" id="node49" href="$fasta__file_8hpp_source.html" title=" " alt="" coords="5429,519,5527,544"/>
+<area shape="rect" id="node50" href="$fastq__file_8hpp_source.html" title=" " alt="" coords="5551,519,5650,544"/>
+<area shape="rect" id="node7" title=" " alt="" coords="1302,519,1374,544"/>
+<area shape="rect" id="node8" title=" " alt="" coords="7310,592,7454,617"/>
+<area shape="rect" id="node9" title=" " alt="" coords="7468,519,7603,544"/>
+<area shape="rect" id="node10" href="$utils__json_8hpp_source.html" title=" " alt="" coords="3823,519,3925,544"/>
+<area shape="rect" id="node12" title=" " alt="" coords="2387,445,2529,471"/>
+<area shape="rect" id="node13" href="$utils__string_8hpp_source.html" title=" " alt="" coords="2453,372,2562,397"/>
+<area shape="rect" id="node14" title=" " alt="" coords="5834,445,5938,471"/>
+<area shape="rect" id="node15" title=" " alt="" coords="2301,445,2362,471"/>
+<area shape="rect" id="node16" title=" " alt="" coords="1578,445,1637,471"/>
+<area shape="rect" id="node17" title=" " alt="" coords="2098,445,2226,471"/>
+<area shape="rect" id="node19" href="$utils__factor_8hpp_source.html" title=" " alt="" coords="1811,372,1921,397"/>
+<area shape="rect" id="node21" title=" " alt="" coords="6597,372,6721,397"/>
+<area shape="rect" id="node22" href="$utils__other_8hpp_source.html" title=" " alt="" coords="5453,372,5559,397"/>
+<area shape="rect" id="node27" title=" " alt="" coords="4056,372,4263,397"/>
+<area shape="rect" id="node28" title=" " alt="" coords="4338,372,4421,397"/>
+<area shape="rect" id="node29" title=" " alt="" coords="6063,372,6117,397"/>
+<area shape="rect" id="node31" href="$utils__compressed__list_8hpp_source.html" title=" " alt="" coords="2376,299,2548,324"/>
+<area shape="rect" id="node35" href="$utils__array_8hpp_source.html" title=" " alt="" coords="1427,372,1532,397"/>
+<area shape="rect" id="node37" title=" " alt="" coords="5938,372,5989,397"/>
+<area shape="rect" id="node39" href="$utils__summarized__experiment_8hpp_source.html" title=" " alt="" coords="7000,372,7217,397"/>
 </map>
