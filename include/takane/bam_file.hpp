@@ -17,7 +17,7 @@ namespace bam_file {
 /**
  * Application-specific function to check the validity of a BAM file and its indices.
  *
- * This should accept a path to the directory containing the data frame, the object metadata, and additional reading options.
+ * This should accept a path to the directory containing the BAM file and indices, the object metadata, and additional reading options.
  * It should throw an error if the BAM file is not valid, e.g., corrupted file, mismatched indices.
  *
  * If provided, this enables stricter checking of the BAM file contents and indices.
@@ -37,6 +37,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
+    // Magic numbers taken from https://samtools.github.io/hts-specs/SAMv1.pdf
     auto ipath = path / "file.bam";
     internal_files::check_signature(ipath, "BAM\1", 4, "BAM");
 
@@ -46,6 +47,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         internal_files::check_signature(ixpath, "BAI\1", 4, "BAM index");
     }
 
+    // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
     ixpath = ipath;
     ixpath += ".csi";
     if (std::filesystem::exists(ixpath)) {

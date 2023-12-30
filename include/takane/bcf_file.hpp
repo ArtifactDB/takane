@@ -17,7 +17,7 @@ namespace bcf_file {
 /**
  * Application-specific function to check the validity of a BCF file and its indices.
  *
- * This should accept a path to the directory containing the data frame, the object metadata, and additional reading options.
+ * This should accept a path to the directory containing the BCF file and indices, the object metadata, and additional reading options.
  * It should throw an error if the BCF file is not valid, e.g., corrupted file, mismatched indices.
  *
  * If provided, this enables stricter checking of the BCF file contents and indices.
@@ -37,9 +37,11 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
+    // Magic number taken from https://samtools.github.io/hts-specs/BCFv2_qref.pdf
     auto ipath = path / "file.bcf";
-    internal_files::check_signature(ipath, "BCF\1", 4, "BCF");
+    internal_files::check_signature(ipath, "BCF\2\1", 5, "BCF");
 
+    // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
     auto ixpath = ipath;
     ixpath += ".csi";
     if (std::filesystem::exists(ixpath)) {

@@ -43,7 +43,7 @@ TEST_F(BcfFileTest, Basic) {
 
     {
         std::ofstream handle(dir / "file.bcf");
-        handle << "BCF\1";
+        handle << "BCF\2\1";
     }
     takane::validate(dir);
 
@@ -65,7 +65,7 @@ TEST_F(BcfFileTest, Strict) {
 
     {
         std::ofstream handle(dir / "file.bcf");
-        handle << "BCF\1";
+        handle << "BCF\2\1";
     }
 
     takane::bcf_file::strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };

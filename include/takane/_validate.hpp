@@ -27,6 +27,8 @@
 #include "sequence_string_set.hpp"
 #include "bam_file.hpp"
 #include "bcf_file.hpp"
+#include "bigwig_file.hpp"
+#include "bigbed_file.hpp"
 
 /**
  * @file _validate.hpp
@@ -67,6 +69,8 @@ inline ValidateRegistry default_registry() {
     registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { sequence_string_set::validate(p, m, o); };
     registry["bam_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bam_file::validate(p, m, o); };
     registry["bcf_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bcf_file::validate(p, m, o); };
+    registry["bigwig_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bigwig_file::validate(p, m, o); };
+    registry["bigbed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bigbed_file::validate(p, m, o); };
     return registry;
 } 
 
