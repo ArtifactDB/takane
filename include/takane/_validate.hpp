@@ -25,6 +25,7 @@
 #include "spatial_experiment.hpp"
 #include "multi_sample_dataset.hpp"
 #include "sequence_string_set.hpp"
+#include "bam_file.hpp"
 
 /**
  * @file _validate.hpp
@@ -63,6 +64,7 @@ inline ValidateRegistry default_registry() {
     registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { spatial_experiment::validate(p, m, o); };
     registry["multi_sample_dataset"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { multi_sample_dataset::validate(p, m, o); };
     registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { sequence_string_set::validate(p, m, o); };
+    registry["bam_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bam_file::validate(p, m, o); };
     return registry;
 } 
 
