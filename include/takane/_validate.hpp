@@ -31,6 +31,9 @@
 #include "bigbed_file.hpp"
 #include "fasta_file.hpp"
 #include "fastq_file.hpp"
+#include "bed_file.hpp"
+#include "gmt_file.hpp"
+#include "gff_file.hpp"
 
 /**
  * @file _validate.hpp
@@ -75,6 +78,9 @@ inline ValidateRegistry default_registry() {
     registry["bigbed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bigbed_file::validate(p, m, o); };
     registry["fasta_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { fasta_file::validate(p, m, o); };
     registry["fastq_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { fastq_file::validate(p, m, o); };
+    registry["bed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bed_file::validate(p, m, o); };
+    registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { gmt_file::validate(p, m, o); };
+    registry["gff_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { gff_file::validate(p, m, o); };
     return registry;
 } 
 

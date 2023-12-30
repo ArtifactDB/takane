@@ -44,6 +44,9 @@ add_executable(
     src/bigbed_file.cpp
     src/fasta_file.cpp
     src/fastq_file.cpp
+    src/bed_file.cpp
+    src/gmt_file.cpp
+    src/gff_file.cpp
     src/utils_compressed_list.cpp
     src/utils_string.cpp
     src/utils_factor.cpp
