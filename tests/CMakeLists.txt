@@ -38,6 +38,10 @@ add_executable(
     src/spatial_experiment.cpp
     src/multi_sample_dataset.cpp
     src/sequence_string_set.cpp
+    src/bam_file.cpp
+    src/bcf_file.cpp
+    src/bigwig_file.cpp
+    src/bigbed_file.cpp
     src/utils_compressed_list.cpp
     src/utils_string.cpp
     src/utils_factor.cpp

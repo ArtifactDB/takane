@@ -48,6 +48,18 @@ TEST_F(BcfFileTest, Basic) {
     takane::validate(dir);
 
     {
+        std::ofstream handle(dir / "file.bcf.tbi");
+        handle << "foobar\1";
+    }
+    expect_error("incorrect TBI index file signature");
+
+    {
+        std::ofstream handle(dir / "file.bcf.tbi");
+        handle << "TBI\1";
+    }
+    takane::validate(dir);
+
+    {
         std::ofstream handle(dir / "file.bcf.csi");
         handle << "foobar\1";
     }

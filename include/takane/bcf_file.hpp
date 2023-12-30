@@ -41,8 +41,15 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     auto ipath = path / "file.bcf";
     internal_files::check_signature(ipath, "BCF\2\1", 5, "BCF");
 
-    // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
+    // Magic number taken from https://samtools.github.io/hts-specs/tabix.pdf
     auto ixpath = ipath;
+    ixpath += ".tbi";
+    if (std::filesystem::exists(ixpath)) {
+        internal_files::check_signature(ixpath, "TBI\1", 4, "TBI index");
+    }
+
+    // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
+    ixpath = ipath;
     ixpath += ".csi";
     if (std::filesystem::exists(ixpath)) {
         internal_files::check_signature(ixpath, "CSI\1", 4, "CSI index");
