@@ -38,9 +38,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/BCFv2_qref.pdf
+    // We relax it a little to support both BCF1 and BCF2+ formats.
     auto ipath = path / "file.bcf";
     internal_files::check_gzip_signature(ipath);
-    internal_files::check_signature<byteme::GzipFileReader>(ipath, "BCF\2\1", 5, "BCF");
+    internal_files::check_signature<byteme::GzipFileReader>(ipath, "BCF", 3, "BCF");
 
     // Magic number taken from https://samtools.github.io/hts-specs/tabix.pdf
     auto ixpath = ipath;

@@ -59,13 +59,12 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     if (indexed) {
-        auto ixpath = fpath;
-        ixpath += ".fai";
-        if (!std::filesystem::exists(ixpath)) {
+        auto fixpath = path / "file.fasta.fai";
+        if (!std::filesystem::exists(fixpath)) {
             throw std::runtime_error("missing FASTA index file");
         }
 
-        ixpath = fpath;
+        auto ixpath = fpath;
         ixpath += ".gzi";
         if (!std::filesystem::exists(ixpath)) {
             throw std::runtime_error("missing BGZF index file");

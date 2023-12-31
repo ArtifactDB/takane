@@ -94,12 +94,6 @@ TEST_F(GffFileTest, Indexed) {
         byteme::GzipFileWriter ihandle(dir / "file.gff2.bgz.tbi");
         ihandle.write("TBI\1");
     }
-    expect_error("missing BGZF index");
-
-    {
-        std::ofstream ihandle(dir / "file.gff2.bgz.gzi");
-        ihandle << "";
-    }
     takane::validate(dir);
 }
 

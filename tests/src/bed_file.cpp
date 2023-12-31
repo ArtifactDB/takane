@@ -69,12 +69,6 @@ TEST_F(BedFileTest, Indexed) {
         byteme::GzipFileWriter ihandle(dir / "file.bed.bgz.tbi");
         ihandle.write("TBI\1");
     }
-    expect_error("missing BGZF index");
-
-    {
-        std::ofstream ihandle(dir / "file.bed.bgz.gzi");
-        ihandle << "";
-    }
     takane::validate(dir);
 }
 

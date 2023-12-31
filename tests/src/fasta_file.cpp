@@ -93,7 +93,7 @@ TEST_F(FastaFileTest, Indexed) {
     expect_error("missing FASTA index file");
 
     {
-        std::ofstream ihandle(dir / "file.fasta.bgz.fai");
+        std::ofstream ihandle(dir / "file.fasta.fai");
         ihandle << "";
     }
     expect_error("missing BGZF index file");

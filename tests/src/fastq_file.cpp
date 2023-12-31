@@ -124,7 +124,7 @@ TEST_F(FastqFileTest, Indexed) {
     expect_error("missing FASTQ index file");
 
     {
-        std::ofstream ihandle(dir / "file.fastq.bgz.fai");
+        std::ofstream ihandle(dir / "file.fastq.fai");
         ihandle << "";
     }
     expect_error("missing BGZF index file");

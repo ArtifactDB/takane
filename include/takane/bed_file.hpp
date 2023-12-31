@@ -56,12 +56,6 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         ixpath += ".tbi";
         internal_files::check_gzip_signature(ixpath);
         internal_files::check_signature<byteme::GzipFileReader>(ixpath, "TBI\1", 4, "tabix");
-
-        ixpath = fpath;
-        ixpath += ".gzi";
-        if (!std::filesystem::exists(ixpath)) {
-            throw std::runtime_error("missing BGZF index file");
-        }
     }
 
     if (strict_check) {
