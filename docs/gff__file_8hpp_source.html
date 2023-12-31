@@ -148,24 +148,18 @@ $(function() {
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        internal_files::check_gzip_signature(ixpath);</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        ixpath = fpath;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        ixpath += <span class="stringliteral">&quot;.gzi&quot;</span>;</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        <span class="keywordflow">if</span> (!std::filesystem::exists(ixpath)) {</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;missing BGZF index file&quot;</span>);</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        }</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    }</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">strict_check</a>) {</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        <a class="code hl_variable" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">strict_check</a>(path, metadata, options, indexed);</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    }</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>}</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>}</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    }</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">strict_check</a>) {</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        <a class="code hl_variable" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">strict_check</a>(path, metadata, options, indexed);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    }</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>}</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>}</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>}</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_1_1gff__file_html_a7e42b4ac23a4f67d0f6f1983bf301d38"><div class="ttname"><a href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">takane::gff_file::strict_check</a></div><div class="ttdeci">std::function&lt; void(const std::filesystem::path &amp;, const ObjectMetadata &amp;, const Options &amp;, bool)&gt; strict_check</div><div class="ttdef"><b>Definition:</b> gff_file.hpp:27</div></div>
 <div class="ttc" id="anamespacetakane_1_1gff__file_html_acce29766a324f449859b28b0a1fc04ba"><div class="ttname"><a href="namespacetakane_1_1gff__file.html#acce29766a324f449859b28b0a1fc04ba">takane::gff_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> gff_file.hpp:34</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:19</div></div>

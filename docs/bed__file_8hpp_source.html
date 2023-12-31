@@ -117,24 +117,18 @@ $(function() {
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        internal_files::check_gzip_signature(ixpath);</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        ixpath = fpath;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        ixpath += <span class="stringliteral">&quot;.gzi&quot;</span>;</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keywordflow">if</span> (!std::filesystem::exists(ixpath)) {</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;missing BGZF index file&quot;</span>);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        }</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    }</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="namespacetakane_1_1bed__file.html#a31d8bbbcb11362dc33f5a353401fdbd0">strict_check</a>) {</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <a class="code hl_variable" href="namespacetakane_1_1bed__file.html#a31d8bbbcb11362dc33f5a353401fdbd0">strict_check</a>(path, metadata, options, indexed);</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    }</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>}</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>}</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>}</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    }</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="namespacetakane_1_1bed__file.html#a31d8bbbcb11362dc33f5a353401fdbd0">strict_check</a>) {</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <a class="code hl_variable" href="namespacetakane_1_1bed__file.html#a31d8bbbcb11362dc33f5a353401fdbd0">strict_check</a>(path, metadata, options, indexed);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    }</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>}</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>}</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_1_1bed__file_html_a31d8bbbcb11362dc33f5a353401fdbd0"><div class="ttname"><a href="namespacetakane_1_1bed__file.html#a31d8bbbcb11362dc33f5a353401fdbd0">takane::bed_file::strict_check</a></div><div class="ttdeci">std::function&lt; void(const std::filesystem::path &amp;, const ObjectMetadata &amp;, const Options &amp;, bool)&gt; strict_check</div><div class="ttdef"><b>Definition:</b> bed_file.hpp:27</div></div>
 <div class="ttc" id="anamespacetakane_1_1bed__file_html_afd46b9e56e3f17cff7293f1ec576244a"><div class="ttname"><a href="namespacetakane_1_1bed__file.html#afd46b9e56e3f17cff7293f1ec576244a">takane::bed_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> bed_file.hpp:34</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:19</div></div>
