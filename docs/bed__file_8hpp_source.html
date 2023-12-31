@@ -111,13 +111,13 @@ $(function() {
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        fpath += <span class="stringliteral">&quot;gz&quot;</span>;</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    }</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    std::array&lt;unsigned char, 2&gt; gzmagic { 0x1f, 0x8b };</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    internal_files::check_signature(fpath, gzmagic.data(), gzmagic.size(), <span class="stringliteral">&quot;GZIP&quot;</span>);</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">if</span> (indexed) {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keyword">auto</span> ixpath = fpath;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        internal_files::check_signature(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    internal_files::check_gzip_signature(fpath);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">if</span> (indexed) {</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keyword">auto</span> ixpath = fpath;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        internal_files::check_gzip_signature(ixpath);</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        ixpath = fpath;</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        ixpath += <span class="stringliteral">&quot;.gzi&quot;</span>;</div>
