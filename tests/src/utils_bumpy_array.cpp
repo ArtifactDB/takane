@@ -320,28 +320,3 @@ TEST_F(BumpyArrayUtilsTest, Names) {
     }
     expect_error("same length");
 }
-
-TEST_F(BumpyArrayUtilsTest, Metadata) {
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "dimensions", H5::PredType::NATIVE_UINT8, { 2, 2 });
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::BOOLEAN);
-    }
-
-    auto cdir = dir / "element_annotations";
-    auto odir = dir / "other_annotations";
-
-    initialize_directory_simple(cdir, "simple_list", "1.0");
-    expect_error("'DATA_FRAME'"); 
-
-    data_frame::mock(cdir, 4, {});
-    initialize_directory_simple(odir, "data_frame", "1.0");
-    expect_error("'SIMPLE_LIST'");
-
-    simple_list::mock(odir);
-
-    auto meta = takane::read_object_metadata(dir);
-    takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
-}

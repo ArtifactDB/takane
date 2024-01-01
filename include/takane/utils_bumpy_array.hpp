@@ -175,9 +175,6 @@ void validate_directory(const std::filesystem::path& path, const std::string& ob
         internal_array::check_dimnames(ghandle, "names", dims, options);
     }
 
-    internal_other::validate_mcols(path, "element_annotations", len, options);
-    internal_other::validate_metadata(path, "other_annotations", options);
-
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate a '" + object_type + "' object at '" + path.string() + "'; " + std::string(e.what()));
 }
