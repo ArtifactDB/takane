@@ -48,6 +48,7 @@ add_executable(
     src/gmt_file.cpp
     src/gff_file.cpp
     src/utils_compressed_list.cpp
+    src/utils_bumpy_array.cpp
     src/utils_string.cpp
     src/utils_factor.cpp
     src/utils_other.cpp
