@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['compressed_5fsparse_5fmatrix_2ehpp_0',['compressed_sparse_matrix.hpp',['../compressed__sparse__matrix_8hpp.html',1,'']]],
-  ['csv_5fdata_5fframe_2ehpp_1',['csv_data_frame.hpp',['../csv__data__frame_8hpp.html',1,'']]]
+  ['bumpy_5fatomic_5farray_2ehpp_0',['bumpy_atomic_array.hpp',['../bumpy__atomic__array_8hpp.html',1,'']]],
+  ['bumpy_5fdata_5fframe_5farray_2ehpp_1',['bumpy_data_frame_array.hpp',['../bumpy__data__frame__array_8hpp.html',1,'']]]
 ];
