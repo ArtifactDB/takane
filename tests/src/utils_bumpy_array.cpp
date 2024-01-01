@@ -60,9 +60,21 @@ TEST_F(BumpyArrayUtilsTest, Basic) {
     initialize_directory_simple(dir / "concatenated", "atomic_vector", "1.0");
     expect_error("failed to validate the 'concatenated'");
 
-    // Success at last!
     {
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("dimensions");
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "dimensions", H5::PredType::NATIVE_INT8, { 2, 2 });
+    }
+    expect_error("64-bit unsigned integer");
+
+    // Success at last!
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.unlink("dimensions");
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "dimensions", H5::PredType::NATIVE_UINT8, { 2, 2 });
     }
     auto meta = takane::read_object_metadata(dir);
     takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());

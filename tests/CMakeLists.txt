@@ -47,6 +47,8 @@ add_executable(
     src/bed_file.cpp
     src/gmt_file.cpp
     src/gff_file.cpp
+    src/bumpy_atomic_array.cpp
+    src/bumpy_data_frame_array.cpp
     src/utils_compressed_list.cpp
     src/utils_bumpy_array.cpp
     src/utils_string.cpp
