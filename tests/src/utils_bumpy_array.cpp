@@ -102,6 +102,48 @@ TEST_F(BumpyArrayUtilsTest, Dense) {
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
     }
     expect_error("length of 'lengths' should equal the product of 'dimensions'");
+
+    // Empty case.
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT8, {});
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "dimensions", H5::PredType::NATIVE_UINT8, { 0, 2 });
+        atomic_vector::mock(dir / "concatenated", 0, atomic_vector::Type::INTEGER);
+    }
+    {
+        auto meta = takane::read_object_metadata(dir);
+        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 0);
+    }
+
+    // Higher-dimensional arrays.
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+
+        std::vector<int> dims{ 13, 9, 11 };
+        size_t prod = 1;
+        for (auto d : dims) {
+            prod *= d; 
+        }
+
+        std::vector<int> lengths;
+        size_t concat_length = 0;
+        for (size_t i = 0; i < prod; ++i) {
+            lengths.push_back(i % 4 + 1);
+            concat_length += lengths.back();
+        }
+
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT8, lengths);
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "dimensions", H5::PredType::NATIVE_UINT8, dims);
+        atomic_vector::mock(dir / "concatenated", concat_length, atomic_vector::Type::INTEGER);
+    }
+    {
+        auto meta = takane::read_object_metadata(dir);
+        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 13);
+    }
 }
 
 TEST_F(BumpyArrayUtilsTest, Sparse) {
@@ -199,6 +241,46 @@ TEST_F(BumpyArrayUtilsTest, Sparse) {
     {
         auto meta = takane::read_object_metadata(dir);
         takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 4);
+    }
+
+    // Get some coverage for higher-dimensional arrays.
+    {
+        auto handle = initialize();
+        auto ghandle = handle.createGroup(name);
+
+        std::vector<int> lengths;
+        std::vector<int> I, J, K;
+        std::vector<int> dims { 11, 9, 13 };
+        size_t concat_length = 0, counter = 0;
+        for (int k = 0; k < dims[2]; ++k) {
+            for (int j = 0; j < dims[1]; ++j) {
+                for (int i = 0; i < dims[0]; ++i, ++counter) {
+                    if (counter % 7 == 0) { // only keep points at a particular interval to keep things exciting.
+                        I.push_back(i);
+                        J.push_back(j);
+                        K.push_back(k);
+                        lengths.push_back(counter % 4 + 1);
+                        concat_length += lengths.back();
+                    }
+                }
+            }
+        }
+
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT8, lengths);
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "dimensions", H5::PredType::NATIVE_UINT8, dims);
+
+        auto ihandle = ghandle.createGroup("indices");
+        hdf5_utils::spawn_numeric_data<int>(ihandle, "0", H5::PredType::NATIVE_UINT8, I);
+        hdf5_utils::spawn_numeric_data<int>(ihandle, "1", H5::PredType::NATIVE_UINT8, J);
+        hdf5_utils::spawn_numeric_data<int>(ihandle, "2", H5::PredType::NATIVE_UINT8, K);
+
+        atomic_vector::mock(dir / "concatenated", concat_length, atomic_vector::Type::INTEGER);
+    }
+    {
+        auto meta = takane::read_object_metadata(dir);
+        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 11);
     }
 }
 

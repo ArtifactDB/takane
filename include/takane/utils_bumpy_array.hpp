@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <array>
 #include <filesystem>
 
 #include "utils_public.hpp"
@@ -161,7 +162,7 @@ void validate_directory(const std::filesystem::path& path, const std::string& ob
         auto ihandle = ritsuko::hdf5::open_group(ghandle, "indices");
         validate_sparse_indices(ihandle, dims, len, options.hdf5_buffer_size);
     } else {
-        size_t prod = 1;
+        size_t prod = !dims.empty(); // prod = 0 if dims is empty, otherwise it starts at 1.
         for (auto d : dims) {
             prod *= d;
         }
