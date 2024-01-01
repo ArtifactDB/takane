@@ -255,36 +255,33 @@ $(function() {
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        internal_array::check_dimnames(ghandle, <span class="stringliteral">&quot;names&quot;</span>, dims, options);</div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    }</div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    internal_other::validate_mcols(path, <span class="stringliteral">&quot;element_annotations&quot;</span>, len, options);</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    internal_other::validate_metadata(path, <span class="stringliteral">&quot;other_annotations&quot;</span>, options);</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>} <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate a &#39;&quot;</span> + object_type + <span class="stringliteral">&quot;&#39; object at &#39;&quot;</span> + path.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>}</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> std::string&amp; name, [[maybe_unused]] <span class="keyword">const</span> ObjectMetadata&amp; metadata, [[maybe_unused]] <span class="keyword">const</span> Options&amp; options) {</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;partitions.h5&quot;</span>);</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(name);</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;dimensions&quot;</span>);</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    std::array&lt;hsize_t, 2&gt; dims;</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    dhandle.read(dims.data(), H5::PredType::NATIVE_HSIZE);</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordflow">return</span> dims[0];</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>}</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="keyword">inline</span> std::vector&lt;size_t&gt; <a class="code hl_function" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">dimensions</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> std::string&amp; name, [[maybe_unused]] <span class="keyword">const</span> ObjectMetadata&amp; metadata, [[maybe_unused]] <span class="keyword">const</span> Options&amp; options) {</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;partitions.h5&quot;</span>);</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(name);</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;dimensions&quot;</span>);</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    std::vector&lt;hsize_t&gt; dims(2);</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    dhandle.read(dims.data(), H5::PredType::NATIVE_HSIZE);</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordflow">return</span> std::vector&lt;size_t&gt;(dims.begin(), dims.end());</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>}</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>}</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>}</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>} <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate a &#39;&quot;</span> + object_type + <span class="stringliteral">&quot;&#39; object at &#39;&quot;</span> + path.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>}</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> std::string&amp; name, [[maybe_unused]] <span class="keyword">const</span> ObjectMetadata&amp; metadata, [[maybe_unused]] <span class="keyword">const</span> Options&amp; options) {</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;partitions.h5&quot;</span>);</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(name);</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;dimensions&quot;</span>);</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    std::array&lt;hsize_t, 2&gt; dims;</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    dhandle.read(dims.data(), H5::PredType::NATIVE_HSIZE);</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keywordflow">return</span> dims[0];</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>}</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="keyword">inline</span> std::vector&lt;size_t&gt; <a class="code hl_function" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">dimensions</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> std::string&amp; name, [[maybe_unused]] <span class="keyword">const</span> ObjectMetadata&amp; metadata, [[maybe_unused]] <span class="keyword">const</span> Options&amp; options) {</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;partitions.h5&quot;</span>);</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keyword">auto</span> ghandle = handle.openGroup(name);</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keyword">auto</span> dhandle = ghandle.openDataSet(<span class="stringliteral">&quot;dimensions&quot;</span>);</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    std::vector&lt;hsize_t&gt; dims(2);</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    dhandle.read(dims.data(), H5::PredType::NATIVE_HSIZE);</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordflow">return</span> std::vector&lt;size_t&gt;(dims.begin(), dims.end());</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>}</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>}</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>}</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:21</div></div>
 <div class="ttc" id="anamespacetakane_html_a18f9f859762cef04c0850388c1208b46"><div class="ttname"><a href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">takane::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _height.hpp:95</div></div>
 <div class="ttc" id="anamespacetakane_html_a2a4317954961c6b43b899f1c7d053704"><div class="ttname"><a href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">takane::dimensions</a></div><div class="ttdeci">std::vector&lt; size_t &gt; dimensions(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:73</div></div>
