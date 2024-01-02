@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
 #include "compressed_sparse_matrix.h"
 #include "utils.h"
 
@@ -27,7 +26,7 @@ public:
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(path);
+                test_validate(path);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -42,15 +41,15 @@ TEST_F(SparseMatrixTest, Basic) {
 
     // Success with lots of zero-length columns.
     compressed_sparse_matrix::mock(path, 20, 30, 0.02);
-    takane::validate(path);
-    EXPECT_EQ(takane::height(path), 20);
+    test_validate(path);
+    EXPECT_EQ(test_height(path), 20);
 
     std::vector<size_t> expected_dims { 20, 30 };
-    EXPECT_EQ(takane::dimensions(path), expected_dims);
+    EXPECT_EQ(test_dimensions(path), expected_dims);
 
     // Success with no zero-length columns.
     compressed_sparse_matrix::mock(path, 20, 30, 0.5);
-    takane::validate(path);
+    test_validate(path);
 }
 
 TEST_F(SparseMatrixTest, Layout) {
@@ -58,8 +57,8 @@ TEST_F(SparseMatrixTest, Layout) {
     compressed_sparse_matrix::Config config;
     config.csc = false;
     compressed_sparse_matrix::mock(path, 40, 50, 0.2, config);
-    takane::validate(path);
-    EXPECT_EQ(takane::height(path), 40);
+    test_validate(path);
+    EXPECT_EQ(test_height(path), 40);
 
     // Fails with unknown layout: 
     {
@@ -98,7 +97,7 @@ TEST_F(SparseMatrixTest, Data) {
         config.as_integer = true;
         compressed_sparse_matrix::mock(path, 20, 30, 0.2, config);
     }
-    takane::validate(path);
+    test_validate(path);
 
     // Still good for booleans.
     {
@@ -107,7 +106,7 @@ TEST_F(SparseMatrixTest, Data) {
         ghandle.removeAttr("type");
         hdf5_utils::attach_attribute(ghandle, "type", "boolean");
     }
-    takane::validate(path);
+    test_validate(path);
 
     // Now checking the various failures.
     {
@@ -167,7 +166,7 @@ TEST_F(SparseMatrixTest, MissingPlaceholder) {
         dhandle.removeAttr("missing-value-placeholder"); 
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
-    takane::validate(path);
+    test_validate(path);
 }
 
 TEST_F(SparseMatrixTest, IndptrFails) {
@@ -292,5 +291,5 @@ TEST_F(SparseMatrixTest, Names) {
         nhandle.unlink("0");
         hdf5_utils::spawn_data(nhandle, "1", 33, H5::StrType(0, 5));
     }
-    takane::validate(path);
+    test_validate(path);
 }

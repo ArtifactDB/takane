@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
-
 #include "multi_sample_dataset.h"
 #include "summarized_experiment.h"
 #include "utils.h"
@@ -24,7 +22,7 @@ struct MultiSampleDatasetTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -51,17 +49,17 @@ TEST_F(MultiSampleDatasetTest, Basic) {
     // No experiments.
     multi_sample_dataset::Options opt(3);
     multi_sample_dataset::mock(dir, opt);
-    takane::validate(dir); // success!
+    test_validate(dir); // success!
 
     // One experiment.
     opt.experiments.emplace_back(18, 7);
     multi_sample_dataset::mock(dir, opt);
-    takane::validate(dir); // success!
+    test_validate(dir); // success!
 
     // Two experiments.
     opt.experiments.emplace_back(21, 11);
     multi_sample_dataset::mock(dir, opt);
-    takane::validate(dir); // success!
+    test_validate(dir); // success!
 }
 
 TEST_F(MultiSampleDatasetTest, SampleMap) {
@@ -155,5 +153,5 @@ TEST_F(MultiSampleDatasetTest, OtherData) {
     expect_error("'SIMPLE_LIST' interface");
 
     simple_list::mock(dir / "other_data");
-    takane::validate(dir);
+    test_validate(dir);
 }

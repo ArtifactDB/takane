@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/utils_summarized_experiment.hpp"
 
 #include "summarized_experiment.h"
 #include "dense_array.h"

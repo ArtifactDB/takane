@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/bcf_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct BcfFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -51,7 +51,7 @@ TEST_F(BcfFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.bcf");
         handle.write("BCF\2\1");
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         byteme::GzipFileWriter handle(dir / "file.bcf.tbi");
@@ -63,7 +63,7 @@ TEST_F(BcfFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.bcf.tbi");
         handle.write("TBI\1");
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         byteme::GzipFileWriter handle(dir / "file.bcf.csi");
@@ -75,7 +75,7 @@ TEST_F(BcfFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.bcf.csi");
         handle.write("CSI\1");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(BcfFileTest, Strict) {

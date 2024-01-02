@@ -2,6 +2,7 @@
 #define TAKANE_UTILS_SUMMARIZED_EXPERIMENT_HPP
 
 #include "millijson/millijson.hpp"
+#include "utils_json.hpp"
 
 #include <unordered_set>
 #include <string>

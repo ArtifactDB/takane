@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
 #include "utils.h"
 #include "genomic_ranges.h"
 #include "data_frame.h"
@@ -32,7 +31,7 @@ struct GenomicRangesListTest : public::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -66,6 +65,6 @@ TEST_F(GenomicRangesListTest, Basic) {
     {
         genomic_ranges::mock(dir / "concatenated", 7, 3);
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 4);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 4);
 }

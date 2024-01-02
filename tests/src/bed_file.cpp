@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/bed_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct BedFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -45,7 +45,7 @@ TEST_F(BedFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.bed.gz");
         handle.write("chr1\t1\t2\n");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(BedFileTest, Indexed) {
@@ -69,7 +69,7 @@ TEST_F(BedFileTest, Indexed) {
         byteme::GzipFileWriter ihandle(dir / "file.bed.bgz.tbi");
         ihandle.write("TBI\1");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(BedFileTest, Strict) {

@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
-
 #include "ranged_summarized_experiment.h"
 #include "utils.h"
 
@@ -23,7 +21,7 @@ struct RangedSummarizedExperimentTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -52,19 +50,19 @@ TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
         ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "1.0");
         json_utils::dump(parsed.get(), opath);
     }
-    takane::validate(dir); 
-    EXPECT_EQ(takane::height(dir), 99);
+    test_validate(dir); 
+    EXPECT_EQ(test_height(dir), 99);
 
     // With a GRL:
     ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(20, 15, true));
-    takane::validate(dir); 
-    EXPECT_EQ(takane::height(dir), 20);
+    test_validate(dir); 
+    EXPECT_EQ(test_height(dir), 20);
 
     // With a GRanges:
     ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(30, 9, false));
-    takane::validate(dir); 
+    test_validate(dir); 
     std::vector<size_t> expected_dim{ 30, 9 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), expected_dim);
 }
 
 TEST_F(RangedSummarizedExperimentTest, RowRanges) {
@@ -85,5 +83,5 @@ TEST_F(RangedSummarizedExperimentTest, RowRanges) {
     {
         std::filesystem::remove_all(dir / "row_ranges");
     }
-    takane::validate(dir); 
+    test_validate(dir); 
 }

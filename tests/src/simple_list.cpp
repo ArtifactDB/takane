@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
 #include "utils.h"
 #include "atomic_vector.h"
 #include "simple_list.h"
@@ -27,7 +26,7 @@ struct SimpleListTest : public::testing::Test {
     void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir, std::forward<Args_>(args)...);
+                test_validate(dir, std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -58,8 +57,8 @@ TEST_F(SimpleListTest, Json) {
     {
         dump_json("{ \"type\": \"list\", \"values\": [] }");
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 0);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
 
     // Throwing in some externals.
     auto odir = dir / "other_contents";
@@ -89,8 +88,8 @@ TEST_F(SimpleListTest, Json) {
     {
         dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"external\", \"index\": 0 } ] }");
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 1);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 1);
 }
 
 TEST_F(SimpleListTest, Hdf5) {
@@ -104,13 +103,13 @@ TEST_F(SimpleListTest, Hdf5) {
         ahandle.write(stype, std::string("list"));
         ghandle.createGroup("data");
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 0);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
 
     // Still works with an implicit default format of HDF5.
     dump_object_metadata_simple(dir, "simple_list", "1.0");
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 0);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
 
     // Throwing in some externals.
     auto odir = dir / "other_contents";
@@ -139,6 +138,6 @@ TEST_F(SimpleListTest, Hdf5) {
         int val = 0;
         xhandle.write(&val, H5::PredType::NATIVE_INT);
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 1);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 1);
 }

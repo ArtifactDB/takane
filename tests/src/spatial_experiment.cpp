@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
-
 #include "spatial_experiment.h"
 #include "utils.h"
 
@@ -23,7 +21,7 @@ struct SpatialExperimentTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -64,16 +62,16 @@ TEST_F(SpatialExperimentTest, Basic) {
     // Success!
     spatial_experiment::Options options(20, 15);
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
-    EXPECT_EQ(takane::height(dir), 20);
+    test_validate(dir); 
+    EXPECT_EQ(test_height(dir), 20);
     std::vector<size_t> expected_dim{ 20, 15 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), expected_dim);
 
     // Mocking up more samples and images per sample.
     options.num_samples = 4;
     options.num_images_per_sample = 3;
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
+    test_validate(dir); 
 }
 
 TEST_F(SpatialExperimentTest, Coordinates) {
@@ -109,7 +107,7 @@ TEST_F(SpatialExperimentTest, ColumnSamples) {
     spatial_experiment::Options options(20, 19);
     options.num_samples = 3;
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
+    test_validate(dir); 
 
     {
         H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);
@@ -146,7 +144,7 @@ TEST_F(SpatialExperimentTest, ImageSamples) {
     options.num_samples = 3;
     options.num_images_per_sample = 2;
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
+    test_validate(dir); 
 
     {
         H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);
@@ -183,7 +181,7 @@ TEST_F(SpatialExperimentTest, ImageIds) {
     options.num_samples = 2;
     options.num_images_per_sample = 3;
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
+    test_validate(dir); 
 
     {
         H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);
@@ -217,7 +215,7 @@ TEST_F(SpatialExperimentTest, ImageScaling) {
     options.num_samples = 1;
     options.num_images_per_sample = 4;
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
+    test_validate(dir); 
 
     {
         H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);
@@ -258,7 +256,7 @@ TEST_F(SpatialExperimentTest, ImageFormats) {
     options.num_samples = 2;
     options.num_images_per_sample = 7;
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
+    test_validate(dir); 
 
     {
         H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);
@@ -291,7 +289,7 @@ TEST_F(SpatialExperimentTest, ImageSignature) {
     options.num_samples = 1;
     options.num_images_per_sample = 2;
     spatial_experiment::mock(dir, options);
-    takane::validate(dir); 
+    test_validate(dir); 
 
     // Overriding each image.
     {

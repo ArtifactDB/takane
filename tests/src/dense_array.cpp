@@ -1,10 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
-
-#include "dense_array.h"
+#include "takane/dense_array.hpp"
 #include "utils.h"
+#include "dense_array.h"
 
 #include <string>
 #include <vector>
@@ -27,7 +26,7 @@ struct DenseArrayTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -44,11 +43,11 @@ TEST_F(DenseArrayTest, Basics) {
     {
         dense_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 10);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 10);
 
     std::vector<size_t> expected_dims { 10, 20 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
 }
 
 TEST_F(DenseArrayTest, TypeChecks) {
@@ -64,7 +63,7 @@ TEST_F(DenseArrayTest, TypeChecks) {
     {
         dense_array::mock(dir, dense_array::Type::NUMBER, { 10, 20 });
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -85,7 +84,7 @@ TEST_F(DenseArrayTest, TypeChecks) {
     {
         dense_array::mock(dir, dense_array::Type::STRING, { 10, 20 });
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -130,7 +129,7 @@ TEST_F(DenseArrayTest, NullStrings) {
         ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
         hdf5_utils::attach_attribute(ghandle, "type", "string");
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Works if it's compressed.
     {
@@ -169,7 +168,7 @@ TEST_F(DenseArrayTest, MissingPlaceholder) {
         auto dhandle = ghandle.openDataSet("data");
         hdf5_utils::attach_attribute(dhandle, "missing-value-placeholder", "NA");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(DenseArrayTest, Names) {
@@ -189,7 +188,7 @@ TEST_F(DenseArrayTest, Names) {
         nhandle.unlink("0");
         hdf5_utils::spawn_data(nhandle, "1", 20, H5::StrType(0, 5));
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(DenseArrayTest, Transposed) {
@@ -217,8 +216,8 @@ TEST_F(DenseArrayTest, Transposed) {
         auto ghandle = handle.openGroup(name);
         ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 10);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 10);
 
     {
         auto handle = reopen();
@@ -227,11 +226,11 @@ TEST_F(DenseArrayTest, Transposed) {
         int val = 1;
         ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 20);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 20);
 
     std::vector<size_t> expected_dims { 20, 10 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
 }
 
 struct DenseArrayStringCheckTest : public ::testing::TestWithParam<int> {};
@@ -272,9 +271,10 @@ TEST_P(DenseArrayStringCheckTest, NullCheck) {
                     dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
                 }
 
+                auto meta = takane::read_object_metadata(dir);
                 EXPECT_ANY_THROW({
                     try {
-                        takane::validate(dir, options);
+                        takane::dense_array::validate(dir, meta, options);
                     } catch (std::exception& e) {
                         EXPECT_THAT(e.what(), ::testing::HasSubstr("NULL pointer"));
                         throw;

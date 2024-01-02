@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/bigbed_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct BigBedFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -46,14 +46,14 @@ TEST_F(BigBedFileTest, Basic) {
         uint32_t val = 0x8789F2EB;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         byteme::RawFileWriter handle(dir / "file.bb");
         uint32_t val = 0xEBF28987;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(BigBedFileTest, Strict) {

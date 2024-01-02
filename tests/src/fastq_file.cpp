@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/fastq_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct FastqFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -47,7 +47,7 @@ TEST_F(FastqFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.fastq.gz");
         handle.write("@asdasd\nACGT\n+\n!!!!\n");
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Checking the metadata categories.
     {
@@ -78,7 +78,7 @@ TEST_F(FastqFileTest, Basic) {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }";
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Checking the quality offset.
     {
@@ -103,7 +103,7 @@ TEST_F(FastqFileTest, Basic) {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }";
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(FastqFileTest, Indexed) {
@@ -133,7 +133,7 @@ TEST_F(FastqFileTest, Indexed) {
         std::ofstream ihandle(dir / "file.fastq.bgz.gzi");
         ihandle << "";
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(FastqFileTest, Strict) {

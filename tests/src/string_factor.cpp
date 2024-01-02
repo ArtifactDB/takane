@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
 #include "utils.h"
 
 #include <string>
@@ -31,7 +30,7 @@ struct StringFactorTest : public::testing::Test {
     void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir, std::forward<Args_>(args)...);
+                test_validate(dir, std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -63,8 +62,8 @@ TEST_F(StringFactorTest, Basic) {
         auto ghandle = handle.openGroup(name);
         hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_UINT32);
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 100);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 100);
 }
 
 TEST_F(StringFactorTest, Codes) {
@@ -87,7 +86,7 @@ TEST_F(StringFactorTest, Codes) {
         int val = 3;
         ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(StringFactorTest, Ordered) {
@@ -123,7 +122,7 @@ TEST_F(StringFactorTest, Ordered) {
         int val = 1;
         ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(StringFactorTest, Names) {
@@ -154,5 +153,5 @@ TEST_F(StringFactorTest, Names) {
         ghandle.unlink("names");
         hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::StrType(0, 10));
     }
-    takane::validate(dir);
+    test_validate(dir);
 }

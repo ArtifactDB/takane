@@ -12,7 +12,7 @@ TEST(GenericDispatch, Validate) {
     expect_validation_error(dir, "no registered 'validate' function");
 
     takane::validate_registry["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void {};
-    takane::validate(dir);
+    test_validate(dir);
     takane::validate_registry.erase("foobar");
 }
 
@@ -20,7 +20,7 @@ template<typename ... Args_>
 void expect_height_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
     EXPECT_ANY_THROW({
         try {
-            takane::height(dir, std::forward<Args_>(args)...);
+            test_height(dir, std::forward<Args_>(args)...);
         } catch (std::exception& e) {
             EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
             throw;
@@ -34,7 +34,7 @@ TEST(GenericDispatch, Height) {
     expect_height_error(dir, "no registered 'height' function");
 
     takane::height_registry["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> size_t { return 11; };
-    EXPECT_EQ(takane::height(dir), 11);
+    EXPECT_EQ(test_height(dir), 11);
     takane::height_registry.erase("foobar");
 }
 
@@ -42,7 +42,7 @@ template<typename ... Args_>
 void expect_dimensions_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
     EXPECT_ANY_THROW({
         try {
-            takane::dimensions(dir, std::forward<Args_>(args)...);
+            test_dimensions(dir, std::forward<Args_>(args)...);
         } catch (std::exception& e) {
             EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
             throw;
@@ -57,7 +57,7 @@ TEST(GenericDispatch, Dimensions) {
 
     std::vector<size_t> expected { 11, 20 };
     takane::dimensions_registry["foobar"] = [&](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> std::vector<size_t> { return expected; };
-    EXPECT_EQ(takane::dimensions(dir), expected);
+    EXPECT_EQ(test_dimensions(dir), expected);
     takane::dimensions_registry.erase("foobar");
 }
 

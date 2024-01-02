@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/utils_compressed_list.hpp"
 #include "utils.h"
 #include "atomic_vector.h"
 #include "data_frame.h"

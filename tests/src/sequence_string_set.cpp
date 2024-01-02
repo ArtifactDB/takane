@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/sequence_string_set.hpp"
+#include "utils.h"
 #include "sequence_string_set.h"
 #include "data_frame.h"
 #include "simple_list.h"
@@ -22,7 +23,7 @@ struct SequenceStringSetTest : public ::testing::Test {
     void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir, std::forward<Args_>(args)...);
+                test_validate(dir, std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -115,14 +116,15 @@ TEST_F(SequenceStringSetTest, MetadataRetrieval) {
 TEST_F(SequenceStringSetTest, FastaParsing) {
     sequence_string_set::Options options;
     sequence_string_set::mock(dir, 200, options);
-    takane::validate(dir); // OKAY.
-    EXPECT_EQ(takane::height(dir), 200);
+    test_validate(dir); // OKAY.
+    EXPECT_EQ(test_height(dir), 200);
 
     // Non-parallelized.
     {
         takane::Options inopt;
         inopt.parallel_reads = false;
-        takane::validate(dir, inopt); 
+        auto meta = takane::read_object_metadata(dir);
+        takane::sequence_string_set::validate(dir, meta, inopt); 
     }
 
     // Name checks.
@@ -165,7 +167,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
             writer.write(">0\nACGT\n");
             writer.write(">1\n\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         // But they must be newline-terminated.
         {
@@ -194,20 +196,21 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
         sequence_string_set::dump_fasta(writer, 3, "AAAAAACCCC\nGGGGTTTT");
         sequence_string_set::dump_fasta(writer, 4, "AAAAAA\nCCCC\nGGGG\nTTTT");
     }
-    takane::validate(dir); // OKAY.
+    test_validate(dir); // OKAY.
 }
 
 TEST_F(SequenceStringSetTest, FastqParsing) {
     sequence_string_set::Options options;
     options.quality_type = sequence_string_set::QualityType::PHRED33;
     sequence_string_set::mock(dir, 200, options);
-    takane::validate(dir); // OKAY.
+    test_validate(dir); // OKAY.
 
     // Non-parallelized.
     {
         takane::Options inopt;
         inopt.parallel_reads = false;
-        takane::validate(dir, inopt); 
+        auto meta = takane::read_object_metadata(dir);
+        takane::validate(dir, meta, inopt); 
     }
 
     // Name checks.
@@ -250,7 +253,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
             writer.write("@0\nACGT\n+123123123\nFECD\n");
             writer.write("@1\nACGT\n+ foo bar\nFECD\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         // Works when you have '@' in the quality scores.
         {
@@ -258,7 +261,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
             writer.write("@0\nACGT\n+\n@@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         // Fails with a mismatch in the lengths.
         {
@@ -273,7 +276,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
             writer.write("@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
-        takane::validate(dir); // OK!
+        test_validate(dir); // OK!
 
         // More complicated mismatch in the lengths.
         {
@@ -289,7 +292,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
             writer.write("@0\n\n+\n\n");
             writer.write("@1\n\n+\n\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         // But they must be newline-terminated.
         {
@@ -323,7 +326,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
         sequence_string_set::dump_fastq(writer, 8, "AAAACCCCGGGGTTTT", "FFFFEEEE\nDDDDCCCC");
         sequence_string_set::dump_fastq(writer, 9, "AAAACCCCGGGGTTTT", "FFFF\nEEEE\nDDDD\nCCCC");
     }
-    takane::validate(dir); // OKAY.
+    test_validate(dir); // OKAY.
 }
 
 TEST_F(SequenceStringSetTest, SequenceTypes) {
@@ -334,7 +337,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
     {
         options.sequence_type = sequence_string_set::SequenceType::DNA;
         sequence_string_set::mock(dir, 3, options);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -342,7 +345,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
             writer.write(">1\na.c-g.tacgryswkmbdhvn.-\n");
             writer.write(">2\nTACGRYSWKMBDHVN.-\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -372,7 +375,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
     {
         options.sequence_type = sequence_string_set::SequenceType::RNA;
         sequence_string_set::mock(dir, 3, options);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -380,7 +383,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
             writer.write(">1\na.c-g.uacgryswkmbdhvn.-\n");
             writer.write(">2\nUACGRYSWKMBDHVN.-\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -395,7 +398,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
     {
         options.sequence_type = sequence_string_set::SequenceType::AA;
         sequence_string_set::mock(dir, 3, options);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -403,7 +406,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
             writer.write(">1\nACD.EFGHIKLMNP-QRSTVWY\n");
             writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -418,7 +421,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
     {
         options.sequence_type = sequence_string_set::SequenceType::CUSTOM;
         sequence_string_set::mock(dir, 3, options);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -426,7 +429,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
             writer.write(">1\n!;;;*8acac~\n");
             writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
     }
 }
 
@@ -438,7 +441,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
     {
         options.quality_type = sequence_string_set::QualityType::PHRED33;
         sequence_string_set::mock(dir, 3, options);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -446,7 +449,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
             writer.write("@1\nacgt\n+\n!!!!\n");
             writer.write("@2\nacgt\n+\n!!!!\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -461,7 +464,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
     {
         options.quality_type = sequence_string_set::QualityType::ILLUMINA64;
         sequence_string_set::mock(dir, 3, options);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -469,7 +472,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
             writer.write("@1\nacgt\n+\n@@@@\n");
             writer.write("@2\nacgt\n+\n@@@@\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -484,7 +487,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
     {
         options.quality_type = sequence_string_set::QualityType::SOLEXA;
         sequence_string_set::mock(dir, 3, options);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -492,7 +495,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
             writer.write("@1\nacgt\n+\n@@@@\n");
             writer.write("@2\nacgt\n+\n@@@@\n");
         }
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             byteme::GzipFileWriter writer(spath.c_str());
@@ -511,7 +514,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
             std::ofstream handle(dir / "OBJECT");
             handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }";
         }
-        takane::validate(dir);
+        test_validate(dir);
     }
 }
 
@@ -528,13 +531,14 @@ TEST_F(SequenceStringSetTest, Names) {
             writer.write("\"" + tmpname + "\"\n");
         }
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Non-parallelized.
     {
         takane::Options inopt;
         inopt.parallel_reads = false;
-        takane::validate(dir, inopt); 
+        auto meta = takane::read_object_metadata(dir);
+        takane::validate(dir, meta, inopt); 
     }
 
     // Works with newlines.
@@ -545,7 +549,7 @@ TEST_F(SequenceStringSetTest, Names) {
             writer.write("\"" + tmpname + "\"\n");
         }
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Errors out with differences in counts.
     {
@@ -605,5 +609,5 @@ TEST_F(SequenceStringSetTest, Metadata) {
     expect_error("'SIMPLE_LIST'");
 
     simple_list::mock(odir);
-    takane::validate(dir);
+    test_validate(dir);
 }

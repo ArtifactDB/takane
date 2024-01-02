@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/fasta_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct FastaFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -47,26 +47,26 @@ TEST_F(FastaFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.fasta.gz");
         handle.write(">asdasd\nACGT\n");
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Works with different sequence types.
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"RNA\" } }";
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"AA\" } }";
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"custom\" } }";
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         std::ofstream ohandle(dir / "OBJECT");
@@ -102,7 +102,7 @@ TEST_F(FastaFileTest, Indexed) {
         std::ofstream ihandle(dir / "file.fasta.bgz.gzi");
         ihandle << "";
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(FastaFileTest, Strict) {

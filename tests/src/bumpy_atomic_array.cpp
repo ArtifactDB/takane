@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
 #include "utils.h"
 #include "atomic_vector.h"
 #include "data_frame.h"
@@ -32,7 +31,7 @@ struct BumpyAtomicArrayTest : public::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -67,9 +66,10 @@ TEST_F(BumpyAtomicArrayTest, Basic) {
     {
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 1);
-    auto dims = takane::dimensions(dir);
+    test_validate(dir);
+
+    EXPECT_EQ(test_height(dir), 1);
+    auto dims = test_dimensions(dir);
     std::vector<size_t> expected { 1, 4 };
     EXPECT_EQ(dims, expected);
 }

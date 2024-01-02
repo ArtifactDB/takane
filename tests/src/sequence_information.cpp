@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/sequence_information.hpp"
 #include "sequence_information.h"
 #include "utils.h"
 
@@ -61,7 +60,7 @@ TEST_F(SequenceInformationTest, Basic) {
             { "mm10", "hg19", "rn10" }
         );
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(SequenceInformationTest, Seqnames) {
@@ -124,7 +123,7 @@ TEST_F(SequenceInformationTest, Seqlengths) {
         dhandle.removeAttr("missing-value-placeholder");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(SequenceInformationTest, Circular) {
@@ -165,7 +164,7 @@ TEST_F(SequenceInformationTest, Circular) {
         dhandle.removeAttr("missing-value-placeholder");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(SequenceInformationTest, Genome) {
@@ -206,5 +205,5 @@ TEST_F(SequenceInformationTest, Genome) {
         dhandle.removeAttr("missing-value-placeholder");
         dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }

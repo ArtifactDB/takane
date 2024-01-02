@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/gff_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct GffFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -53,7 +53,7 @@ TEST_F(GffFileTest, Basic2) {
         byteme::GzipFileWriter fhandle(dir / "file.gff2.gz");
         fhandle.write("chr1\t1\t2\n");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(GffFileTest, Basic3) {
@@ -70,7 +70,7 @@ TEST_F(GffFileTest, Basic3) {
         byteme::GzipFileWriter handle(dir / "file.gff3.gz");
         handle.write("##gff-version 3.1.26\nchr1\t1\t2\n");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(GffFileTest, Indexed) {
@@ -94,7 +94,7 @@ TEST_F(GffFileTest, Indexed) {
         byteme::GzipFileWriter ihandle(dir / "file.gff2.bgz.tbi");
         ihandle.write("TBI\1");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(GffFileTest, Strict) {

@@ -3,7 +3,7 @@
 
 #include "data_frame.h"
 #include "simple_list.h"
-#include "takane/takane.hpp"
+#include "utils.h"
 
 #include <numeric>
 #include <string>
@@ -33,7 +33,7 @@ struct Hdf5DataFrameTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -52,10 +52,10 @@ TEST_F(Hdf5DataFrameTest, Rownames) {
         auto ghandle = handle.openGroup(name);
         data_frame::attach_row_names(ghandle, 29);
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 29);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 29);
     std::vector<size_t> expected_dim{ 29, 1 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), expected_dim);
 
     {
         auto handle = reopen();
@@ -88,10 +88,10 @@ TEST_F(Hdf5DataFrameTest, Colnames) {
     columns[1].name = "Barry";
 
     data_frame::mock(dir, 29, columns);
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 29);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 29);
     std::vector<size_t> expected_dim{ 29, 2 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), expected_dim);
 
     {
         auto handle = reopen();
@@ -200,7 +200,7 @@ TEST_F(Hdf5DataFrameTest, Other) {
             data_frame::mock(ghandle, 51, subcolumns);
         }
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     auto subdir = dir / "other_columns" / "0";
     {
@@ -228,7 +228,7 @@ TEST_F(Hdf5DataFrameTest, Integer) {
     columns[0].type = data_frame::ColumnType::INTEGER;
 
     data_frame::mock(dir, 33, columns);
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -250,7 +250,7 @@ TEST_F(Hdf5DataFrameTest, Integer) {
         hdf5_utils::attach_attribute(xhandle, "type", "integer");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT16, H5S_SCALAR);
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -269,7 +269,7 @@ TEST_F(Hdf5DataFrameTest, Boolean) {
     columns[0].type = data_frame::ColumnType::BOOLEAN;
 
     data_frame::mock(dir, 55, columns);
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -291,7 +291,7 @@ TEST_F(Hdf5DataFrameTest, Boolean) {
         hdf5_utils::attach_attribute(xhandle, "type", "boolean");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -310,7 +310,7 @@ TEST_F(Hdf5DataFrameTest, Number) {
     columns[0].type = data_frame::ColumnType::NUMBER;
 
     data_frame::mock(dir, 99, columns);
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -332,7 +332,7 @@ TEST_F(Hdf5DataFrameTest, Number) {
         hdf5_utils::attach_attribute(xhandle, "type", "number");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -355,7 +355,7 @@ TEST_F(Hdf5DataFrameTest, String) {
         auto ghandle = handle.createGroup(name);
         mock(ghandle, 72, columns);
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -386,7 +386,7 @@ TEST_F(Hdf5DataFrameTest, String) {
         xhandle.removeAttr("format");
         hdf5_utils::attach_attribute(xhandle, "format", "none");
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Checking the missing value placeholder.
     {
@@ -398,7 +398,7 @@ TEST_F(Hdf5DataFrameTest, String) {
         auto ahandle = xhandle.createAttribute("missing-value-placeholder", stype, H5S_SCALAR);
         ahandle.write(stype, std::string("asdasd"));
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -436,7 +436,7 @@ TEST_F(Hdf5DataFrameTest, StringFormat) {
         hdf5_utils::attach_attribute(xhandle, "type", "string");
         hdf5_utils::attach_attribute(xhandle, "missing-value-placeholder", "");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(Hdf5DataFrameTest, Factor) {
@@ -450,7 +450,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         auto ghandle = handle.createGroup(name);
         mock(ghandle, 99, columns);
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -506,7 +506,7 @@ TEST_F(Hdf5DataFrameTest, Factor) {
         fhandle.removeAttr("ordered");
         fhandle.createAttribute("ordered", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(Hdf5DataFrameTest, Metadata) {
@@ -527,5 +527,5 @@ TEST_F(Hdf5DataFrameTest, Metadata) {
     expect_error("'SIMPLE_LIST'");
 
     simple_list::mock(odir);
-    takane::validate(dir);
+    test_validate(dir);
 }

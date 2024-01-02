@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/gmt_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct GmtFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -45,7 +45,7 @@ TEST_F(GmtFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.gmt.gz");
         handle.write("set\tmy set\ta\tb\tc\n");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(GmtFileTest, Strict) {

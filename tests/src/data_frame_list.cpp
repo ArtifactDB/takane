@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
 #include "utils.h"
 #include "data_frame.h"
 #include "simple_list.h"
@@ -31,7 +30,7 @@ struct DataFrameListTest : public::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -63,6 +62,6 @@ TEST_F(DataFrameListTest, Basic) {
     {
         data_frame::mock(dir / "concatenated", 10, {});
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 4);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 4);
 }

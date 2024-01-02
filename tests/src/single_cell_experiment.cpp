@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
-
 #include "single_cell_experiment.h"
 #include "utils.h"
 
@@ -23,7 +21,7 @@ struct SingleCellExperimentTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -56,10 +54,10 @@ TEST_F(SingleCellExperimentTest, Basic) {
 
     single_cell_experiment::Options options(20, 15);
     single_cell_experiment::mock(dir, options);
-    takane::validate(dir); 
-    EXPECT_EQ(takane::height(dir), 20);
+    test_validate(dir); 
+    EXPECT_EQ(test_height(dir), 20);
     std::vector<size_t> expected_dim{ 20, 15 };
-    EXPECT_EQ(takane::dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), expected_dim);
 }
 
 TEST_F(SingleCellExperimentTest, ReducedDims) {
@@ -93,7 +91,7 @@ TEST_F(SingleCellExperimentTest, ReducedDims) {
     {
         std::filesystem::remove_all(dir / "reduced_dimensions");
     }
-    takane::validate(dir); 
+    test_validate(dir); 
 }
 
 TEST_F(SingleCellExperimentTest, AlternativeExps) {
@@ -122,7 +120,7 @@ TEST_F(SingleCellExperimentTest, AlternativeExps) {
     {
         std::filesystem::remove_all(dir / "alternative_experiments");
     }
-    takane::validate(dir); 
+    test_validate(dir); 
 }
 
 TEST_F(SingleCellExperimentTest, MainExperimentName) {
@@ -158,5 +156,5 @@ TEST_F(SingleCellExperimentTest, MainExperimentName) {
     // Finally success.
     options.main_exp_name = "stuff";
     single_cell_experiment::mock(dir, options);
-    takane::validate(dir);
+    test_validate(dir);
 }

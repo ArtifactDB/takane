@@ -19,7 +19,6 @@
 #include "dense_array.hpp"
 #include "compressed_sparse_matrix.hpp"
 #include "summarized_experiment.hpp"
-#include "spatial_experiment.hpp"
 #include "sequence_string_set.hpp"
 #include "bumpy_atomic_array.hpp"
 #include "bumpy_data_frame_array.hpp"

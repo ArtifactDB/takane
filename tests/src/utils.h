@@ -7,8 +7,15 @@
 #include <vector>
 #include <algorithm>
 
+#include "millijson/millijson.hpp"
+#include "ritsuko/hdf5/hdf5.hpp"
 #include "H5Cpp.h"
-#include "takane/takane.hpp"
+
+void test_validate(const std::filesystem::path&);
+
+size_t test_height(const std::filesystem::path&);
+
+std::vector<size_t> test_dimensions(const std::filesystem::path&);
 
 inline void initialize_directory(const std::filesystem::path& dir) {
     if (std::filesystem::exists(dir)) {
@@ -31,7 +38,7 @@ template<typename ... Args_>
 void expect_validation_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
     EXPECT_ANY_THROW({
         try {
-            takane::validate(dir, std::forward<Args_>(args)...);
+            test_validate(dir, std::forward<Args_>(args)...);
         } catch (std::exception& e) {
             EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
             throw;

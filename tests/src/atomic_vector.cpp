@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
 #include "utils.h"
 #include "atomic_vector.h"
 
@@ -30,7 +29,7 @@ struct AtomicVectorTest : public::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -67,15 +66,15 @@ TEST_F(AtomicVectorTest, Basic) {
         ghandle.removeAttr("type");
         hdf5_utils::attach_attribute(ghandle, "type", "integer");
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 100);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 100);
 }
 
 TEST_F(AtomicVectorTest, Types) {
     // Integer.
     {
         mock(dir, 100, atomic_vector::Type::INTEGER);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             auto handle = reopen();
@@ -89,7 +88,7 @@ TEST_F(AtomicVectorTest, Types) {
     // Boolean.
     {
         mock(dir, 100, atomic_vector::Type::BOOLEAN);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             auto handle = reopen();
@@ -103,7 +102,7 @@ TEST_F(AtomicVectorTest, Types) {
     // Number.
     {
         mock(dir, 100, atomic_vector::Type::NUMBER);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             auto handle = reopen();
@@ -117,7 +116,7 @@ TEST_F(AtomicVectorTest, Types) {
     // String.
     {
         mock(dir, 100, atomic_vector::Type::STRING);
-        takane::validate(dir);
+        test_validate(dir);
 
         {
             auto handle = reopen();
@@ -175,7 +174,7 @@ TEST_F(AtomicVectorTest, Missingness) {
         int val = -1;
         attr.write(H5::PredType::NATIVE_INT, &val);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(AtomicVectorTest, NameChecks) {
@@ -202,5 +201,5 @@ TEST_F(AtomicVectorTest, NameChecks) {
         ghandle.unlink("names");
         hdf5_utils::spawn_data(ghandle, "names", 100, H5::StrType(0, 10));
     }
-    takane::validate(dir);
+    test_validate(dir);
 }

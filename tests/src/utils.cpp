@@ -2,6 +2,21 @@
 #include <gmock/gmock.h>
 
 #include "utils.h"
+#include "takane/takane.hpp"
+
+#include <filesystem>
+
+void test_validate(const std::filesystem::path& dir) {
+    takane::validate(dir);
+}
+
+size_t test_height(const std::filesystem::path& dir) {
+    return takane::height(dir);
+}
+
+std::vector<size_t> test_dimensions(const std::filesystem::path& dir) {
+    return takane::dimensions(dir);
+}
 
 // Just testing that our JSON dumping code works as expected.
 TEST(JsonDump, BasicDumps) {

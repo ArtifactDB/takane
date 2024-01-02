@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/genomic_ranges.hpp"
+
+#include "utils.h"
 #include "sequence_information.h"
 #include "genomic_ranges.h"
 #include "simple_list.h"
@@ -27,7 +29,7 @@ struct GenomicRangesTest : public ::testing::Test {
     void expect_error(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir, std::forward<Args_>(args)...);
+                test_validate(dir, std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -108,8 +110,8 @@ TEST_F(GenomicRangesTest, BasicChecks) {
     expect_error("unsupported version");
 
     genomic_ranges::mock(dir, 58, 13);
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 58);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 58);
 
     auto sidir = dir / "sequence_information";
     initialize_directory_simple(sidir, "FOOBAR", "1.0");
@@ -206,7 +208,7 @@ TEST_F(GenomicRangesTest, Int64Ends) {
         ghandle.unlink("width");
         hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 0, 1, static_cast<uint64_t>(max_i64), max_u64 });
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     // Failing when start is positive.
     {
@@ -236,7 +238,7 @@ TEST_F(GenomicRangesTest, Restricted) {
         { 100, 200, 300 },
         { 0, 0, 0 }
     );
-    takane::validate(dir);
+    test_validate(dir);
 
     // Failing when we increase it just a little bit.
     {
@@ -271,7 +273,7 @@ TEST_F(GenomicRangesTest, Restricted) {
         ghandle.unlink("circular");
         hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT32, { 1, 0, 0 }); // rescuing it by making it circular!
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(GenomicRangesTest, Strand) {
@@ -310,7 +312,7 @@ TEST_F(GenomicRangesTest, Names) {
         auto ghandle = handle.openGroup("genomic_ranges");
         hdf5_utils::spawn_string_data(ghandle, "name", 2, { "A", "B", "C", "D", "E", "F" });
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         auto handle = reopen();
@@ -335,5 +337,5 @@ TEST_F(GenomicRangesTest, Metadata) {
     expect_error("'SIMPLE_LIST'");
 
     simple_list::mock(odir);
-    takane::validate(dir);
+    test_validate(dir);
 }

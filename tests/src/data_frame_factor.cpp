@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/data_frame_factor.hpp"
+
 #include "utils.h"
 #include "data_frame.h"
 #include "simple_list.h"
@@ -48,8 +49,8 @@ TEST_F(DataFrameFactorTest, Basic) {
         auto ldir = dir / "levels";
         data_frame::mock(ldir, 5, {});
     }
-    takane::validate(dir);
-    EXPECT_EQ(takane::height(dir), 100);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 100);
 }
 
 TEST_F(DataFrameFactorTest, Levels) {
@@ -94,7 +95,7 @@ TEST_F(DataFrameFactorTest, Codes) {
         std::vector<int> codes { 0, 1, 2, 1, 3, 4, 2 };
         dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(DataFrameFactorTest, Names) {
@@ -126,7 +127,7 @@ TEST_F(DataFrameFactorTest, Names) {
         ghandle.unlink("names");
         hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::StrType(0, 10));
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(DataFrameFactorTest, Metadata) {
@@ -153,5 +154,5 @@ TEST_F(DataFrameFactorTest, Metadata) {
     expect_error("'other_annotations'");
 
     simple_list::mock(odir);
-    takane::validate(dir);
+    test_validate(dir);
 }

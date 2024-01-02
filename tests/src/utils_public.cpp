@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/utils_public.hpp"
 #include "utils.h"
 
 struct ReadObjectTest : public::testing::Test {

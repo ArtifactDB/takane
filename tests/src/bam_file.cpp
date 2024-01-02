@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/bam_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct BamFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -51,7 +51,7 @@ TEST_F(BamFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.bam");
         handle.write("BAM\1");
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         std::ofstream handle(dir / "file.bam.bai");
@@ -63,7 +63,7 @@ TEST_F(BamFileTest, Basic) {
         std::ofstream handle(dir / "file.bam.bai");
         handle << "BAI\1";
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         byteme::GzipFileWriter handle(dir / "file.bam.csi");
@@ -75,7 +75,7 @@ TEST_F(BamFileTest, Basic) {
         byteme::GzipFileWriter handle(dir / "file.bam.csi");
         handle.write("CSI\1");
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(BamFileTest, Strict) {

@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
-
 #include "summarized_experiment.h"
 #include "dense_array.h"
 #include "utils.h"
@@ -24,7 +22,7 @@ struct SummarizedExperimentTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -71,15 +69,15 @@ TEST_F(SummarizedExperimentTest, Metadata) {
     expect_error("non-negative integers");
 
     dump("{ \"version\": \"1.0\", \"dimensions\": [ 10, 20 ] }");
-    takane::validate(dir); // works without any assays!
+    test_validate(dir); // works without any assays!
 }
 
 TEST_F(SummarizedExperimentTest, Assays) {
     summarized_experiment::mock(dir, summarized_experiment::Options(10, 15, 2));
-    takane::validate(dir); // success!
-    EXPECT_EQ(takane::height(dir), 10);
+    test_validate(dir); // success!
+    EXPECT_EQ(test_height(dir), 10);
     std::vector<size_t> expected_dim{10, 15};
-    EXPECT_EQ(takane::dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), expected_dim);
 
     {
         // Most checks are handled by utils_summarized_experiment.cpp,
@@ -124,7 +122,7 @@ TEST_F(SummarizedExperimentTest, AllOtherData) {
     options.has_column_data = true;
     options.has_other_data = true;
     summarized_experiment::mock(dir, options);
-    takane::validate(dir); // success!
+    test_validate(dir); // success!
 
     {
         simple_list::mock(dir / "column_data");

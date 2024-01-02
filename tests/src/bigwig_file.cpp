@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/takane.hpp"
+#include "takane/bigwig_file.hpp"
 #include "utils.h"
 
 #include <string>
@@ -21,7 +21,7 @@ struct BigWigFileTest : public ::testing::Test {
     void expect_error(const std::string& msg) {
         EXPECT_ANY_THROW({
             try {
-                takane::validate(dir);
+                test_validate(dir);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -46,14 +46,14 @@ TEST_F(BigWigFileTest, Basic) {
         uint32_t val = 0x888FFC26;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
-    takane::validate(dir);
+    test_validate(dir);
 
     {
         byteme::RawFileWriter handle(dir / "file.bw");
         uint32_t val = 0x26FC8F88;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
-    takane::validate(dir);
+    test_validate(dir);
 }
 
 TEST_F(BigWigFileTest, Strict) {
