@@ -25,5 +25,6 @@ var searchData=
   ['string_5ffactor_22',['string_factor',['../namespacetakane_1_1string__factor.html',1,'takane']]],
   ['summarized_5fexperiment_23',['summarized_experiment',['../namespacetakane_1_1summarized__experiment.html',1,'takane']]],
   ['takane_24',['takane',['../namespacetakane.html',1,'']]],
-  ['type_25',['type',['../structtakane_1_1ObjectMetadata.html#a9c0bbd3d3bca64a18f2e9863adf02c6d',1,'takane::ObjectMetadata']]]
+  ['type_25',['type',['../structtakane_1_1ObjectMetadata.html#a9c0bbd3d3bca64a18f2e9863adf02c6d',1,'takane::ObjectMetadata']]],
+  ['vcf_5fexperiment_26',['vcf_experiment',['../namespacetakane_1_1vcf__experiment.html',1,'takane']]]
 ];
