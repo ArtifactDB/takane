@@ -52,13 +52,20 @@ std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path,
         }
     }
 
-    // Scanning until we find a line that doesn't start with '#'.
+    // Scanning until we find a line that doesn't start with '##'.
     while (true) {
         if (pb.get() == '\n') {
-            if (!pb.advance()) {
-                throw std::runtime_error("premature end to the VCF file");
+            bool escape = false;
+            for (int i = 0; i < 2; ++i) {
+                if (!pb.advance()) {
+                    throw std::runtime_error("premature end to the VCF file");
+                }
+                if (pb.get() != '#') {
+                    escape = true;
+                    break;
+                }
             }
-            if (pb.get() != '#') {
+            if (escape) {
                 break;
             }
         }
@@ -67,7 +74,7 @@ std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path,
         }
     }
 
-    // Scanning the header line until we get to FORMAT, and then counting the number of samples.
+    // Scanning the header line to count the number of samples.
     size_t num_samples = 0;
     {
         size_t num_indents = 0;
@@ -76,6 +83,7 @@ std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path,
             if (current == '\t') {
                 ++num_indents;
             } else if (current == '\n') {
+                pb.advance(); // skip past the newline.
                 break;
             }
             if (!pb.advance()) {
@@ -102,6 +110,9 @@ std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path,
                 if (current == '\t') {
                     ++num_indents;
                     if (num_indents == 4) { 
+                        if (!pb.advance()) { // get past this indent.
+                            throw std::runtime_error("premature end of line for VCF record");
+                        }
                         break;
                     }
                 } else if (current == '\n') {
@@ -131,9 +142,8 @@ std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path,
             // Chomping the rest of the line; we assume all lines are newline-terminated.
             while (true) {
                 if (pb.get() == '\n') {
-                    if (!pb.advance()) {
-                        break;
-                    }
+                    pb.advance(); // skip past the newline.
+                    break;
                 } else {
                     if (!pb.advance()) {
                         throw std::runtime_error("premature end of line for VCF record");
@@ -143,15 +153,17 @@ std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path,
         }
 
     } else {
-        while (true) {
-            if (pb.get() == '\n') {
-                ++expected_rows; // assume all files are newline-terminated.
-                if (!pb.advance()) {
-                    break;
-                }
-            } else {
-                if (!pb.advance()) {
-                    throw std::runtime_error("premature end of line for VCF record");
+        if (pb.valid()) {
+            while (true) {
+                if (pb.get() == '\n') {
+                    ++expected_rows; // assume all files are newline-terminated.
+                    if (!pb.advance()) {
+                        break;
+                    }
+                } else {
+                    if (!pb.advance()) {
+                        throw std::runtime_error("premature end of line for VCF record");
+                    }
                 }
             }
         }

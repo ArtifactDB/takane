@@ -3,7 +3,6 @@
 
 #include "takane/vcf_experiment.hpp"
 #include "utils.h"
-#include "sequence_string_set.h"
 #include "data_frame.h"
 #include "simple_list.h"
 
@@ -12,8 +11,8 @@
 
 struct VcfExperimentTest : public ::testing::Test {
     VcfExperimentTest() {
-        dir = "TEST_sequence_string_set";
-        name = "sequence_string_set";
+        dir = "TEST_vcf_experiment";
+        name = "vcf_experiment";
     }
 
     std::filesystem::path dir;
@@ -40,160 +39,219 @@ TEST_F(VcfExperimentTest, MetadataRetrieval) {
     }
     expect_error("unsupported version");
 
-    // Checking the length.
     {
         std::ofstream handle(dir / "OBJECT");
         handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\" } }";
     }
-    expect_error("expected a 'sequence_string_set.dimensions' property");
+    expect_error("expected a 'vcf_experiment.dimensions' property");
 
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": true } }";
-//    }
-//    expect_error("JSON number");
-//
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 1.5 } }";
-//    }
-//    expect_error("non-negative integer");
-//
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": -10 } }";
-//    }
-//    expect_error("non-negative integer");
-//
-//    // Checking the sequence type.
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10 } }";
-//    }
-//    expect_error("failed to extract 'sequence_string_set.sequence_type'");
-//
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"foobar\" } }";
-//    }
-//    expect_error("invalid string 'foobar'");
-//
-//    // Checking the quality type.
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": true } }";
-//    }
-//    expect_error("should be a JSON string");
-//
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"blah\" } }";
-//    }
-//    expect_error("invalid string 'blah'");
-//
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"phred\" } }";
-//    }
-//    expect_error("expected a 'sequence_string_set.quality_offset'");
-//
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", ";
-//        handle << "\"quality_type\": \"phred\", \"quality_offset\": true } }";
-//    }
-//    expect_error("JSON number");
-//
-//    {
-//        std::ofstream handle(dir / "OBJECT");
-//        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", ";
-//        handle << "\"quality_type\": \"phred\", \"quality_offset\": 10 } }";
-//    }
-//    expect_error("33 or 64");
+    {
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": true } }";
+    }
+    expect_error("an array");
+
+    {
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [1, 2] } }";
+    }
+    expect_error("vcf_experiment.expanded");
+
+    {
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [1, 2], \"expanded\": 1 } }";
+    }
+    expect_error("JSON boolean");
 }
 
-//TEST_F(VcfExperimentTest, FastaParsing) {
-//    sequence_string_set::Options options;
-//    sequence_string_set::mock(dir, 200, options);
-//    test_validate(dir); // OKAY.
-//    EXPECT_EQ(test_height(dir), 200);
-//
-//    // Non-parallelized.
-//    {
-//        takane::Options inopt;
-//        inopt.parallel_reads = false;
-//        auto meta = takane::read_object_metadata(dir);
-//        takane::sequence_string_set::validate(dir, meta, inopt); 
-//    }
-//
-//    // Name checks.
-//    auto spath = dir / "sequences.fasta.gz";
-//    {
-//        {
-//            byteme::GzipFileWriter writer(spath.c_str());
-//            writer.write("foobar\n");
-//        }
-//        expect_error("sequence name should start with '>'");
-//
-//        {
-//            byteme::GzipFileWriter writer(spath.c_str());
-//            writer.write(">foobar\n");
-//        }
-//        expect_error("sequence name should be a non-negative integer");
-//
-//        {
-//            byteme::GzipFileWriter writer(spath.c_str());
-//            writer.write(">\n");
-//        }
-//        expect_error("sequence name should be its index");
-//
-//        {
-//            byteme::GzipFileWriter writer(spath.c_str());
-//            for (size_t i = 0; i < 200; ++i) {
-//                sequence_string_set::dump_fasta(writer, i % 10, "ACGT");
-//            }
-//        }
-//        expect_error("sequence name should be its index");
-//    }
-//
-//    // Structural checks for correct parsing.
-//    {
-//        sequence_string_set::mock(dir, 2, options);
-//
-//        // Zero length sequences are okay.
-//        {
-//            byteme::GzipFileWriter writer(spath.c_str());
-//            writer.write(">0\nACGT\n");
-//            writer.write(">1\n\n");
-//        }
-//        test_validate(dir);
-//
-//        // But they must be newline-terminated.
-//        {
-//            byteme::GzipFileWriter writer(spath.c_str());
-//            writer.write(">0\nACGT\n");
-//            writer.write(">1\n");
-//        }
-//        expect_error("premature end");
-//    }
-//
-//    // Checking the count.
-//    sequence_string_set::mock(dir, 5, options);
-//    {
-//        byteme::GzipFileWriter writer(spath.c_str());
-//        sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
-//    }
-//    expect_error("observed number of sequences");
-//
-//    // Simulating sequences with annoying newlines everywhere.
-//    sequence_string_set::mock(dir, 5, options);
-//    {
-//        byteme::GzipFileWriter writer(spath.c_str());
-//        sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
-//        sequence_string_set::dump_fasta(writer, 1, "\nAAAAAACCCCGGGGTTTT");
-//        sequence_string_set::dump_fasta(writer, 2, "AAAAAACCCCGGGGTTTT\n");
-//        sequence_string_set::dump_fasta(writer, 3, "AAAAAACCCC\nGGGGTTTT");
-//        sequence_string_set::dump_fasta(writer, 4, "AAAAAA\nCCCC\nGGGG\nTTTT");
-//    }
-//    test_validate(dir); // OKAY.
-//}
+TEST_F(VcfExperimentTest, BasicParsing) {
+    {
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [1, 2], \"expanded\": false } }";
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write("##fileformat");
+    }
+    expect_error("incomplete VCF file signature");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write("##filefooomat");
+    }
+    expect_error("incorrect VCF file signature");
+
+    std::string contents; 
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        contents = "##fileformat=VCFv4\n";
+        writer.write(contents);
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("##aasdasd");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        contents += "##aasdasd\n";
+        writer.write(contents);
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("#CHROM");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n");
+        writer.write("chr1\t1\tfoo\tA\tC\t10\tPASS\tNS=1\tGT\n");
+    }
+    expect_error("does not match the number of samples");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsam1\tsam2");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("#CHROM\tREF\tALT\tQUAL\tFILTER\n");
+    }
+    expect_error("expected at least 9 fields");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        contents += "##foobarbar\n";
+        contents += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsam1\tsam2\n";
+        writer.write(contents);
+    }
+    expect_error("does not match the number of records");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("chr1\t1\tfoo\tA\tC\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n");
+    }
+    test_validate(dir);
+}
+
+TEST_F(VcfExperimentTest, CollapsedParsing) {
+    std::string contents = "##fileformat=VCFv4\n";
+    contents += "##aasdasd\n";
+    contents += "##foobarbar\n";
+    contents += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsam1\tsam2\n";
+    contents += "chr1\t1\tfoo1\tA\tC\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
+    contents += "chr1\t2\tfoo2\tA\tC,T\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
+
+    {
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [4, 2], \"expanded\": false } }";
+
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+    }
+    expect_error("does not match the number of records");
+
+    contents += "chr1\t3\tfoo3\tA\t.\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
+    contents += "chr1\t4\tfoo4\tAGGGG\tACTG,<DEL>,<MUL>\t10\tPASS\tNS=1\tGT\t1|0\t0|0";
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+    }
+    expect_error("premature end");
+
+    contents += "\n";
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+    }
+    test_validate(dir);
+
+    EXPECT_EQ(test_height(dir), 4);
+    std::vector<size_t> expected_dims { 4, 2 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST_F(VcfExperimentTest, ExpandedParsing) {
+    std::string contents = "##fileformat=VCFv4\n";
+    contents += "##aasdasd\n";
+    contents += "##foobarbar\n";
+    contents += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsam1\tsam2\n";
+    contents += "chr1\t1\tfoo1\tA\tC\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
+
+    {
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [7, 2], \"expanded\": true } }";
+
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("chr1\t2\tfoo2");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("chr1\t2\tfoo2\n");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("chr1\t2\tfoo2\tA\t");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("chr1\t2\tfoo2\tA\tC,T");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("chr1\t2\tfoo2\tA\tC,T\n");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+        writer.write("chr1\t2\tfoo2\tA\tC,T\t");
+    }
+    expect_error("premature end");
+
+    contents += "chr1\t2\tfoo2\tA\tC,T\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
+    contents += "chr1\t3\tfoo3\tA\t.\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
+    contents += "chr1\t4\tfoo4\tAGGGG\tACTG,<DEL>,<MUL>\t10\tPASS\tNS=1\tGT\t1|0\t0|0";
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+    }
+    expect_error("premature end");
+
+    contents += "\n";
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
+    }
+    test_validate(dir);
+
+    EXPECT_EQ(test_height(dir), 7);
+    std::vector<size_t> expected_dims { 7, 2 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
