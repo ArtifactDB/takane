@@ -51,7 +51,7 @@ TEST_F(SummarizedExperimentTest, Metadata) {
     expect_error("unsupported version");
 
     dump("{ \"version\": \"1.0\" }");
-    expect_error("expected a 'dimensions'");
+    expect_error("expected a 'summarized_experiment.dimensions'");
 
     dump("{ \"version\": \"1.0\", \"dimensions\": 1 }");
     expect_error("to be an array");
