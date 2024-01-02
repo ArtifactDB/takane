@@ -198,7 +198,7 @@ TEST_F(VcfExperimentTest, ExpandedParsing) {
 
     {
         std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [7, 2], \"expanded\": true } }";
+        handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [4, 2], \"expanded\": true } }";
 
         byteme::GzipFileWriter writer(dir / "file.vcf.gz");
         writer.write(contents);
@@ -223,27 +223,34 @@ TEST_F(VcfExperimentTest, ExpandedParsing) {
     {
         byteme::GzipFileWriter writer(dir / "file.vcf.gz");
         writer.write(contents);
+        writer.write("chr1\t2\tfoo2\tA\tC");
+    }
+    expect_error("premature end");
+
+    {
+        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        writer.write(contents);
         writer.write("chr1\t2\tfoo2\tA\tC,T");
     }
-    expect_error("premature end");
+    expect_error("expected a 1:1 mapping");
 
     {
         byteme::GzipFileWriter writer(dir / "file.vcf.gz");
         writer.write(contents);
-        writer.write("chr1\t2\tfoo2\tA\tC,T\n");
+        writer.write("chr1\t2\tfoo2\tA\tC\n");
     }
     expect_error("premature end");
 
     {
         byteme::GzipFileWriter writer(dir / "file.vcf.gz");
         writer.write(contents);
-        writer.write("chr1\t2\tfoo2\tA\tC,T\t");
+        writer.write("chr1\t2\tfoo2\tA\tC\t");
     }
     expect_error("premature end");
 
-    contents += "chr1\t2\tfoo2\tA\tC,T\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
+    contents += "chr1\t2\tfoo2\tA\tC\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
     contents += "chr1\t3\tfoo3\tA\t.\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
-    contents += "chr1\t4\tfoo4\tAGGGG\tACTG,<DEL>,<MUL>\t10\tPASS\tNS=1\tGT\t1|0\t0|0";
+    contents += "chr1\t4\tfoo4\tAGGGG\t<DEL>\t10\tPASS\tNS=1\tGT\t1|0\t0|0";
     {
         byteme::GzipFileWriter writer(dir / "file.vcf.gz");
         writer.write(contents);
@@ -257,7 +264,7 @@ TEST_F(VcfExperimentTest, ExpandedParsing) {
     }
     test_validate(dir);
 
-    EXPECT_EQ(test_height(dir), 7);
-    std::vector<size_t> expected_dims { 7, 2 };
+    EXPECT_EQ(test_height(dir), 4);
+    std::vector<size_t> expected_dims { 4, 2 };
     EXPECT_EQ(test_dimensions(dir), expected_dims);
 }
