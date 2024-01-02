@@ -181,6 +181,12 @@ TEST_F(VcfExperimentTest, CollapsedParsing) {
     EXPECT_EQ(test_height(dir), 4);
     std::vector<size_t> expected_dims { 4, 2 };
     EXPECT_EQ(test_dimensions(dir), expected_dims);
+
+    // FWIW we get the same result from parallel parsing.
+    auto meta = takane::read_object_metadata(dir);
+    takane::Options inopt;
+    inopt.parallel_reads = true;
+    takane::vcf_experiment::validate(dir, meta, inopt);
 }
 
 TEST_F(VcfExperimentTest, ExpandedParsing) {
