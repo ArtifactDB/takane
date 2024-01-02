@@ -22,6 +22,7 @@
 #include "sequence_string_set.hpp"
 #include "bumpy_atomic_array.hpp"
 #include "bumpy_data_frame_array.hpp"
+#include "vcf_experiment.hpp"
 
 /**
  * @file _height.hpp
@@ -63,6 +64,7 @@ inline HeightRegistry default_registry() {
     registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> size_t { return sequence_string_set::height(p, m, o); };
     registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> size_t { return bumpy_atomic_array::height(p, m, o); };
     registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> size_t { return bumpy_data_frame_array::height(p, m, o); };
+    registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> size_t { return vcf_experiment::height(p, m, o); };
     return registry;
 } 
 
