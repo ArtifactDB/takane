@@ -11,7 +11,7 @@ cat("# Compressed sparse matrix (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `compressed_sparse_matrix` format provides an on-disk representation of a sparse matrix in the compressed sparse row/column formats.
+The `compressed_sparse_matrix` format provides an on-disk representation of a sparse matrix in the compressed sparse row/column format.
 
 ## Metadata
 
