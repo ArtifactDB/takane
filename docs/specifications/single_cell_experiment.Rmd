@@ -1,0 +1,69 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Single cell experiment (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `single_cell_experiment` format provides an on-disk representation of a single cell experiment. 
+It is based on the `SingleCellExperiment` class from the [**SingleCellExperiment** bioconductor package](https://bioconductor.org/packages/SingleCellExperiment).
+
+## Metadata
+
+The top-level object in the `OBJECT` file should contain a `single_cell_experiment` property, 
+This is a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `single_cell_experiment` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+- (optional) `main_experiment_name`, a string containing the name of the main experiment.
+  If provided, this should not overlap with any names of the alternative experiments in the `alternative_experiments` subdirectory.
+
+In addition, the top-level object should contain all properties expected in a [`ranged_summarized_experiment`](ranged_summarized_experiment) object's metadata.
+This includes the fields that are expected of a [`summarized_experiment`](summarized_experiment) object. 
+
+## Files
+
+The directory should contain all files expected of a [`ranged_summarized_experiment`](ranged_summarized_experiment) object.
+This includes the files that are transitively expected of a [`summarized_experiment`](summarized_experiment) object. 
+The dimensions of the single cell experiment are determined from the `summarized_experiment`-based files.
+
+The directory may contain a `reduced_dimensions` subdirectory.
+The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
+Each string is the name of a dimensionality reduction result and should be non-empty and unique.
+The `reduced_dimensions` subdirectory should contain one subdirectory for each dimensionality reduction result,
+named after the positional index in the JSON array, e.g., `"0"` for the first result, `"1"` for the second result, and so on.
+Each subdirectory of `reduced_dimensions` should be a child object that has some concept of dimensions,
+where the extent of the first dimension is equal to the number of columns of the single cell experiment.
+If no `reduced_dimensions` subdirectory is present, it is assumed that the single cell experiment contains no reduced dimensions.
+
+The directory may contain an `alternative_experiments` subdirectory.
+The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
+Each string is the name of an alternative experiment and should be non-empty and unique.
+The `alternative_experimentst` subdirectory should contain one subdirectory for each alternative experiment,
+named after the positional index in the JSON array, e.g., `"0"` for the first experiment, `"1"` for the second experiment, and so on.
+Each subdirectory of `reduced_dimensions` should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface,
+with number of columns equal to the number of columns of the single cell experiment.
+If no `alternative_experiments` subdirectory is present, it is assumed that the single cell experiment contains no alternative experiments.
+
+Note that any names in the `reduced_dimensions` or `alternative_experiments` should not be used as the column names of the ranged summarized experiment, 
+as this is determined from the `summarized_experiment`-based files instead.
+
+## Height
+
+The height of the `single_cell_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](summarized_experiment).
+
+## Dimensions
+
+The dimensions of the `single_cell_experiment` is defined in the same manner as that of the [`summarized_experiment`](summarized_experiment).
+
+## Interfaces
+
+The `single_cell_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface.

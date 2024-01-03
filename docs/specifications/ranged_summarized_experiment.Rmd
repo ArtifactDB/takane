@@ -29,12 +29,14 @@ In addition, the top-level object should contain all properties expected in a [`
 ## Files
 
 The directory should contain all files expected of a [`summarized_experiment`](summarized_experiment) object.
-The dimensions of the `ranged_summarized_experiment` are determined from the `summarized_experiment`-based files.
+The dimensions of the ranged summarized experiment are determined from the `summarized_experiment`-based files.
 
-The directory may also contain a `row_ranges` subdirectory.
+The directory may contain a `row_ranges` subdirectory.
 This should contain a child object that is a [`genomic_ranges`](genomic_ranges) or [`genomic_ranges_list`](genomic_ranges_list).
-The height of the child object should be equal to the number of rows in the `ranged_summarized_experiment`.
-Note that any names in the `row_ranges` are ignored with respect to the row names determined from the `summarized_experiment`-based files.
+The height of the child object should be equal to the number of rows in the ranged summarized experiment.
+
+Note that any names in the `row_ranges` should not be used as the row names of the ranged summarized experiment, 
+as this is determined from the `summarized_experiment`-based files instead.
 
 ## Height
 

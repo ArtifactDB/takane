@@ -26,11 +26,12 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 - `length`, a non-negative integer specifying the number of sequences.
 - `sequence_type`, a string specifying the sequence type.
   This should be one of `"DNA"`, `"RNA"`, `"AA"` or `"custom"`.
-- `quality_type`, a string specifying the quality encoding type.
+- (optional) `quality_type`, a string specifying the quality encoding type.
   This should be one of `"none"`, `"phred"` or `"solexa"`.
   If absent, this is assumed to be `"none"`.
-- `quality_offset`, a string specifying the offset for quality encodings when `quality_type = "phred"`.
+- `quality_offset`, a string specifying the offset for quality encodings.
   This should be one of 33 or 64.
+  It is only required and used when `quality_type = "phred"`.
 
 ## Files
 

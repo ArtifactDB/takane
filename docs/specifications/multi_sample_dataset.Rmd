@@ -31,7 +31,7 @@ The number of samples in the multi-sample dataset is determined as the number of
 
 The directory may contain an `experiments` subdirectory.
 The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
-Each string is the names of an experiment and should be non-empty and unique.
+Each string is the name of an experiment and should be non-empty and unique.
 The `experiments` subdirectory should contain one subdirectory for each experiment, named after the positional index in the JSON array, e.g., `"0"` for the first experiment, `"1"` for the second experiment, and so on.
 Each subdirectory of `experiments` should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface.
 If no `experiments` subdirectory is present, it is assumed that the multi-sample dataset contains no experiments.

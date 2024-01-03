@@ -1,0 +1,49 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# String factor (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `string_factor` format provides an on-disk representation of a factor (i.e., enumerated type).
+This is based on R's factor.
+
+## Metadata
+
+The top-level object in the `OBJECT` file should contain a `string_factor` property.
+This is a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `string_factor` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+### Files
+
+The directory should contain the `contents.h5` HDF5 file.
+This should contain a `sting_factor` group, which should in turn contain `levels`.
+This is a 1-dimensional string dataset containing the factor levels.
+Any HDF5 string datatype may be used here.
+All levels should be unique.
+
+The `string_factor` group should also contain `codes`, a 1-dimensional dataset containing the 0-indexed factor codes. 
+The length of this dataset should be equal to the number of rows, and the datatype should be exactly represented by a 64-bit unsigned integer.
+Values of this dataset should either be less than the number of levels or equal to the placeholder value.
+
+Missing factor entries are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `string_factor/codes` dataset.
+The attribute should be scalar and have the same datatype as `string_factor/codes`.
+All values in the dataset equal to the placeholder should be treated as missing.
+
+The `string_factor` group may also have an `ordered` attribute, which should be a scalar of any datatype that fits into a 32-bit signed integer.
+If present, a non-zero value indicates that the factor levels should be treated as ordered.
+Otherwise, the levels are treated as unordered.
+
+## Height
+
+The height of the data frame is defined as the extent of the sole dimension of `string_factor/codes`.

@@ -92,7 +92,7 @@ The `data_frame/data/X` group should contain `levels`, a 1-dimensional string da
 Any HDF5 string datatype may be used here.
 All levels should be unique.
 
-The `data_frame/data/X` group should contain `codes`, a 1-dimensional dataset containing the factor codes. 
+The `data_frame/data/X` group should contain `codes`, a 1-dimensional dataset containing the 0-indexed factor codes. 
 The length of this dataset should be equal to the number of rows, and the datatype should be exactly represented by a 64-bit unsigned integer.
 Values of this dataset should either be less than the number of levels or equal to the placeholder value.
 
@@ -100,9 +100,14 @@ Missing factor entries are represented by placeholder values, defined in the `mi
 The attribute should be scalar and have the same datatype as `data_frame/data/X/codes`.
 All values in the dataset equal to the placeholder should be treated as missing.
 
-This group may also have an `ordered` attribute, which should be a scalar of any datatype that fits into a 32-bit signed integer.
+The `data_frame/data/X` group may also have an `ordered` attribute, which should be a scalar of any datatype that fits into a 32-bit signed integer.
 If present, a non-zero value indicates that the factor levels should be treated as ordered.
 Otherwise, the levels are treated as unordered.
+
+Optionally, the `string_factor` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `codes`.
+This contains the name for each element in the factor.
+Any HDF5 string datatype may be used here.
+Names should not be missing so any placeholder attribute on `names` will not be respected.
 
 ### Other
 
@@ -110,7 +115,7 @@ We consider the non-basic column Y, i.e., the X-th column in the data frame.
 This may be any object type that is supported by **takane** and has a concept of "height";
 a common use case is that of nested data frames where one data frame is a column of another data frame.
 The subdirectory at `other_contents/Y` holds the on-disk representation of this non-basic column, so `other_contents/Y` is now a child object of the enclosing data frame.
-The height of the child object should be equal to the number of rows in the data frame, as defined from the `row-count` attribute of the `data_frame` group inside `basic_contents.h5`.
+The height of the child object should be equal to the number of rows in the enclosing data frame.
 
 ## Height
 
