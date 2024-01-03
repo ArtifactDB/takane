@@ -23,6 +23,12 @@ This is a JSON object with the following properties:
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 - `indexed`, a boolean indicating whether the FASTQ file has been indexed.
+- `sequence_type`, a string specifying the sequence type.
+  This should be one of `"DNA"`, `"RNA"`, `"AA"` or `"custom"`.
+- `quality_type`, a string specifying the quality encoding type.
+  This should be one of `"phred"` or `"solexa"`.
+- `quality_offset`, a string specifying the offset for quality encodings when `quality_type = "phred"`.
+  This should be one of 33 or 64.
 
 ## Files
 

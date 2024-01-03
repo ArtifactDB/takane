@@ -23,6 +23,8 @@ This is a JSON object with the following properties:
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 - `indexed`, a boolean indicating whether the FASTA file has been indexed.
+- `sequence_type`, a string specifying the sequence type.
+  This should be one of `"DNA"`, `"RNA"`, `"AA"` or `"custom"`.
 
 ## Files
 

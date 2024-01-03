@@ -51,7 +51,7 @@ The `genomic_ranges` group may optionally contain `name`, a 1-dimensional string
 Any HDF5 string datatype may be used here.
 The length of this dataset should be equal to the number of intervals.
 
-The directory may contain an `range_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
+The directory may contain a `range_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
 This child object should have number of rows equal to the number of intervals.
 Each row of this child object corresponds to an interval and contains additional annotations for that interval.
 
