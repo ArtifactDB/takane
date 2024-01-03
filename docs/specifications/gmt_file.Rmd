@@ -15,7 +15,7 @@ The `gmt_file` format specifies the expected directory organization for GMT file
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `gmt_file` property.
+The top-level object in the `OBJECT` file should contain a `gmt_file` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `gmt_file` format.

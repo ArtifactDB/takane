@@ -15,7 +15,7 @@ The `dense_array` format provides an on-disk representation of a dense array.
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `dense_array` property.
+The top-level object in the `OBJECT` file should contain a `dense_array` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `dense_array` format.

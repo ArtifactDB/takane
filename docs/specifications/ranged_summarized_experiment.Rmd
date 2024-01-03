@@ -1,0 +1,49 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Ranged summarized experiment (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `ranged_summarized_experiment` format provides an on-disk representation of a ranged summarized experiment. 
+It is based on the `RangedSummarizedExperiment` class from the [**SummarizedExperiment** bioconductor package](https://bioconductor.org/packages/SummarizedExperiment).
+
+## Metadata
+
+The top-level object in the `OBJECT` file should contain a `ranged_summarized_experiment` property, 
+This is a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `ranged_summarized_experiment` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+In addition, the top-level object should contain all properties expected in a [`summarized_experiment`](summarized_experiment) object's metadata.
+
+## Files
+
+The directory should contain all files expected of a [`summarized_experiment`](summarized_experiment) object.
+The dimensions of the `ranged_summarized_experiment` are determined from the `summarized_experiment`-based files.
+
+The directory may also contain a `row_ranges` subdirectory.
+This should contain a child object that is a [`genomic_ranges`](genomic_ranges) or [`genomic_ranges_list`](genomic_ranges_list).
+The height of the child object should be equal to the number of rows in the `ranged_summarized_experiment`.
+Note that any names in the `row_ranges` are ignored with respect to the row names determined from the `summarized_experiment`-based files.
+
+## Height
+
+The height of the `ranged_summarized_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](summarized_experiment).
+
+## Dimensions
+
+The dimensions of the `ranged_summarized_experiment` is defined in the same manner as that of the [`summarized_experiment`](summarized_experiment).
+
+## Interfaces
+
+The `ranged_summarized_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface.

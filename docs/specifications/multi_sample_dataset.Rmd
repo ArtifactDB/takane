@@ -1,0 +1,46 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Multi-sample dataset (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `multi_sample_dataset` format provides an on-disk representation of a multi-sample dataset.
+It is based on the `MultiAssayExperiment` class from the [**MultiAssayExperiment** bioconductor package](https://bioconductor.org/packages/MultiAssayExperiment).
+
+## Metadata
+
+The top-level object in the `OBJECT` file should contain a `multi_sample_dataset` property.
+This is a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `multi_sample_dataset` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+## Files
+
+The directory should contain a `sample_data` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
+The number of samples in the multi-sample dataset is determined as the number of rows in the `sample_data` data frame.
+
+The directory may contain an `experiments` subdirectory.
+The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
+Each string is the names of an experiment and should be non-empty and unique.
+The `experiments` subdirectory should contain one subdirectory for each experiment, named after the positional index in the JSON array, e.g., `"0"` for the first experiment, `"1"` for the second experiment, and so on.
+Each subdirectory of `experiments` should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface.
+If no `experiments` subdirectory is present, it is assumed that the multi-sample dataset contains no experiments.
+
+If the directory contains an `experiments` subdirectory, it should further contain a `sample_map.h5` HDF5 file.
+This should contain a `multi_sample_dataset` group, which further contains one 1-dimensional integer dataset per experiment in `experiments`.
+Each dataset is named after the positional index of the experiment (e.g., `"0"`, `"1"`, as described above) and should have length equal to the number of columns of its experiment.
+The datatype should be exactly representable by a 64-bit unsigned integer.
+The values in each dataset are indices into the rows of the `sample_data` data frame, and thus should be less than the number of samples.
+
+The directory may contain an `other_data` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
+This holds extra annotations for the entire multi-sample dataset.

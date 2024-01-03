@@ -16,7 +16,7 @@ It is based on the `GRanges` class from the [**GenomicRanges** Bioconductor pack
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `genomic_ranges` property.
+The top-level object in the `OBJECT` file should contain a `genomic_ranges` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `genomic_ranges` format.

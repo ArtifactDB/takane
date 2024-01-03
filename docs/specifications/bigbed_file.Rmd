@@ -15,7 +15,7 @@ The `bigbed_file` format specifies the expected directory organization for bigBe
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `bigbed_file` property.
+The top-level object in the `OBJECT` file should contain a `bigbed_file` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `bigbed_file` format.

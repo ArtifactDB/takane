@@ -15,7 +15,7 @@ The `data_frame` format provides an on-disk representation of a data frame, base
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `data_frame` property.
+The top-level object in the `OBJECT` file should contain a `data_frame` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `data_frame` format.
@@ -119,3 +119,7 @@ The height of the data frame is defined as the number of rows, as specified in `
 ## Dimensions
 
 The dimensions of the data frame is defined as the number of rows (`row-count`) and columns (the length of `column_names`).
+
+## Interfaces
+
+The `data_frame` object satisfies the `DATA_FRAME` interface.

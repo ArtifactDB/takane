@@ -15,7 +15,7 @@ The `fastq_file` format specifies the expected directory organization for FASTQ 
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `fastq_file` property.
+The top-level object in the `OBJECT` file should contain a `fastq_file` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `fastq_file` format.

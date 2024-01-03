@@ -15,7 +15,7 @@ The `compressed_sparse_matrix` format provides an on-disk representation of a sp
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `compressed_sparse_matrix` property.
+The top-level object in the `OBJECT` file should contain a `compressed_sparse_matrix` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `compressed_sparse_matrix` format.

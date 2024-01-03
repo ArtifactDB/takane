@@ -16,7 +16,7 @@ This is based on the `BumpyMatrix` subclasses for data frames, as implemented in
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `bumpy_data_frame_array` property.
+The top-level object in the `OBJECT` file should contain a `bumpy_data_frame_array` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `bumpy_data_frame_array` format.

@@ -15,7 +15,7 @@ The `bed_file` format specifies the expected directory organization for BED file
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `bed_file` property.
+The top-level object in the `OBJECT` file should contain a `bed_file` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `bed_file` format.

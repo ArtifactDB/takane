@@ -16,7 +16,7 @@ This is a factor where the levels are the rows of a data frame.
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain an `data_frame_factor` property.
+The top-level object in the `OBJECT` file should contain a `data_frame_factor` property.
 This is a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `data_frame_factor` format.
