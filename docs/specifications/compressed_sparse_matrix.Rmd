@@ -31,6 +31,7 @@ The group should contain `shape`, a 1-dimensional dataset of any type that can b
 
 The `compressed_sparse_matrix` group should have a `layout` attribute.
 This should be a scalar string dataset that is either `"CSR"` or `"CSC"`, specifying whether the matrix is compressed sparse row (CSR) or column (CSC).
+Any HDF5 string datatype may be used here.
 
 The `compressed_sparse_matrix` group should contain `data`, a 1-dimensional dataset containing the values for the structural non-zeroes.
 This should have a `type` attribute specifying the type of the sparse matrix and the expected HDF5 datatype of the dataset itself:
@@ -39,9 +40,9 @@ This should have a `type` attribute specifying the type of the sparse matrix and
   Check out the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for more details.
 - For `type = "number"`, the datatype should be any integer/float type that can be exactly represented by a 64-bit float.
 
-Missing values are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `compressed_sparse_matrix/data` dataset.
+Missing values in the matrix are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `compressed_sparse_matrix/data` dataset.
+The attribute should be scalar and should have the same datatype as `compressed_sparse_matrix/data`.
 All values in the dataset equal to the placeholder should be treated as missing.
-The placeholder datatype should be identical to that of `compressed_sparse_matrix/data`.
 
 The `compressed_sparse_matrix` group should contain `indices`, a 1-dimensional dataset containing the row indices (for CSC) or column indices (for CSR) for the structural non-zeroes.
 This should have a datatype that can be exactly represented by a 64-bit unsigned integer.
@@ -60,6 +61,7 @@ Given a particular range, all values in `compressed_sparse_matrix/indices` insid
 Optionally, the `compressed_sparse_matrix` group may contain a `names` subgroup.
 This may contain any number of 1-dimensional string datasets named after the corresponding dimension, e.g., `0` for rows, `1` for columns.
 Each dataset contains the names for its dimension and should have a length equal to the extent of that dimension.
+Any HDF5 string datatype may be used in each dataset.
 
 ## Height
 

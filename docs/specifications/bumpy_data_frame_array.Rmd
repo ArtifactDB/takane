@@ -54,6 +54,7 @@ Coordinates should also be non-duplicated and sorted in increasing order where t
 Optionally, the `bumpy_data_frame_array` group may contain a `names` subgroup.
 This may contain any number of 1-dimensional string datasets named after the corresponding dimension, e.g., `0`, `1`.
 Each dataset contains the names for its dimension and should have a length equal to the extent of that dimension.
+Any HDF5 string datatype may be used in each dataset.
 
 ## Height
 

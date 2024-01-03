@@ -39,6 +39,7 @@ reconstructing the vector for a particular list element involves taking a contig
 
 Optionally, the `atomic_vector_list` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `values`.
 This contains the name for each element of the atomic vector list.
+Any HDF5 string datatype may be used here.
 
 The directory may contain an `element_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
 This child object should have number of rows equal to the extent of the `atomic_vector_list/lengths` dataset.
