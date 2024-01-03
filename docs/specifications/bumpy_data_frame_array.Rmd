@@ -1,0 +1,64 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Bumpy atomic array (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `bumpy_data_frame_array` format provides an on-disk representation of an array where each entry is an data frame of the same type.
+This is based on the `BumpyMatrix` subclasses for data frames, as implemented in the [**BumpyMatrix** Bioconductor package](https://bioconductor.org/packages/BumpyMatrix).
+
+## Metadata
+
+The top-level object in the `OBJECT` file should contain an `bumpy_data_frame_array` property.
+This is a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `bumpy_data_frame_array` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+## Files
+
+The directory should contain a `partitions.h5` HDF5 file.
+This file should contain an `bumpy_data_frame_array` group.
+The group should contain `dimensions`, a 1-dimensional dataset of any type that can be exactly represented by a 64-bit unsigned integer.
+`bumpy_data_frame_array/dimensions` contains the extents of the dimensions of the bumpy array.
+
+The `bumpy_data_frame_array` group also should contain `lengths`, a 1-dimensional dataset of any type that can be exactly represented by a 64-bit unsigned integer.
+Each entry corresponds to an entry of the bumpy atomic array - that is, an data frame -
+and defines the number of consecutive rows in the `concatenated` object (see below) that can be used to construct each data frame.
+
+The directory should also contain a `concatenated` subdirectory, which contains a child object of the `data_frame_vector` type.
+The height of this child object should be equal to the sum of lengths in the `bumpy_data_frame_array/lengths` dataset of the `partitions.h5` file.
+In effect, this child object represents the concatenation of all of the data frames in the array;
+reconstructing the data frame for a particular array entry involves taking a contiguous slice of rows at an offset defined by the sum of the preceding `lengths`.
+
+If the `bumpy_data_frame_array` group does not contain an `indices` subgroup, it is assumed that the bumpy array is dense.
+The `bumpy_data_frame_array/lengths` dataset should have length equal to the product of `bumpy_data_frame_array/dimensions`.
+Each entry of `bumpy_data_frame_array/lengths` maps to an array entry by flattening the array to a 1-dimensional vector where the first dimension is the fastest-changing, then the second, and so on.
+
+If the `bumpy_data_frame_array` group does contain an `indices` subgroup, it is assumed that the bumpy array is sparse.
+The `bumpy_data_frame_array/indices` subgroup should contain one dataset per dimension, named after the index of the dimension, e.g., `0` for the first dimension, `1` for the second dimension, and so on.
+Each `bumpy_data_frame_array/indices/X` dataset should be 1-dimensional with length equal to `bumpy_data_frame_array/lengths`, and should have a type that can be exactly represented by a 64-bit unsigned integer.
+These datasets define the array coordinates for the corresponding entry of `bumpy_data_frame_array/lengths`.
+Entries in each dataset should be less than the extent of the corresponding dimension.
+Coordinates should also be non-duplicated and sorted in increasing order where the first dimension is the fastest-changing, then the second, and so on.
+
+Optionally, the `bumpy_data_frame_array` group may contain a `names` subgroup.
+This may contain any number of 1-dimensional string datasets named after the corresponding dimension, e.g., `0`, `1`.
+Each dataset contains the names for its dimension and should have a length equal to the extent of that dimension.
+
+## Height
+
+The height of the bumpy atomic array is defined as the extent of the first dimension, as specified in `bumpy_data_frame_array/dimensions`.
+
+## Dimensions
+
+The dimensions of the bumpy atomic array are taken from `bumpy_data_frame_array/dimensions`.
