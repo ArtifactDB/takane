@@ -1,0 +1,34 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# BCF file (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `bcf_file` format specifies the expected representation for a BCF file.
+
+## Object metadata
+
+The `OBJECT` file should contain a `bcf_file` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `bcf_file` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+## Directory structure
+
+The directory should contain `file.bcf`, the BCF file.
+The file should be formatted as described in the BCF specification - 
+any version is supported, but it is generally recommended to use [version 2 or higher](https://samtools.github.io/hts-specs/BCFv2_qref.pdf).
+
+The directory may optionally contain `file.bcf.tbi` and/or `file.bcf.csi`, which should be indices into `file.bcf`.
+`file.bcf.tbi` should follow the format described in the [Tabix specification](https://samtools.github.io/hts-specs/tabix.pdf),
+while `file.bcf.csi` should follow the [CSI specification](https://samtools.github.io/hts-specs/CSIv1.pdf).
+Both files may be present in a single directory, though it is generally only necessary to provide one.

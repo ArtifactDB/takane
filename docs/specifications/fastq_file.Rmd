@@ -1,0 +1,41 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# FASTQ file (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `fastq_file` format specifies the expected representation for a FASTQ file.
+
+## Object metadata
+
+The `OBJECT` file should contain a `fastq_file` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `fastq_file` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+- `indexed`, a boolean indicating whether the FASTQ file has been indexed.
+- `sequence_type`, a string specifying the sequence type.
+  This should be one of `"DNA"`, `"RNA"`, `"AA"` or `"custom"`.
+- `quality_type`, a string specifying the quality encoding type.
+  This should be one of `"phred"` or `"solexa"`.
+- `quality_offset`, a string specifying the offset for quality encodings when `quality_type = "phred"`.
+  This should be one of 33 or 64.
+
+## Directory structure
+
+If `indexed = false`, the directory should contain `file.fastq.gz`, a Gzip-compressed FASTQ file.
+
+If `indexed = true`, the directory should contain `file.fastq.bgz`, a BGZF-compressed FASTQ file.
+The directory should also contain `file.fastq.fai`, the FASTQ index file containing offsets into the uncompressed `file.fastq`;
+and `file.fastq.bgz.gzi`, the BGZF index file containing the byte offset mappings the uncompressed file to the compressed file.
+
+Sequences in the FASTQ file should use the alphabet specified by the `sequence_type` property in the object metadata.
+Similarly, quality strings in the file should follow the quality encoding defined by `quality_type` and `quality_offset`.

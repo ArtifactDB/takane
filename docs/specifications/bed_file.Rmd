@@ -1,0 +1,32 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# BED file (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `bed_file` format specifies the expected representation for a BED file.
+
+## Object metadata
+
+The `OBJECT` file should contain a `bed_file` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `bed_file` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+- `indexed`, a boolean indicating whether the BED file has been indexed.
+
+## Directory structure
+
+If `indexed = false`, the directory should contain `file.bed.gz`, a Gzip-compressed BED file.
+The file should be formatted as described in the [BED specification](https://samtools.github.io/hts-specs/BEDv1.pdf).
+
+If `indexed = true`, the directory should contain `file.bed.bgz`, a BGZF-compressed BED file. 
+The directory should also contain `file.bed.bgz.tbi`, a [Tabix file ](https://samtools.github.io/hts-specs/tabix.pdf) that indexes `file.bed.bgz`.

@@ -1,0 +1,50 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Ranged summarized experiment (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `ranged_summarized_experiment` format provides an on-disk representation of a ranged summarized experiment. 
+It is based on the `RangedSummarizedExperiment` class from the [**SummarizedExperiment** bioconductor package](https://bioconductor.org/packages/SummarizedExperiment).
+
+## Object metadata
+
+The `OBJECT` file should contain a `ranged_summarized_experiment` property, which is itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `ranged_summarized_experiment` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+In addition, the `OBJECT` file should contain all properties expected for the [`summarized_experiment`](../summarized_experiment) format, i.e., a `summarized_experiment` property.
+
+## Directory structure
+
+The directory should contain all files expected of the [`summarized_experiment`](../summarized_experiment) format.
+The dimensions of the ranged summarized experiment are determined from the `summarized_experiment` files.
+
+The directory may contain a `row_ranges` subdirectory.
+This should contain a child object that is a [genomic ranges object](../genomic_ranges) or a [genomic ranges list](../genomic_ranges_list).
+The height of the child object should be equal to the number of rows in the ranged summarized experiment.
+
+Note that any names in the `row_ranges` should not be used as the row names of the ranged summarized experiment, 
+as this is determined from the `summarized_experiment`-based files instead.
+
+## Height
+
+The height of the `ranged_summarized_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](../summarized_experiment).
+
+## Dimensions
+
+The dimensions of the `ranged_summarized_experiment` is defined in the same manner as that of the [`summarized_experiment`](../summarized_experiment).
+
+## Interfaces
+
+The `ranged_summarized_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface.

@@ -1,0 +1,50 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Data frame factor (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `data_frame_factor` format provides an on-disk representation of a data frame factor, based on the `DataFrameFactor` class from the [**S4Vectors** Bioconductor package](https://bioconductor.org/packages/S4Vectors).
+This is a factor where the levels are the rows of a data frame.
+
+## Object metadata
+
+The `OBJECT` file should contain a `data_frame_factor` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `data_frame_factor` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+## Directory structure
+
+The directory should contain a `levels` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
+The number of rows in the child object defines the number of levels in the data frame factor.
+Rows should not be duplicated, though the exact definition of a duplicated row is application-specific.
+
+The directory should contain a `contents.h5` HDF5 file, which in turn should contain an `data_frame_factor` group.
+This group should contain `codes`, a 1-dimensional dataset containing the factor codes. 
+The datatype of this dataset should be exactly represented by a 64-bit unsigned integer.
+Values of this dataset should be less than the number of levels.
+
+The directory may contain an `element_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
+This child object should have number of rows equal to the length of the `data_frame_factor/codes` dataset.
+Each row corresponds to an entry of the data frame factor and contains additional annotations for that element.
+
+The directory may contain an `other_annotations` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
+This holds extra annotations for the entire data frame factor.
+
+Optionally, the `data_frame_factor` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `codes`.
+This contains the name for each element of the data frame factor.
+Any HDF5 string datatype may be used here.
+
+## Height
+
+The height of the data frame factor is defined as the length of the `data_frame_factor/codes` dataset in `contents.h5`.

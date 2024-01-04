@@ -1,0 +1,73 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Sequence string set (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `sequence_string_set` format specifies the on-disk representation of a set of sequence strings.
+This is based on the `XStringSet` class from the [**Biostrings** Bioconductor package](https://bioconductor.org/packages/Biostrings).
+
+## Metadata
+
+The `OBJECT` file should contain a `sequence_string_set` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `fasta_file` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+- `length`, a non-negative integer specifying the number of sequences.
+- `sequence_type`, a string specifying the sequence type.
+  This should be one of `"DNA"`, `"RNA"`, `"AA"` or `"custom"`.
+- (optional) `quality_type`, a string specifying the quality encoding type.
+  This should be one of `"none"`, `"phred"` or `"solexa"`.
+  If absent, this is assumed to be `"none"`.
+- `quality_offset`, a string specifying the offset for quality encodings.
+  This should be one of 33 or 64.
+  It is only required and used when `quality_type = "phred"`.
+
+## Files
+
+If `quality_type = "none"`, the directory should contain a `sequences.fasta.gz` file.
+This is a Gzip-compressed FASTA file where each entry is named after its positional index in the file, e.g., `"0"` for the first sequence, `"1"` for the second sequence, and so on.
+Each sequence should only contain characters from the appropriate alphabet, according to `type`:
+
+- For `"DNA"`, all IUPAC nucleotide codes except U may be used.
+  Lower case characters are also supported.
+  Gaps may be encoded with `.` or `-`.
+- For `"RNA"`, all IUPAC nucleotide codes except T may be used.
+  Lower case characters are also supported.
+  Gaps may be encoded with `.` or `-`.
+- For `"AA"`, all IUPAC amino acid codes may be used.
+  Lower case characters are also supported.
+  Gaps may be encoded with `.` or `-`.
+- For `"custom"`, any ASCII characters may be used.
+
+If `quality_type` is not `"none"`, the directory should contain a `sequences.fastq.gz` file.
+This is a Gzip-compressed FASTQ file where each entry is named after its positional index in the file, e.g., `"0"` for the first sequence, `"1"` for the second sequence, and so on.
+Each sequence should only contain characters from the appropriate alphabet as described above.
+In addition, each quality string should not contain characters below some threshold character (based on the ASCII code sort order).
+For `"phred"`, this threshold is `!` if `quality_offset = 33`, and `@` if `quality_offset = 64`.
+For `"solexa"`, this threshold is `;`.
+
+For both FASTA and FASTQ files, sequence and quality strings may contain any number of newlines.
+Both files must be newline-terminated.
+
+The number of sequences in both FASTA and FASTQ files should be equal to the `length` property in the object metadata.
+
+The directory may contain a `sequence_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
+This child object should have number of rows equal to the number of sequences in the FASTA/FASTQ file.
+Each row of this child object corresponds to an interval and contains additional annotations for that interval.
+
+The directory may contain an `other_annotations` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
+This holds extra annotations for the entire sequence string set.
+
+## Height
+
+The height of the sequence string set is defined as the number of sequences, i.e., the `length` property in the object metadata.

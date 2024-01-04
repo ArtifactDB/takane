@@ -1,0 +1,52 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Data frame list (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `data_frame_list` format provides an on-disk representation of a list of data frames of the same type.
+This is based on the `CompressedSplitDataFrameList` from the [**IRanges** Bioconductor package](https://bioconductor.org/packages/IRanges).
+
+## Object metadata
+
+The `OBJECT` file should contain a `data_frame_list` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `data_frame_list` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+## Directory structure
+
+The directory should contain a `partitions.h5` HDF5 file.
+This file should contain an `data_frame_list` group, inside of which should be a `lengths` dataset.
+The `lengths` dataset should be 1-dimensional and have a datatype that can be exactly represented by a 64-bit unsigned integer.
+Each entry corresponds to an element of the data frame list - that is, an data frame -
+and defines the number of consecutive elements in the `concatenated` object (see below) that can be used to construct each data frame.
+
+The directory should also contain a `concatenated` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
+The number of rows in this child object should be equal to the sum of lengths in the `data_frame_list/lengths` dataset of the `partitions.h5` file.
+In effect, this child object represents the concatenation of all of the data frames in the list;
+reconstructing the vector for a particular list element involves taking a contiguous slice of rows at an offset defined by the sum of the preceding `lengths`.
+
+Optionally, the `data_frame_list` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `data_frame_list/lengths`.
+This contains the name for each element of the data frame list.
+Any HDF5 string datatype may be used here.
+
+The directory may contain an `element_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
+This child object should have number of rows equal to the extent of the `data_frame_list/lengths` dataset.
+Each row corresponds to a list element and contains additional annotations for that element.
+
+The directory may contain an `other_annotations` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
+This holds extra annotations for the entire list.
+
+## Height
+
+The height of the data frame list is defined as the extent of the sole dimension of the `data_frame_list/lengths` dataset in `partitions.h5`.
