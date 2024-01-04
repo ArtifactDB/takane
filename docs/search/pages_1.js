@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['miscellaneous_20validators_20for_20artifactdb_0',['Miscellaneous validators for ArtifactDB',['../index.html',1,'']]]
+  ['general_20comments_0',['General comments',['../md__github_workspace_docs_specifications__general.html',1,'']]]
 ];

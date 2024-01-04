@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.5"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>takane: Miscellaneous validators for ArtifactDB</title>
+<title>takane: File validators for Bioconductor objects</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,29 +71,61 @@ $(function() {
 </div>
 
 <div><div class="header">
-  <div class="headertitle"><div class="title">Miscellaneous validators for ArtifactDB </div></div>
+  <div class="headertitle"><div class="title">File validators for Bioconductor objects </div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p ><a class="anchor" id="md__github_workspace_README"></a> <img src="https://github.com/ArtifactDB/takane/actions/workflows/run-tests.yaml/badge.svg" alt="Unit tests" style="pointer-events: none;" class="inline"/> <img src="https://github.com/ArtifactDB/takane/actions/workflows/doxygenate.yaml/badge.svg" alt="Documentation" style="pointer-events: none;" class="inline"/> <a href="https://codecov.io/gh/ArtifactDB/takane"><img src="https://codecov.io/gh/ArtifactDB/takane/branch/master/graph/badge.svg?token=J3dxS3MtT1" alt="codecov" style="pointer-events: none;" class="inline"/></a></p>
 <h1>Overview</h1>
-<p >This library contains some C++ libraries to validate ArtifactDB file formats that aren't covered by other libraries (e.g., <a href="https://github.com/ArtifactDB/comservatory"><b>comservatory</b></a>, <a href="https://github.com/ArtifactDB/uzuki2"><b>uzuki2</b></a>). The idea is to provide a cross-language method for validating the files - which is not quite as useful as a library for <em>reading</em> the files, but it's better than nothing.</p>
+<p >This library contains some C++ libraries to validate on-disk representations of Bioconductor objects used in ArtifactDB instances. The idea is to provide a cross-language method for validating the files - which is not quite as useful as a library for <em>reading</em> the files, but it's better than nothing.</p>
 <h1>Specifications</h1>
-<p >Currently, <b>takane</b> performs validation of the following representations:</p>
+<p >See <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/_general.md">general comments</a> for all objects' on-disk representations.</p>
+<p >Currently, <b>takane</b> provides validators for the following objects:</p>
 <ul>
-<li>HDF5 data frame</li>
-<li>CSV data frame</li>
-<li>Atomic vector</li>
-<li>Factor</li>
-<li>Genomic ranges</li>
-<li>HDF5 dense array</li>
-<li>HDF5 sparse matrix</li>
-<li>Sequence information</li>
+<li><code>atomic_vector_list</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector_list/1.0.md">1.0</a>.</li>
+<li><code>atomic_vector</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector/1.0.md">1.0</a>.</li>
+<li><code>bam_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bam_file/1.0.md">1.0</a>.</li>
+<li><code>bcf_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bcf_file/1.0.md">1.0</a>.</li>
+<li><code>bcf_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bcf_file/1.0.md">1.0</a>.</li>
+<li><code>bigbed_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bigbed_file/1.0.md">1.0</a>.</li>
+<li><code>bigwig_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bigwig_file/1.0.md">1.0</a>.</li>
+<li><code>bumpy_atomic_array</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bumpy_atomic_array/1.0.md">1.0</a>.</li>
+<li><code>bumpy_data_frame_array</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bumpy_data_frame_array/1.0.md">1.0</a>.</li>
+<li><code>compressed_sparse_matrix</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/compressed_sparse_matrix/1.0.md">1.0</a>.</li>
+<li><code>data_frame_factor</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame_factor/1.0.md">1.0</a>.</li>
+<li><code>data_frame_list</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame_list/1.0.md">1.0</a>.</li>
+<li><code>data_frame</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame/1.0.md">1.0</a>.</li>
+<li><code>dense_array</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/dense_array/1.0.md">1.0</a>.</li>
+<li><code>fasta_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/fasta_file/1.0.md">1.0</a>.</li>
+<li><code>fastq_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/fastq_file/1.0.md">1.0</a>.</li>
+<li><code>genomic_ranges_list</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/genomic_ranges_list/1.0.md">1.0</a>.</li>
+<li><code>genomic_ranges</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/genomic_ranges/1.0.md">1.0</a>.</li>
+<li><code>gff_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gff_file/1.0.md">1.0</a>.</li>
+<li><code>gmt_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gmt_file/1.0.md">1.0</a>.</li>
+<li><code>multi_sample_dataset</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/multi_sample_dataset/1.0.md">1.0</a>.</li>
+<li><code>ranged_summarized_experiment</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/ranged_summarized_experiment/1.0.md">1.0</a>.</li>
+<li><code>sequence_information</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/sequence_information/1.0.md">1.0</a>.</li>
+<li><code>sequence_string_set</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/sequence_string_set/1.0.md">1.0</a>.</li>
+<li><code>simple_list</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/simple_list/1.0.md">1.0</a>.</li>
+<li><code>single_cell_experiment</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/single_cell_experiment/1.0.md">1.0</a>.</li>
+<li><code>spatial_experiment</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.0.md">1.0</a>.</li>
+<li><code>string_factor</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/string_factor/1.0.md">1.0</a>.</li>
+<li><code>summarized_experiment</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/summarized_experiment/1.0.md">1.0</a>.</li>
+<li><code>vcf_experiment</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/vcf_experiment/1.0.md">1.0</a>.</li>
 </ul>
-<p >Each representation has its own validation function that takes information from the schema and checks them against the file contents. For example, for the <code>hdf5_sparse_matrix</code>, we could do:</p>
+<h1>Validation</h1>
+<p >The <code><a class="el" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">takane::validate()</a></code> function inspects the object's directory and validates its contents, throwing an error if the contents are not valid.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;takane/takane.hpp&quot;</span></div>
+<div class="line"> </div>
 <div class="line"><a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">takane::validate</a>(dir);</div>
 <div class="ttc" id="anamespacetakane_html_aeb4796393d6e41245226e3104dce67e7"><div class="ttname"><a href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">takane::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _validate.hpp:112</div></div>
-</div><!-- fragment --><p >Check out the <a href="https://artifactdb.github.io/takane/">reference documentation</a> for more details.</p>
+</div><!-- fragment --><p >The idea is to bind to the <b>takane</b> library in application-specific frameworks, e.g., via R/Python's foreign function interfaces. This consistently enforces the format expectations for each object, regardless of how the saving was performed by each application. For example, we might use the <a href="https://github.com/ArtifactDB/alabaster.base"><b>alabaster</b></a> framework to save Bioconductor objects to disk:</p>
+<div class="fragment"><div class="line">library(alabaster.base)</div>
+<div class="line">tmp &lt;- tempfile()</div>
+<div class="line">df &lt;- DataFrame(X=1:10, Y=letters[1:10])</div>
+<div class="line">saveObject(df, tmp)</div>
+<div class="line">validateObject(tmp) # calls takane::validate()</div>
+</div><!-- fragment --><p >If the validation passes, we can be confident that the same object can be reconstructed in different frameworks, e.g., with <a href="https://github.com/ArtifactDB/dolomite-base"><b>dolomite</b></a> packages in Python.</p>
+<p >Check out the <a href="https://artifactdb.github.io/takane/">reference documentation</a> for more details.</p>
 <h1>Building projects</h1>
 <h2>CMake with <code>FetchContent</code></h2>
 <p >If you're using CMake, you just need to add something like this to your <code>CMakeLists.txt</code>:</p>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['general_20comments_0',['General comments',['../md__github_workspace_docs_specifications__general.html',1,'']]]
+  ['file_20validators_20for_20bioconductor_20objects_0',['File validators for Bioconductor objects',['../index.html',1,'']]]
 ];
