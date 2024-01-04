@@ -14,23 +14,22 @@ cat("# Spatial experiment (", as.character(.version), ")", sep="")
 The `spatial_experiment` format provides an on-disk representation of a spatial experiment. 
 It is based on the `SpatialExperiment` class from the [**SpatialExperiment** bioconductor package](https://bioconductor.org/packages/SpatialExperiment).
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `spatial_experiment` property, 
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `spatial_experiment` property, which is itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `spatial_experiment` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-In addition, the top-level object should contain all properties expected in a [`single_cell_experiment`](single_cell_experiment) object's metadata.
-This includes the transitive expectations of metadata fields from [`summarized_experiment`](summarized_experiment) and [`ranged_summarized_experiment`](ranged_summarized_experiment) object. 
+In addition, the `OBJECT` file should contain all properties expected for the [`single_cell_experiment`](single_cell_experiment) format, i.e., a `single_cell_experiment` property.
+This transitively includes the properties that are expected of the [`summarized_experiment`](summarized_experiment) and [`ranged_summarized_experiment`](ranged_summarized_experiment) formats. 
 
 ## Files
 
-The directory should contain all files expected of a [`single_cell_experiment`](single_cell_experiment) object.
-This includes the transitive expectations of files that should be present in the [`summarized_experiment`](summarized_experiment) and [`summarized_experiment`](ranged_summarized_experiment) objects.
+The directory should contain all files expected for the [`single_cell_experiment`](single_cell_experiment) format.
+This includes the transitive expectations of files that should be present in the [`summarized_experiment`](summarized_experiment) and [`summarized_experiment`](ranged_summarized_experiment) formats.
 The dimensions of the spatial experiment are determined from the `summarized_experiment`-based files.
 
 The directory should contain a `coordinates` subdirectory, which contains a [`dense_array`](dense_array) object.

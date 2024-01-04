@@ -14,17 +14,16 @@ cat("# Genomic ranges (", as.character(.version), ")", sep="")
 The `genomic_ranges` format provides an on-disk representation of a collection of genomic intervals.
 It is based on the `GRanges` class from the [**GenomicRanges** Bioconductor package](https://bioconductor.org/packages/GenomicRanges).
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `genomic_ranges` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `genomic_ranges` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `genomic_ranges` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain a `sequence_information` subdirectory that holds a child object of type `sequence_information`.
 The number of reference sequences in the genomic ranges is defined from the number of sequences in the `sequence_information` child.
@@ -32,7 +31,7 @@ A reference sequence is considered to have an enforcible length if it has a non-
 
 The directory should contain an `ranges.h5` HDF5 file, which in turn should contain a `genomic_ranges` group.
 This group should in turn contain several 1-dimensional datasets, all of which should be of the same length.
-The length of each dataset represents the number of genomic intervals.
+The length of each dataset represents the number of genomic intervals in the genomic ranges object.
 The following datasets should be present:
 
 - `sequence`, an integer dataset of any datatype that can be exactly represented by a 64-bit unsigned integer.
@@ -45,7 +44,7 @@ The following datasets should be present:
   Values represent the strand, i.e., -1 (reverse), 0 (unstranded) or 1 (forward).
 
 For each interval, the value of `start + width` should fit in a 64-bit signed integer.
-If a reference sequence has an enforcible length, all intervals assigned to that sequence (as per their values in `genomic_ranges/sequence`) should have `start >= 1` and `start + width - 1` no greater than the sequence length.
+If a reference sequence has an enforcible length, all intervals assigned to that sequence (based on `genomic_ranges/sequence`) should have `start >= 1` and `start + width - 1` no greater than the sequence length.
 
 The `genomic_ranges` group may optionally contain `name`, a 1-dimensional string dataset containing the names of the genomic intervals.
 Any HDF5 string datatype may be used here.

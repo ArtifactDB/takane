@@ -16,8 +16,7 @@ This is based on the `XStringSet` class from the [**Biostrings** Bioconductor pa
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain a `sequence_string_set` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `sequence_string_set` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `fasta_file` format.
 ```{r, results="asis", echo=FALSE}
@@ -52,8 +51,8 @@ Each sequence should only contain characters from the appropriate alphabet, acco
 
 If `quality_type` is not `"none"`, the directory should contain a `sequences.fastq.gz` file.
 This is a Gzip-compressed FASTQ file where each entry is named after its positional index in the file, e.g., `"0"` for the first sequence, `"1"` for the second sequence, and so on.
-Each sequence should only contain characters from the appropriate alphabet as described above;
-in addition, each quality string should not contain characters below some threshold character.
+Each sequence should only contain characters from the appropriate alphabet as described above.
+In addition, each quality string should not contain characters below some threshold character (based on the ASCII code sort order).
 For `"phred"`, this threshold is `!` if `quality_offset = 33`, and `@` if `quality_offset = 64`.
 For `"solexa"`, this threshold is `;`.
 

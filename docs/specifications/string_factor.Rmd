@@ -16,8 +16,7 @@ This is based on R's factor.
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain a `string_factor` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `string_factor` property, which is itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `string_factor` format.
 ```{r, results="asis", echo=FALSE}
@@ -39,11 +38,17 @@ Values of this dataset should either be less than the number of levels or equal 
 Missing factor entries are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `string_factor/codes` dataset.
 The attribute should be scalar and have the same datatype as `string_factor/codes`.
 All values in the dataset equal to the placeholder should be treated as missing.
+See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
 
 The `string_factor` group may also have an `ordered` attribute, which should be a scalar of any datatype that fits into a 32-bit signed integer.
 If present, a non-zero value indicates that the factor levels should be treated as ordered.
 Otherwise, the levels are treated as unordered.
 
+Optionally, the `string_factor` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `codes`.
+This contains the name for each element in the factor.
+Any HDF5 string datatype may be used here.
+Names should not be missing so any placeholder attribute on `names` will not be respected.
+
 ## Height
 
-The height of the data frame is defined as the extent of the sole dimension of `string_factor/codes`.
+The height of the data frame is defined as the extent of the sole dimension of the `string_factor/codes` dataset in `contents.h5`.

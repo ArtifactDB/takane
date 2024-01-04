@@ -14,17 +14,16 @@ cat("# Data frame factor (", as.character(.version), ")", sep="")
 The `data_frame_factor` format provides an on-disk representation of a data frame factor, based on the `DataFrameFactor` class from the [**S4Vectors** Bioconductor package](https://bioconductor.org/packages/S4Vectors).
 This is a factor where the levels are the rows of a data frame.
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `data_frame_factor` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `data_frame_factor` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `data_frame_factor` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain a `levels` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
 The number of rows in the child object defines the number of levels in the data frame factor.

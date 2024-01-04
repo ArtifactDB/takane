@@ -13,17 +13,16 @@ cat("# Atomic vector (", as.character(.version), ")", sep="")
 
 The `atomic_vector` format provides an on-disk representation of typed arrays, based on R's atomic vectors.
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain an `atomic_vector` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain an `atomic_vector` property, which is itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `atomic_vector` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain a `contents.h5` HDF5 file.
 This file should contain an `atomic_vector` group with the following attributes:
@@ -43,16 +42,17 @@ The HDF5 datatype of the dataset should match the `type` attribute:
 Missing values in the atomic vector are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `atomic_vector/values` dataset.
 The attribute should be a scalar and should have the same datatype as `atomic_vector/values`, except in the case of strings where any string datatype may be used.
 All values in the dataset equal to the placeholder should be treated as missing.
+See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
 
 For `type = "string"`, the `atomic_vector` group may optionally contain a `format` attribute.
-This should be set to:
+If present, this should be a scalar string attribute of any HDF5 string datatype, containing one of the following values:
 
 - `"none"`: no constraints on the contents of each string.
   This is the default behaviour if no `format` is present.
 - `"date"`: strings should be dates following a `YYYY-MM-DD` format.
 - `"date-time"`: strings should be Internet Date/Time values following the format described in [RFC3339](https://www.rfc-editor.org/rfc/rfc3339).
 
-Optionally, the `atomic_vector` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `values`.
+Optionally, the `atomic_vector` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `atomic_vector/values`.
 This contains the name for each element in the atomic vector.
 Any HDF5 string datatype may be used here.
 Names should not be missing so any placeholder attribute on `names` will not be respected.

@@ -14,10 +14,9 @@ cat("# Summarized experiment (", as.character(.version), ")", sep="")
 The `summarized_experiment` format provides an on-disk representation of a summarized experiment. 
 It is based on the `SummarizedExperiment` class from the [**SummarizedExperiment** bioconductor package](https://bioconductor.org/packages/SummarizedExperiment).
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `summarized_experiment` property, 
-This is a JSON object with the following properties:
+The `OBJECT` file should contain an `summarized_experiment` property, which is itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `summarized_experiment` format.
 ```{r, results="asis", echo=FALSE}
@@ -26,15 +25,15 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 - `dimensions`, an array of the dimensions of the summarized experiment.
   This should contain two non-negative integers specifying the number of rows and columns, respectively.
 
-## Files
+## Directory structure
 
 The directory may contain an `assays` subdirectory.
 The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
 Each string is the name of an assay and should be non-empty and unique.
 The `assays` subdirectory should contain one subdirectory for each assay,
-named after the assay's positional index in the JSON array, e.g., `"0"` for the first assay, `"1"` for the second assay, and so on.
+named after the assay's positional index in the JSON array, e.g., `0` for the first assay, `1` for the second assay, and so on.
 Each subdirectory of `assays` should be a child object that has some concept of "dimensions",
-where the number of dimensions is at least 2 and the first two dimensions are equal to that of the summarized experiment.
+where the number of dimensions is at least 2 and the first two dimensions are equal to those of the summarized experiment.
 If no `assays` subdirectory is present, it is assumed that no assays are available.
 
 The directory may contain a `row_data` subdirectory, containing additional annotations for the rows.

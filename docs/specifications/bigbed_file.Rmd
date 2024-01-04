@@ -11,18 +11,17 @@ cat("# bigBed file (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `bigbed_file` format specifies the expected directory organization for bigBed files.
+The `bigbed_file` format specifies the expected representation of a bigBed file.
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `bigbed_file` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `bigbed_file` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `bigbed_file` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain `file.bb`, the bigBed file.

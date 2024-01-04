@@ -14,17 +14,16 @@ cat("# Bumpy atomic array (", as.character(.version), ")", sep="")
 The `bumpy_atomic_array` format provides an on-disk representation of an array where each entry is an atomic vector of the same type.
 This is based on the `BumpyMatrix` subclasses for atomic vectors, as implemented in the [**BumpyMatrix** Bioconductor package](https://bioconductor.org/packages/BumpyMatrix).
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `bumpy_atomic_array` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `bumpy_atomic_array` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `bumpy_atomic_array` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain a `partitions.h5` HDF5 file.
 This file should contain an `bumpy_atomic_array` group.
@@ -46,7 +45,7 @@ Each entry of `bumpy_atomic_array/lengths` maps to an array entry by flattening 
 
 If the `bumpy_atomic_array` group does contain an `indices` subgroup, it is assumed that the bumpy array is sparse.
 The `bumpy_atomic_array/indices` subgroup should contain one dataset per dimension, named after the index of the dimension, e.g., `0` for the first dimension, `1` for the second dimension, and so on.
-Each `bumpy_atomic_array/indices/X` dataset should be 1-dimensional with length equal to `bumpy_atomic_array/lengths`, and should have a type that can be exactly represented by a 64-bit unsigned integer.
+Each `bumpy_atomic_array/indices/X` dataset should be 1-dimensional with length equal to `bumpy_atomic_array/lengths`, and should have a datatype that can be exactly represented by a 64-bit unsigned integer.
 These datasets define the array coordinates for the corresponding entry of `bumpy_atomic_array/lengths`.
 Entries in each dataset should be less than the extent of the corresponding dimension.
 Coordinates should also be non-duplicated and sorted in increasing order where the first dimension is the fastest-changing, then the second, and so on.
@@ -58,8 +57,9 @@ Any HDF5 string datatype may be used in each dataset.
 
 ## Height
 
-The height of the bumpy atomic array is defined as the extent of the first dimension, as specified in `bumpy_atomic_array/dimensions`.
+The height of the bumpy atomic array is defined as the extent of the first dimension, as specified in the `bumpy_atomic_array/dimensions` dataset of `partitions.h5`.
 
 ## Dimensions
 
-The dimensions of the bumpy atomic array are taken from `bumpy_atomic_array/dimensions`.
+The dimensions of the bumpy atomic array are taken from the `bumpy_atomic_array/dimensions` dataset of `partitions.h5`.
+

@@ -16,8 +16,7 @@ This is based on an ordinary R list.
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain a `simple_list` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `simple_list` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `fasta_file` format.
 ```{r, results="asis", echo=FALSE}

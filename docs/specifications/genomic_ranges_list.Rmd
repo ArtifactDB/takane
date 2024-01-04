@@ -16,15 +16,14 @@ This is based on the `GRangesList` from the [**GenomicRanges** Bioconductor pack
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain a `genomic_ranges_list` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `genomic_ranges_list` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `genomic_ranges_list` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain a `partitions.h5` HDF5 file.
 This file should contain an `genomic_ranges_list` group, inside of which should be a `lengths` dataset.
@@ -37,7 +36,7 @@ The height of this child object should be equal to the sum of lengths in the `ge
 In effect, this child object represents the concatenation of all of the genomic ranges in the list;
 reconstructing the vector for a particular list element involves taking a contiguous slice at an offset defined by the sum of the preceding `lengths`.
 
-Optionally, the `genomic_ranges_list` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `values`.
+Optionally, the `genomic_ranges_list` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `genomic_ranges_list/lengths`.
 This contains the name for each element of the genomic ranges list.
 Any HDF5 string datatype may be used here.
 

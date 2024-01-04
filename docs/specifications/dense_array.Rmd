@@ -13,17 +13,16 @@ cat("# Dense array (", as.character(.version), ")", sep="")
 
 The `dense_array` format provides an on-disk representation of a dense array.
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `dense_array` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `dense_array` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `dense_array` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain an `array.h5` HDF5 file, which in turn should contain a `dense_array` group.
 The group should contain `data`, an N-dimensional dataset containing the values of the dense array.
@@ -37,6 +36,7 @@ This should have a `type` attribute specifying the type of the dense array and t
 Missing values in the matrix are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `dense_array/data` dataset.
 The attribute should be scalar and should have the same datatype as `dense_array/data`, except in the case of strings where any string datatype may be used.
 All values in the dataset equal to the placeholder should be treated as missing.
+See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
 
 Optionally, the `dense_array` group may contain a `names` subgroup.
 This may contain any number of 1-dimensional string datasets named after the corresponding dimension of `dense_array/data`, e.g., `0` for the first dimension, `1` for the second dimension, and so on.
@@ -51,10 +51,10 @@ This is necessary for efficiently reading/writing from frameworks that use, e.g.
 
 ## Height
 
-The height of the dense array is defined as the extent of the first dimension in `dense_array/data`.
+The height of the dense array is defined as the extent of the first dimension in the `dense_array/data` dataset of `array.h5`.
 If the array is transposed, the extent of the last dimension is used instead.
 
 ## Dimensions
 
-The dimensions of the dense array are defined as the dimensions of `dense_array/data`.
+The dimensions of the dense array are defined as the dimensions of the `dense_array/data` dataset of `array.h5`.
 If the array is transposed, the dimensions are reversed.

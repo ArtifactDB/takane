@@ -6,7 +6,7 @@ if (!exists(".version")) {
 ```
 
 ```{r, results="asis", echo=FALSE}
-cat("# Summarized experiment (", as.character(.version), ")", sep="")
+cat("# VCF experiment (", as.character(.version), ")", sep="")
 ```
 
 ## Overview
@@ -16,8 +16,7 @@ It is based on the `VCF` subclasses from the [**VariantAnnotation** bioconductor
 
 ## Metadata
 
-The top-level object in the `OBJECT` file should contain a `vcf_experiment` property, 
-This is a JSON object with the following properties:
+The `OBJECT` file should contain an `vcf_experiment` property, which is itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `vcf_experiment` format.
 ```{r, results="asis", echo=FALSE}

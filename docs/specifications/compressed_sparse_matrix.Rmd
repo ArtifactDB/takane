@@ -13,20 +13,19 @@ cat("# Compressed sparse matrix (", as.character(.version), ")", sep="")
 
 The `compressed_sparse_matrix` format provides an on-disk representation of a sparse matrix in the compressed sparse row/column format.
 
-## Metadata
+## Object metadata
 
-The top-level object in the `OBJECT` file should contain a `compressed_sparse_matrix` property.
-This is a JSON object with the following properties:
+The `OBJECT` file should contain a `compressed_sparse_matrix` property, itself a JSON object with the following properties:
 
 - `version`, a string specifying the version of the `compressed_sparse_matrix` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Files
+## Directory structure
 
 The directory should contain a `matrix.h5` HDF5 file, which in turn should contain an `compressed_sparse_matrix` group.
-The group should contain `shape`, a 1-dimensional dataset of any type that can be exactly represented by a 64-bit unsigned integer.
+The group should contain `shape`, a 1-dimensional dataset of any datatype that can be exactly represented by a 64-bit unsigned integer.
 `compressed_sparse_matrix/shape` should have length 2 where the entries specify the number of rows and columns, respectively, of the matrix.
 
 The `compressed_sparse_matrix` group should have a `layout` attribute.
@@ -36,13 +35,14 @@ Any HDF5 string datatype may be used here.
 The `compressed_sparse_matrix` group should contain `data`, a 1-dimensional dataset containing the values for the structural non-zeroes.
 This should have a `type` attribute specifying the type of the sparse matrix and the expected HDF5 datatype of the dataset itself:
 
-- For `type = "integer"` or `"boolean"`, the datatype should be any integer type that can be exactly represented by a 32-bit signed integer.
+- For `type = "integer"` or `"boolean"`, the datatype should be exactly represented by a 32-bit signed integer.
   Check out the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for more details.
-- For `type = "number"`, the datatype should be any integer/float type that can be exactly represented by a 64-bit float.
+- For `type = "number"`, the datatype should be any integer/float datatype that can be exactly represented by a 64-bit float.
 
 Missing values in the matrix are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `compressed_sparse_matrix/data` dataset.
 The attribute should be scalar and should have the same datatype as `compressed_sparse_matrix/data`.
 All values in the dataset equal to the placeholder should be treated as missing.
+See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
 
 The `compressed_sparse_matrix` group should contain `indices`, a 1-dimensional dataset containing the row indices (for CSC) or column indices (for CSR) for the structural non-zeroes.
 This should have a datatype that can be exactly represented by a 64-bit unsigned integer.
@@ -65,8 +65,8 @@ Any HDF5 string datatype may be used in each dataset.
 
 ## Height
 
-The height of the compressed sparse matrix is defined as the number of rows, as specified in `compressed_sparse_matrix/shape`.
+The height of the compressed sparse matrix is defined as the number of rows, as specified in the `compressed_sparse_matrix/shape` dataset of `matrix.h5`.
 
 ## Dimensions
 
-The dimensions of the compressed sparse matrix are taken from `compressed_sparse_matrix/shape`.
+The dimensions of the compressed sparse matrix are taken from the `compressed_sparse_matrix/shape` dataset of `matrix.h5`.
