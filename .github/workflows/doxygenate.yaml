@@ -6,8 +6,28 @@ on:
 name: Build documentation
 
 jobs:
+  build-spec:
+    runs-on: ubuntu-latest
+    container: bioconductor/bioconductor_docker:devel
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Compile markdown
+      run: |
+        cd docs/specifications
+        R -f _build.R
+
+    - name: Upload markdown
+      uses: actions/upload-artifact@v3
+      with:
+        name: built-spec
+        path: docs/specifications/compiled
+
   docs:
     runs-on: ubuntu-latest
+    needs: build-spec
     steps:
     - uses: actions/checkout@v3
 
@@ -20,6 +40,15 @@ jobs:
       uses: mattnotmitt/doxygen-action@v1
       with:
         working-directory: docs/
+
+    - name: Change permissions
+      run: sudo chmod 777 docs/html
+
+    - name: Download markdown
+      uses: actions/download-artifact@v3
+      with:
+        name: built-spec
+        path: docs/html/specifications
 
     - name: GH Pages Deployment
       uses: JamesIves/github-pages-deploy-action@v4

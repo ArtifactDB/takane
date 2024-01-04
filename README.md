@@ -1,4 +1,4 @@
-# Miscellaneous validators for ArtifactDB 
+# File validators for Bioconductor objects 
 
 ![Unit tests](https://github.com/ArtifactDB/takane/actions/workflows/run-tests.yaml/badge.svg)
 ![Documentation](https://github.com/ArtifactDB/takane/actions/workflows/doxygenate.yaml/badge.svg)
@@ -6,31 +6,101 @@
 
 ## Overview
 
-This library contains some C++ libraries to validate ArtifactDB file formats that aren't covered by other libraries
-(e.g., [**comservatory**](https://github.com/ArtifactDB/comservatory), [**uzuki2**](https://github.com/ArtifactDB/uzuki2)).
+This library contains some C++ libraries to validate on-disk representations of Bioconductor objects used in ArtifactDB instances.
 The idea is to provide a cross-language method for validating the files - 
 which is not quite as useful as a library for _reading_ the files, but it's better than nothing.
 
 ## Specifications
 
-Currently, **takane** performs validation of the following representations:
+See [general comments](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/_general.md) for all objects' on-disk representations.
 
-- [HDF5 data frame](docs/specifications/hdf5_data_frame/v1.md)
-- [CSV data frame](docs/specifications/csv_data_frame/v1.md)
-- [Atomic vector](docs/specifications/atomic_vector/v1.md)
-- [Factor](docs/specifications/factor/v1.md)
-- [Genomic ranges](docs/specifications/genomic_ranges/v1.md)
-- [HDF5 dense array](docs/specifications/hdf5_dense_array/v1.md)
-- [HDF5 sparse matrix](docs/specifications/hdf5_sparse_matrix/v1.md)
-- [Sequence information](docs/specifications/sequence_information/v1.md)
+Currently, **takane** provides validators for the following objects:
 
-Each representation has its own validation function that takes information from the schema and checks them against the file contents.
-For example, for the `hdf5_sparse_matrix`, we could do:
+- `atomic_vector_list`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector_list/1.0.md).
+- `atomic_vector`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector/1.0.md).
+- `bam_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bam_file/1.0.md).
+- `bcf_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bcf_file/1.0.md).
+- `bcf_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bcf_file/1.0.md).
+- `bigbed_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bigbed_file/1.0.md).
+- `bigwig_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bigwig_file/1.0.md).
+- `bumpy_atomic_array`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bumpy_atomic_array/1.0.md).
+- `bumpy_data_frame_array`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bumpy_data_frame_array/1.0.md).
+- `compressed_sparse_matrix`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/compressed_sparse_matrix/1.0.md).
+- `data_frame_factor`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame_factor/1.0.md).
+- `data_frame_list`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame_list/1.0.md).
+- `data_frame`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame/1.0.md).
+- `dense_array`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/dense_array/1.0.md).
+- `fasta_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/fasta_file/1.0.md).
+- `fastq_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/fastq_file/1.0.md).
+- `genomic_ranges_list`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/genomic_ranges_list/1.0.md).
+- `genomic_ranges`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/genomic_ranges/1.0.md).
+- `gff_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gff_file/1.0.md).
+- `gmt_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gmt_file/1.0.md).
+- `multi_sample_dataset`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/multi_sample_dataset/1.0.md).
+- `ranged_summarized_experiment`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/ranged_summarized_experiment/1.0.md).
+- `sequence_information`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/sequence_information/1.0.md).
+- `sequence_string_set`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/sequence_string_set/1.0.md).
+- `simple_list`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/simple_list/1.0.md).
+- `single_cell_experiment`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/single_cell_experiment/1.0.md).
+- `spatial_experiment`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.0.md).
+- `string_factor`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/string_factor/1.0.md).
+- `summarized_experiment`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/summarized_experiment/1.0.md).
+- `vcf_experiment`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/vcf_experiment/1.0.md).
+
+## Validation
+
+The `takane::validate()` function inspects the object's directory and validates its contents, throwing an error if the contents are not valid.
 
 ```cpp
 #include "takane/takane.hpp"
+
 takane::validate(dir);
 ```
+
+The idea is to bind to the **takane** library in application-specific frameworks, e.g., via R/Python's foreign function interfaces.
+This consistently enforces the format expectations for each object, regardless of how the saving was performed by each application.
+For example, we might use the [**alabaster**](https://github.com/ArtifactDB/alabaster.base) framework to save Bioconductor objects to disk:
+
+```r
+library(alabaster.base)
+tmp <- tempfile()
+df <- DataFrame(X=1:10, Y=letters[1:10])
+saveObject(df, tmp)
+validateObject(tmp) # calls takane::validate()
+```
+
+If the validation passes, we can be confident that the same object can be reconstructed in different frameworks, 
+e.g., with [**dolomite**](https://github.com/ArtifactDB/dolomite-base) packages in Python.
 
 Check out the [reference documentation](https://artifactdb.github.io/takane/) for more details.
 
