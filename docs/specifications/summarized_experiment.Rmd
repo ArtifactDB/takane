@@ -1,0 +1,65 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Summarized experiment (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `summarized_experiment` format provides an on-disk representation of a summarized experiment. 
+It is based on the `SummarizedExperiment` class from the [**SummarizedExperiment** bioconductor package](https://bioconductor.org/packages/SummarizedExperiment).
+
+## Metadata
+
+The top-level object in the `OBJECT` file should contain a `summarized_experiment` property, 
+This is a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `summarized_experiment` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+- `dimensions`, an array of the dimensions of the summarized experiment.
+  This should contain two non-negative integers specifying the number of rows and columns, respectively.
+
+## Files
+
+The directory may contain an `assays` subdirectory.
+The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
+Each string is the name of an assay and should be non-empty and unique.
+The `assays` subdirectory should contain one subdirectory for each assay,
+named after the assay's positional index in the JSON array, e.g., `"0"` for the first assay, `"1"` for the second assay, and so on.
+Each subdirectory of `assays` should be a child object that has some concept of "dimensions",
+where the number of dimensions is at least 2 and the first two dimensions are equal to that of the summarized experiment.
+If no `assays` subdirectory is present, it is assumed that no assays are available.
+
+The directory may contain a `row_data` subdirectory, containing additional annotations for the rows.
+This should contain a child object that satisfies the `DATA_FRAME` contract.
+The number of rows in this object should be equal to the number of rows in the summarized experiment.
+If this object contains names, these should be treated as the row names of the summarized experiment.
+If no `row_data` subdirectory is present, it can be assumed that no additional row annotations are available.
+
+The directory may contain a `column_data` subdirectory, containing additional annotations for the columns. 
+This should contain a child object that satisfies the `DATA_FRAME` contract.
+The number of rows in this object should be equal to the number of columns in the summarized experiment.
+If this object contains names, these should be treated as the column names of the summarized experiment.
+If no `column_data` subdirectory is present, it can be assumed that no additional column annotations are available.
+
+The directory may contain an `other_data` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
+This holds extra annotations for the entire summarized experiment. 
+
+## Height
+
+The height of the summarized experiment is defined as the number of rows, determined from the `dimensions` property in the object metadata.
+
+## Dimensions
+
+The dimensions of the summarized experiment is taken from the `dimensions` property in the object metadata.
+
+## Interfaces
+
+The summarized experiment satisfies the `SUMMARIZED_EXPERIMENT` interface.

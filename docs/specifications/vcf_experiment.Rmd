@@ -1,0 +1,45 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Summarized experiment (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `vcf_experiment` format provides an on-disk representation of a VCF-derived summarized experiment. 
+It is based on the `VCF` subclasses from the [**VariantAnnotation** bioconductor package](https://bioconductor.org/packages/VariantAnnotation).
+
+## Metadata
+
+The top-level object in the `OBJECT` file should contain a `vcf_experiment` property, 
+This is a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `vcf_experiment` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+- `dimensions`, an array of the dimensions of the VCF experiment.
+  This should contain two non-negative integers specifying the number of rows and columns, respectively.
+- (optional) `expanded`, a boolean indicating whether loci with multiple alternative alleles are expanded into multiple records in the VCF file.
+  If missing, this defaults to `false`.
+
+## Files
+
+The directory should contain `file.vcf.gz`, a Gzip-compressed VCF file.
+The number of records should be equal to the number of rows in the `dimensions` metadata field.
+The number of samples should be equal to the number of columns in the `dimensions` metadata field.
+If `expanded = true`, each record should contain no more than one alternative allele.
+The VCF file should be newline-terminated.
+
+## Height
+
+The height of the summarized experiment is defined as the number of rows, determined from the `dimensions` property in the object metadata.
+
+## Dimensions
+
+The dimensions of the summarized experiment is taken from the `dimensions` property in the object metadata.

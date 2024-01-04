@@ -39,7 +39,7 @@ The directory may contain a `reduced_dimensions` subdirectory.
 The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
 Each string is the name of a dimensionality reduction result and should be non-empty and unique.
 The `reduced_dimensions` subdirectory should contain one subdirectory for each dimensionality reduction result,
-named after the positional index in the JSON array, e.g., `"0"` for the first result, `"1"` for the second result, and so on.
+named after the result's positional index in the JSON array, e.g., `"0"` for the first result, `"1"` for the second result, and so on.
 Each subdirectory of `reduced_dimensions` should be a child object that has some concept of dimensions,
 where the extent of the first dimension is equal to the number of columns of the single cell experiment.
 If no `reduced_dimensions` subdirectory is present, it is assumed that the single cell experiment contains no reduced dimensions.
@@ -47,8 +47,8 @@ If no `reduced_dimensions` subdirectory is present, it is assumed that the singl
 The directory may contain an `alternative_experiments` subdirectory.
 The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
 Each string is the name of an alternative experiment and should be non-empty and unique.
-The `alternative_experimentst` subdirectory should contain one subdirectory for each alternative experiment,
-named after the positional index in the JSON array, e.g., `"0"` for the first experiment, `"1"` for the second experiment, and so on.
+The `alternative_experiments` subdirectory should contain one subdirectory for each alternative experiment,
+named after the experiment's positional index in the JSON array, e.g., `"0"` for the first experiment, `"1"` for the second experiment, and so on.
 Each subdirectory of `reduced_dimensions` should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface,
 with number of columns equal to the number of columns of the single cell experiment.
 If no `alternative_experiments` subdirectory is present, it is assumed that the single cell experiment contains no alternative experiments.
