@@ -23,15 +23,15 @@ The `OBJECT` file should contain a `ranged_summarized_experiment` property, whic
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-In addition, the `OBJECT` file should contain all properties expected for the [`summarized_experiment`](summarized_experiment) format, i.e., a `summarized_experiment` property.
+In addition, the `OBJECT` file should contain all properties expected for the [`summarized_experiment`](../summarized_experiment) format, i.e., a `summarized_experiment` property.
 
 ## Directory structure
 
-The directory should contain all files expected of the [`summarized_experiment`](summarized_experiment) format.
+The directory should contain all files expected of the [`summarized_experiment`](../summarized_experiment) format.
 The dimensions of the ranged summarized experiment are determined from the `summarized_experiment` files.
 
 The directory may contain a `row_ranges` subdirectory.
-This should contain a child object that is a [genomic ranges object](genomic_ranges) or a [genomic ranges list](genomic_ranges_list).
+This should contain a child object that is a [genomic ranges object](../genomic_ranges) or a [genomic ranges list](../genomic_ranges_list).
 The height of the child object should be equal to the number of rows in the ranged summarized experiment.
 
 Note that any names in the `row_ranges` should not be used as the row names of the ranged summarized experiment, 
@@ -39,11 +39,11 @@ as this is determined from the `summarized_experiment`-based files instead.
 
 ## Height
 
-The height of the `ranged_summarized_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](summarized_experiment).
+The height of the `ranged_summarized_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](../summarized_experiment).
 
 ## Dimensions
 
-The dimensions of the `ranged_summarized_experiment` is defined in the same manner as that of the [`summarized_experiment`](summarized_experiment).
+The dimensions of the `ranged_summarized_experiment` is defined in the same manner as that of the [`summarized_experiment`](../summarized_experiment).
 
 ## Interfaces
 

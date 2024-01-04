@@ -34,7 +34,7 @@ The `bumpy_data_frame_array` group also should contain `lengths`, a 1-dimensiona
 Each entry corresponds to an entry of the bumpy data frame array - that is, an data frame -
 and defines the number of consecutive rows in the `concatenated` object (see below) that can be used to construct each data frame.
 
-The directory should also contain a `concatenated` subdirectory, which contains a child object of the `data_frame_vector` type.
+The directory should also contain a `concatenated` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
 The height of this child object should be equal to the sum of lengths in the `bumpy_data_frame_array/lengths` dataset of the `partitions.h5` file.
 In effect, this child object represents the concatenation of all of the data frames in the array;
 reconstructing the data frame for a particular array entry involves taking a contiguous slice of rows at an offset defined by the sum of the preceding `lengths`.

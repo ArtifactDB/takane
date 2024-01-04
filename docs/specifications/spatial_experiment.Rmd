@@ -23,16 +23,16 @@ The `OBJECT` file should contain a `spatial_experiment` property, which is itsel
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-In addition, the `OBJECT` file should contain all properties expected for the [`single_cell_experiment`](single_cell_experiment) format, i.e., a `single_cell_experiment` property.
-This transitively includes the properties that are expected of the [`summarized_experiment`](summarized_experiment) and [`ranged_summarized_experiment`](ranged_summarized_experiment) formats. 
+In addition, the `OBJECT` file should contain all properties expected for the [`single_cell_experiment`](../single_cell_experiment) format, i.e., a `single_cell_experiment` property.
+This transitively includes the properties that are expected of the [`summarized_experiment`](../summarized_experiment) and [`ranged_summarized_experiment`](../ranged_summarized_experiment) formats. 
 
 ## Files
 
-The directory should contain all files expected for the [`single_cell_experiment`](single_cell_experiment) format.
-This includes the transitive expectations of files that should be present in the [`summarized_experiment`](summarized_experiment) and [`summarized_experiment`](ranged_summarized_experiment) formats.
+The directory should contain all files expected for the [`single_cell_experiment`](../single_cell_experiment) format.
+This includes the transitive expectations of files that should be present in the [`summarized_experiment`](../summarized_experiment) and [`summarized_experiment`](../ranged_summarized_experiment) formats.
 The dimensions of the spatial experiment are determined from the `summarized_experiment`-based files.
 
-The directory should contain a `coordinates` subdirectory, which contains a [`dense_array`](dense_array) object.
+The directory should contain a `coordinates` subdirectory, which contains a [`dense_array`](../dense_array) object.
 The array should be two-dimensional and the extent of the first dimension should be equal to the number of columns in the spatial experiment.
 The extent of the second dimension should be either 2 or 3.
 Each row of the dense array contains the spatial x/y(/z) coordinates of the corresponding sample in the spatial experiment.
@@ -76,11 +76,11 @@ Each image file should start with the magic numbers for the expected format.
 
 ## Height
 
-The height of the `spatial_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](summarized_experiment).
+The height of the `spatial_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](../summarized_experiment).
 
 ## Dimensions
 
-The dimensions of the `spatial_experiment` is defined in the same manner as that of the [`summarized_experiment`](summarized_experiment).
+The dimensions of the `spatial_experiment` is defined in the same manner as that of the [`summarized_experiment`](../summarized_experiment).
 
 ## Interfaces
 

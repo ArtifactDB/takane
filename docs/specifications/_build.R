@@ -18,3 +18,5 @@ for (n in listings) {
         knitr::knit(n, file.path(odir, paste0(v, ".md")))
     }
 }
+
+file.copy("_general.md", dest)
