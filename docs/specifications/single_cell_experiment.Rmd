@@ -32,7 +32,7 @@ This includes the fields that are expected of a [`summarized_experiment`](summar
 ## Files
 
 The directory should contain all files expected of a [`ranged_summarized_experiment`](ranged_summarized_experiment) object.
-This includes the files that are transitively expected of a [`summarized_experiment`](summarized_experiment) object. 
+This includes the transitive expectations of files that should be present in a [`summarized_experiment`](summarized_experiment) objects.
 The dimensions of the single cell experiment are determined from the `summarized_experiment`-based files.
 
 The directory may contain a `reduced_dimensions` subdirectory.

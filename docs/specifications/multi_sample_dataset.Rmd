@@ -38,7 +38,7 @@ If no `experiments` subdirectory is present, it is assumed that the multi-sample
 
 If the directory contains an `experiments` subdirectory, it should further contain a `sample_map.h5` HDF5 file.
 This should contain a `multi_sample_dataset` group, which further contains one 1-dimensional integer dataset per experiment in `experiments`.
-Each dataset is named after the positional index of the experiment (e.g., `"0"`, `"1"`, as described above) and should have length equal to the number of columns of its experiment.
+Each integer dataset is named after the positional index of the corresponding experiment (e.g., `"0"`, `"1"`, as described above) and should have length equal to the number of columns of its experiment.
 The datatype should be exactly representable by a 64-bit unsigned integer.
 The values in each dataset are indices into the rows of the `sample_data` data frame, and thus should be less than the number of samples.
 
