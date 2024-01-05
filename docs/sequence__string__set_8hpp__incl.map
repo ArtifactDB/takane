@@ -1,18 +1,12 @@
 <map id="takane/sequence_string_set.hpp" name="takane/sequence_string_set.hpp">
-<area shape="rect" id="node1" title="Validation for sequence string sets." alt="" coords="623,5,783,45"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,240,140,265"/>
-<area shape="rect" id="node3" title=" " alt="" coords="357,93,485,119"/>
-<area shape="rect" id="node4" href="$utils__other_8hpp_source.html" title=" " alt="" coords="509,93,615,119"/>
-<area shape="rect" id="node5" title=" " alt="" coords="625,313,705,339"/>
-<area shape="rect" id="node11" title=" " alt="" coords="521,313,600,339"/>
-<area shape="rect" id="node13" title=" " alt="" coords="741,93,791,119"/>
-<area shape="rect" id="node14" title=" " alt="" coords="815,93,890,119"/>
-<area shape="rect" id="node15" title=" " alt="" coords="914,93,967,119"/>
-<area shape="rect" id="node16" title=" " alt="" coords="992,93,1052,119"/>
-<area shape="rect" id="node6" title=" " alt="" coords="139,313,193,339"/>
-<area shape="rect" id="node7" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="312,167,423,192"/>
-<area shape="rect" id="node8" title=" " alt="" coords="442,240,514,265"/>
-<area shape="rect" id="node9" title=" " alt="" coords="218,313,362,339"/>
-<area shape="rect" id="node10" href="$utils__json_8hpp_source.html" title=" " alt="" coords="317,240,418,265"/>
-<area shape="rect" id="node12" title=" " alt="" coords="387,313,497,339"/>
+<area shape="rect" id="node1" title="Validation for sequence string sets." alt="" coords="479,5,639,45"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,93,140,119"/>
+<area shape="rect" id="node3" title=" " alt="" coords="165,93,293,119"/>
+<area shape="rect" id="node4" title=" " alt="" coords="317,93,423,119"/>
+<area shape="rect" id="node5" title=" " alt="" coords="447,93,498,119"/>
+<area shape="rect" id="node6" title=" " alt="" coords="522,93,597,119"/>
+<area shape="rect" id="node7" title=" " alt="" coords="621,93,700,119"/>
+<area shape="rect" id="node8" title=" " alt="" coords="725,93,778,119"/>
+<area shape="rect" id="node9" title=" " alt="" coords="803,93,863,119"/>
+<area shape="rect" id="node10" title=" " alt="" coords="887,93,967,119"/>
 </map>

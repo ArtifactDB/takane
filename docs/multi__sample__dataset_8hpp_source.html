@@ -71,14 +71,14 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_f2733a2a0a8bd5dd6b358f39028f2fd8.html">takane</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_5d5d4e5c8fb0511e096d3c4dbea14073.html">takane</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="headertitle"><div class="title">multi_sample_dataset.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef TAKANE_MULTI_SAMPLE_DATASET_HPP</span></div>
+<a href="multi__sample__dataset_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef TAKANE_MULTI_SAMPLE_DATASET_HPP</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define TAKANE_MULTI_SAMPLE_DATASET_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;filesystem&gt;</span></div>
@@ -90,118 +90,118 @@ $(function() {
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;utils_other.hpp&quot;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;utils_summarized_experiment.hpp&quot;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacetakane.html">takane</a> {</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> ObjectMetadata&amp;, <span class="keyword">const</span> Options&amp; options);</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height</a>(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> ObjectMetadata&amp;, <span class="keyword">const</span> Options&amp; options);</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keywordtype">bool</span> <a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(<span class="keyword">const</span> std::string&amp;, <span class="keyword">const</span> std::string&amp;);</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">namespace </span>multi_sample_dataset {</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="namespacetakane_1_1multi__sample__dataset.html#a0f2ed8c62440de7b4fdbea077775e54a">   36</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1multi__sample__dataset.html#a0f2ed8c62440de7b4fdbea077775e54a">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; dmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;multi_sample_dataset&quot;</span>);</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(dmap, <span class="stringliteral">&quot;version&quot;</span>, <span class="stringliteral">&quot;multi_sample_dataset&quot;</span>);</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    }</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="comment">// Sample data should exist.</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keyword">auto</span> sd_path = path / <span class="stringliteral">&quot;sample_data&quot;</span>;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keyword">auto</span> sdmeta = <a class="code hl_function" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">read_object_metadata</a>(sd_path);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordflow">if</span> (!<a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(sdmeta.type, <span class="stringliteral">&quot;DATA_FRAME&quot;</span>)) {</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;object in &#39;sample_data&#39; should satisfy the &#39;DATA_FRAME&#39; interface&quot;</span>);</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    }</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">::takane::validate</a>(sd_path, sdmeta, options);</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;sample_data&#39;; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacetakane.html">takane</a> {</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> ObjectMetadata&amp;, <span class="keyword">const</span> Options&amp; options);</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">height</a>(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> ObjectMetadata&amp;, <span class="keyword">const</span> Options&amp; options);</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keywordtype">bool</span> <a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(<span class="keyword">const</span> std::string&amp;, <span class="keyword">const</span> std::string&amp;);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">namespace </span>multi_sample_dataset {</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="namespacetakane_1_1multi__sample__dataset.html#a0f2ed8c62440de7b4fdbea077775e54a">   41</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1multi__sample__dataset.html#a0f2ed8c62440de7b4fdbea077775e54a">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; dmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;multi_sample_dataset&quot;</span>);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(dmap, <span class="stringliteral">&quot;version&quot;</span>, <span class="stringliteral">&quot;multi_sample_dataset&quot;</span>);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    }</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="comment">// Sample data should exist.</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">auto</span> sd_path = path / <span class="stringliteral">&quot;sample_data&quot;</span>;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">auto</span> sdmeta = <a class="code hl_function" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">read_object_metadata</a>(sd_path);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">if</span> (!<a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(sdmeta.type, <span class="stringliteral">&quot;DATA_FRAME&quot;</span>)) {</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;object in &#39;sample_data&#39; should satisfy the &#39;DATA_FRAME&#39; interface&quot;</span>);</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    }</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">size_t</span> num_samples = <a class="code hl_function" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">::takane::height</a>(sd_path, sdmeta, options);</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="comment">// Checking the experiments.</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    std::vector&lt;size_t&gt; num_columns;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">auto</span> edir = path / <span class="stringliteral">&quot;experiments&quot;</span>;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">if</span> (std::filesystem::exists(edir)) {</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keywordtype">size_t</span> num_experiments = internal_summarized_experiment::check_names_json(edir);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        num_columns.reserve(num_experiments);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> e = 0; e &lt; num_experiments; ++e) {</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>            <span class="keyword">auto</span> ename = std::to_string(e);</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>            <span class="keyword">auto</span> epath = edir / ename;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            <span class="keyword">auto</span> emeta = <a class="code hl_function" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">read_object_metadata</a>(epath);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">try</span> {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">::takane::validate</a>(sd_path, sdmeta, options);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;sample_data&#39;; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">size_t</span> num_samples = <a class="code hl_function" href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">::takane::height</a>(sd_path, sdmeta, options);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="comment">// Checking the experiments.</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    std::vector&lt;size_t&gt; num_columns;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keyword">auto</span> edir = path / <span class="stringliteral">&quot;experiments&quot;</span>;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordflow">if</span> (std::filesystem::exists(edir)) {</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        <span class="keywordtype">size_t</span> num_experiments = internal_summarized_experiment::check_names_json(edir);</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        num_columns.reserve(num_experiments);</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>            <span class="keywordflow">if</span> (!<a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(emeta.type, <span class="stringliteral">&quot;SUMMARIZED_EXPERIMENT&quot;</span>)) {</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;object in &#39;experiments/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should satisfy the &#39;SUMMARIZED_EXPERIMENT&#39; interface&quot;</span>);</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>            }</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>            <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>                <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">::takane::validate</a>(epath, emeta, options);</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>            } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;experiments/&quot;</span> + ename + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>            }</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>            <span class="keyword">auto</span> dims = <a class="code hl_function" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">::takane::dimensions</a>(epath, emeta, options);</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>            num_columns.push_back(dims[1]);</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        }</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keywordtype">size_t</span> num_dir_obj = internal_other::count_directory_entries(edir);</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        <span class="keywordflow">if</span> (num_dir_obj - 1 != num_experiments) { <span class="comment">// -1 to account for the names.json file itself.</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;more objects than expected inside the &#39;experiments&#39; subdirectory&quot;</span>);</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> e = 0; e &lt; num_experiments; ++e) {</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            <span class="keyword">auto</span> ename = std::to_string(e);</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>            <span class="keyword">auto</span> epath = edir / ename;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>            <span class="keyword">auto</span> emeta = <a class="code hl_function" href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">read_object_metadata</a>(epath);</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>            <span class="keywordflow">if</span> (!<a class="code hl_function" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface</a>(emeta.type, <span class="stringliteral">&quot;SUMMARIZED_EXPERIMENT&quot;</span>)) {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;object in &#39;experiments/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should satisfy the &#39;SUMMARIZED_EXPERIMENT&#39; interface&quot;</span>);</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>            }</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>            <span class="keywordflow">try</span> {</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>                <a class="code hl_function" href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">::takane::validate</a>(epath, emeta, options);</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>            } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate &#39;experiments/&quot;</span> + ename + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>            }</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>            <span class="keyword">auto</span> dims = <a class="code hl_function" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">::takane::dimensions</a>(epath, emeta, options);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>            num_columns.push_back(dims[1]);</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        }</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    }</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="comment">// Checking the sample map.</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordflow">if</span> (num_columns.size() &gt; 0) {</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>            <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;sample_map.h5&quot;</span>);</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>            <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;multi_sample_dataset&quot;</span>);</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> e = 0, end = num_columns.size(); e &lt; end; ++e) {</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>                <span class="keyword">auto</span> ename = std::to_string(e);</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>                <span class="keyword">auto</span> dhandle = ritsuko::hdf5::open_dataset(ghandle, ename.c_str());</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>                <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, <span class="keyword">false</span>)) {</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;multi_sample_dataset/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should have a datatype that fits into a 64-bit unsigned integer&quot;</span>);</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>                }</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>                <span class="keyword">auto</span> len = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>                <span class="keywordflow">if</span> (len != num_columns[e]) {</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;length of &#39;multi_sample_dataset/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should equal the number of columns of &#39;experiments/&quot;</span> + ename + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <span class="keywordtype">size_t</span> num_dir_obj = internal_other::count_directory_entries(edir);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        <span class="keywordflow">if</span> (num_dir_obj - 1 != num_experiments) { <span class="comment">// -1 to account for the names.json file itself.</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;more objects than expected inside the &#39;experiments&#39; subdirectory&quot;</span>);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        }</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    }</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="comment">// Checking the sample map.</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordflow">if</span> (num_columns.size() &gt; 0) {</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keywordflow">try</span> {</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>            <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;sample_map.h5&quot;</span>);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>            <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;multi_sample_dataset&quot;</span>);</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> e = 0, end = num_columns.size(); e &lt; end; ++e) {</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>                <span class="keyword">auto</span> ename = std::to_string(e);</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>                <span class="keyword">auto</span> dhandle = ritsuko::hdf5::open_dataset(ghandle, ename.c_str());</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>                <span class="keywordflow">if</span> (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, <span class="keyword">false</span>)) {</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;multi_sample_dataset/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should have a datatype that fits into a 64-bit unsigned integer&quot;</span>);</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>                }</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                ritsuko::hdf5::Stream1dNumericDataset&lt;uint64_t&gt; stream(&amp;dhandle, len, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>);</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>                <span class="keywordflow">for</span> (hsize_t i = 0; i &lt; len; ++i, stream.next()) {</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                    <span class="keyword">auto</span> x = stream.get();</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                    <span class="keywordflow">if</span> (<span class="keyword">static_cast&lt;</span><span class="keywordtype">size_t</span><span class="keyword">&gt;</span>(x) &gt;= num_samples) {</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>                        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;indices in &#39;multi_sample_dataset/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should be less than the number of samples&quot;</span>);</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>                    }</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                }</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>            }</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>            <span class="keywordflow">if</span> (num_columns.size() != ghandle.getNumObjs()) {</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;more objects present in the &#39;multi_sample_dataset&#39; group than expected&quot;</span>);</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>            }</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate the sample mapping; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        }</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    }</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    internal_other::validate_metadata(path, <span class="stringliteral">&quot;other_data&quot;</span>, options);</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>}</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>}</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                <span class="keyword">auto</span> len = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), <span class="keyword">false</span>);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>                <span class="keywordflow">if</span> (len != num_columns[e]) {</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;length of &#39;multi_sample_dataset/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should equal the number of columns of &#39;experiments/&quot;</span> + ename + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                }</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>                ritsuko::hdf5::Stream1dNumericDataset&lt;uint64_t&gt; stream(&amp;dhandle, len, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>);</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                <span class="keywordflow">for</span> (hsize_t i = 0; i &lt; len; ++i, stream.next()) {</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>                    <span class="keyword">auto</span> x = stream.get();</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>                    <span class="keywordflow">if</span> (<span class="keyword">static_cast&lt;</span><span class="keywordtype">size_t</span><span class="keyword">&gt;</span>(x) &gt;= num_samples) {</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;indices in &#39;multi_sample_dataset/&quot;</span> + ename + <span class="stringliteral">&quot;&#39; should be less than the number of samples&quot;</span>);</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                    }</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                }</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>            }</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>            <span class="keywordflow">if</span> (num_columns.size() != ghandle.getNumObjs()) {</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;more objects present in the &#39;multi_sample_dataset&#39; group than expected&quot;</span>);</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>            }</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to validate the sample mapping; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>        }</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    }</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>}</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_1_1multi__sample__dataset_html_a0f2ed8c62440de7b4fdbea077775e54a"><div class="ttname"><a href="namespacetakane_1_1multi__sample__dataset.html#a0f2ed8c62440de7b4fdbea077775e54a">takane::multi_sample_dataset::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> multi_sample_dataset.hpp:36</div></div>
-<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _derived_from.hpp:8</div></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    internal_other::validate_metadata(path, <span class="stringliteral">&quot;other_data&quot;</span>, options);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>}</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>}</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>}</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_1_1multi__sample__dataset_html_a0f2ed8c62440de7b4fdbea077775e54a"><div class="ttname"><a href="namespacetakane_1_1multi__sample__dataset.html#a0f2ed8c62440de7b4fdbea077775e54a">takane::multi_sample_dataset::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> multi_sample_dataset.hpp:41</div></div>
+<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _derived_from.hpp:13</div></div>
 <div class="ttc" id="anamespacetakane_html_a18f9f859762cef04c0850388c1208b46"><div class="ttname"><a href="namespacetakane.html#a18f9f859762cef04c0850388c1208b46">takane::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _height.hpp:96</div></div>
 <div class="ttc" id="anamespacetakane_html_a2a4317954961c6b43b899f1c7d053704"><div class="ttname"><a href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">takane::dimensions</a></div><div class="ttdeci">std::vector&lt; size_t &gt; dimensions(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _dimensions.hpp:76</div></div>
 <div class="ttc" id="anamespacetakane_html_a4202d62d10c0d3d6ad07085f01736372"><div class="ttname"><a href="namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372">takane::read_object_metadata</a></div><div class="ttdeci">ObjectMetadata read_object_metadata(const std::filesystem::path &amp;path)</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:71</div></div>
-<div class="ttc" id="anamespacetakane_html_ae45905f4234f2875eb1ad9993829e09a"><div class="ttname"><a href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">takane::satisfies_interface</a></div><div class="ttdeci">bool satisfies_interface(const std::string &amp;type, const std::string &amp;interface)</div><div class="ttdef"><b>Definition:</b> _satisfies_interface.hpp:46</div></div>
+<div class="ttc" id="anamespacetakane_html_ae45905f4234f2875eb1ad9993829e09a"><div class="ttname"><a href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">takane::satisfies_interface</a></div><div class="ttdeci">bool satisfies_interface(const std::string &amp;type, const std::string &amp;interface)</div><div class="ttdef"><b>Definition:</b> _satisfies_interface.hpp:51</div></div>
 <div class="ttc" id="anamespacetakane_html_aeb4796393d6e41245226e3104dce67e7"><div class="ttname"><a href="namespacetakane.html#aeb4796393d6e41245226e3104dce67e7">takane::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> _validate.hpp:112</div></div>
-<div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdef"><b>Definition:</b> utils_public.hpp:23</div></div>
+<div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:23</div></div>
 <div class="ttc" id="astructtakane_1_1ObjectMetadata_html_a3b46efa17e6ca667bc902073cf7151cd"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">takane::ObjectMetadata::other</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::shared_ptr&lt; millijson::Base &gt; &gt; other</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:32</div></div>
 <div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:81</div></div>
 <div class="ttc" id="astructtakane_1_1Options_html_a3a9ebb8a77372c852d87f5368b6516c3"><div class="ttname"><a href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">takane::Options::hdf5_buffer_size</a></div><div class="ttdeci">hsize_t hdf5_buffer_size</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:90</div></div>

@@ -1,14 +1,13 @@
 <map id="takane/simple_list.hpp" name="takane/simple_list.hpp">
-<area shape="rect" id="node1" title="Validation for simple lists." alt="" coords="191,5,341,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="656,299,711,324"/>
-<area shape="rect" id="node3" title=" " alt="" coords="5,299,84,324"/>
-<area shape="rect" id="node4" title=" " alt="" coords="201,299,281,324"/>
-<area shape="rect" id="node5" title=" " alt="" coords="204,79,328,104"/>
-<area shape="rect" id="node6" title=" " alt="" coords="137,225,272,251"/>
-<area shape="rect" id="node7" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="364,152,475,177"/>
-<area shape="rect" id="node12" href="$utils__other_8hpp_source.html" title=" " alt="" coords="403,79,510,104"/>
-<area shape="rect" id="node8" title=" " alt="" coords="347,225,419,251"/>
-<area shape="rect" id="node9" title=" " alt="" coords="487,299,631,324"/>
-<area shape="rect" id="node10" href="$utils__json_8hpp_source.html" title=" " alt="" coords="443,225,545,251"/>
-<area shape="rect" id="node11" title=" " alt="" coords="352,299,463,324"/>
+<area shape="rect" id="node1" title="Validation for simple lists." alt="" coords="193,5,344,31"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,152,60,177"/>
+<area shape="rect" id="node3" title=" " alt="" coords="348,79,427,104"/>
+<area shape="rect" id="node4" title=" " alt="" coords="85,152,165,177"/>
+<area shape="rect" id="node5" title=" " alt="" coords="451,79,575,104"/>
+<area shape="rect" id="node6" title=" " alt="" coords="189,152,324,177"/>
+<area shape="rect" id="node7" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="213,79,324,104"/>
+<area shape="rect" id="node11" title=" " alt="" coords="599,79,706,104"/>
+<area shape="rect" id="node8" title=" " alt="" coords="349,152,421,177"/>
+<area shape="rect" id="node9" title=" " alt="" coords="445,152,589,177"/>
+<area shape="rect" id="node10" title=" " alt="" coords="613,152,714,177"/>
 </map>

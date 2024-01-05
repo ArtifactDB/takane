@@ -1,11 +1,9 @@
 <map id="takane/utils_public.hpp" name="takane/utils_public.hpp">
-<area shape="rect" id="node1" title="Exported utilities." alt="" coords="203,5,358,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,152,60,177"/>
-<area shape="rect" id="node3" title=" " alt="" coords="85,152,165,177"/>
-<area shape="rect" id="node4" title=" " alt="" coords="362,79,434,104"/>
-<area shape="rect" id="node5" title=" " alt="" coords="427,152,571,177"/>
-<area shape="rect" id="node6" title=" " alt="" coords="459,79,593,104"/>
-<area shape="rect" id="node7" href="$utils__json_8hpp_source.html" title=" " alt="" coords="186,79,287,104"/>
-<area shape="rect" id="node8" title=" " alt="" coords="324,152,403,177"/>
-<area shape="rect" id="node9" title=" " alt="" coords="189,152,300,177"/>
+<area shape="rect" id="node1" title="Exported utilities." alt="" coords="213,5,367,31"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,79,60,104"/>
+<area shape="rect" id="node3" title=" " alt="" coords="85,79,165,104"/>
+<area shape="rect" id="node4" title=" " alt="" coords="189,79,261,104"/>
+<area shape="rect" id="node5" title=" " alt="" coords="285,79,429,104"/>
+<area shape="rect" id="node6" title=" " alt="" coords="453,79,588,104"/>
+<area shape="rect" id="node7" title=" " alt="" coords="613,79,714,104"/>
 </map>

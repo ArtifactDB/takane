@@ -1,17 +1,16 @@
 <map id="takane/dense_array.hpp" name="takane/dense_array.hpp">
-<area shape="rect" id="node1" title="Validation for dense arrays." alt="" coords="341,5,500,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="37,152,180,177"/>
-<area shape="rect" id="node3" title=" " alt="" coords="205,152,333,177"/>
-<area shape="rect" id="node4" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="459,152,569,177"/>
-<area shape="rect" id="node5" title=" " alt="" coords="73,299,128,324"/>
-<area shape="rect" id="node6" title=" " alt="" coords="214,299,294,324"/>
-<area shape="rect" id="node11" title=" " alt="" coords="631,299,709,324"/>
-<area shape="rect" id="node13" href="$utils__array_8hpp_source.html" title=" " alt="" coords="368,79,473,104"/>
-<area shape="rect" id="node14" title=" " alt="" coords="645,152,703,177"/>
-<area shape="rect" id="node15" title=" " alt="" coords="778,79,839,104"/>
-<area shape="rect" id="node7" title=" " alt="" coords="123,225,195,251"/>
-<area shape="rect" id="node8" title=" " alt="" coords="457,299,601,324"/>
-<area shape="rect" id="node9" title=" " alt="" coords="447,225,581,251"/>
-<area shape="rect" id="node10" href="$utils__json_8hpp_source.html" title=" " alt="" coords="321,225,422,251"/>
-<area shape="rect" id="node12" title=" " alt="" coords="319,299,429,324"/>
+<area shape="rect" id="node1" title="Validation for dense arrays." alt="" coords="403,5,561,31"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,79,148,104"/>
+<area shape="rect" id="node3" title=" " alt="" coords="173,79,301,104"/>
+<area shape="rect" id="node4" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="427,79,537,104"/>
+<area shape="rect" id="node5" title=" " alt="" coords="249,152,304,177"/>
+<area shape="rect" id="node6" title=" " alt="" coords="329,152,409,177"/>
+<area shape="rect" id="node11" title=" " alt="" coords="561,79,667,104"/>
+<area shape="rect" id="node12" title=" " alt="" coords="691,79,750,104"/>
+<area shape="rect" id="node13" title=" " alt="" coords="775,79,853,104"/>
+<area shape="rect" id="node14" title=" " alt="" coords="878,79,939,104"/>
+<area shape="rect" id="node7" title=" " alt="" coords="718,152,790,177"/>
+<area shape="rect" id="node8" title=" " alt="" coords="814,152,958,177"/>
+<area shape="rect" id="node9" title=" " alt="" coords="433,152,568,177"/>
+<area shape="rect" id="node10" title=" " alt="" coords="593,152,694,177"/>
 </map>

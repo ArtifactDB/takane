@@ -1,0 +1,7 @@
+<map id="takane/ranged_summarized_experiment.hpp" name="takane/ranged_summarized_experiment.hpp">
+<area shape="rect" id="node1" title="Validation for ranged summarized experiments." alt="" coords="5,5,187,45"/>
+<area shape="rect" id="node2" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="25,255,167,280"/>
+<area shape="rect" id="node4" href="$single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="83,93,210,133"/>
+<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="32,328,160,353"/>
+<area shape="rect" id="node5" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="133,181,331,207"/>
+</map>
