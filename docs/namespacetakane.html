@@ -190,6 +190,8 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a6203e0a835de4a3df7f69ca1eac43177"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a6203e0a835de4a3df7f69ca1eac43177">derived_from</a> (const std::string &amp;type, const std::string &amp;base)</td></tr>
+<tr class="separator:a6203e0a835de4a3df7f69ca1eac43177"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a4317954961c6b43b899f1c7d053704"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2a4317954961c6b43b899f1c7d053704">dimensions</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="separator:a2a4317954961c6b43b899f1c7d053704"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a502c043e19ea8a2469dd2e623c7bfbf8"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a502c043e19ea8a2469dd2e623c7bfbf8">dimensions</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
@@ -217,6 +219,8 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:a2ae857fa9e1c996e768b233318f0421b"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::unordered_set&lt; std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2ae857fa9e1c996e768b233318f0421b">derived_from_registry</a> = internal_derived_from::default_registry()</td></tr>
+<tr class="separator:a2ae857fa9e1c996e768b233318f0421b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac408e4044773b311a1cc0e66d12f8d23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetakane.html#a9adaa6a04a9dd268aa6e02812c8ad004">DimensionsRegistry</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ac408e4044773b311a1cc0e66d12f8d23">dimensions_registry</a> = internal_dimensions::default_registry()</td></tr>
 <tr class="separator:ac408e4044773b311a1cc0e66d12f8d23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a965574a652d9bd7f9764f80a38bf8373"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetakane.html#a5bcee4e9aafdd63c119620a92ea53e45">HeightRegistry</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a965574a652d9bd7f9764f80a38bf8373">height_registry</a> = internal_height::default_registry()</td></tr>
@@ -275,6 +279,51 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a6203e0a835de4a3df7f69ca1eac43177" name="a6203e0a835de4a3df7f69ca1eac43177"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6203e0a835de4a3df7f69ca1eac43177">&#9670;&#160;</a></span>derived_from()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool takane::derived_from </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>base</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Check whether a particular object type is derived from a base objct type. This can be used by specifications to check that child components satisfy certain expectations.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Object type. </td></tr>
+    <tr><td class="paramname">base</td><td>Base object type. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether <code>type</code> is derived from <code>base</code> or is equal to <code>base</code>. </dd></dl>
+
+</div>
+</div>
 <a id="a75c436fa62cca35c131e5e35384e8819" name="a75c436fa62cca35c131e5e35384e8819"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a75c436fa62cca35c131e5e35384e8819">&#9670;&#160;</a></span>dimensions() <span class="overload">[1/3]</span></h2>
 
@@ -780,6 +829,30 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a2ae857fa9e1c996e768b233318f0421b" name="a2ae857fa9e1c996e768b233318f0421b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ae857fa9e1c996e768b233318f0421b">&#9670;&#160;</a></span>derived_from_registry</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt;std::string, std::unordered_set&lt;std::string&gt; &gt; takane::derived_from_registry = internal_derived_from::default_registry()</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Registry of derived object types and their base types. Each key is the base object type and each value is the set of all of its derived types. Derived types satisfy the same file requirements of the base type, but usually add more files to represent additional functionality.</p>
+<p >Applications can extend the <b>takane</b> framework by adding custom derived types to each set. Note that derived types must be manually included in every base type's set, e.g., if B is derived from A and C is derived from B, C must be added to the sets for both A and B. </p>
+
+</div>
+</div>
 <a id="ac408e4044773b311a1cc0e66d12f8d23" name="ac408e4044773b311a1cc0e66d12f8d23"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac408e4044773b311a1cc0e66d12f8d23">&#9670;&#160;</a></span>dimensions_registry</h2>
 
@@ -845,7 +918,8 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Registry of object types that satisfy a particular object interface. Each key is the interface and each value is the set of all types that satisfy it. Applications can extend the <b>takane</b> framework by adding custom types to each set. </p>
+<p >Registry of object types that satisfy a particular object interface. Each key is the interface and each value is the set of all types that satisfy it.</p>
+<p >Applications can extend the <b>takane</b> framework by adding custom types to each set. Note that, if a type is included in a particular set, it is not necessary to add its derived types, as <code><a class="el" href="namespacetakane.html#ae45905f4234f2875eb1ad9993829e09a">satisfies_interface()</a></code> will automatically call <code><a class="el" href="namespacetakane.html#a6203e0a835de4a3df7f69ca1eac43177">derived_from()</a></code>. </p>
 
 </div>
 </div>
