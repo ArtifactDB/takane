@@ -2,7 +2,13 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - README.md
+      - 'docs/**'
   pull_request:
+    paths-ignore:
+      - README.md
+      - 'docs/**'
 
 name: Run unit tests
 
