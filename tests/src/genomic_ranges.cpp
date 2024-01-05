@@ -50,8 +50,10 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
     }
     {
         auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
-        std::vector<unsigned char> expected_restricted { 0, 1 };
-        EXPECT_EQ(out.restricted, expected_restricted);
+        EXPECT_EQ(out.has_circular, std::vector<unsigned char>(2, true));
+        EXPECT_EQ(out.has_seqlen, std::vector<unsigned char>(2, true));
+        std::vector<unsigned char> expected_circular{ 1, 0 };
+        EXPECT_EQ(out.circular, expected_circular);
         std::vector<uint64_t> expected_seqlen { 100, 20 };
         EXPECT_EQ(out.seqlen, expected_seqlen);
     }
@@ -75,8 +77,13 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
     }
     {
         auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
-        std::vector<unsigned char> expected_restricted { 1, 0 };
-        EXPECT_EQ(out.restricted, expected_restricted);
+        std::vector<unsigned char> has_circular{0, 1};
+        EXPECT_EQ(out.has_circular, has_circular);
+        std::vector<unsigned char> has_seqlen{0, 1};
+        std::vector<unsigned char> expected_circular{ 1, 0 };
+        EXPECT_EQ(out.circular, expected_circular);
+        std::vector<uint64_t> expected_seqlen { 100, 20 };
+        EXPECT_EQ(out.seqlen, expected_seqlen);
     }
 
     // Shifting the placeholders to be ineffective.
@@ -100,8 +107,12 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
     }
     {
         auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
-        std::vector<unsigned char> expected_restricted { 0, 1 };
-        EXPECT_EQ(out.restricted, expected_restricted);
+        EXPECT_EQ(out.has_circular, std::vector<unsigned char>(2, true));
+        EXPECT_EQ(out.has_seqlen, std::vector<unsigned char>(2, true));
+        std::vector<unsigned char> expected_circular{ 1, 0 };
+        EXPECT_EQ(out.circular, expected_circular);
+        std::vector<uint64_t> expected_seqlen { 100, 20 };
+        EXPECT_EQ(out.seqlen, expected_seqlen);
     }
 }
 
@@ -229,7 +240,7 @@ TEST_F(GenomicRangesTest, Int64Ends) {
     expect_error("beyond the range of a 64-bit");
 }
 
-TEST_F(GenomicRangesTest, Restricted) {
+TEST_F(GenomicRangesTest, RestrictedStart) {
     genomic_ranges::mock(dir, 
         { 0, 1, 0, 2 },
         { 90, 100, 50, 100 },
@@ -240,38 +251,98 @@ TEST_F(GenomicRangesTest, Restricted) {
     );
     test_validate(dir);
 
-    // Failing when we increase it just a little bit.
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup("genomic_ranges");
+        ghandle.unlink("start");
+        hdf5_utils::spawn_numeric_data<int64_t>(ghandle, "start", H5::PredType::NATIVE_UINT32, { 90, 100, 0, 100 }); // The third interval now starts before position 1.
+    }
+    expect_error("non-positive");
+
+    auto tmp_path = dir / "sequence_information" / "_temp.h5";
+    auto info_path = dir / "sequence_information" / "info.h5";
+    std::filesystem::copy(info_path, tmp_path);
+
+    {
+        H5::H5File handle(info_path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("sequence_information");
+        auto dhandle = ghandle.openDataSet("circular");
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR); // rescuing it by making all the circular flags missing.
+        int val = 0;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
+    }
+    test_validate(dir);
+
+    {
+        std::filesystem::copy(tmp_path, info_path, std::filesystem::copy_options::update_existing);
+        H5::H5File handle(info_path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("sequence_information");
+        ghandle.unlink("circular");
+        hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT32, { 1, 0, 0 }); // rescuing it by making the first sequence circular.
+    }
+    test_validate(dir);
+}
+
+TEST_F(GenomicRangesTest, RestrictedEnd) {
+    genomic_ranges::mock(dir, 
+        { 0, 1, 0, 2 },
+        { 90, 100, 50, 100 },
+        { 11, 101, 51, 201 },
+        { 1, -1, 0, -1 },
+        { 100, 200, 300 },
+        { 0, 0, 0 }
+    );
+
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("genomic_ranges");
         ghandle.unlink("width");
-        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 11, 101, 52, 201 });
+        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 11, 101, 52, 201 }); // extending the third interval beyond the end.
     }
     expect_error("end position beyond sequence length");
 
-    // Failing when we increase it just a little bit.
     {
         auto handle = reopen();
         auto ghandle = handle.openGroup("genomic_ranges");
         ghandle.unlink("start");
-        hdf5_utils::spawn_numeric_data<int64_t>(ghandle, "start", H5::PredType::NATIVE_UINT32, {90, 300, 50, 100}); 
+        ghandle.unlink("width");
+        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 11, 101, 51, 201 }); // restoring the third interval's length.
+        hdf5_utils::spawn_numeric_data<int64_t>(ghandle, "start", H5::PredType::NATIVE_UINT32, {90, 300, 50, 100}); // shifting the second interval beyond the end.
     }
     expect_error("start position beyond sequence length");
 
-    // Failing for non-positive starts.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("start");
-        hdf5_utils::spawn_numeric_data<int64_t>(ghandle, "start", H5::PredType::NATIVE_UINT32, { 90, 100, 0, 100 });
-    }
-    expect_error("non-positive");
+    auto tmp_path = dir / "sequence_information" / "_temp.h5";
+    auto info_path = dir / "sequence_information" / "info.h5";
+    std::filesystem::copy(info_path, tmp_path);
 
     {
-        H5::H5File handle(dir / "sequence_information" / "info.h5", H5F_ACC_RDWR);
+        H5::H5File handle(info_path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup("sequence_information");
         ghandle.unlink("circular");
-        hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT32, { 1, 0, 0 }); // rescuing it by making it circular!
+        hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT32, { 0, 1, 0 }); // rescuing it by making the second sequence circular.
+    }
+    test_validate(dir);
+
+    {
+        std::filesystem::copy(tmp_path, info_path, std::filesystem::copy_options::update_existing);
+        H5::H5File handle(info_path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("sequence_information");
+        auto dhandle = ghandle.openDataSet("length");
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR); // rescuing it by making the second sequence length missing.
+        int val = 200;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
+    }
+    test_validate(dir);
+
+    {
+        std::filesystem::copy(tmp_path, info_path, std::filesystem::copy_options::update_existing);
+        H5::H5File handle(info_path, H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("sequence_information");
+        ghandle.unlink("circular");
+        auto dhandle = hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT8, { 0, 0, 0 }); 
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR); // rescuing it by making all the circular flags missing.
+        int val = 0;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
     test_validate(dir);
 }
