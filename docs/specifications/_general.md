@@ -19,7 +19,7 @@ For example, for the [`summarized_experiment` type](summarized_experiment):
     "type": "summarized_experiment",
     "summarized_experiment": {
         "version": "1.0",
-        "dimensions": [ 10, 20 }
+        "dimensions": [ 10, 20 ]
     }
 }
 ```
@@ -33,7 +33,7 @@ For example, the [`ranged_summarized_experiment` type](ranged_summarized_experim
     "type": "ranged_summarized_experiment",
     "summarized_experiment": {
         "version": "1.0",
-        "dimensions": [ 10, 20 }
+        "dimensions": [ 10, 20 ]
     },
     "ranged_summarized_experiment": {
         "version": "1.0"
