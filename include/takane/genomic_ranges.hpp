@@ -27,6 +27,7 @@ namespace takane {
  * @cond
  */
 void validate(const std::filesystem::path&, const ObjectMetadata&, const Options& options);
+bool derived_from(const std::string&, const std::string&);
 /**
  * @endcond
  */
@@ -50,7 +51,7 @@ struct SequenceLimits {
 
 inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, const Options& options) {
     auto smeta = read_object_metadata(path);
-    if (smeta.type != "sequence_information") {
+    if (!derived_from(smeta.type, "sequence_information")) {
         throw std::runtime_error("'sequence_information' directory should contain a 'sequence_information' object");
     }
     ::takane::validate(path, smeta, options);

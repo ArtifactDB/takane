@@ -66,4 +66,18 @@ TEST(GenericDispatch, SatisfiesInterface) {
     takane::satisfies_interface_registry["FOO"] = std::unordered_set<std::string>{ "foo" };
     EXPECT_TRUE(takane::satisfies_interface("foo", "FOO"));
     takane::satisfies_interface_registry.erase("FOO");
+
+    EXPECT_TRUE(takane::satisfies_interface("summarized_experiment", "SUMMARIZED_EXPERIMENT"));
+    EXPECT_TRUE(takane::satisfies_interface("single_cell_experiment", "SUMMARIZED_EXPERIMENT"));
+}
+
+TEST(GenericDispatch, DerivedFrom) {
+    EXPECT_TRUE(takane::derived_from("summarized_experiment", "summarized_experiment"));
+    EXPECT_TRUE(takane::derived_from("ranged_summarized_experiment", "summarized_experiment"));
+    EXPECT_TRUE(takane::derived_from("single_cell_experiment", "summarized_experiment"));
+    EXPECT_FALSE(takane::derived_from("vcf_experiment", "summarized_experiment"));
+
+    takane::derived_from_registry["FOO"] = std::unordered_set<std::string>{ "foo" };
+    EXPECT_TRUE(takane::derived_from("foo", "FOO"));
+    takane::derived_from_registry.erase("FOO");
 }
