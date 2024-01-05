@@ -24,8 +24,8 @@ Currently, **takane** provides validators for the following objects:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bam_file/1.0.md).
 - `bcf_file`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bcf_file/1.0.md).
-- `bcf_file`:
-  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bcf_file/1.0.md).
+- `bed_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bed_file/1.0.md).
 - `bigbed_file`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bigbed_file/1.0.md).
 - `bigwig_file`:
