@@ -31,7 +31,7 @@ The `lengths` dataset should be 1-dimensional and have a datatype that can be ex
 Each entry corresponds to an element of the genomic ranges list - that is, a genomic ranges object -
 and defines the number of consecutive elements in the `concatenated` object (see below) that can be used to construct each genomic ranges object.
 
-The directory should also contain a `concatenated` subdirectory, which contains a child object of the [`genomic_ranges`](genomic_ranges) type.
+The directory should also contain a `concatenated` subdirectory, which contains a child object of the [`genomic_ranges`](../genomic_ranges) type.
 The height of this child object should be equal to the sum of lengths in the `genomic_ranges_list/lengths` dataset of the `partitions.h5` file.
 In effect, this child object represents the concatenation of all of the genomic ranges in the list;
 reconstructing the vector for a particular list element involves taking a contiguous slice at an offset defined by the sum of the preceding `lengths`.
