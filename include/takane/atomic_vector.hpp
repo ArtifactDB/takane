@@ -84,7 +84,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options, typically for reading performance.
  * @return Length of the vector.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, const Options&) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
     auto ghandle = handle.openGroup("atomic_vector");
     auto dhandle = ghandle.openDataSet("values");

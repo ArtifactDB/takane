@@ -55,9 +55,7 @@ void check_dimnames(const H5::Group& handle, const std::string& name, const std:
 } catch (std::exception& e) {
     throw std::runtime_error("failed to validate dimnames for '" + ritsuko::hdf5::get_name(handle) + "'; " + std::string(e.what()));
 }
-/**
- * @endcond
- */
+
 }
 
 }

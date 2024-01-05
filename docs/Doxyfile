@@ -918,8 +918,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = ../include/takane \
-                         ../README.md \
-                         specifications
+                         ../README.md
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1017,7 +1016,15 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                =
+EXCLUDE                = ../include/takane/utils_array.hpp \
+                         ../include/takane/utils_bumpy_array.hpp \
+                         ../include/takane/utils_compressed_list.hpp \
+                         ../include/takane/utils_factor.hpp \
+                         ../include/takane/utils_files.hpp \
+                         ../include/takane/utils_json.hpp \
+                         ../include/takane/utils_other.hpp \
+                         ../include/takane/utils_string.hpp \
+                         ../include/takane/utils_summarized_experiment.hpp
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

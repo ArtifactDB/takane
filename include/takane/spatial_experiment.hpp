@@ -16,6 +16,11 @@
 #include <vector>
 #include <cmath>
 
+/**
+ * @file spatial_experiment.hpp
+ * @brief Validation for spatial experiments.
+ */
+
 namespace takane {
 
 /**
