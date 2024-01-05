@@ -48,7 +48,7 @@ The subdirectory should contain a `names.json` file, which contains a JSON-forma
 Each string is the name of an alternative experiment and should be non-empty and unique.
 The `alternative_experiments` subdirectory should contain one subdirectory for each alternative experiment,
 named after the experiment's positional index in the JSON array, e.g., `0` for the first experiment, `1` for the second experiment, and so on.
-Each subdirectory of `reduced_dimensions` should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface,
+Each subdirectory of `alternative_experiments` should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface,
 with number of columns equal to the number of columns of the single cell experiment.
 If no `alternative_experiments` subdirectory is present, it is assumed that the single cell experiment contains no alternative experiments.
 
