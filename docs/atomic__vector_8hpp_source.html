@@ -111,8 +111,8 @@ $(function() {
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* missing_attr_name = <span class="stringliteral">&quot;missing-value-placeholder&quot;</span>;</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;string&quot;</span>) {</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        <span class="keywordflow">if</span> (dhandle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a string datatype for &#39;values&#39;&quot;</span>);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        <span class="keywordflow">if</span> (!ritsuko::hdf5::is_utf8_string(dhandle)) {</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a datatype for &#39;values&#39; that can be represented by a UTF-8 encoded string&quot;</span>);</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        }</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="keyword">auto</span> missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        std::string format = internal_string::fetch_format_attribute(ghandle);</div>

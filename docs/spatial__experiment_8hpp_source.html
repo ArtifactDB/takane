@@ -190,8 +190,8 @@ $(function() {
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        <span class="keyword">auto</span> num_images = ritsuko::hdf5::get_1d_length(sample_handle.getSpace(), <span class="keyword">false</span>);</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>        <span class="keyword">auto</span> id_handle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;image_ids&quot;</span>);</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        <span class="keywordflow">if</span> (id_handle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a string datatype for &#39;image_ids&#39;&quot;</span>);</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        <span class="keywordflow">if</span> (!ritsuko::hdf5::is_utf8_string(id_handle)) {</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;image_ids&#39; to have a datatype that can be represented by a UTF-8 encoded string&quot;</span>);</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>        }</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::get_1d_length(id_handle.getSpace(), <span class="keyword">false</span>) != num_images) {</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;image_ids&#39; to have the same length as &#39;image_samples&#39;&quot;</span>);</div>
@@ -206,8 +206,8 @@ $(function() {
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>        }</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>        <span class="keyword">auto</span> format_handle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;image_formats&quot;</span>);</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        <span class="keywordflow">if</span> (format_handle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a string datatype for &#39;image_formats&#39;&quot;</span>);</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        <span class="keywordflow">if</span> (!ritsuko::hdf5::is_utf8_string(format_handle)) {</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;image_formats&#39; to have a datatype that can be represented by a UTF-8 encoded string&quot;</span>);</div>
 <div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>        }</div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::get_1d_length(format_handle.getSpace(), <span class="keyword">false</span>) != num_images) {</div>
 <div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;image_formats&#39; to have the same length as &#39;image_samples&#39;&quot;</span>);</div>

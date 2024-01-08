@@ -235,8 +235,8 @@ $(function() {
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected number array to have a datatype that fits into a 64-bit float&quot;</span>);</div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>        }</div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (type == <span class="stringliteral">&quot;string&quot;</span>) {</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>        <span class="keywordflow">if</span> (dhandle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected string array to have a string datatype class&quot;</span>);</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>        <span class="keywordflow">if</span> (!ritsuko::hdf5::is_utf8_string(dhandle)) {</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected string array to have a datatype that can be represented by a UTF-8 encoded string&quot;</span>);</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>        }</div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>        internal::validate_string_contents(dhandle, extents, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a>);</div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    } <span class="keywordflow">else</span> {</div>

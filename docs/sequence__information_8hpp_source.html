@@ -109,8 +109,8 @@ $(function() {
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">size_t</span> nseq = 0;</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    {</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="keyword">auto</span> nhandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;name&quot;</span>);</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keywordflow">if</span> (nhandle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a string datatype class for &#39;name&#39;&quot;</span>);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keywordflow">if</span> (!ritsuko::hdf5::is_utf8_string(nhandle)) {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;name&#39; to have a datatype that can be represented by a UTF-8 encoded string&quot;</span>);</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        }</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        nseq = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), <span class="keyword">false</span>);</div>
@@ -157,8 +157,8 @@ $(function() {
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    {</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        <span class="keyword">auto</span> gnhandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;genome&quot;</span>);</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        <span class="keywordflow">if</span> (gnhandle.getTypeClass() != H5T_STRING) {</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a string datatype class for &#39;genome&#39;&quot;</span>);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        <span class="keywordflow">if</span> (!ritsuko::hdf5::is_utf8_string(gnhandle)) {</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected &#39;genome&#39; to have a datatype that can be represented by a UTF-8 encoded string&quot;</span>);</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        }</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keywordflow">if</span> (ritsuko::hdf5::get_1d_length(gnhandle.getSpace(), <span class="keyword">false</span>) != nseq) {</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected lengths of &#39;length&#39; and &#39;genome&#39; to be equal&quot;</span>);</div>
