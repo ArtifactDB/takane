@@ -25,17 +25,17 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ## Directory structure
 
 The directory should contain a `basic_contents.h5` HDF5 file, which in turn should contain an `data_frame` group.
-This group should have a `row-count` attribute, which should be a scalar dataset of any datatype that can be exactly represented by a 64-bit unsigned integer.
+This group should have a `row-count` attribute, which should be a scalar dataset of any datatype that is representable by a 64-bit unsigned integer.
 The value of this attribute specifies the number of rows in the data frame.
 
 The `data_frame` group should contain `column_names`, a 1-dimensional string dataset containing the column names of the data frame.
-Any HDF5 string datatype may be used here.
 Column names should not be empty or duplicated.
 The length of this dataset defines the number of columns of the data frame.
+The datatype should be representable by a UTF-8 encoded string.
 
 The `data_frame` group may optionally contain `row_names`, a 1-dimensional string dataset containing the row names of the data frame if any are present.
-Any HDF5 string datatype may be used here.
 The length of this dataset should be equal to the number of rows in the data frame.
+The datatype should be representable by a UTF-8 encoded string.
 
 The `data_frame` group should contain the `data` subgroup, which stores all "basic" columns.
 Each basic column is represented by a HDF5 group or dataset named after the positional index of the column, e.g., `0` for the first column, `1` for the second column, and so on.
@@ -63,16 +63,17 @@ This holds extra annotations for the entire data frame.
 Consider the basic column X, i.e., the X-th column in the data frame.
 If this column is not a factor, it is represented by a HDF5 dataset at `data_frame/data/X`.
 This dataset should be a 1-dimensional and of length equal to the number of rows.
-It should have a `type` scalar attribute of any HDF5 string datatype.
+It should have a `type` scalar attribute of any string datatype that is represented by a UTF-8 encoded string.
 The value of the `type` attribute specifies the type of the column and the expected HDF5 datatype of the dataset itself:
 
-- For `type = "integer"` or `"boolean"`, the datatype should be any integer type that can be exactly represented by a 32-bit signed integer.
+- For `type = "integer"` or `"boolean"`, the datatype should be representable by a 32-bit signed integer.
   Check out the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for more details.
-- For `type = "number"`, the datatype should be any integer/float type that can be exactly represented by a 64-bit float.
-- For `type = "string"`, the datatype should be any string type that can be represented by a UTF-8 encoded string.
+- For `type = "number"`, the datatype should be representable by a 64-bit float.
+- For `type = "string"`, the datatype should be representable by a UTF-8 encoded string.
 
 For `type = "string"`, the `data_frame/data/X` dataset may optionally contain a `format` attribute.
-If present, this should be one of:
+If present, this should be a scalar attribute of a datatype that is represented by a UTF-8 encoded string.
+The attribute itself should contain one of the following values:
 
 - `"none"`: no constraints on the contents of each string.
   This is the default behaviour if no `format` is present.
@@ -80,21 +81,23 @@ If present, this should be one of:
 - `"date-time"`: strings should be Internet Date/Time values following the format described in [RFC3339](https://www.rfc-editor.org/rfc/rfc3339).
 
 Missing values are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `data_frame/data/X` dataset.
-The attribute should be scalar and have the same datatype as `data_frame/data/X`, except in the case of strings where any string datatype may be used.
+The attribute should be scalar and have the same datatype as `data_frame/data/X`
+(except in the case of strings, where any datatype may be used for the attribute as long as it is compatible with a UTF-8 encoded string).
 All values in the dataset equal to the placeholder should be treated as missing.
 See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
 
 ### Basic, factor
 
 If column X is a factor, it is instead represented by a HDF5 group at `data_frame/data/X`.
-It should have a `type` scalar attribute of any HDF5 string datatype, containing the `"factor"` string.
+It should have a `type` scalar attribute of any string datatype that is represented by a UTF-8 encoded string.
+This attribute should contain the `"factor"` string.
 
 The `data_frame/data/X` group should contain `levels`, a 1-dimensional string dataset containing the factor levels.
-Any HDF5 string datatype may be used here.
+The datatype should be representable by a UTF-8 encoded string.
 All levels should be unique.
 
 The `data_frame/data/X` group should contain `codes`, a 1-dimensional dataset containing the 0-indexed factor codes. 
-The length of this dataset should be equal to the number of rows, and the datatype should be exactly represented by a 64-bit unsigned integer.
+The length of this dataset should be equal to the number of rows, and the datatype should be representable by a 64-bit unsigned integer.
 Values of this dataset should either be less than the number of levels or equal to the placeholder value.
 
 Missing factor entries are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `data_frame/data/X/codes` dataset.

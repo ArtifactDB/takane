@@ -25,19 +25,19 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ## Directory structure
 
 The directory should contain a `matrix.h5` HDF5 file, which in turn should contain an `compressed_sparse_matrix` group.
-The group should contain `shape`, a 1-dimensional dataset of any datatype that can be exactly represented by a 64-bit unsigned integer.
+The group should contain `shape`, a 1-dimensional dataset of any datatype that is representable by a 64-bit unsigned integer.
 `compressed_sparse_matrix/shape` should have length 2 where the entries specify the number of rows and columns, respectively, of the matrix.
 
 The `compressed_sparse_matrix` group should have a `layout` attribute.
-This should be a scalar string dataset that is either `"CSR"` or `"CSC"`, specifying whether the matrix is compressed sparse row (CSR) or column (CSC).
-Any HDF5 string datatype may be used here.
+This should be a scalar string dataset that is either `"CSR"` or `"CSC"`, specifying whether the matrix is compressed sparse row or column, respectively.
+The datatype should be representable by a UTF-8 encoded string.
 
 The `compressed_sparse_matrix` group should contain `data`, a 1-dimensional dataset containing the values for the structural non-zeroes.
 This should have a `type` attribute specifying the type of the sparse matrix and the expected HDF5 datatype of the dataset itself:
 
-- For `type = "integer"` or `"boolean"`, the datatype should be exactly represented by a 32-bit signed integer.
+- For `type = "integer"` or `"boolean"`, the datatype should be representable by a 32-bit signed integer.
   Check out the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for more details.
-- For `type = "number"`, the datatype should be any integer/float datatype that can be exactly represented by a 64-bit float.
+- For `type = "number"`, the datatype should be representable by a 64-bit float.
 
 Missing values in the matrix are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `compressed_sparse_matrix/data` dataset.
 The attribute should be scalar and should have the same datatype as `compressed_sparse_matrix/data`.
@@ -45,13 +45,13 @@ All values in the dataset equal to the placeholder should be treated as missing.
 See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
 
 The `compressed_sparse_matrix` group should contain `indices`, a 1-dimensional dataset containing the row indices (for CSC) or column indices (for CSR) for the structural non-zeroes.
-This should have a datatype that can be exactly represented by a 64-bit unsigned integer.
+This should have a datatype that is representable by a 64-bit unsigned integer.
 The length of `compressed_sparse_matrix/indices` should be equal to that of `compressed_sparse_matrix/data`, as each entry of the former contains the row/column index of the latter.
 All values should be less than the number of rows (for CSC) or columns (for CSR) in `compressed_sparse_matrix/shape`.
 
 The `compressed_sparse_matrix` group should contain `indptr`, a 1-dimensional dataset containing the pointer offsets for the columns (for CSC) or rows (for CSR).
 The length of this dataset should be equal to the number of columns plus 1 (for CSC) or the number of rows plus 1 (for CSR).
-This should have a datatype that can be exactly represented by a 64-bit unsigned integer.
+This should have a datatype that is representable by a 64-bit unsigned integer.
 The first value should be zero, the last value should be equal to the length of `compressed_sparse_matrix/data`, and all values should be sorted in non-decreasing order.
 
 Given an index `i` (for rows in CSR, columns in CSC), `indptr[i]` contains the position of the first structural non-zero for that row/column in `compressed_sparse_matrix/data`.
@@ -61,7 +61,7 @@ Given a particular range, all values in `compressed_sparse_matrix/indices` insid
 Optionally, the `compressed_sparse_matrix` group may contain a `names` subgroup.
 This may contain any number of 1-dimensional string datasets named after the corresponding dimension, e.g., `0` for rows, `1` for columns.
 Each dataset contains the names for its dimension and should have a length equal to the extent of that dimension.
-Any HDF5 string datatype may be used in each dataset.
+The datatype of each dataset should be representable by a UTF-8 encoded string.
 
 ## Height
 

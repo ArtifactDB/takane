@@ -31,7 +31,7 @@ Rows should not be duplicated, though the exact definition of a duplicated row i
 
 The directory should contain a `contents.h5` HDF5 file, which in turn should contain an `data_frame_factor` group.
 This group should contain `codes`, a 1-dimensional dataset containing the factor codes. 
-The datatype of this dataset should be exactly represented by a 64-bit unsigned integer.
+The datatype of this dataset should be representable by a 64-bit unsigned integer.
 Values of this dataset should be less than the number of levels.
 
 The directory may contain an `element_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
@@ -43,7 +43,7 @@ This holds extra annotations for the entire data frame factor.
 
 Optionally, the `data_frame_factor` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `codes`.
 This contains the name for each element of the data frame factor.
-Any HDF5 string datatype may be used here.
+The datatype should be representable by a UTF-8 encoded string.
 
 ## Height
 

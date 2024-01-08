@@ -32,14 +32,17 @@ The following datasets should be present:
 
 - `name`, a dataset of any HDF5 string datatype, containing the names of the reference sequences.
   All values should be unique.
-- `length`, a dataset of any datatype that can be exactly represented by a 64-bit unsigned integer.
+  The datatype should be representable by a UTF-8 encoded string.
+- `length`, a dataset of any datatype that is representable by a 64-bit unsigned integer.
   Each value contains the length of each sequence in base pairs.
-- `circular`, a dataset of any datatype that can be exactly represented by a 32-bit signed integer.
+- `circular`, a dataset of any datatype that is representable by a 32-bit signed integer.
   A non-zero value indicates that the corresponding reference sequence is circular.
 - `genome`, a dataset of any HDF5 string datatype, containing the identifier of the genome that contains the sequence.
   This may contain duplicate values across sequences.
+  The datatype should be representable by a UTF-8 encoded string.
 
 `length`, `circular` and `genome` may contain missing values, which are represented by placeholder values defined in the `missing-value-placeholder` attribute of each dataset.
-The attribute should be a scalar and should have the same datatype as its dataset, except in the case of strings where any string datatype may be used.
+The attribute should be a scalar and should have the same datatype as its dataset
+(except in the case of strings, where any datatype may be used for the attribute as long as it is compatible with a UTF-8 encoded string).
 All values in the dataset equal to the placeholder should be treated as missing.
 See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
