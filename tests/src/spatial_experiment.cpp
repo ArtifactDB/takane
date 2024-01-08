@@ -189,7 +189,7 @@ TEST_F(SpatialExperimentTest, ImageIds) {
         ghandle.unlink("image_ids");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "image_ids", H5::PredType::NATIVE_INT, {});
     }
-    expect_error("string datatype");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);
@@ -264,7 +264,7 @@ TEST_F(SpatialExperimentTest, ImageFormats) {
         ghandle.unlink("image_formats");
         hdf5_utils::spawn_numeric_data<double>(ghandle, "image_formats", H5::PredType::NATIVE_DOUBLE, {});
     }
-    expect_error("string datatype");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);

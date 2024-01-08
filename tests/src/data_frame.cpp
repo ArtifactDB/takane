@@ -71,7 +71,7 @@ TEST_F(Hdf5DataFrameTest, Rownames) {
         ghandle.unlink("row_names");
         ghandle.createDataSet("row_names", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error("string dataset");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         auto handle = reopen();
@@ -113,7 +113,7 @@ TEST_F(Hdf5DataFrameTest, Colnames) {
         ghandle.unlink("column_names");
         ghandle.createDataSet("column_names", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error("string dataset");
+    expect_error("represented by a UTF-8 encoded string");
 
     columns[1].name = "Aaron";
     data_frame::mock(dir, 29, columns);
@@ -365,7 +365,7 @@ TEST_F(Hdf5DataFrameTest, String) {
         auto xhandle = hdf5_utils::spawn_data(dhandle, "0", 72, H5::PredType::NATIVE_INT);
         hdf5_utils::attach_attribute(xhandle, "type", "string");
     }
-    expect_error("string dataset");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         auto handle = reopen();

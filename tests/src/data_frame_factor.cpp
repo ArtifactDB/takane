@@ -111,7 +111,7 @@ TEST_F(DataFrameFactorTest, Names) {
         auto ldir = dir / "levels";
         data_frame::mock(ldir, 5, {});
     }
-    expect_error("string datatype");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         auto handle = reopen();

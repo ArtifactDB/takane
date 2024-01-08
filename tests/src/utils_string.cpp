@@ -177,7 +177,7 @@ TEST_F(Hdf5NamesTest, Basics) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error("string datatype class", handle, "names", 5, 1000);
+        expect_error("represented by a UTF-8 encoded string", handle, "names", 5, 1000);
     }
 
     {

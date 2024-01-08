@@ -50,7 +50,7 @@ TEST_F(Hdf5FactorTest, Levels) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_levels("expected a string", handle, "fab", 10000);
+        expect_error_levels("represented by a UTF-8 encoded string", handle, "fab", 10000);
         expect_error_levels("duplicated factor level", handle, "foobar", 10000);
         EXPECT_EQ(takane::internal_factor::validate_factor_levels(handle, "blah", 10000), nlevels);
     }

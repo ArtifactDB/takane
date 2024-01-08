@@ -53,7 +53,7 @@ TEST_F(ArrayUtilsTest, Names) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_names("string datatype class", handle, "names", dims, takane::Options());
+        expect_error_names("represented by a UTF-8 encoded string", handle, "names", dims, takane::Options());
     }
 
     {

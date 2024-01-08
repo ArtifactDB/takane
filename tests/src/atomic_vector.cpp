@@ -124,7 +124,7 @@ TEST_F(AtomicVectorTest, Types) {
             ghandle.unlink("values");
             hdf5_utils::spawn_data(ghandle, "values", 100, H5::PredType::NATIVE_INT);
         }
-        expect_error("string datatype");
+        expect_error("represented by a UTF-8 encoded string");
 
         {
             mock(dir, 13, atomic_vector::Type::STRING);
@@ -142,7 +142,7 @@ TEST_F(AtomicVectorTest, Types) {
             ghandle.removeAttr("format");
             ghandle.createAttribute("format", H5::PredType::NATIVE_INT, H5S_SCALAR);
         }
-        expect_error("'format' attribute to be a string");
+        expect_error("represented by a UTF-8 encoded string");
 
         {
             auto handle = reopen();
@@ -185,7 +185,7 @@ TEST_F(AtomicVectorTest, NameChecks) {
         auto ghandle = handle.openGroup("atomic_vector");
         hdf5_utils::spawn_data(ghandle, "names", 100, H5::PredType::NATIVE_INT32);
     }
-    expect_error("string datatype");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         auto handle = reopen();

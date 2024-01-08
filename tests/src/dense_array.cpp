@@ -58,7 +58,7 @@ TEST_F(DenseArrayTest, TypeChecks) {
         ghandle.removeAttr("type");
         hdf5_utils::attach_attribute(ghandle, "type", "string");
     }
-    expect_error("string datatype class");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         dense_array::mock(dir, dense_array::Type::NUMBER, { 10, 20 });

@@ -69,7 +69,7 @@ TEST_F(SequenceInformationTest, Seqnames) {
         auto ghandle = handle.createGroup(name);
         hdf5_utils::spawn_data(ghandle, "name", 10, H5::PredType::NATIVE_INT32);
     }
-    expect_error("string datatype class");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         auto handle = initialize();
@@ -187,7 +187,7 @@ TEST_F(SequenceInformationTest, Genome) {
         ghandle.unlink("genome");
         hdf5_utils::spawn_data(ghandle, "genome", 3, H5::PredType::NATIVE_INT64);
     }
-    expect_error("string datatype class");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         auto handle = reopen();

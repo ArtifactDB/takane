@@ -137,7 +137,7 @@ TEST_F(StringFactorTest, Names) {
 
         hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
     }
-    expect_error("string datatype");
+    expect_error("represented by a UTF-8 encoded string");
 
     {
         auto handle = reopen();
