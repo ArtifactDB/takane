@@ -3,8 +3,6 @@
 
 #include "takane/delayed_array.hpp"
 #include "delayed_array.h"
-#include "compressed_sparse_matrix.h"
-#include "data_frame.h"
 #include "utils.h"
 
 #include <string>
