@@ -21,10 +21,10 @@ if(TAKANE_FETCH_EXTERN)
 else()
     find_package(artifactdb_ritsuko CONFIG REQUIRED)
     find_package(artifactdb_uzuki2 CONFIG REQUIRED)
-    find_package(artifactdb_comservatory CONFIG REQUIRED)
+    find_package(artifactdb_chihaya CONFIG REQUIRED)
 endif()
 
-target_link_libraries(takane INTERFACE artifactdb::ritsuko artifactdb::comservatory artifactdb::uzuki2)
+target_link_libraries(takane INTERFACE artifactdb::ritsuko artifactdb::chihaya artifactdb::uzuki2)
 
 option(TAKANE_FIND_HDF5 "Try to find and link to HDF5 for takane." ON)
 if(TAKANE_FIND_HDF5)
