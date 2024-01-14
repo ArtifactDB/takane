@@ -49,6 +49,14 @@ TEST_F(DelayedArrayTest, Basics) {
     std::vector<size_t> expected_dims { 10, 20 };
     EXPECT_EQ(test_dimensions(dir), expected_dims);
 
+    // Fails if the version is too old.
+    {
+        auto handle = reopen();
+        auto ghandle = handle.openGroup(name);
+        ghandle.removeAttr("delayed_version");
+    }
+    expect_error("no less than 1.1");
+
     // Support the other types...
     delayed_array::mock(dir, dense_array::Type::BOOLEAN, { 10, 20 });
     test_validate(dir);

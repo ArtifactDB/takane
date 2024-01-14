@@ -82,7 +82,14 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     };
 
     auto apath = path / "array.h5";
-    chihaya::validate(apath, "delayed_array", state);
+    auto fhandle = ritsuko::hdf5::open_file(apath);
+    auto ghandle = ritsuko::hdf5::open_group(fhandle, "delayed_array");
+    ritsuko::Version chihaya_version = chihaya::extract_version(ghandle);
+    if (chihaya_version.lt(1, 1, 0)) {
+        throw std::runtime_error("version of the chihaya specification should be no less than 1.1");
+    }
+
+    chihaya::validate(ghandle, chihaya_version, state);
 
     if (max != internal_other::count_directory_entries(path / "seeds")) {
         throw std::runtime_error("number of objects in 'seeds' is not consistent with the number of 'index' references in 'array.h5'");
