@@ -1,0 +1,48 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Delayed array (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `delayed_array` format provides an on-disk representation of a delayed array,
+using the [**chihaya**](https://github.com/ArtifactDB/chihaya) specification to capture delayed operations.
+
+## Object metadata
+
+The `OBJECT` file should contain a `delayed_array` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `delayed_array` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+
+## Directory structure
+
+The directory should contain an `array.h5` HDF5 file, which in turn should contain a `delayed_array` group.
+The group is formatted according to the [**chihaya**](https://github.com/ArtifactDB/chihaya) specification (version 1.1 or higher),
+storing the operations associated with a delayed object.
+
+Delayed objects may contain a custom **chihaya** array of type `"custom takane seed array"`.
+This has an `index` scalar dataset, which should be of a datatype that can be represented by a 64-bit unsigned integer.
+The value of this dataset holds an index to an external array.
+
+The directory may contain a `seeds` subdirectory, containing any number of subdirectories named from `0` to `N-1` for `N` subdirectories.
+Each subdirectory of `assays` should be a child object that has some concept of "dimensions".
+Each child object should be referenced at least once by an `index` dataset of a custom **chihaya** array of the aforementioned type in `array.h5`,
+e.g., an `index` of 1 refers to the subdirectory `seeds/1`. 
+The referencing custom array should have dimensionality (and type) consistent with that of the child object.
+
+## Height
+
+The height of the delayed array is defined as the extent of the first dimension of the delayed object represneted by the `delayed_array` group of `array.h5`.
+
+## Dimensions
+
+The dimensions of the delayed array are defined as the dimensions of the delayed object represneted by the `delayed_array` group of `array.h5`.

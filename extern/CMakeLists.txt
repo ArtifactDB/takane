@@ -13,11 +13,11 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-  comservatory 
-  GIT_REPOSITORY https://github.com/ArtifactDB/comservatory
+  chihaya
+  GIT_REPOSITORY https://github.com/ArtifactDB/chihaya
   GIT_TAG master
 )
 
 FetchContent_MakeAvailable(uzuki2)
 FetchContent_MakeAvailable(ritsuko)
-FetchContent_MakeAvailable(comservatory)
+FetchContent_MakeAvailable(chihaya)

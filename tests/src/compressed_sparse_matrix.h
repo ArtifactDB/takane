@@ -13,7 +13,7 @@ struct Config {
     bool as_integer = false;
 };
 
-static void mock(
+inline void mock(
     H5::Group& handle,
     std::vector<int> dimensions,
     std::vector<double> data,
@@ -55,7 +55,7 @@ static void mock(
     }
 }
 
-void mock(const std::filesystem::path& path, int nr, int nc, double density, Config config = Config()) {
+inline void mock(const std::filesystem::path& path, int nr, int nc, double density, Config config = Config()) {
     initialize_directory_simple(path, "compressed_sparse_matrix", "1.0");
 
     int nprimary = (config.csc ? nc : nr);
