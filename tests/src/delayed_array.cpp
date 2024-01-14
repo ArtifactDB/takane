@@ -140,37 +140,3 @@ TEST_F(DelayedArrayTest, DimensionalityChecks) {
     }
     expect_error("dimension extents");
 }
-
-TEST_F(DelayedArrayTest, TypeChecks) {
-    delayed_array::mock(dir, dense_array::Type::BOOLEAN, { 10, 20 });
-    test_validate(dir);
-
-    delayed_array::mock(dir, dense_array::Type::NUMBER, { 10, 20 });
-    test_validate(dir);
-
-    delayed_array::mock(dir, dense_array::Type::STRING, { 10, 20 });
-    test_validate(dir);
-
-    auto seed_path = dir / "seeds";
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        dense_array::mock(seed_path / "0", dense_array::Type::NUMBER, { 10, 20 });
-    }
-    expect_error("not consistent with 'type'");
-
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        compressed_sparse_matrix::mock(seed_path / "0", 10, 20, 0.1);
-    }
-    expect_error("not consistent with 'type'");
-
-    // Type checks are skipped for other things.
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 2 });
-        std::vector<data_frame::ColumnDetails> coldeets(2);
-        coldeets[0].name = "FOO";
-        coldeets[1].name = "bAR";
-        data_frame::mock(seed_path / "0", 10, coldeets);
-    }
-    test_validate(dir);
-}

@@ -27,23 +27,6 @@ namespace takane {
 void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
 bool derived_from(const std::string&, const std::string&);
 std::vector<size_t> dimensions(const std::filesystem::path&, const ObjectMetadata&, const Options&);
-
-namespace internal {
-
-inline chihaya::ArrayType translate_type_to_chihaya(const std::string& type) {
-    if (type == "integer") {
-        return chihaya::INTEGER;
-    } else if (type == "boolean") {
-        return chihaya::BOOLEAN;
-    } else if (type == "number") {
-        return chihaya::FLOAT;
-    } else if (type != "string") {
-        throw std::runtime_error("cannot translate type '" + type + "' to a chihaya type");
-    }
-    return chihaya::STRING;
-}
-
-}
 /**
  * @endcond
  */
@@ -90,29 +73,6 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             if (seed_dims[d] != details.dimensions[d]) {
                 throw std::runtime_error("dimension extents of 'seeds/" + std::to_string(index) + "' is not consistent with 'dimensions'");
             }
-        }
-
-        // Peeking at the object type.
-        bool found = true;
-        chihaya::ArrayType expected_type;
-        if (::takane::derived_from(seed_meta.type, "dense_array")) {
-            auto handle = ritsuko::hdf5::open_file(seed_path / "array.h5");
-            auto ghandle = ritsuko::hdf5::open_group(handle, "dense_array");
-            auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "data");
-            auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
-            expected_type = internal::translate_type_to_chihaya(type);
-        } else if (::takane::derived_from(seed_meta.type, "compressed_sparse_matrix")) {
-            auto handle = ritsuko::hdf5::open_file(seed_path / "matrix.h5");
-            auto ghandle = ritsuko::hdf5::open_group(handle, "compressed_sparse_matrix");
-            auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "data");
-            auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
-            expected_type = internal::translate_type_to_chihaya(type);
-        } else {
-            found = false;
-        }
-
-        if (found && expected_type != details.type) {
-            throw std::runtime_error("type of 'seeds/" + std::to_string(index) + "' is not consistent with 'type'");
         }
 
         if (index >= max) {
