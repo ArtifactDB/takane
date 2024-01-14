@@ -50,6 +50,16 @@ TEST_F(DelayedArrayTest, Basics) {
 
     std::vector<size_t> expected_dims { 10, 20 };
     EXPECT_EQ(test_dimensions(dir), expected_dims);
+
+    // Support the other types...
+    delayed_array::mock(dir, dense_array::Type::BOOLEAN, { 10, 20 });
+    test_validate(dir);
+
+    delayed_array::mock(dir, dense_array::Type::NUMBER, { 10, 20 });
+    test_validate(dir);
+
+    delayed_array::mock(dir, dense_array::Type::STRING, { 10, 20 });
+    test_validate(dir);
 }
 
 TEST_F(DelayedArrayTest, IndexChecks) {
