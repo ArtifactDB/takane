@@ -97,6 +97,24 @@ TEST_F(DelayedArrayTest, IndexChecks) {
     EXPECT_EQ(takane::internal_other::count_directory_entries(seed_path), 1);
     expect_error("number of objects in 'seeds' is not consistent");
 
+    // Creating a delayed array with no external references.
+    {
+        initialize_directory_simple(dir, "delayed_array", "1.0");
+        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("delayed_array");
+        hdf5_utils::attach_attribute(ghandle, "delayed_type", "array");
+        hdf5_utils::attach_attribute(ghandle, "delayed_array", "constant array");
+        hdf5_utils::attach_attribute(ghandle, "delayed_version", "1.1");
+
+        auto dhandle = hdf5_utils::spawn_data(ghandle, "dimensions", 2, H5::PredType::NATIVE_UINT32);
+        std::vector<int> dims { 20, 30 };
+        dhandle.write(dims.data(), H5::PredType::NATIVE_INT);
+
+        auto vhandle = ghandle.createDataSet("value", H5::PredType::NATIVE_INT32, H5S_SCALAR);
+        hdf5_utils::attach_attribute(vhandle, "type", "INTEGER");
+    }
+    test_validate(dir);
+
     // Forcibly creating a more interesting delayed array.
     {
         initialize_directory_simple(dir, "delayed_array", "1.0");
