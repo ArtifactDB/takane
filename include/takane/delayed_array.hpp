@@ -24,9 +24,8 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
-bool derived_from(const std::string&, const std::string&);
-std::vector<size_t> dimensions(const std::filesystem::path&, const ObjectMetadata&, const Options&);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&, State&);
+std::vector<size_t> dimensions(const std::filesystem::path&, const ObjectMetadata&, const Options&, State&);
 /**
  * @endcond
  */
@@ -41,8 +40,9 @@ namespace delayed_array {
  * @param path Path to the directory containing a delayed array.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, mostly related to reading performance.
+ * @param state Validation state, containing custom functions.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options, State& state) {
     auto vstring = internal_json::extract_version_for_type(metadata.other, "delayed_array");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
@@ -62,9 +62,9 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         auto index = ritsuko::hdf5::load_scalar_numeric_dataset<uint64_t>(dhandle);
         auto seed_path = path / "seeds" / std::to_string(index);
         auto seed_meta = read_object_metadata(seed_path);
-        ::takane::validate(seed_path, seed_meta, options);
+        ::takane::validate(seed_path, seed_meta, options, state);
 
-        auto seed_dims = ::takane::dimensions(seed_path, seed_meta, options);
+        auto seed_dims = ::takane::dimensions(seed_path, seed_meta, options, state);
         if (seed_dims.size() != details.dimensions.size()) {
             throw std::runtime_error("dimensionality of 'seeds/" + std::to_string(index) + "' is not consistent with 'dimensions'");
         }
@@ -105,9 +105,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param path Path to the directory containing a delayed array.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, mostly related to reading performance.
+ * @param state Validation state, containing custom functions.
  * @return Extent of the first dimension.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options, [[maybe_unused]] State& state) {
     auto apath = path / "array.h5";
     auto output = chihaya::validate(apath, "delayed_array");
     return output.dimensions[0];
@@ -117,9 +118,10 @@ inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const O
  * @param path Path to the directory containing a delayed array.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, mostly related to reading performance.
+ * @param state Validation state, containing custom functions.
  * @return Dimensions of the array.
  */
-inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options, [[maybe_unused]] State& state) {
     auto apath = path / "array.h5";
     auto output = chihaya::validate(apath, "delayed_array");
     return std::vector<size_t>(output.dimensions.begin(), output.dimensions.end());

@@ -23,9 +23,9 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
-size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
-bool satisfies_interface(const std::string&, const std::string&);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&, State&);
+size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&, State&);
+bool satisfies_interface(const std::string&, const std::string&, State&);
 /**
  * @endcond
  */
@@ -51,8 +51,9 @@ inline std::function<bool(const std::filesystem::path&, const ObjectMetadata&, c
  * @param path Path to the directory containing the data frame factor.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
+ * @param state Validation state, containing custom functions.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options, State& state) {
     const auto& vstring = internal_json::extract_version_for_type(metadata.other, "data_frame_factor");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
@@ -67,11 +68,11 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     try {
-        ::takane::validate(lpath, lmeta, options);
+        ::takane::validate(lpath, lmeta, options, state);
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate 'levels'; " + std::string(e.what()));
     }
-    size_t num_levels = ::takane::height(lpath, lmeta, options);
+    size_t num_levels = ::takane::height(lpath, lmeta, options, state);
 
     if (any_duplicated) {
         if (any_duplicated(lpath, lmeta, options)) {
@@ -83,8 +84,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     auto ghandle = ritsuko::hdf5::open_group(handle, "data_frame_factor");
     size_t num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
 
-    internal_other::validate_mcols(path, "element_annotations", num_codes, options);
-    internal_other::validate_metadata(path, "other_annotations", options);
+    internal_other::validate_mcols(path, "element_annotations", num_codes, options, state);
+    internal_other::validate_metadata(path, "other_annotations", options, state);
 
     internal_string::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 }
@@ -93,9 +94,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param path Path to the directory containing the data frame factor.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
+ * @param state Validation state, containing custom functions.
  * @return Length of the factor.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options, [[maybe_unused]] State& state) {
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
     auto ghandle = handle.openGroup("data_frame_factor");
     auto dhandle = ghandle.openDataSet("codes");

@@ -37,8 +37,9 @@ inline std::function<void(const std::filesystem::path&, const ObjectMetadata&, c
  * @param path Path to the directory containing the BCF file.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options, typically for reading performance.
+ * @param state Validation state, containing custom functions.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] const Options& options, [[maybe_unused]] State& state) {
     const std::string& vstring = internal_json::extract_version_for_type(metadata.other, "bcf_file");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {

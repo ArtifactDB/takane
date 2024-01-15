@@ -7,7 +7,7 @@
 
 /**
  * @file _derived_from.hpp
- * @brief Registry of derived object types.
+ * @brief Check for derived object relationships.
  */
 
 namespace takane {
@@ -46,42 +46,41 @@ inline auto default_registry() {
     return registry;
 }
 
+inline bool check(const std::string& base, const std::string& interface, const std::unordered_map<std::string, std::unordered_set<std::string> >& registry) {
+    auto it = derived_from_registry.find(base);
+    if (it != derived_from_registry.end()) {
+        const auto& listing = it->second;
+        return (listing.find(type) != listing.end());
+    }
+    return false;
+}
+
 }
 /**
  * @endcond
  */
 
 /**
- * Registry of derived object types and their base types.
- * Each key is the base object type and each value is the set of all of its derived types.
+ * Check whether a particular object type is derived from a base object type.
  * Derived types satisfy the same file requirements of the base type, but usually add more files to represent additional functionality.
+ * This can be used by specifications to check whether arbitrary objects satisfy the file structure expectations for a particular base type.
  *
- * Applications can extend the **takane** framework by adding custom derived types to each set.
+ * Applications can add their own derived types for a given base class in `state.derived_from_registry`.
+ * This extends the default relationships whereby `derived_from()` will take the union of all derived object types in the default and custom sets.
  * Note that derived types must be manually included in every base type's set, 
  * e.g., if B is derived from A and C is derived from B, C must be added to the sets for both A and B.
- */
-inline std::unordered_map<std::string, std::unordered_set<std::string> > derived_from_registry = internal_derived_from::default_registry();
-
-/**
- * Check whether a particular object type is derived from a base objct type.
- * This can be used by specifications to check that child components satisfy certain expectations.
  *
  * @param type Object type.
  * @param base Base object type.
  * @returns Whether `type` is derived from `base` or is equal to `base`.
+ * @param state Validation state, containing custom base-derived object relationships.
  */
-inline bool derived_from(const std::string& type, const std::string& base) {
+inline bool derived_from(const std::string& type, const std::string& base, State& state) {
     if (type == base) { 
         return true;
     }
-
-    auto it = derived_from_registry.find(base);
-    if (it == derived_from_registry.end()) {
-        return false;
-    }
-
-    const auto& listing = it->second;
-    return (listing.find(type) != listing.end());
+    static const auto derived_from_registry = internal_derived_from::default_registry();
+    return internal_derived_from::check(type, interface, derived_from_registry) || internal_derived_from::check(type, interface, state.derived_from_registry);
 }
 
 }

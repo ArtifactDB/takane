@@ -47,48 +47,43 @@
 namespace takane {
 
 /**
- * Class to map object types to `validate()` functions.
- */
-typedef std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> > ValidateRegistry;
-
-/**
  * @cond
  */
 namespace internal_validate {
 
 inline ValidateRegistry default_registry() {
     ValidateRegistry registry;
-    registry["atomic_vector"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { atomic_vector::validate(p, m, o); };
-    registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { string_factor::validate(p, m, o); };
-    registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { simple_list::validate(p, m, o); };
-    registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { data_frame::validate(p, m, o); };
-    registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { data_frame_factor::validate(p, m, o); };
-    registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { sequence_information::validate(p, m, o); };
-    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { genomic_ranges::validate(p, m, o); };
-    registry["atomic_vector_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { atomic_vector_list::validate(p, m, o); };
-    registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { data_frame_list::validate(p, m, o); };
-    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { genomic_ranges_list::validate(p, m, o); };
-    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { dense_array::validate(p, m, o); };
-    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { compressed_sparse_matrix::validate(p, m, o); };
-    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { summarized_experiment::validate(p, m, o); };
-    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { ranged_summarized_experiment::validate(p, m, o); };
-    registry["single_cell_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { single_cell_experiment::validate(p, m, o); };
-    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { spatial_experiment::validate(p, m, o); };
-    registry["multi_sample_dataset"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { multi_sample_dataset::validate(p, m, o); };
-    registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { sequence_string_set::validate(p, m, o); };
-    registry["bam_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bam_file::validate(p, m, o); };
-    registry["bcf_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bcf_file::validate(p, m, o); };
-    registry["bigwig_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bigwig_file::validate(p, m, o); };
-    registry["bigbed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bigbed_file::validate(p, m, o); };
-    registry["fasta_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { fasta_file::validate(p, m, o); };
-    registry["fastq_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { fastq_file::validate(p, m, o); };
-    registry["bed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bed_file::validate(p, m, o); };
-    registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { gmt_file::validate(p, m, o); };
-    registry["gff_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { gff_file::validate(p, m, o); };
-    registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bumpy_atomic_array::validate(p, m, o); };
-    registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { bumpy_data_frame_array::validate(p, m, o); };
-    registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { vcf_experiment::validate(p, m, o); };
-    registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { delayed_array::validate(p, m, o); };
+    registry["atomic_vector"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { atomic_vector::validate(p, m, o, s); };
+    registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { string_factor::validate(p, m, o, s); };
+    registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { simple_list::validate(p, m, o, s); };
+    registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { data_frame::validate(p, m, o, s); };
+    registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { data_frame_factor::validate(p, m, o, s); };
+    registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { sequence_information::validate(p, m, o, s); };
+    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { genomic_ranges::validate(p, m, o, s); };
+    registry["atomic_vector_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { atomic_vector_list::validate(p, m, o, s); };
+    registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { data_frame_list::validate(p, m, o, s); };
+    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { genomic_ranges_list::validate(p, m, o, s); };
+    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { dense_array::validate(p, m, o, s); };
+    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { compressed_sparse_matrix::validate(p, m, o, s); };
+    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { summarized_experiment::validate(p, m, o, s); };
+    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { ranged_summarized_experiment::validate(p, m, o, s); };
+    registry["single_cell_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { single_cell_experiment::validate(p, m, o, s); };
+    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { spatial_experiment::validate(p, m, o, s); };
+    registry["multi_sample_dataset"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { multi_sample_dataset::validate(p, m, o, s); };
+    registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { sequence_string_set::validate(p, m, o, s); };
+    registry["bam_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { bam_file::validate(p, m, o, s); };
+    registry["bcf_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { bcf_file::validate(p, m, o, s); };
+    registry["bigwig_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { bigwig_file::validate(p, m, o, s); };
+    registry["bigbed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { bigbed_file::validate(p, m, o, s); };
+    registry["fasta_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { fasta_file::validate(p, m, o, s); };
+    registry["fastq_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { fastq_file::validate(p, m, o, s); };
+    registry["bed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { bed_file::validate(p, m, o, s); };
+    registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { gmt_file::validate(p, m, o, s); };
+    registry["gff_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { gff_file::validate(p, m, o, s); };
+    registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { bumpy_atomic_array::validate(p, m, o, s); };
+    registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { bumpy_data_frame_array::validate(p, m, o, s); };
+    registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { vcf_experiment::validate(p, m, o, s); };
+    registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o, State& s) { delayed_array::validate(p, m, o, s); };
     return registry;
 } 
 
@@ -98,31 +93,39 @@ inline ValidateRegistry default_registry() {
  */
 
 /**
- * Registry of functions to be used by `validate()`.
- * Applications can extend **takane** by adding new validation functions for custom object types.
- */
-inline ValidateRegistry validate_registry = internal_validate::default_registry();
-
-/**
  * Validate an object in a subdirectory, based on the supplied object type.
- * This searches the `validate_registry` to find a validation function for the given type.
+ *
+ * Applications can supply custom validation functions for a given type via the `state.validate_registry`.
+ * If available, the supplied custom function will be used instead of the default.
  *
  * @param path Path to a directory representing an object.
  * @param metadata Metadata for the object, typically determined from its `OBJECT` file.
  * @param options Validation options, mostly for input performance.
+ * @param state Validation state, containing custom validation functions.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options, State& state) {
     if (!std::filesystem::exists(path) || std::filesystem::status(path).type() != std::filesystem::file_type::directory) {
         throw std::runtime_error("expected '" + path.string() + "' to be a directory");
     }
 
+    auto cIt = state.validate_registry.find(metadata.type);
+    if (cIt != state.validate_registry.end()) {
+        try {
+            (cIt->second)(path, metadata, options, state);
+        } catch (std::exception& e) {
+            throw std::runtime_error("failed to validate '" + metadata.type + "' object at '" + path.string() + "'; " + std::string(e.what()));
+        }
+        return;
+    }
+
+    static const validate_registry = internal_validate::default_registry();
     auto vrIt = validate_registry.find(metadata.type);
     if (vrIt == validate_registry.end()) {
         throw std::runtime_error("no registered 'validate' function for object type '" + metadata.type + "' at '" + path.string() + "'");
     }
 
     try {
-        (vrIt->second)(path, metadata, options);
+        (vrIt->second)(path, metadata, options, state);
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate '" + metadata.type + "' object at '" + path.string() + "'; " + std::string(e.what()));
     }
@@ -133,18 +136,20 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  *
  * @param path Path to a directory containing an object.
  * @param options Validation options, mostly for input performance.
+ * @param state Validation state, containing custom validation functions.
  */
-inline void validate(const std::filesystem::path& path, const Options& options) {
+inline void validate(const std::filesystem::path& path, const Options& options, State& state) {
     validate(path, read_object_metadata(path), options);
 }
 
 /**
- * Overload of `validate()` with default options.
+ * Overload of `validate()` with default settings.
  *
  * @param path Path to a directory containing an object.
  */
 inline void validate(const std::filesystem::path& path) {
-    validate(path, Options());
+    State state;
+    validate(path, Options(), state);
 }
 
 }

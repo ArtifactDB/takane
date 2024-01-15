@@ -3,6 +3,7 @@
 
 #include <string>
 #include <filesystem>
+#include <unordered_map>
 
 #include "H5Cpp.h"
 
@@ -88,6 +89,63 @@ struct Options {
      * Buffer size to use when reading data from a HDF5 file.
      */
     hsize_t hdf5_buffer_size = 10000;
+};
+
+/**
+ * @cond
+ */
+struct State;
+/**
+ * @endcond
+ */
+
+/**
+ * Class to map object types to `validate()` functions.
+ */
+typedef std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&, State&)> > ValidateRegistry;
+
+/**
+ * Class to map object types to `dimensions()` functions.
+ */
+typedef std::unordered_map<std::string, std::function<std::vector<size_t>(const std::filesystem::path&, const ObjectMetadata&, const Options&, State&)> > DimensionsRegistry;
+
+/**
+ * Class to map object types to `height()` functions.
+ */
+typedef std::unordered_map<std::string, std::function<size_t(const std::filesystem::path&, const ObjectMetadata& m, const Options&, State&)> > HeightRegistry;
+
+struct State {
+    /**
+     * Custom registry of functions to be used by `validate()`.
+     * If a type is specified here, the custom function replaces the default.
+     */
+    ValidateRegistry validate_registry;
+
+    /**
+     * Custom registry of functions to be used by `dimensions()`.
+     * If a type is specified here, the custom function replaces the default. 
+     */
+    DimensionsRegistry dimensions_registry;
+
+    /**
+     * Custom registry of functions to be used by `dimensions()`.
+     * If a type is specified here, the custom function replaces the default. 
+     */
+    HeightRegistry height_registry;
+
+    /**
+     * Custom registry of derived object types and their base types, to be used by `derived_from()`.
+     * Each key is the base object type and each value is the set of its derived types.
+     * If a type is specified here, the set of derived types is added to the the default set.
+     */
+    std::unordered_map<std::string, std::unordered_set<std::string> > derived_from_registry;
+
+    /**
+     * Custom registry of object types that satisfy a particular object interface.
+     * Each key is the interface and each value is the set of all types that satisfy it.
+     * If a type is specified here, its set of types is added to the the default set.
+     */
+    std::unordered_map<std::string, std::unordered_set<std::string> > satisfies_interface_registry;
 };
 
 }
