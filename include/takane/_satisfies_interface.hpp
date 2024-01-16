@@ -26,7 +26,7 @@ inline auto default_registry() {
     return registry;
 }
 
-inline bool check(const std::string& type, const std::string& interface, const std::unordered_map<std::string, std::unordered_set<std::string> >& registry) {
+inline bool check(const std::string& type, const std::string& interface, const std::unordered_map<std::string, std::unordered_set<std::string> >& registry, const Options& options) {
     auto it = registry.find(interface);
     if (it == registry.end()) {
         return false;
@@ -38,7 +38,7 @@ inline bool check(const std::string& type, const std::string& interface, const s
     }
 
     for (const auto& d : listing) {
-        if (derived_from(type, d)) {
+        if (derived_from(type, d, options)) {
             return true;
         }
     }
@@ -66,7 +66,7 @@ inline bool check(const std::string& type, const std::string& interface, const s
  */
 inline bool satisfies_interface(const std::string& type, const std::string& interface, const Options& options) {
     static const auto satisfies_interface_registry = internal_satisfies_interface::default_registry();
-    return internal_satisfies_interface::check(type, interface, satisfies_interface_registry) || internal_satisfies_interface::check(type, interface, options.custom_satisfies_interface);
+    return internal_satisfies_interface::check(type, interface, satisfies_interface_registry, options) || internal_satisfies_interface::check(type, interface, options.custom_satisfies_interface, options);
 }
 
 }

@@ -26,7 +26,7 @@ namespace takane {
 /**
  * @cond
  */
-bool derived_from(const std::string&, const std::string&);
+bool derived_from(const std::string&, const std::string&, const Options& options);
 /**
  * @endcond
  */
@@ -45,7 +45,7 @@ namespace internal {
 inline void validate_coordinates(const std::filesystem::path& path, size_t ncols, Options& options) {
     auto coord_path = path / "coordinates";
     auto coord_meta = read_object_metadata(coord_path);
-    if (!derived_from(coord_meta.type, "dense_array")) {
+    if (!derived_from(coord_meta.type, "dense_array", options)) {
         throw std::runtime_error("'coordinates' should be a dense array");
     }
 
