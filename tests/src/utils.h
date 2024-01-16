@@ -11,11 +11,16 @@
 #include "ritsuko/hdf5/hdf5.hpp"
 #include "H5Cpp.h"
 
+#include "takane/utils_public.hpp"
+
 void test_validate(const std::filesystem::path&);
+void test_validate(const std::filesystem::path&, takane::Options& opts);
 
 size_t test_height(const std::filesystem::path&);
+size_t test_height(const std::filesystem::path&, takane::Options& opts);
 
 std::vector<size_t> test_dimensions(const std::filesystem::path&);
+std::vector<size_t> test_dimensions(const std::filesystem::path&, takane::Options& opts);
 
 inline void initialize_directory(const std::filesystem::path& dir) {
     if (std::filesystem::exists(dir)) {

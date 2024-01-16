@@ -43,11 +43,12 @@ TEST_F(ValidateMetadataTest, Mcols) {
     auto subpath = path / "mcols";
     data_frame::mock(subpath, 10, {});
 
-    takane::internal_other::validate_mcols(path, "mcols", 10, takane::Options());
-    expect_error_mcols("unexpected number of rows", path, "mcols", 20, takane::Options());
+    takane::Options opts;
+    takane::internal_other::validate_mcols(path, "mcols", 10, opts);
+    expect_error_mcols("unexpected number of rows", path, "mcols", 20, opts);
 
     initialize_directory_simple(subpath, "simple_list", "1.0");
-    expect_error_mcols("'DATA_FRAME'", path, "mcols", 10, takane::Options());
+    expect_error_mcols("'DATA_FRAME'", path, "mcols", 10, opts);
 }
 
 TEST_F(ValidateMetadataTest, Metadata) {
@@ -56,10 +57,11 @@ TEST_F(ValidateMetadataTest, Metadata) {
     auto subpath = path / "metadata";
     simple_list::mock(subpath);
 
-    takane::internal_other::validate_metadata(path, "metadata", takane::Options());
+    takane::Options opts;
+    takane::internal_other::validate_metadata(path, "metadata", opts);
 
     initialize_directory_simple(subpath, "data_frame", "1.0");
-    expect_error_metadata("'SIMPLE_LIST'", path, "metadata", takane::Options());
+    expect_error_metadata("'SIMPLE_LIST'", path, "metadata", opts);
 }
 
 TEST(CountDirectoryEntries, Basic) {

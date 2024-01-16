@@ -62,11 +62,10 @@ TEST_F(DataFrameFactorTest, Levels) {
     initialize_directory_simple(ldir, "data_frame", "1.0");
     expect_error("failed to validate 'levels'");
 
-    takane::data_frame_factor::any_duplicated = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> bool { return true; };
+    takane::Options opts;
+    opts.data_frame_factor_any_duplicated = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> bool { return true; };
     data_frame::mock(ldir, 5, {});
-    expect_error("duplicated rows");
-
-    takane::data_frame_factor::any_duplicated = nullptr;
+    expect_error("duplicated rows", opts);
 }
 
 TEST_F(DataFrameFactorTest, Codes) {

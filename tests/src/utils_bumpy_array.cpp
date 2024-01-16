@@ -32,9 +32,10 @@ struct BumpyArrayUtilsTest : public::testing::Test {
     template<bool satisfactory = false>
     void expect_error(const std::string& msg) {
         auto meta = takane::read_object_metadata(dir);
+        takane::Options opts;
         EXPECT_ANY_THROW({
             try {
-                takane::internal_bumpy_array::validate_directory<satisfactory>(dir, name, "atomic_vector", meta, takane::Options());
+                takane::internal_bumpy_array::validate_directory<satisfactory>(dir, name, "atomic_vector", meta, opts);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -46,6 +47,7 @@ struct BumpyArrayUtilsTest : public::testing::Test {
 TEST_F(BumpyArrayUtilsTest, Basic) {
     initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
+    takane::Options opts;
 
     {
         auto handle = initialize();
@@ -77,10 +79,10 @@ TEST_F(BumpyArrayUtilsTest, Basic) {
         hdf5_utils::spawn_numeric_data<int>(ghandle, "dimensions", H5::PredType::NATIVE_UINT8, { 2, 2 });
     }
     auto meta = takane::read_object_metadata(dir);
-    takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
+    takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, opts);
 
-    EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 2);
-    auto dims = takane::internal_bumpy_array::dimensions(dir, name, meta, takane::Options());
+    EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, opts), 2);
+    auto dims = takane::internal_bumpy_array::dimensions(dir, name, meta, opts);
     std::vector<size_t> expected { 2, 2 };
     EXPECT_EQ(dims, expected);
 }
@@ -106,6 +108,8 @@ TEST_F(BumpyArrayUtilsTest, Lengths) {
 }
 
 TEST_F(BumpyArrayUtilsTest, Dense) {
+    takane::Options opts;
+
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -125,8 +129,8 @@ TEST_F(BumpyArrayUtilsTest, Dense) {
     }
     {
         auto meta = takane::read_object_metadata(dir);
-        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
-        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 0);
+        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, opts);
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, opts), 0);
     }
 
     // Higher-dimensional arrays.
@@ -153,12 +157,14 @@ TEST_F(BumpyArrayUtilsTest, Dense) {
     }
     {
         auto meta = takane::read_object_metadata(dir);
-        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
-        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 13);
+        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, opts);
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, opts), 13);
     }
 }
 
 TEST_F(BumpyArrayUtilsTest, Sparse) {
+    takane::Options opts;
+
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -173,9 +179,9 @@ TEST_F(BumpyArrayUtilsTest, Sparse) {
     }
 
     auto meta = takane::read_object_metadata(dir);
-    takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
-    EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 4);
-    auto dims = takane::internal_bumpy_array::dimensions(dir, name, meta, takane::Options());
+    takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, opts);
+    EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, opts), 4);
+    auto dims = takane::internal_bumpy_array::dimensions(dir, name, meta, opts);
     std::vector<size_t> expected { 4, 3 };
     EXPECT_EQ(dims, expected);
 
@@ -252,8 +258,8 @@ TEST_F(BumpyArrayUtilsTest, Sparse) {
     }
     {
         auto meta = takane::read_object_metadata(dir);
-        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
-        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 4);
+        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, opts);
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, opts), 4);
     }
 
     // Get some coverage for higher-dimensional arrays.
@@ -291,12 +297,14 @@ TEST_F(BumpyArrayUtilsTest, Sparse) {
     }
     {
         auto meta = takane::read_object_metadata(dir);
-        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
-        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, takane::Options()), 11);
+        takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, opts);
+        EXPECT_EQ(takane::internal_bumpy_array::height(dir, name, meta, opts), 11);
     }
 }
 
 TEST_F(BumpyArrayUtilsTest, Names) {
+    takane::Options opts;
+
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -309,7 +317,7 @@ TEST_F(BumpyArrayUtilsTest, Names) {
         hdf5_utils::spawn_string_data(nhandle, "1", H5T_VARIABLE, { "Aaron", "Charlie", "Echo", "Fooblewooble" });
     }
     auto meta = takane::read_object_metadata(dir);
-    takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, takane::Options());
+    takane::internal_bumpy_array::validate_directory<false>(dir, "bumpy_atomic_array", "atomic_vector", meta, opts);
 
     {
         auto handle = reopen();
