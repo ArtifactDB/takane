@@ -55,18 +55,18 @@ inline bool check(const std::string& type, const std::string& interface, const s
  * Check whether a particular object type satisfies a particular object interface.
  * This can be used by specifications to check that child components satisfy certain user-level expectations for an abstract object (e.g., data frames, lists).
  *
- * Applications can extend the **takane** framework by adding custom types to `state.satisfies_interface_registry`.
+ * Applications can extend the **takane** framework by adding custom types to `Options::custom_satisfies_interface`.
  * This extends the default relationships whereby `satisfies_interface()` will take the union of all object types in the default and custom sets.
  * Note that, if a type is included in a particular set, it is not necessary to add its derived types, as `satisfies_interface()` will automatically call `derived_from()`.
  *
  * @param type Object type.
  * @param interface Interface type.
+ * @param options Validation options, containing custom object interface relationships.
  * @returns Whether `type` satisfies `interface`.
- * @param state Validation state, containing custom object interface relationships.
  */
-inline bool satisfies_interface(const std::string& type, const std::string& interface, State& state) {
+inline bool satisfies_interface(const std::string& type, const std::string& interface, const Options& options) {
     static const auto satisfies_interface_registry = internal_satisfies_interface::default_registry();
-    return internal_satisfies_interface::check(type, interface, satisfies_interface_registry) || internal_satisfies_interface::check(type, interface, state.satisfies_interface_registry);
+    return internal_satisfies_interface::check(type, interface, satisfies_interface_registry) || internal_satisfies_interface::check(type, interface, options.custom_satisfies_interface);
 }
 
 }

@@ -40,6 +40,7 @@ struct GenomicRangesTest : public ::testing::Test {
 
 TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
     auto sidir = dir / "sequence_information";
+    takane::Options opts;
 
     {
         initialize_directory_simple(dir, "genomic_ranges", "1.0");
@@ -49,7 +50,7 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
         sequence_information::mock(ghandle, { "chrA", "chrB" }, { 100, 20 }, { 1, 0 }, { "mm10", "mm10 "});
     }
     {
-        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
+        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, opts);
         EXPECT_EQ(out.has_circular, std::vector<unsigned char>(2, true));
         EXPECT_EQ(out.has_seqlen, std::vector<unsigned char>(2, true));
         std::vector<unsigned char> expected_circular{ 1, 0 };
@@ -76,7 +77,7 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
         }
     }
     {
-        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
+        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, opts);
         std::vector<unsigned char> has_circular{0, 1};
         EXPECT_EQ(out.has_circular, has_circular);
         std::vector<unsigned char> has_seqlen{0, 1};
@@ -106,7 +107,7 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
         }
     }
     {
-        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, takane::Options());
+        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, opts);
         EXPECT_EQ(out.has_circular, std::vector<unsigned char>(2, true));
         EXPECT_EQ(out.has_seqlen, std::vector<unsigned char>(2, true));
         std::vector<unsigned char> expected_circular{ 1, 0 };

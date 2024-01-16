@@ -32,9 +32,10 @@ struct CompressedListUtilsTest : public::testing::Test {
     template<bool satisfactory = false>
     void expect_error(const std::string& msg) {
         auto meta = takane::read_object_metadata(dir);
+        takane::Options opts;
         EXPECT_ANY_THROW({
             try {
-                takane::internal_compressed_list::validate_directory<satisfactory>(dir, name, "atomic_vector", meta, takane::Options());
+                takane::internal_compressed_list::validate_directory<satisfactory>(dir, name, "atomic_vector", meta, opts);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -46,6 +47,7 @@ struct CompressedListUtilsTest : public::testing::Test {
 TEST_F(CompressedListUtilsTest, Basic) {
     initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
+    takane::Options opts;
 
     {
         auto handle = initialize();
@@ -64,8 +66,8 @@ TEST_F(CompressedListUtilsTest, Basic) {
         atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
     }
     auto meta = takane::read_object_metadata(dir);
-    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, takane::Options());
-    EXPECT_EQ(takane::internal_compressed_list::height(dir, name, meta, takane::Options()), 4);
+    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, opts);
+    EXPECT_EQ(takane::internal_compressed_list::height(dir, name, meta, opts), 4);
 }
 
 TEST_F(CompressedListUtilsTest, Lengths) {
@@ -88,6 +90,8 @@ TEST_F(CompressedListUtilsTest, Lengths) {
 }
 
 TEST_F(CompressedListUtilsTest, Names) {
+    takane::Options opts;
+
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -97,7 +101,7 @@ TEST_F(CompressedListUtilsTest, Names) {
         hdf5_utils::spawn_string_data(ghandle, "names", H5T_VARIABLE, { "Aaron", "Charlie", "Echo", "Fooblewooble" });
     }
     auto meta = takane::read_object_metadata(dir);
-    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, takane::Options());
+    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, opts);
 
     {
         auto handle = reopen();
@@ -109,6 +113,8 @@ TEST_F(CompressedListUtilsTest, Names) {
 }
 
 TEST_F(CompressedListUtilsTest, Metadata) {
+    takane::Options opts;
+
     {
         auto handle = initialize();
         auto ghandle = handle.createGroup(name);
@@ -129,5 +135,5 @@ TEST_F(CompressedListUtilsTest, Metadata) {
     simple_list::mock(odir);
 
     auto meta = takane::read_object_metadata(dir);
-    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, takane::Options());
+    takane::internal_compressed_list::validate_directory<false>(dir, "atomic_vector_list", "atomic_vector", meta, opts);
 }

@@ -18,15 +18,9 @@ struct BigBedFileTest : public ::testing::Test {
     std::filesystem::path dir;
     std::string name;
 
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
+    template<typename ... Args_>
+    void expect_error(const std::string& msg, Args_&& ... args) {
+        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
     }
 };
 
@@ -65,7 +59,7 @@ TEST_F(BigBedFileTest, Strict) {
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
 
-    takane::bigbed_file::strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
-    expect_error("ARGH");
-    takane::bigbed_file::strict_check = nullptr;
+    takane::Options opts;
+    opts.bigbed_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
+    expect_error("ARGH", opts);
 }

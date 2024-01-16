@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <string>
 
+#include "utils_public.hpp"
+
 /**
  * @file _derived_from.hpp
  * @brief Check for derived object relationships.
@@ -46,9 +48,9 @@ inline auto default_registry() {
     return registry;
 }
 
-inline bool check(const std::string& base, const std::string& interface, const std::unordered_map<std::string, std::unordered_set<std::string> >& registry) {
-    auto it = derived_from_registry.find(base);
-    if (it != derived_from_registry.end()) {
+inline bool check(const std::string& type, const std::string& base, const std::unordered_map<std::string, std::unordered_set<std::string> >& registry) {
+    auto it = registry.find(base);
+    if (it != registry.end()) {
         const auto& listing = it->second;
         return (listing.find(type) != listing.end());
     }
@@ -65,22 +67,22 @@ inline bool check(const std::string& base, const std::string& interface, const s
  * Derived types satisfy the same file requirements of the base type, but usually add more files to represent additional functionality.
  * This can be used by specifications to check whether arbitrary objects satisfy the file structure expectations for a particular base type.
  *
- * Applications can add their own derived types for a given base class in `state.derived_from_registry`.
+ * Applications can add their own derived types for a given base class in `Options::custom_derived_from`.
  * This extends the default relationships whereby `derived_from()` will take the union of all derived object types in the default and custom sets.
  * Note that derived types must be manually included in every base type's set, 
  * e.g., if B is derived from A and C is derived from B, C must be added to the sets for both A and B.
  *
  * @param type Object type.
  * @param base Base object type.
+ * @param options Validation options, containing custom derived/base relationships.
  * @returns Whether `type` is derived from `base` or is equal to `base`.
- * @param state Validation state, containing custom base-derived object relationships.
  */
-inline bool derived_from(const std::string& type, const std::string& base, State& state) {
+inline bool derived_from(const std::string& type, const std::string& base, const Options& options) {
     if (type == base) { 
         return true;
     }
     static const auto derived_from_registry = internal_derived_from::default_registry();
-    return internal_derived_from::check(type, interface, derived_from_registry) || internal_derived_from::check(type, interface, state.derived_from_registry);
+    return internal_derived_from::check(type, base, derived_from_registry) || internal_derived_from::check(type, base, options.custom_derived_from);
 }
 
 }
