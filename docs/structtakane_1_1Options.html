@@ -123,6 +123,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a7e82099e270f0b87b944218b5180d961"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bd57fef47291f470fada41686aac53a"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a5bd57fef47291f470fada41686aac53a">gmt_file_strict_check</a></td></tr>
 <tr class="separator:a5bd57fef47291f470fada41686aac53a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04925279d99322a9a41c33f091d400e9"><td class="memItemLeft" align="right" valign="top">chihaya::Options&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a04925279d99322a9a41c33f091d400e9">delayed_array_options</a></td></tr>
+<tr class="separator:a04925279d99322a9a41c33f091d400e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Validation options. </p>
@@ -291,6 +293,21 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p >Application-specific function to determine whether there are duplicated rows in the data frame containing the levels of a data frame factor, to be used in <code><a class="el" href="namespacetakane_1_1data__frame__factor.html#a2f6fb7a31e966205e7c364a47dc8ab5c">data_frame_factor::validate()</a></code> This should accept a path to the directory containing the data frame, the object metadata, and additional reading options. It should return a boolean indicating whether any duplicate rows were found. </p>
+
+</div>
+</div>
+<a id="a04925279d99322a9a41c33f091d400e9" name="a04925279d99322a9a41c33f091d400e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04925279d99322a9a41c33f091d400e9">&#9670;&#160;</a></span>delayed_array_options</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">chihaya::Options takane::Options::delayed_array_options</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p ><a class="el" href="structtakane_1_1Options.html" title="Validation options.">Options</a> to use for validating <b>chihaya</b> specifications in <code><a class="el" href="namespacetakane_1_1delayed__array.html#a2f4b1123358e62f01cfb8821bb8c94e1">delayed_array::validate()</a></code>. </p>
 
 </div>
 </div>
