@@ -82,7 +82,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Validation options, mostly related to input performance.  
+<p>Validation options.  
  <a href="structtakane_1_1Options.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="utils__public_8hpp_source.html">utils_public.hpp</a>&gt;</code></p>
@@ -93,10 +93,267 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a19ff776508adc6592f8db07a3c75865e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a9ebb8a77372c852d87f5368b6516c3"><td class="memItemLeft" align="right" valign="top">hsize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a3a9ebb8a77372c852d87f5368b6516c3">hdf5_buffer_size</a> = 10000</td></tr>
 <tr class="separator:a3a9ebb8a77372c852d87f5368b6516c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7a851d46a6a1795a461640f44bd3220"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#af7a851d46a6a1795a461640f44bd3220">custom_validate</a></td></tr>
+<tr class="separator:af7a851d46a6a1795a461640f44bd3220"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a627a97a5ca7a102246602baab3909906"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; std::vector&lt; size_t &gt;(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a627a97a5ca7a102246602baab3909906">custom_dimensions</a></td></tr>
+<tr class="separator:a627a97a5ca7a102246602baab3909906"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a321321c382dea1b04b415f9f3c86f727"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::function&lt; size_t(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;m, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a321321c382dea1b04b415f9f3c86f727">custom_height</a></td></tr>
+<tr class="separator:a321321c382dea1b04b415f9f3c86f727"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d8b3bc37a1544eff48798b06a33b386"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::unordered_set&lt; std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a7d8b3bc37a1544eff48798b06a33b386">custom_derived_from</a></td></tr>
+<tr class="separator:a7d8b3bc37a1544eff48798b06a33b386"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cec04779533c0397f05e38c5bf9d226"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::unordered_set&lt; std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a2cec04779533c0397f05e38c5bf9d226">custom_satisfies_interface</a></td></tr>
+<tr class="separator:a2cec04779533c0397f05e38c5bf9d226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a572c7071276f7318276354eb658a93cb"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a572c7071276f7318276354eb658a93cb">bam_file_strict_check</a></td></tr>
+<tr class="separator:a572c7071276f7318276354eb658a93cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f46e8ff4df461fffd39e9da9c20dd9f"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a7f46e8ff4df461fffd39e9da9c20dd9f">bcf_file_strict_check</a></td></tr>
+<tr class="separator:a7f46e8ff4df461fffd39e9da9c20dd9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2131813ae3f9328ac031b8a4de341b1"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;, bool)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#ae2131813ae3f9328ac031b8a4de341b1">bed_file_strict_check</a></td></tr>
+<tr class="separator:ae2131813ae3f9328ac031b8a4de341b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ec71d9ee8826f216cfb094d5b37ac94"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a8ec71d9ee8826f216cfb094d5b37ac94">bigbed_file_strict_check</a></td></tr>
+<tr class="separator:a8ec71d9ee8826f216cfb094d5b37ac94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e7327940826ab979c0e83e5eab25942"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a0e7327940826ab979c0e83e5eab25942">bigwig_file_strict_check</a></td></tr>
+<tr class="separator:a0e7327940826ab979c0e83e5eab25942"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b00bcdd60587f12d8686f4d03acf38d"><td class="memItemLeft" align="right" valign="top">std::function&lt; bool(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a4b00bcdd60587f12d8686f4d03acf38d">data_frame_factor_any_duplicated</a></td></tr>
+<tr class="separator:a4b00bcdd60587f12d8686f4d03acf38d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adff3487bac5434dfc6b72b39bec6aedb"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;, bool)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#adff3487bac5434dfc6b72b39bec6aedb">fasta_file_strict_check</a></td></tr>
+<tr class="separator:adff3487bac5434dfc6b72b39bec6aedb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf1d45d3e1ae158031ed2df5674f712a"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;, bool)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#abf1d45d3e1ae158031ed2df5674f712a">fastq_file_strict_check</a></td></tr>
+<tr class="separator:abf1d45d3e1ae158031ed2df5674f712a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e82099e270f0b87b944218b5180d961"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;, bool)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a7e82099e270f0b87b944218b5180d961">gff_file_strict_check</a></td></tr>
+<tr class="separator:a7e82099e270f0b87b944218b5180d961"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bd57fef47291f470fada41686aac53a"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a5bd57fef47291f470fada41686aac53a">gmt_file_strict_check</a></td></tr>
+<tr class="separator:a5bd57fef47291f470fada41686aac53a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p >Validation options, mostly related to input performance. </p>
+<div class="textblock"><p >Validation options. </p>
+<p >Collection of optional parameters to fine-tune the behavior of various <b>takane</b> functions. This can be configured by applications to, e.g., add more validation functions for custom types or to increase the strictness of some checks.</p>
+<p >Most <b>takane</b> functions will accept a non-<code>const</code> reference to an <code><a class="el" href="structtakane_1_1Options.html" title="Validation options.">Options</a></code> object. The lack of <code>const</code>-ness is intended to support custom functions that mutate some external variable, e.g., to collect statistics for certain object types. While unusual, it is permissible for a <b>takane</b> function to modify the supplied <code><a class="el" href="structtakane_1_1Options.html" title="Validation options.">Options</a></code>, as long as that modification is reversed upon exiting the function. </p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="a572c7071276f7318276354eb658a93cb" name="a572c7071276f7318276354eb658a93cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a572c7071276f7318276354eb658a93cb">&#9670;&#160;</a></span>bam_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::Options::bam_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a BAM file and its indices in <code><a class="el" href="namespacetakane_1_1bam__file.html#adabb2d53e3bcafb8771d453ea76bd80a">bam_file::validate()</a></code>. This should accept a path to the directory containing the BAM file and indices, the object metadata, and additional reading options. It should throw an error if the BAM file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="a7f46e8ff4df461fffd39e9da9c20dd9f" name="a7f46e8ff4df461fffd39e9da9c20dd9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f46e8ff4df461fffd39e9da9c20dd9f">&#9670;&#160;</a></span>bcf_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::Options::bcf_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a BCF file and its indices in <code><a class="el" href="namespacetakane_1_1bcf__file.html#afca99b626fbab6a6c0a2c84bd0e6480e">bcf_file::validate()</a></code>. This should accept a path to the directory containing the BCF file and indices, the object metadata, and additional reading options. It should throw an error if the BCF file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="ae2131813ae3f9328ac031b8a4de341b1" name="ae2131813ae3f9328ac031b8a4de341b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2131813ae3f9328ac031b8a4de341b1">&#9670;&#160;</a></span>bed_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;, bool)&gt; takane::Options::bed_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a BED file and its indices in <code><a class="el" href="namespacetakane_1_1bed__file.html#a92c94c700a1550d416f12a31a20b6c17">bed_file::validate()</a></code>. This should accept a path to the directory containing the BED file, the object metadata, additional reading options, and a boolean indicating whether indices are expected to be present in the directory. It should throw an error if the BED file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="a8ec71d9ee8826f216cfb094d5b37ac94" name="a8ec71d9ee8826f216cfb094d5b37ac94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ec71d9ee8826f216cfb094d5b37ac94">&#9670;&#160;</a></span>bigbed_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::Options::bigbed_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a bigBed file in <code><a class="el" href="namespacetakane_1_1bigbed__file.html#aefc3d25d8e10993352d35f8801fb8df9">bigbed_file::validate()</a></code>. This should accept a path to the directory containing the bigBed file, the object metadata, and additional reading options. It should throw an error if the bigBed file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="a0e7327940826ab979c0e83e5eab25942" name="a0e7327940826ab979c0e83e5eab25942"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e7327940826ab979c0e83e5eab25942">&#9670;&#160;</a></span>bigwig_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::Options::bigwig_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a bigWig file in <code><a class="el" href="namespacetakane_1_1bigwig__file.html#aab6ad8a5b89453a9cb7f981f17ea95a4">bigwig_file::validate()</a></code>. This should accept a path to the directory containing the bigWig file, the object metadata, and additional reading options. It should throw an error if the bigWig file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="a7d8b3bc37a1544eff48798b06a33b386" name="a7d8b3bc37a1544eff48798b06a33b386"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d8b3bc37a1544eff48798b06a33b386">&#9670;&#160;</a></span>custom_derived_from</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt;std::string, std::unordered_set&lt;std::string&gt; &gt; takane::Options::custom_derived_from</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Custom registry of derived object types and their base types, to be used by <code><a class="el" href="namespacetakane.html#abf51161213924a21c2488c9c4559ebcd">derived_from()</a></code>. Each key is the base object type and each value is the set of its derived types. If a type is specified here, the set of derived types is added to the the default set. </p>
+
+</div>
+</div>
+<a id="a627a97a5ca7a102246602baab3909906" name="a627a97a5ca7a102246602baab3909906"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a627a97a5ca7a102246602baab3909906">&#9670;&#160;</a></span>custom_dimensions</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;std::vector&lt;size_t&gt;(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; takane::Options::custom_dimensions</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Custom registry of functions to be used by <code><a class="el" href="namespacetakane.html#a9f911c69fd6b91281ffb13b4e4aaa9ed">dimensions()</a></code>. If a type is specified here, the custom function replaces the default. </p>
+
+</div>
+</div>
+<a id="a321321c382dea1b04b415f9f3c86f727" name="a321321c382dea1b04b415f9f3c86f727"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a321321c382dea1b04b415f9f3c86f727">&#9670;&#160;</a></span>custom_height</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;size_t(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; m, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; takane::Options::custom_height</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Custom registry of functions to be used by <code><a class="el" href="namespacetakane.html#a084412a3641ad26d8cac6de77ad31038">height()</a></code>. If a type is specified here, the custom function replaces the default. </p>
+
+</div>
+</div>
+<a id="a2cec04779533c0397f05e38c5bf9d226" name="a2cec04779533c0397f05e38c5bf9d226"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cec04779533c0397f05e38c5bf9d226">&#9670;&#160;</a></span>custom_satisfies_interface</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt;std::string, std::unordered_set&lt;std::string&gt; &gt; takane::Options::custom_satisfies_interface</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Custom registry of object types that satisfy a particular object interface. Each key is the interface and each value is the set of all types that satisfy it. If a type is specified here, its set of types is added to the the default set. </p>
+
+</div>
+</div>
+<a id="af7a851d46a6a1795a461640f44bd3220" name="af7a851d46a6a1795a461640f44bd3220"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af7a851d46a6a1795a461640f44bd3220">&#9670;&#160;</a></span>custom_validate</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt;std::string, std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; &gt; takane::Options::custom_validate</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Custom registry of functions to be used by <code><a class="el" href="namespacetakane.html#a5d957cd7981863fed73738d0b0cf6531">validate()</a></code>. If a type is specified here, the custom function replaces the default. </p>
+
+</div>
+</div>
+<a id="a4b00bcdd60587f12d8686f4d03acf38d" name="a4b00bcdd60587f12d8686f4d03acf38d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b00bcdd60587f12d8686f4d03acf38d">&#9670;&#160;</a></span>data_frame_factor_any_duplicated</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;bool(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp; options)&gt; takane::Options::data_frame_factor_any_duplicated</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to determine whether there are duplicated rows in the data frame containing the levels of a data frame factor, to be used in <code><a class="el" href="namespacetakane_1_1data__frame__factor.html#a2f6fb7a31e966205e7c364a47dc8ab5c">data_frame_factor::validate()</a></code> This should accept a path to the directory containing the data frame, the object metadata, and additional reading options. It should return a boolean indicating whether any duplicate rows were found. </p>
+
+</div>
+</div>
+<a id="adff3487bac5434dfc6b72b39bec6aedb" name="adff3487bac5434dfc6b72b39bec6aedb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adff3487bac5434dfc6b72b39bec6aedb">&#9670;&#160;</a></span>fasta_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;, bool)&gt; takane::Options::fasta_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a FASTA file and its indices in <code><a class="el" href="namespacetakane_1_1fasta__file.html#acc2eed4062d75b62e51403853fd57abc">fasta_file::validate()</a></code>. This should accept a path to the directory containing the FASTA file, the object metadata, additional reading options, and a boolean indicating whether indices are expected to be present in the directory. It should throw an error if the FASTA file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="abf1d45d3e1ae158031ed2df5674f712a" name="abf1d45d3e1ae158031ed2df5674f712a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf1d45d3e1ae158031ed2df5674f712a">&#9670;&#160;</a></span>fastq_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;, bool)&gt; takane::Options::fastq_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a FASTQ file and its indices in <code><a class="el" href="namespacetakane_1_1fastq__file.html#abc90f5cfb3401a6746e82df661cc7bbf">fastq_file::validate()</a></code>. This should accept a path to the directory containing the FASTQ file, the object metadata, additional reading options, and a boolean indicating whether or not indices are expected to be present in the directory. It should throw an error if the FASTQ file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="a7e82099e270f0b87b944218b5180d961" name="a7e82099e270f0b87b944218b5180d961"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e82099e270f0b87b944218b5180d961">&#9670;&#160;</a></span>gff_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;, bool)&gt; takane::Options::gff_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a GFF file and its indices in <code><a class="el" href="namespacetakane_1_1gff__file.html#a148fd89fc12f59a3fa7517507140c1cc">gff_file::validate()</a></code>. This should accept a path to the directory containing the GFF file, the object metadata, additional reading options. and a boolean indicating whether indices are expected to be present in the directory. It should throw an error if the GFF file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
+<a id="a5bd57fef47291f470fada41686aac53a" name="a5bd57fef47291f470fada41686aac53a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5bd57fef47291f470fada41686aac53a">&#9670;&#160;</a></span>gmt_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::Options::gmt_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Application-specific function to check the validity of a GMT file and its indices in <code><a class="el" href="namespacetakane_1_1gmt__file.html#a39b289d4750b318456fe41aecb28bf07">gmt_file::validate()</a></code>. This should accept a path to the directory containing the GMT file, the object metadata and additional reading options. It should throw an error if the GMT file is not valid, e.g., corrupted file, mismatched indices. </p>
+
+</div>
+</div>
 <a id="a3a9ebb8a77372c852d87f5368b6516c3" name="a3a9ebb8a77372c852d87f5368b6516c3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a9ebb8a77372c852d87f5368b6516c3">&#9670;&#160;</a></span>hdf5_buffer_size</h2>
 

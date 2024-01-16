@@ -1,12 +1,14 @@
 <map id="takane/bumpy_data_frame_array.hpp" name="takane/bumpy_data_frame_array.hpp">
-<area shape="rect" id="node1" title="Validation for bumpy data frame matrices." alt="" coords="151,5,326,45"/>
+<area shape="rect" id="node1" title="Validation for bumpy data frame matrices." alt="" coords="193,5,367,45"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,167,77,192"/>
 <area shape="rect" id="node3" title=" " alt="" coords="101,167,181,192"/>
-<area shape="rect" id="node4" title=" " alt="" coords="365,93,443,119"/>
+<area shape="rect" id="node4" title=" " alt="" coords="406,93,485,119"/>
 <area shape="rect" id="node5" title=" " alt="" coords="206,167,261,192"/>
-<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="230,93,341,119"/>
-<area shape="rect" id="node10" title=" " alt="" coords="467,93,618,119"/>
-<area shape="rect" id="node7" title=" " alt="" coords="285,167,429,192"/>
-<area shape="rect" id="node8" title=" " alt="" coords="454,167,589,192"/>
-<area shape="rect" id="node9" title=" " alt="" coords="613,167,715,192"/>
+<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="271,93,382,119"/>
+<area shape="rect" id="node12" title=" " alt="" coords="509,93,659,119"/>
+<area shape="rect" id="node7" title=" " alt="" coords="411,167,522,192"/>
+<area shape="rect" id="node8" title=" " alt="" coords="546,167,625,192"/>
+<area shape="rect" id="node9" title=" " alt="" coords="649,167,793,192"/>
+<area shape="rect" id="node10" title=" " alt="" coords="818,167,953,192"/>
+<area shape="rect" id="node11" title=" " alt="" coords="285,167,387,192"/>
 </map>

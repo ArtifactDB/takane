@@ -76,8 +76,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">takane::bed_file Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -87,19 +86,14 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:afd46b9e56e3f17cff7293f1ec576244a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1bed__file.html#afd46b9e56e3f17cff7293f1ec576244a">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:afd46b9e56e3f17cff7293f1ec576244a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a31d8bbbcb11362dc33f5a353401fdbd0"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;, bool)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1bed__file.html#a31d8bbbcb11362dc33f5a353401fdbd0">strict_check</a></td></tr>
-<tr class="separator:a31d8bbbcb11362dc33f5a353401fdbd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92c94c700a1550d416f12a31a20b6c17"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1bed__file.html#a92c94c700a1550d416f12a31a20b6c17">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a92c94c700a1550d416f12a31a20b6c17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Definitions for BED files. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="afd46b9e56e3f17cff7293f1ec576244a" name="afd46b9e56e3f17cff7293f1ec576244a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd46b9e56e3f17cff7293f1ec576244a">&#9670;&#160;</a></span>validate()</h2>
+<a id="a92c94c700a1550d416f12a31a20b6c17" name="a92c94c700a1550d416f12a31a20b6c17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92c94c700a1550d416f12a31a20b6c17">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -122,7 +116,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structtakane_1_1Options.html">Options</a> &amp;&#160;</td>
           <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
@@ -137,40 +131,15 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p >If <code><a class="el" href="structtakane_1_1Options.html#ae2131813ae3f9328ac031b8a4de341b1">Options::bed_file_strict_check</a></code> is provided, it is used to perform stricter checking of the BED file contents and indices. Currently, we don't look past the magic number to verify the files as this requires a dependency on heavy-duty libraries like, e.g., HTSlib.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to the directory containing the BED file. </td></tr>
     <tr><td class="paramname">metadata</td><td>Metadata for the object, typically read from its <code>OBJECT</code> file. </td></tr>
-    <tr><td class="paramname">options</td><td>Validation options, typically for reading performance. </td></tr>
+    <tr><td class="paramname">options</td><td>Validation options. </td></tr>
   </table>
   </dd>
 </dl>
-
-</div>
-</div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="a31d8bbbcb11362dc33f5a353401fdbd0" name="a31d8bbbcb11362dc33f5a353401fdbd0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31d8bbbcb11362dc33f5a353401fdbd0">&#9670;&#160;</a></span>strict_check</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, const <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;, bool)&gt; takane::bed_file::strict_check</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >Application-specific function to check the validity of a BED file and its indices.</p>
-<p >This should accept a path to the directory containing the BED file, the object metadata, additional reading options, and a boolean indicating whether indices are expected to be present in the directory. It should throw an error if the BED file is not valid, e.g., corrupted file, mismatched indices.</p>
-<p >If provided, this enables stricter checking of the BED file contents and indices. Currently, we don't look past the magic number to verify the files as this requires a dependency on heavy-duty libraries like, e.g., HTSlib. </p>
 
 </div>
 </div>

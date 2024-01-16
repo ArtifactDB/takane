@@ -1,7 +1,14 @@
 <map id="takane/_satisfies_interface.hpp" name="takane/_satisfies_interface.hpp">
-<area shape="rect" id="node1" title="Registry of object interfaces." alt="" coords="102,5,303,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,152,109,177"/>
-<area shape="rect" id="node3" title=" " alt="" coords="138,152,249,177"/>
-<area shape="rect" id="node4" title=" " alt="" coords="274,152,329,177"/>
-<area shape="rect" id="node5" href="$__derived__from_8hpp.html" title="Registry of derived object types." alt="" coords="88,79,216,104"/>
+<area shape="rect" id="node1" title="Check if an object interface is satisfied." alt="" coords="201,5,403,31"/>
+<area shape="rect" id="node2" title=" " alt="" coords="199,152,303,177"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,225,116,251"/>
+<area shape="rect" id="node4" title=" " alt="" coords="899,225,953,251"/>
+<area shape="rect" id="node5" href="$__derived__from_8hpp.html" title="Check for derived object relationships." alt="" coords="289,79,417,104"/>
+<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="379,152,489,177"/>
+<area shape="rect" id="node7" title=" " alt="" coords="141,225,221,251"/>
+<area shape="rect" id="node8" title=" " alt="" coords="245,225,324,251"/>
+<area shape="rect" id="node9" title=" " alt="" coords="349,225,421,251"/>
+<area shape="rect" id="node10" title=" " alt="" coords="445,225,589,251"/>
+<area shape="rect" id="node11" title=" " alt="" coords="613,225,748,251"/>
+<area shape="rect" id="node12" title=" " alt="" coords="773,225,874,251"/>
 </map>

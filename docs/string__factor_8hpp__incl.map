@@ -1,14 +1,16 @@
 <map id="takane/string_factor.hpp" name="takane/string_factor.hpp">
-<area shape="rect" id="node1" title="Validation for string factors." alt="" coords="284,5,445,31"/>
+<area shape="rect" id="node1" title="Validation for string factors." alt="" coords="341,5,503,31"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,152,60,177"/>
-<area shape="rect" id="node3" title=" " alt="" coords="325,79,404,104"/>
+<area shape="rect" id="node3" title=" " alt="" coords="383,79,461,104"/>
 <area shape="rect" id="node4" title=" " alt="" coords="85,152,165,177"/>
-<area shape="rect" id="node5" title=" " alt="" coords="428,79,571,104"/>
-<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="191,79,301,104"/>
-<area shape="rect" id="node11" title=" " alt="" coords="595,79,705,104"/>
-<area shape="rect" id="node12" title=" " alt="" coords="729,79,840,104"/>
-<area shape="rect" id="node7" title=" " alt="" coords="474,152,546,177"/>
-<area shape="rect" id="node8" title=" " alt="" coords="570,152,714,177"/>
-<area shape="rect" id="node9" title=" " alt="" coords="189,152,324,177"/>
-<area shape="rect" id="node10" title=" " alt="" coords="349,152,450,177"/>
+<area shape="rect" id="node5" title=" " alt="" coords="485,79,628,104"/>
+<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="248,79,359,104"/>
+<area shape="rect" id="node13" title=" " alt="" coords="653,79,762,104"/>
+<area shape="rect" id="node14" title=" " alt="" coords="787,79,897,104"/>
+<area shape="rect" id="node7" title=" " alt="" coords="189,152,300,177"/>
+<area shape="rect" id="node8" title=" " alt="" coords="324,152,403,177"/>
+<area shape="rect" id="node9" title=" " alt="" coords="427,152,499,177"/>
+<area shape="rect" id="node10" title=" " alt="" coords="523,152,667,177"/>
+<area shape="rect" id="node11" title=" " alt="" coords="692,152,827,177"/>
+<area shape="rect" id="node12" title=" " alt="" coords="851,152,953,177"/>
 </map>

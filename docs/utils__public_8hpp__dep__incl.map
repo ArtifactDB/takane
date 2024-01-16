@@ -1,29 +1,31 @@
 <map id="takane/utils_public.hpp" name="takane/utils_public.hpp">
-<area shape="rect" id="node1" title="Exported utilities." alt="" coords="1643,5,1798,31"/>
-<area shape="rect" id="node2" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="1390,174,1521,199"/>
-<area shape="rect" id="node4" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="1862,416,2003,441"/>
-<area shape="rect" id="node5" href="$atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="366,86,537,111"/>
-<area shape="rect" id="node6" href="$atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="561,79,707,119"/>
-<area shape="rect" id="node7" href="$bumpy__atomic__array_8hpp.html" title="Validation for bumpy atomic matrices." alt="" coords="1646,79,1795,119"/>
-<area shape="rect" id="node9" href="$bumpy__data__frame__array_8hpp.html" title="Validation for bumpy data frame matrices." alt="" coords="1820,79,1995,119"/>
-<area shape="rect" id="node10" href="$compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="2019,79,2201,119"/>
-<area shape="rect" id="node11" href="$data__frame_8hpp.html" title="Validation for data frames." alt="" coords="2863,86,3018,111"/>
-<area shape="rect" id="node13" href="$data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="731,86,926,111"/>
-<area shape="rect" id="node14" href="$data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="950,86,1129,111"/>
-<area shape="rect" id="node15" href="$delayed__array_8hpp.html" title="Validation for delayed arrays." alt="" coords="2922,343,3090,368"/>
-<area shape="rect" id="node16" href="$dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="2225,86,2384,111"/>
-<area shape="rect" id="node17" href="$genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="1153,86,1337,111"/>
-<area shape="rect" id="node18" href="$genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="1411,79,1571,119"/>
-<area shape="rect" id="node19" href="$multi__sample__dataset_8hpp.html" title="Validation for multi&#45;sample datasets." alt="" coords="3144,255,3287,295"/>
-<area shape="rect" id="node20" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="3311,262,3527,287"/>
-<area shape="rect" id="node21" href="$simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="5,86,156,111"/>
-<area shape="rect" id="node22" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="2435,343,2633,368"/>
-<area shape="rect" id="node23" href="$string__factor_8hpp.html" title="Validation for string factors." alt="" coords="180,86,341,111"/>
-<area shape="rect" id="node24" href="$summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="2610,86,2839,111"/>
-<area shape="rect" id="node27" href="$vcf__experiment_8hpp.html" title="Validation for VCF&#45;based experiments." alt="" coords="2408,86,2585,111"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="1869,489,1997,515"/>
-<area shape="rect" id="node8" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="2046,174,2209,199"/>
-<area shape="rect" id="node12" href="$csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="2835,174,3017,199"/>
-<area shape="rect" id="node25" href="$ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="2578,167,2759,207"/>
-<area shape="rect" id="node26" href="$single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="2472,255,2599,295"/>
+<area shape="rect" id="node1" title="Exported utilities." alt="" coords="1721,5,1876,31"/>
+<area shape="rect" id="node2" href="$__derived__from_8hpp.html" title="Check for derived object relationships." alt="" coords="5,343,176,368"/>
+<area shape="rect" id="node5" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="1553,174,1684,199"/>
+<area shape="rect" id="node6" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="2013,416,2155,441"/>
+<area shape="rect" id="node7" href="$atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="1188,86,1359,111"/>
+<area shape="rect" id="node8" href="$atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="1383,79,1529,119"/>
+<area shape="rect" id="node9" href="$bumpy__atomic__array_8hpp.html" title="Validation for bumpy atomic matrices." alt="" coords="1823,79,1972,119"/>
+<area shape="rect" id="node11" href="$bumpy__data__frame__array_8hpp.html" title="Validation for bumpy data frame matrices." alt="" coords="1997,79,2171,119"/>
+<area shape="rect" id="node12" href="$compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="2195,79,2378,119"/>
+<area shape="rect" id="node13" href="$data__frame_8hpp.html" title="Validation for data frames." alt="" coords="3040,86,3195,111"/>
+<area shape="rect" id="node15" href="$data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="1604,86,1799,111"/>
+<area shape="rect" id="node16" href="$data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="232,86,411,111"/>
+<area shape="rect" id="node17" href="$delayed__array_8hpp.html" title="Validation for delayed arrays." alt="" coords="3069,262,3237,287"/>
+<area shape="rect" id="node18" href="$dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="2402,86,2561,111"/>
+<area shape="rect" id="node19" href="$genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="435,86,619,111"/>
+<area shape="rect" id="node20" href="$genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="643,79,803,119"/>
+<area shape="rect" id="node21" href="$multi__sample__dataset_8hpp.html" title="Validation for multi&#45;sample datasets." alt="" coords="3262,255,3405,295"/>
+<area shape="rect" id="node22" href="$sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="3308,343,3524,368"/>
+<area shape="rect" id="node23" href="$simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="827,86,978,111"/>
+<area shape="rect" id="node24" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="2909,343,3107,368"/>
+<area shape="rect" id="node25" href="$string__factor_8hpp.html" title="Validation for string factors." alt="" coords="1002,86,1163,111"/>
+<area shape="rect" id="node26" href="$summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="2787,86,3016,111"/>
+<area shape="rect" id="node29" href="$vcf__experiment_8hpp.html" title="Validation for VCF&#45;based experiments." alt="" coords="2585,86,2762,111"/>
+<area shape="rect" id="node3" href="$__satisfies__interface_8hpp.html" title="Check if an object interface is satisfied." alt="" coords="403,416,605,441"/>
+<area shape="rect" id="node4" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="1148,489,1276,515"/>
+<area shape="rect" id="node10" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="2311,174,2473,199"/>
+<area shape="rect" id="node14" href="$csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="3011,174,3194,199"/>
+<area shape="rect" id="node27" href="$ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="2603,167,2784,207"/>
+<area shape="rect" id="node28" href="$single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="2674,255,2801,295"/>
 </map>

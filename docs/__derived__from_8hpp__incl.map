@@ -1,6 +1,13 @@
 <map id="takane/_derived_from.hpp" name="takane/_derived_from.hpp">
-<area shape="rect" id="node1" title="Registry of derived object types." alt="" coords="104,5,275,31"/>
+<area shape="rect" id="node1" title="Check for derived object relationships." alt="" coords="87,5,257,31"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,79,109,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="134,79,245,104"/>
-<area shape="rect" id="node4" title=" " alt="" coords="269,79,323,104"/>
+<area shape="rect" id="node3" title=" " alt="" coords="35,152,146,177"/>
+<area shape="rect" id="node4" title=" " alt="" coords="170,152,225,177"/>
+<area shape="rect" id="node5" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="338,79,449,104"/>
+<area shape="rect" id="node6" title=" " alt="" coords="249,152,329,177"/>
+<area shape="rect" id="node7" title=" " alt="" coords="354,152,433,177"/>
+<area shape="rect" id="node8" title=" " alt="" coords="457,152,529,177"/>
+<area shape="rect" id="node9" title=" " alt="" coords="553,152,697,177"/>
+<area shape="rect" id="node10" title=" " alt="" coords="722,152,857,177"/>
+<area shape="rect" id="node11" title=" " alt="" coords="881,152,983,177"/>
 </map>

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['derived_5ffrom_5fregistry_0',['derived_from_registry',['../namespacetakane.html#a2ae857fa9e1c996e768b233318f0421b',1,'takane']]],
-  ['df_5fversion_1',['df_version',['../structtakane_1_1csv__data__frame_1_1Parameters.html#a88bf5f67b1cb4b87834fd63fb48fe285',1,'takane::csv_data_frame::Parameters']]],
-  ['dimensions_5fregistry_2',['dimensions_registry',['../namespacetakane.html#ac408e4044773b311a1cc0e66d12f8d23',1,'takane']]]
+  ['data_5fframe_5ffactor_5fany_5fduplicated_0',['data_frame_factor_any_duplicated',['../structtakane_1_1Options.html#a4b00bcdd60587f12d8686f4d03acf38d',1,'takane::Options']]],
+  ['df_5fversion_1',['df_version',['../structtakane_1_1csv__data__frame_1_1Parameters.html#a88bf5f67b1cb4b87834fd63fb48fe285',1,'takane::csv_data_frame::Parameters']]]
 ];

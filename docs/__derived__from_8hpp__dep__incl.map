@@ -1,5 +1,5 @@
 <map id="takane/_derived_from.hpp" name="takane/_derived_from.hpp">
-<area shape="rect" id="node1" title="Registry of derived object types." alt="" coords="90,5,261,31"/>
-<area shape="rect" id="node2" href="$__satisfies__interface_8hpp.html" title="Registry of object interfaces." alt="" coords="5,79,207,104"/>
+<area shape="rect" id="node1" title="Check for derived object relationships." alt="" coords="90,5,261,31"/>
+<area shape="rect" id="node2" href="$__satisfies__interface_8hpp.html" title="Check if an object interface is satisfied." alt="" coords="5,79,207,104"/>
 <area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="111,152,239,177"/>
 </map>

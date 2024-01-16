@@ -92,82 +92,80 @@ $(function() {
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">namespace </span>gff_file {</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">   34</a></span><span class="keyword">inline</span> std::function&lt;void(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp;, <span class="keywordtype">bool</span>)&gt; <a class="code hl_variable" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">strict_check</a>;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="namespacetakane_1_1gff__file.html#acce29766a324f449859b28b0a1fc04ba">   41</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1gff__file.html#acce29766a324f449859b28b0a1fc04ba">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; gffmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;gff_file&quot;</span>);</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(gffmap, <span class="stringliteral">&quot;version&quot;</span>, <span class="stringliteral">&quot;gff_file&quot;</span>);</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    }</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">auto</span> fpath = path / <span class="stringliteral">&quot;file.&quot;</span>;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="namespacetakane_1_1gff__file.html#a148fd89fc12f59a3fa7517507140c1cc">   32</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1gff__file.html#a148fd89fc12f59a3fa7517507140c1cc">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; gffmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;gff_file&quot;</span>);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(gffmap, <span class="stringliteral">&quot;version&quot;</span>, <span class="stringliteral">&quot;gff_file&quot;</span>);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    }</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keyword">auto</span> fpath = path / <span class="stringliteral">&quot;file.&quot;</span>;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">const</span> std::string&amp; fstring = internal_json::extract_string_from_typed_object(gffmap, <span class="stringliteral">&quot;format&quot;</span>, <span class="stringliteral">&quot;gff_file&quot;</span>);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordflow">if</span> (fstring == <span class="stringliteral">&quot;GFF2&quot;</span>) {</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        fpath += <span class="stringliteral">&quot;gff2&quot;</span>;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (fstring == <span class="stringliteral">&quot;GFF3&quot;</span>) {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        fpath += <span class="stringliteral">&quot;gff3&quot;</span>;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unknown value &#39;&quot;</span> + fstring + <span class="stringliteral">&quot;&#39; for &#39;gff_file.format&#39; property&quot;</span>);</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    }</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">const</span> std::string&amp; fstring = internal_json::extract_string_from_typed_object(gffmap, <span class="stringliteral">&quot;format&quot;</span>, <span class="stringliteral">&quot;gff_file&quot;</span>);</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">if</span> (fstring == <span class="stringliteral">&quot;GFF2&quot;</span>) {</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        fpath += <span class="stringliteral">&quot;gff2&quot;</span>;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (fstring == <span class="stringliteral">&quot;GFF3&quot;</span>) {</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        fpath += <span class="stringliteral">&quot;gff3&quot;</span>;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="comment">// Check if it&#39;s indexed.</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">bool</span> indexed = internal_files::is_indexed(gffmap);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    fpath += <span class="stringliteral">&quot;.&quot;</span>;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">if</span> (indexed) {</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        fpath += <span class="stringliteral">&quot;bgz&quot;</span>;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unknown value &#39;&quot;</span> + fstring + <span class="stringliteral">&quot;&#39; for &#39;gff_file.format&#39; property&quot;</span>);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        fpath += <span class="stringliteral">&quot;gz&quot;</span>;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    }</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="comment">// Check if it&#39;s indexed.</span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">bool</span> indexed = internal_files::is_indexed(gffmap);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    fpath += <span class="stringliteral">&quot;.&quot;</span>;</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> (indexed) {</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        fpath += <span class="stringliteral">&quot;bgz&quot;</span>;</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        fpath += <span class="stringliteral">&quot;gz&quot;</span>;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    }</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="comment">// Check magic numbers.</span></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    internal_files::check_gzip_signature(fpath);</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> (fstring == <span class="stringliteral">&quot;GFF3&quot;</span>) {</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keyword">const</span> std::string expected = <span class="stringliteral">&quot;##gff-version 3&quot;</span>;</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        <span class="keyword">const</span> <span class="keywordtype">size_t</span> expected_len = expected.size();</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        <span class="keyword">auto</span> reader = internal_other::open_reader&lt;byteme::GzipFileReader&gt;(fpath, expected_len);</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        byteme::PerByte&lt;&gt; pb(&amp;reader);</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="keywordtype">bool</span> okay = pb.valid();</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; expected_len; ++i) {</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>            <span class="keywordflow">if</span> (!okay) {</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incomplete GFF3 file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>            }</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>            <span class="keywordflow">if</span> (pb.get() != expected[i]) {</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incorrect GFF3 file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>            }</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>            okay = pb.advance();</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        }</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    }</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordflow">if</span> (indexed) {</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        <span class="keyword">auto</span> ixpath = fpath;</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        internal_files::check_gzip_signature(ixpath);</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    }</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="comment">// Check magic numbers.</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    internal_files::check_gzip_signature(fpath);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> (fstring == <span class="stringliteral">&quot;GFF3&quot;</span>) {</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keyword">const</span> std::string expected = <span class="stringliteral">&quot;##gff-version 3&quot;</span>;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        <span class="keyword">const</span> <span class="keywordtype">size_t</span> expected_len = expected.size();</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <span class="keyword">auto</span> reader = internal_other::open_reader&lt;byteme::GzipFileReader&gt;(fpath, expected_len);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        byteme::PerByte&lt;&gt; pb(&amp;reader);</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        <span class="keywordtype">bool</span> okay = pb.valid();</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; expected_len; ++i) {</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>            <span class="keywordflow">if</span> (!okay) {</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incomplete GFF3 file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>            }</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>            <span class="keywordflow">if</span> (pb.get() != expected[i]) {</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incorrect GFF3 file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>            }</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>            okay = pb.advance();</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        }</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    }</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordflow">if</span> (indexed) {</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keyword">auto</span> ixpath = fpath;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        internal_files::check_gzip_signature(ixpath);</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    }</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordflow">if</span> (options.<a class="code hl_variable" href="structtakane_1_1Options.html#a7e82099e270f0b87b944218b5180d961">gff_file_strict_check</a>) {</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        options.<a class="code hl_variable" href="structtakane_1_1Options.html#a7e82099e270f0b87b944218b5180d961">gff_file_strict_check</a>(path, metadata, options, indexed);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    }</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>}</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>}</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>}</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">strict_check</a>) {</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        <a class="code hl_variable" href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">strict_check</a>(path, metadata, options, indexed);</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    }</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>}</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>}</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>}</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_1_1gff__file_html_a7e42b4ac23a4f67d0f6f1983bf301d38"><div class="ttname"><a href="namespacetakane_1_1gff__file.html#a7e42b4ac23a4f67d0f6f1983bf301d38">takane::gff_file::strict_check</a></div><div class="ttdeci">std::function&lt; void(const std::filesystem::path &amp;, const ObjectMetadata &amp;, const Options &amp;, bool)&gt; strict_check</div><div class="ttdef"><b>Definition:</b> gff_file.hpp:34</div></div>
-<div class="ttc" id="anamespacetakane_1_1gff__file_html_acce29766a324f449859b28b0a1fc04ba"><div class="ttname"><a href="namespacetakane_1_1gff__file.html#acce29766a324f449859b28b0a1fc04ba">takane::gff_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> gff_file.hpp:41</div></div>
-<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _derived_from.hpp:13</div></div>
-<div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:23</div></div>
-<div class="ttc" id="astructtakane_1_1ObjectMetadata_html_a3b46efa17e6ca667bc902073cf7151cd"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">takane::ObjectMetadata::other</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::shared_ptr&lt; millijson::Base &gt; &gt; other</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:32</div></div>
-<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:81</div></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_1_1gff__file_html_a148fd89fc12f59a3fa7517507140c1cc"><div class="ttname"><a href="namespacetakane_1_1gff__file.html#a148fd89fc12f59a3fa7517507140c1cc">takane::gff_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition:</b> gff_file.hpp:32</div></div>
+<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _derived_from.hpp:15</div></div>
+<div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:25</div></div>
+<div class="ttc" id="astructtakane_1_1ObjectMetadata_html_a3b46efa17e6ca667bc902073cf7151cd"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">takane::ObjectMetadata::other</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::shared_ptr&lt; millijson::Base &gt; &gt; other</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:34</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:90</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html_a7e82099e270f0b87b944218b5180d961"><div class="ttname"><a href="structtakane_1_1Options.html#a7e82099e270f0b87b944218b5180d961">takane::Options::gff_file_strict_check</a></div><div class="ttdeci">std::function&lt; void(const std::filesystem::path &amp;, const ObjectMetadata &amp;, Options &amp;, bool)&gt; gff_file_strict_check</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:201</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

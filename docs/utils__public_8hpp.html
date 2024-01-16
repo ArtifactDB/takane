@@ -87,6 +87,8 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;string&gt;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
+<code>#include &lt;unordered_map&gt;</code><br />
+<code>#include &lt;functional&gt;</code><br />
 <code>#include &quot;H5Cpp.h&quot;</code><br />
 <code>#include &quot;millijson/millijson.hpp&quot;</code><br />
 <code>#include &quot;byteme/byteme.hpp&quot;</code><br />
@@ -96,13 +98,15 @@ Include dependency graph for utils_public.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="utils__public_8hpp__incl.png" border="0" usemap="#atakane_2utils__public_8hpp" alt=""/></div>
 <map name="atakane_2utils__public_8hpp" id="atakane_2utils__public_8hpp">
-<area shape="rect" title="Exported utilities." alt="" coords="213,5,367,31"/>
+<area shape="rect" title="Exported utilities." alt="" coords="335,5,490,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,60,104"/>
 <area shape="rect" title=" " alt="" coords="85,79,165,104"/>
-<area shape="rect" title=" " alt="" coords="189,79,261,104"/>
-<area shape="rect" title=" " alt="" coords="285,79,429,104"/>
-<area shape="rect" title=" " alt="" coords="453,79,588,104"/>
-<area shape="rect" title=" " alt="" coords="613,79,714,104"/>
+<area shape="rect" title=" " alt="" coords="189,79,300,104"/>
+<area shape="rect" title=" " alt="" coords="324,79,403,104"/>
+<area shape="rect" title=" " alt="" coords="427,79,499,104"/>
+<area shape="rect" title=" " alt="" coords="523,79,667,104"/>
+<area shape="rect" title=" " alt="" coords="692,79,827,104"/>
+<area shape="rect" title=" " alt="" coords="851,79,953,104"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -110,33 +114,35 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="utils__public_8hpp__dep__incl.png" border="0" usemap="#atakane_2utils__public_8hppdep" alt=""/></div>
 <map name="atakane_2utils__public_8hppdep" id="atakane_2utils__public_8hppdep">
-<area shape="rect" title="Exported utilities." alt="" coords="1643,5,1798,31"/>
-<area shape="rect" href="__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="1390,174,1521,199"/>
-<area shape="rect" href="__validate_8hpp.html" title="Validation dispatch function." alt="" coords="1862,416,2003,441"/>
-<area shape="rect" href="atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="366,86,537,111"/>
-<area shape="rect" href="atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="561,79,707,119"/>
-<area shape="rect" href="bumpy__atomic__array_8hpp.html" title="Validation for bumpy atomic matrices." alt="" coords="1646,79,1795,119"/>
-<area shape="rect" href="bumpy__data__frame__array_8hpp.html" title="Validation for bumpy data frame matrices." alt="" coords="1820,79,1995,119"/>
-<area shape="rect" href="compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="2019,79,2201,119"/>
-<area shape="rect" href="data__frame_8hpp.html" title="Validation for data frames." alt="" coords="2863,86,3018,111"/>
-<area shape="rect" href="data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="731,86,926,111"/>
-<area shape="rect" href="data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="950,86,1129,111"/>
-<area shape="rect" href="delayed__array_8hpp.html" title="Validation for delayed arrays." alt="" coords="2922,343,3090,368"/>
-<area shape="rect" href="dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="2225,86,2384,111"/>
-<area shape="rect" href="genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="1153,86,1337,111"/>
-<area shape="rect" href="genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="1411,79,1571,119"/>
-<area shape="rect" href="multi__sample__dataset_8hpp.html" title="Validation for multi&#45;sample datasets." alt="" coords="3144,255,3287,295"/>
-<area shape="rect" href="sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="3311,262,3527,287"/>
-<area shape="rect" href="simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="5,86,156,111"/>
-<area shape="rect" href="spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="2435,343,2633,368"/>
-<area shape="rect" href="string__factor_8hpp.html" title="Validation for string factors." alt="" coords="180,86,341,111"/>
-<area shape="rect" href="summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="2610,86,2839,111"/>
-<area shape="rect" href="vcf__experiment_8hpp.html" title="Validation for VCF&#45;based experiments." alt="" coords="2408,86,2585,111"/>
-<area shape="rect" href="takane_8hpp.html" title="Umbrella header for takane." alt="" coords="1869,489,1997,515"/>
-<area shape="rect" href="__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="2046,174,2209,199"/>
-<area shape="rect" href="csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="2835,174,3017,199"/>
-<area shape="rect" href="ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="2578,167,2759,207"/>
-<area shape="rect" href="single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="2472,255,2599,295"/>
+<area shape="rect" title="Exported utilities." alt="" coords="1721,5,1876,31"/>
+<area shape="rect" href="__derived__from_8hpp.html" title="Check for derived object relationships." alt="" coords="5,343,176,368"/>
+<area shape="rect" href="__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="1553,174,1684,199"/>
+<area shape="rect" href="__validate_8hpp.html" title="Validation dispatch function." alt="" coords="2013,416,2155,441"/>
+<area shape="rect" href="atomic__vector_8hpp.html" title="Validation for atomic vectors." alt="" coords="1188,86,1359,111"/>
+<area shape="rect" href="atomic__vector__list_8hpp.html" title="Validation for atomic vector lists." alt="" coords="1383,79,1529,119"/>
+<area shape="rect" href="bumpy__atomic__array_8hpp.html" title="Validation for bumpy atomic matrices." alt="" coords="1823,79,1972,119"/>
+<area shape="rect" href="bumpy__data__frame__array_8hpp.html" title="Validation for bumpy data frame matrices." alt="" coords="1997,79,2171,119"/>
+<area shape="rect" href="compressed__sparse__matrix_8hpp.html" title="Validation for compressed sparse matrices." alt="" coords="2195,79,2378,119"/>
+<area shape="rect" href="data__frame_8hpp.html" title="Validation for data frames." alt="" coords="3040,86,3195,111"/>
+<area shape="rect" href="data__frame__factor_8hpp.html" title="Validation for data frame factors." alt="" coords="1604,86,1799,111"/>
+<area shape="rect" href="data__frame__list_8hpp.html" title="Validation for data frame lists." alt="" coords="232,86,411,111"/>
+<area shape="rect" href="delayed__array_8hpp.html" title="Validation for delayed arrays." alt="" coords="3069,262,3237,287"/>
+<area shape="rect" href="dense__array_8hpp.html" title="Validation for dense arrays." alt="" coords="2402,86,2561,111"/>
+<area shape="rect" href="genomic__ranges_8hpp.html" title="Validation for genomic ranges." alt="" coords="435,86,619,111"/>
+<area shape="rect" href="genomic__ranges__list_8hpp.html" title="Validation for genomic ranges lists." alt="" coords="643,79,803,119"/>
+<area shape="rect" href="multi__sample__dataset_8hpp.html" title="Validation for multi&#45;sample datasets." alt="" coords="3262,255,3405,295"/>
+<area shape="rect" href="sequence__information_8hpp.html" title="Validation for sequence information." alt="" coords="3308,343,3524,368"/>
+<area shape="rect" href="simple__list_8hpp.html" title="Validation for simple lists." alt="" coords="827,86,978,111"/>
+<area shape="rect" href="spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="2909,343,3107,368"/>
+<area shape="rect" href="string__factor_8hpp.html" title="Validation for string factors." alt="" coords="1002,86,1163,111"/>
+<area shape="rect" href="summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="2787,86,3016,111"/>
+<area shape="rect" href="vcf__experiment_8hpp.html" title="Validation for VCF&#45;based experiments." alt="" coords="2585,86,2762,111"/>
+<area shape="rect" href="__satisfies__interface_8hpp.html" title="Check if an object interface is satisfied." alt="" coords="403,416,605,441"/>
+<area shape="rect" href="takane_8hpp.html" title="Umbrella header for takane." alt="" coords="1148,489,1276,515"/>
+<area shape="rect" href="__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="2311,174,2473,199"/>
+<area shape="rect" href="csv__data__frame_8hpp.html" title="Validation for CSV data frames." alt="" coords="3011,174,3194,199"/>
+<area shape="rect" href="ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="2603,167,2784,207"/>
+<area shape="rect" href="single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="2674,255,2801,295"/>
 </map>
 </div>
 </div>
@@ -148,7 +154,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Object metadata, including the type and other fields.  <a href="structtakane_1_1ObjectMetadata.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html">takane::Options</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation options, mostly related to input performance.  <a href="structtakane_1_1Options.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation options.  <a href="structtakane_1_1Options.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>

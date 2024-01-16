@@ -93,53 +93,51 @@ $(function() {
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">namespace </span>bcf_file {</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="namespacetakane_1_1bcf__file.html#a1452faa782ea7a49fb9606a03d6b8255">   34</a></span><span class="keyword">inline</span> std::function&lt;void(<span class="keyword">const</span> std::filesystem::path&amp;, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; <a class="code hl_variable" href="namespacetakane_1_1bcf__file.html#a1452faa782ea7a49fb9606a03d6b8255">strict_check</a>;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="namespacetakane_1_1bcf__file.html#a007d08f60711ac85f7919c315a84cbda">   41</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1bcf__file.html#a007d08f60711ac85f7919c315a84cbda">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_version_for_type(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;bcf_file&quot;</span>);</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    }</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="comment">// Magic number taken from https://samtools.github.io/hts-specs/BCFv2_qref.pdf</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="comment">// We relax it a little to support both BCF1 and BCF2+ formats.</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">auto</span> ipath = path / <span class="stringliteral">&quot;file.bcf&quot;</span>;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    internal_files::check_gzip_signature(ipath);</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ipath, <span class="stringliteral">&quot;BCF&quot;</span>, 3, <span class="stringliteral">&quot;BCF&quot;</span>);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="namespacetakane_1_1bcf__file.html#afca99b626fbab6a6c0a2c84bd0e6480e">   33</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1bcf__file.html#afca99b626fbab6a6c0a2c84bd0e6480e">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_version_for_type(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;bcf_file&quot;</span>);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    }</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="comment">// Magic number taken from https://samtools.github.io/hts-specs/BCFv2_qref.pdf</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="comment">// We relax it a little to support both BCF1 and BCF2+ formats.</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">auto</span> ipath = path / <span class="stringliteral">&quot;file.bcf&quot;</span>;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    internal_files::check_gzip_signature(ipath);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ipath, <span class="stringliteral">&quot;BCF&quot;</span>, 3, <span class="stringliteral">&quot;BCF&quot;</span>);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="comment">// Magic number taken from https://samtools.github.io/hts-specs/tabix.pdf</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keyword">auto</span> ixpath = ipath;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordflow">if</span> (std::filesystem::exists(ixpath)) {</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        internal_files::check_gzip_signature(ixpath);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    }</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="comment">// Magic number taken from https://samtools.github.io/hts-specs/tabix.pdf</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keyword">auto</span> ixpath = ipath;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="comment">// Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    ixpath = ipath;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    ixpath += <span class="stringliteral">&quot;.csi&quot;</span>;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">if</span> (std::filesystem::exists(ixpath)) {</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        internal_files::check_gzip_signature(ixpath);</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;CSI\1&quot;</span>, 4, <span class="stringliteral">&quot;CSI index&quot;</span>);</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="comment">// Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    ixpath = ipath;</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    ixpath += <span class="stringliteral">&quot;.csi&quot;</span>;</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">if</span> (std::filesystem::exists(ixpath)) {</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        internal_files::check_gzip_signature(ixpath);</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;CSI\1&quot;</span>, 4, <span class="stringliteral">&quot;CSI index&quot;</span>);</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    }</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="namespacetakane_1_1bcf__file.html#a1452faa782ea7a49fb9606a03d6b8255">strict_check</a>) {</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        <a class="code hl_variable" href="namespacetakane_1_1bcf__file.html#a1452faa782ea7a49fb9606a03d6b8255">strict_check</a>(path, metadata, options);</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    }</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>}</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>}</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>}</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_1_1bcf__file_html_a007d08f60711ac85f7919c315a84cbda"><div class="ttname"><a href="namespacetakane_1_1bcf__file.html#a007d08f60711ac85f7919c315a84cbda">takane::bcf_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)</div><div class="ttdef"><b>Definition:</b> bcf_file.hpp:41</div></div>
-<div class="ttc" id="anamespacetakane_1_1bcf__file_html_a1452faa782ea7a49fb9606a03d6b8255"><div class="ttname"><a href="namespacetakane_1_1bcf__file.html#a1452faa782ea7a49fb9606a03d6b8255">takane::bcf_file::strict_check</a></div><div class="ttdeci">std::function&lt; void(const std::filesystem::path &amp;, const ObjectMetadata &amp;, const Options &amp;)&gt; strict_check</div><div class="ttdef"><b>Definition:</b> bcf_file.hpp:34</div></div>
-<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _derived_from.hpp:13</div></div>
-<div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:23</div></div>
-<div class="ttc" id="astructtakane_1_1ObjectMetadata_html_a3b46efa17e6ca667bc902073cf7151cd"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">takane::ObjectMetadata::other</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::shared_ptr&lt; millijson::Base &gt; &gt; other</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:32</div></div>
-<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options, mostly related to input performance.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:81</div></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">if</span> (options.<a class="code hl_variable" href="structtakane_1_1Options.html#a7f46e8ff4df461fffd39e9da9c20dd9f">bcf_file_strict_check</a>) {</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        options.<a class="code hl_variable" href="structtakane_1_1Options.html#a7f46e8ff4df461fffd39e9da9c20dd9f">bcf_file_strict_check</a>(path, metadata, options);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    }</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>}</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>}</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>}</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_1_1bcf__file_html_afca99b626fbab6a6c0a2c84bd0e6480e"><div class="ttname"><a href="namespacetakane_1_1bcf__file.html#afca99b626fbab6a6c0a2c84bd0e6480e">takane::bcf_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition:</b> bcf_file.hpp:33</div></div>
+<div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition:</b> _derived_from.hpp:15</div></div>
+<div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:25</div></div>
+<div class="ttc" id="astructtakane_1_1ObjectMetadata_html_a3b46efa17e6ca667bc902073cf7151cd"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">takane::ObjectMetadata::other</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::shared_ptr&lt; millijson::Base &gt; &gt; other</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:34</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html"><div class="ttname"><a href="structtakane_1_1Options.html">takane::Options</a></div><div class="ttdoc">Validation options.</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:90</div></div>
+<div class="ttc" id="astructtakane_1_1Options_html_a7f46e8ff4df461fffd39e9da9c20dd9f"><div class="ttname"><a href="structtakane_1_1Options.html#a7f46e8ff4df461fffd39e9da9c20dd9f">takane::Options::bcf_file_strict_check</a></div><div class="ttdeci">std::function&lt; void(const std::filesystem::path &amp;, const ObjectMetadata &amp;, Options &amp;)&gt; bcf_file_strict_check</div><div class="ttdef"><b>Definition:</b> utils_public.hpp:148</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
