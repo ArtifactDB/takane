@@ -23,15 +23,9 @@ struct DelayedArrayTest : public ::testing::Test {
         return H5::H5File(dir / "array.h5", H5F_ACC_RDWR);
     }
 
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
+    template<typename ... Args_>
+    void expect_error(const std::string& msg, Args_&& ... args) {
+        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
     }
 };
 
@@ -158,6 +152,27 @@ TEST_F(DelayedArrayTest, IndexChecks) {
         }
     }
     test_validate(dir);
+}
+
+TEST_F(DelayedArrayTest, OverrideChecks) {
+    {
+        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
+    }
+
+    // Check that validation doesn't mutate the options on exit.
+    takane::Options opts;
+    auto& chopts = opts.delayed_array_options;
+    auto& areg = chopts.array_validate_registry;
+    EXPECT_TRUE(areg.find("custom takane seed array") == areg.end());
+    test_validate(dir, opts);
+    EXPECT_TRUE(areg.find("custom takane seed array") == areg.end());
+
+    // Check that we respect any overrides.
+    areg["custom takane seed array"] = [&](const H5::Group&, const ritsuko::Version&, chihaya::Options&) -> chihaya::ArrayDetails {
+        throw std::runtime_error("WHOOOOO");
+    };
+    expect_error("WHOOOOO", opts);
+    EXPECT_TRUE(areg.find("custom takane seed array") != areg.end());
 }
 
 TEST_F(DelayedArrayTest, DimensionalityChecks) {

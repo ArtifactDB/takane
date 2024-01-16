@@ -10,6 +10,7 @@
 
 #include "millijson/millijson.hpp"
 #include "byteme/byteme.hpp"
+#include "chihaya/chihaya.hpp"
 #include "utils_json.hpp"
 
 /**
@@ -206,6 +207,11 @@ public:
      * It should throw an error if the GMT file is not valid, e.g., corrupted file, mismatched indices.
      */
     std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> gmt_file_strict_check;
+
+    /**
+     * Options to use for validating **chihaya** specifications in `delayed_array::validate()`.
+     */
+    chihaya::Options delayed_array_options;
 };
 
 }

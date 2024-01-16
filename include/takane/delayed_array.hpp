@@ -48,47 +48,82 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version '" + vstring + "'");
     }
 
-    chihaya::State state;
     uint64_t max = 0;
-    state.array_validate_registry["custom takane seed array"] = [&](const H5::Group& handle, const ritsuko::Version& version) -> chihaya::ArrayDetails {
-        auto details = chihaya::custom_array::validate(handle, version);
+    {
+        std::string custom_name = "custom takane seed array";
+        auto& custom_options = options.delayed_array_options;
+        bool custom_found = (custom_options.array_validate_registry.find(custom_name) != custom_options.array_validate_registry.end());
 
-        auto dhandle = ritsuko::hdf5::open_dataset(handle, "index");
-        if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, false)) {
-            throw std::runtime_error("'index' should have a datatype that fits into a 64-bit unsigned integer");
-        }
-
-        auto index = ritsuko::hdf5::load_scalar_numeric_dataset<uint64_t>(dhandle);
-        auto seed_path = path / "seeds" / std::to_string(index);
-        auto seed_meta = read_object_metadata(seed_path);
-        ::takane::validate(seed_path, seed_meta, options);
-
-        auto seed_dims = ::takane::dimensions(seed_path, seed_meta, options);
-        if (seed_dims.size() != details.dimensions.size()) {
-            throw std::runtime_error("dimensionality of 'seeds/" + std::to_string(index) + "' is not consistent with 'dimensions'");
-        }
-
-        for (size_t d = 0, ndims = seed_dims.size(); d < ndims; ++d) {
-            if (seed_dims[d] != details.dimensions[d]) {
-                throw std::runtime_error("dimension extents of 'seeds/" + std::to_string(index) + "' is not consistent with 'dimensions'");
+        // For efficiency purposes, we just mutate the existing
+        // 'options.delayed_array_options' rather than making a copy. We need
+        // to add a validator for the 'custom takane seed array' type, which
+        // checks for valid references to external arrays in 'seeds/'.
+        //
+        // Note that we respect any existing 'custom takane seed array' setting
+        // - possibly from recursive calls to 'delayed_array::validate()', but
+        // also possibly from user-provided overrides, in which case we assume
+        // that the caller really knows what they're doing.
+        //
+        // Anyway, all this means that we only mutate chihaya::Options if there
+        // is no existing custom takane function. However, if we do so, we need
+        // to restore the original state before function exit, hence the
+        // destructor for RAII-based clean-up.
+        struct Resetter {
+            Resetter(chihaya::Options& o, const std::string& n, bool f) : options(o), name(n), found(f) {}
+            ~Resetter() {
+                if (!found) {
+                    options.array_validate_registry.erase(name);
+                }
             }
+        private:
+            chihaya::Options& options;
+            const std::string& name;
+            bool found; 
+        };
+        [[maybe_unused]] Resetter v(custom_options, custom_name, custom_found);
+
+        if (!custom_found) {
+            custom_options.array_validate_registry[custom_name] = [&](const H5::Group& handle, const ritsuko::Version& version, chihaya::Options& ch_options) -> chihaya::ArrayDetails {
+                auto details = chihaya::custom_array::validate(handle, version, ch_options);
+
+                auto dhandle = ritsuko::hdf5::open_dataset(handle, "index");
+                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, false)) {
+                    throw std::runtime_error("'index' should have a datatype that fits into a 64-bit unsigned integer");
+                }
+
+                auto index = ritsuko::hdf5::load_scalar_numeric_dataset<uint64_t>(dhandle);
+                auto seed_path = path / "seeds" / std::to_string(index);
+                auto seed_meta = read_object_metadata(seed_path);
+                ::takane::validate(seed_path, seed_meta, options);
+
+                auto seed_dims = ::takane::dimensions(seed_path, seed_meta, options);
+                if (seed_dims.size() != details.dimensions.size()) {
+                    throw std::runtime_error("dimensionality of 'seeds/" + std::to_string(index) + "' is not consistent with 'dimensions'");
+                }
+
+                for (size_t d = 0, ndims = seed_dims.size(); d < ndims; ++d) {
+                    if (seed_dims[d] != details.dimensions[d]) {
+                        throw std::runtime_error("dimension extents of 'seeds/" + std::to_string(index) + "' is not consistent with 'dimensions'");
+                    }
+                }
+
+                if (index >= max) {
+                    max = index + 1;
+                }
+                return details;
+            };
         }
 
-        if (index >= max) {
-            max = index + 1;
+        auto apath = path / "array.h5";
+        auto fhandle = ritsuko::hdf5::open_file(apath);
+        auto ghandle = ritsuko::hdf5::open_group(fhandle, "delayed_array");
+        ritsuko::Version chihaya_version = chihaya::extract_version(ghandle);
+        if (chihaya_version.lt(1, 1, 0)) {
+            throw std::runtime_error("version of the chihaya specification should be no less than 1.1");
         }
-        return details;
-    };
 
-    auto apath = path / "array.h5";
-    auto fhandle = ritsuko::hdf5::open_file(apath);
-    auto ghandle = ritsuko::hdf5::open_group(fhandle, "delayed_array");
-    ritsuko::Version chihaya_version = chihaya::extract_version(ghandle);
-    if (chihaya_version.lt(1, 1, 0)) {
-        throw std::runtime_error("version of the chihaya specification should be no less than 1.1");
+        chihaya::validate(ghandle, chihaya_version, custom_options);
     }
-
-    chihaya::validate(ghandle, chihaya_version, state);
 
     size_t found = 0;
     auto seed_path = path / "seeds";
@@ -108,7 +143,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  */
 inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
     auto apath = path / "array.h5";
-    auto output = chihaya::validate(apath, "delayed_array");
+    auto output = chihaya::validate(apath, "delayed_array", options.delayed_array_options);
     return output.dimensions[0];
 }
 
@@ -120,7 +155,7 @@ inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const O
  */
 inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
     auto apath = path / "array.h5";
-    auto output = chihaya::validate(apath, "delayed_array");
+    auto output = chihaya::validate(apath, "delayed_array", options.delayed_array_options);
     return std::vector<size_t>(output.dimensions.begin(), output.dimensions.end());
 }
 
