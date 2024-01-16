@@ -15,6 +15,9 @@ TEST(GenericDispatch, Validate) {
 
     opts.custom_validate["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void {};
     test_validate(dir, opts);
+
+    opts.custom_validate["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void { throw std::runtime_error("YAY"); };
+    expect_validation_error(dir, "YAY", opts);
 }
 
 template<typename ... Args_>

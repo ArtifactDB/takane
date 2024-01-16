@@ -95,7 +95,7 @@ inline auto default_registry() {
 /**
  * Validate an object in a subdirectory, based on the supplied object type.
  *
- * Applications can supply custom validation functions for a given type via the `Options::custom_validate`.
+ * Applications can supply custom validation functions for a given type via `Options::custom_validate`.
  * If available, the supplied custom function will be used instead of the default.
  *
  * @param path Path to a directory representing an object.
@@ -103,10 +103,6 @@ inline auto default_registry() {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    if (!std::filesystem::exists(path) || std::filesystem::status(path).type() != std::filesystem::file_type::directory) {
-        throw std::runtime_error("expected '" + path.string() + "' to be a directory");
-    }
-
     auto cIt = options.custom_validate.find(metadata.type);
     if (cIt != options.custom_validate.end()) {
         try {

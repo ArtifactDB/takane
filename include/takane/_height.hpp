@@ -76,7 +76,7 @@ inline auto default_registry() {
  * For vectors or other 1-dimensional objects, the height is usually just the length of the object (for some object-specific definition of "length").
  * For higher-dimensional objects, the height is usually the extent of the first dimension.
  *
- * Applications can supply custom height functions for a given type via the `Options::custom_height`.
+ * Applications can supply custom height functions for a given type via `Options::custom_height`.
  * If available, the supplied custom function will be used instead of the default.
  *
  * @param path Path to a directory representing an object.
