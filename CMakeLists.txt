@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(takane
-    VERSION 0.6.0
+    VERSION 0.6.1
     DESCRIPTION "ArtifactDB file validators"
     LANGUAGES CXX)
 
