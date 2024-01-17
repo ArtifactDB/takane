@@ -37,6 +37,31 @@ std::vector<size_t> dimensions(const std::filesystem::path&, const ObjectMetadat
 namespace delayed_array {
 
 /**
+ * @cond
+ */
+namespace internal {
+
+// For efficiency purposes, we just mutate the existing
+// 'options.delayed_array_options' rather than making a copy. In this case, we
+// need to set 'details_only' to either true or false, depending on whether we
+// want to do the full validation; it's important to subsequently reset it back
+// to its original setting in the destructor.
+struct DetailsOnlyResetter {
+    DetailsOnlyResetter(chihaya::Options& o) : options(o), old(options.details_only) {}
+    ~DetailsOnlyResetter() {
+        options.details_only = old;
+    }
+private:
+    chihaya::Options& options;
+    bool old;
+};
+
+}
+/**
+ * @endcond
+ */
+
+/**
  * @param path Path to the directory containing a delayed array.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
@@ -68,9 +93,9 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         // is no existing custom takane function. However, if we do so, we need
         // to restore the original state before function exit, hence the
         // destructor for RAII-based clean-up.
-        struct Resetter {
-            Resetter(chihaya::Options& o, const std::string& n, bool f) : options(o), name(n), found(f) {}
-            ~Resetter() {
+        struct ValidateResetter {
+            ValidateResetter(chihaya::Options& o, const std::string& n, bool f) : options(o), name(n), found(f) {}
+            ~ValidateResetter() {
                 if (!found) {
                     options.array_validate_registry.erase(name);
                 }
@@ -80,7 +105,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             const std::string& name;
             bool found; 
         };
-        [[maybe_unused]] Resetter v(custom_options, custom_name, custom_found);
+        [[maybe_unused]] ValidateResetter v(custom_options, custom_name, custom_found);
 
         if (!custom_found) {
             custom_options.array_validate_registry[custom_name] = [&](const H5::Group& handle, const ritsuko::Version& version, chihaya::Options& ch_options) -> chihaya::ArrayDetails {
@@ -122,6 +147,11 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             throw std::runtime_error("version of the chihaya specification should be no less than 1.1");
         }
 
+        // Again, using RAII to reset the 'details_only' flag to its original
+        // state after we're done with it.
+        [[maybe_unused]] internal::DetailsOnlyResetter o(custom_options);
+        custom_options.details_only = false;
+
         chihaya::validate(ghandle, chihaya_version, custom_options);
     }
 
@@ -141,9 +171,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Extent of the first dimension.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, Options& options) {
+    auto& chihaya_options = options.delayed_array_options;
+    [[maybe_unused]] internal::DetailsOnlyResetter o(chihaya_options);
+    chihaya_options.details_only = true;
+
     auto apath = path / "array.h5";
-    auto output = chihaya::validate(apath, "delayed_array", options.delayed_array_options);
+    auto output = chihaya::validate(apath, "delayed_array", chihaya_options);
     return output.dimensions[0];
 }
 
@@ -153,9 +187,13 @@ inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const O
  * @param options Validation options.
  * @return Dimensions of the array.
  */
-inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, Options& options) {
+    auto& chihaya_options = options.delayed_array_options;
+    [[maybe_unused]] internal::DetailsOnlyResetter o(chihaya_options);
+    chihaya_options.details_only = true;
+
     auto apath = path / "array.h5";
-    auto output = chihaya::validate(apath, "delayed_array", options.delayed_array_options);
+    auto output = chihaya::validate(apath, "delayed_array", chihaya_options);
     return std::vector<size_t>(output.dimensions.begin(), output.dimensions.end());
 }
 
