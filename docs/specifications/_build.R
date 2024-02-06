@@ -2,7 +2,9 @@ library(knitr)
 
 listings <- list.files(pattern="\\.Rmd$")
 default <- "1.0"
-known.variants <- list()
+known.variants <- list(
+    simple_list.Rmd="1.1"
+)
 
 dest <- "compiled"
 unlink(dest, recursive=TRUE)

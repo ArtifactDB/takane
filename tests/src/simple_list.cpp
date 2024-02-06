@@ -50,7 +50,7 @@ TEST_F(SimpleListTest, Basics) {
     expect_error("should be a JSON string");
 }
 
-TEST_F(SimpleListTest, Json) {
+TEST_F(SimpleListTest, JsonBasic) {
     simple_list::initialize_with_metadata(dir, "1.0", "json.gz");
 
     // Success!
@@ -92,7 +92,23 @@ TEST_F(SimpleListTest, Json) {
     EXPECT_EQ(test_height(dir), 1);
 }
 
-TEST_F(SimpleListTest, Hdf5) {
+TEST_F(SimpleListTest, JsonLength) {
+    {
+        initialize_directory(dir);
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"format\": \"json.gz\", \"length\": 2 } }";
+        dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"nothing\" } ] }");
+    }
+    expect_error("length of the list");
+
+    {
+        dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"nothing\" }, { \"type\": \"nothing\" } ] }");
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+}
+
+TEST_F(SimpleListTest, Hdf5Basic) {
     // Success!
     {
         simple_list::initialize_with_metadata(dir, "1.0", "hdf5");
@@ -140,4 +156,54 @@ TEST_F(SimpleListTest, Hdf5) {
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 1);
+}
+
+TEST_F(SimpleListTest, Hdf5Length) {
+    H5::StrType stype(0, H5T_VARIABLE);
+
+    {
+        initialize_directory(dir);
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"length\": 2 } }";
+
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        auto ahandle = ghandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
+        ahandle.write(stype, std::string("list"));
+
+        auto dhandle = ghandle.createGroup("data");
+        auto zhandle = dhandle.createGroup("0");
+        {
+            auto xhandle = zhandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
+            xhandle.write(stype, std::string("nothing"));
+        }
+    }
+    expect_error("length of the list");
+
+    {
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("simple_list");
+        auto dhandle = ghandle.openGroup("data");
+        auto zhandle = dhandle.createGroup("1");
+        {
+            auto xhandle = zhandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
+            xhandle.write(stype, std::string("nothing"));
+        }
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+
+    // Still works in v1.1 without the length argument.
+    {
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\" } }";
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+
+    {
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"length\": true } }";
+    }
+    expect_error("should be a JSON number");
 }
