@@ -51,6 +51,9 @@ TEST_F(GmtFileTest, Strict) {
     }
 
     takane::Options opts;
-    opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
+    opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};
+    test_validate(dir);
+
+    opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) { throw std::runtime_error("ARGH"); };
     expect_error("ARGH", opts);
 }

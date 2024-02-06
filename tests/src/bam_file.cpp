@@ -81,6 +81,9 @@ TEST_F(BamFileTest, Strict) {
     }
 
     takane::Options opts;
-    opts.bam_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
+    opts.bam_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};
+    test_validate(dir);
+
+    opts.bam_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) { throw std::runtime_error("ARGH"); };
     expect_error("ARGH", opts);
 }

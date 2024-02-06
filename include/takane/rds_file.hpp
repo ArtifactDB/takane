@@ -22,7 +22,7 @@ namespace takane {
 namespace rds_file {
 
 /**
- * If `Options::rds_file` is provided, this enables stricter checking of the RDS file contents.
+ * If `Options::rds_file_strict_check` is provided, this enables stricter checking of the RDS file contents.
  * By default, we just look at the first few bytes to verify the files. 
  *
  * @param path Path to the directory containing the RDS file.

@@ -60,6 +60,9 @@ TEST_F(BigBedFileTest, Strict) {
     }
 
     takane::Options opts;
-    opts.bigbed_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
+    opts.bigbed_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};
+    test_validate(dir);
+
+    opts.bigbed_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) { throw std::runtime_error("ARGH"); };
     expect_error("ARGH", opts);
 }

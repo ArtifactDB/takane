@@ -141,6 +141,9 @@ TEST_F(FastqFileTest, Strict) {
     }
 
     takane::Options opts;
-    opts.fastq_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&, bool) { throw std::runtime_error("ARGH"); };
+    opts.fastq_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) {};
+    test_validate(dir);
+
+    opts.fastq_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) { throw std::runtime_error("ARGH"); };
     expect_error("ARGH", opts);
 }

@@ -101,6 +101,9 @@ TEST_F(GffFileTest, Strict) {
     }
 
     takane::Options opts;
-    opts.gff_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&, bool) { throw std::runtime_error("ARGH"); };
+    opts.gff_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) {};
+    test_validate(dir);
+
+    opts.gff_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) { throw std::runtime_error("ARGH"); };
     expect_error("ARGH", opts);
 }
