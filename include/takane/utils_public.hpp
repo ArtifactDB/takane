@@ -107,6 +107,13 @@ public:
     std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> > custom_validate;
 
     /**
+     * Addtional validation function to run for all object types during a call to `validate()`, after running the (default or custom) type-specific validation function.
+     * Arguments are as described for `validate()`.
+     */
+   std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> custom_global_validate;
+
+public:
+    /**
      * Custom registry of functions to be used by `dimensions()`.
      * If a type is specified here, the custom function replaces the default. 
      */

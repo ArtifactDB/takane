@@ -18,6 +18,13 @@ TEST(GenericDispatch, Validate) {
 
     opts.custom_validate["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void { throw std::runtime_error("YAY"); };
     expect_validation_error(dir, "YAY", opts);
+
+    // Test global validators.
+    opts.custom_validate["foobar"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void {};
+    opts.custom_global_validate = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void {};
+    test_validate(dir, opts);
+    opts.custom_global_validate = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> void { throw std::runtime_error("ARGH"); };
+    expect_validation_error(dir, "ARGH", opts);
 }
 
 template<typename ... Args_>
