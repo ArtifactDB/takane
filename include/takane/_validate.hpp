@@ -34,6 +34,7 @@
 #include "bed_file.hpp"
 #include "gmt_file.hpp"
 #include "gff_file.hpp"
+#include "rds_file.hpp"
 #include "bumpy_atomic_array.hpp"
 #include "bumpy_data_frame_array.hpp"
 #include "vcf_experiment.hpp"
@@ -80,6 +81,7 @@ inline auto default_registry() {
     registry["bed_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { bed_file::validate(p, m, o); };
     registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { gmt_file::validate(p, m, o); };
     registry["gff_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { gff_file::validate(p, m, o); };
+    registry["rds_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { rds_file::validate(p, m, o); };
     registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { bumpy_atomic_array::validate(p, m, o); };
     registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { bumpy_data_frame_array::validate(p, m, o); };
     registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { vcf_experiment::validate(p, m, o); };

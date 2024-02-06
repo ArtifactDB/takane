@@ -222,6 +222,13 @@ public:
     std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> gmt_file_strict_check;
 
     /**
+     * Application-specific function to check the validity of a RDS file and its indices in `rds_file::validate()`.
+     * This should accept a path to the directory containing the RDS file, the object metadata and additional reading options.
+     * It should throw an error if the RDS file is not valid, e.g., corrupted file, mismatched indices.
+     */
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> rds_file_strict_check;
+
+    /**
      * Options to use for validating **chihaya** specifications in `delayed_array::validate()`.
      */
     chihaya::Options delayed_array_options;
