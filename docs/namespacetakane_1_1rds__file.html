@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>takane: takane::gmt_file Namespace Reference</title>
+<title>takane: takane::rds_file Namespace Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,29 +71,29 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetakane.html">takane</a></li><li class="navelem"><a class="el" href="namespacetakane_1_1gmt__file.html">gmt_file</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetakane.html">takane</a></li><li class="navelem"><a class="el" href="namespacetakane_1_1rds__file.html">rds_file</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">takane::gmt_file Namespace Reference</div></div>
+  <div class="headertitle"><div class="title">takane::rds_file Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Definitions for GMT files.  
-<a href="namespacetakane_1_1gmt__file.html#details">More...</a></p>
+<p>Definitions for RDS files.  
+<a href="namespacetakane_1_1rds__file.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a39b289d4750b318456fe41aecb28bf07" id="r_a39b289d4750b318456fe41aecb28bf07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1gmt__file.html#a39b289d4750b318456fe41aecb28bf07">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a39b289d4750b318456fe41aecb28bf07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab27e77b38f937d6e332b28ada6694250" id="r_ab27e77b38f937d6e332b28ada6694250"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1rds__file.html#ab27e77b38f937d6e332b28ada6694250">validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:ab27e77b38f937d6e332b28ada6694250"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Definitions for GMT files. </p>
+<div class="textblock"><p>Definitions for RDS files. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a39b289d4750b318456fe41aecb28bf07" name="a39b289d4750b318456fe41aecb28bf07"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a39b289d4750b318456fe41aecb28bf07">&#9670;&#160;</a></span>validate()</h2>
+<a id="ab27e77b38f937d6e332b28ada6694250" name="ab27e77b38f937d6e332b28ada6694250"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab27e77b38f937d6e332b28ada6694250">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -102,7 +102,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void takane::gmt_file::validate </td>
+          <td class="memname">void takane::rds_file::validate </td>
           <td>(</td>
           <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
           <td class="paramname"><em>path</em>, </td>
@@ -131,10 +131,10 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>If <code><a class="el" href="structtakane_1_1Options.html#a5bd57fef47291f470fada41686aac53a">Options::gmt_file_strict_check</a></code> is provided, this enables stricter checking of the GMT file contents. By default, we just look at the first few bytes to verify the files.</p>
+<p>If <code><a class="el" href="structtakane_1_1Options.html#ad204c533660938f04fb842a7b6341027">Options::rds_file_strict_check</a></code> is provided, this enables stricter checking of the RDS file contents. By default, we just look at the first few bytes to verify the files.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the directory containing the GMT file. </td></tr>
+    <tr><td class="paramname">path</td><td>Path to the directory containing the RDS file. </td></tr>
     <tr><td class="paramname">metadata</td><td>Metadata for the object, typically read from its <code>OBJECT</code> file. </td></tr>
     <tr><td class="paramname">options</td><td>Validation options. </td></tr>
   </table>

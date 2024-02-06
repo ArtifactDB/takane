@@ -125,6 +125,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a7e82099e270f0b87b944218b5180d961"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bd57fef47291f470fada41686aac53a" id="r_a5bd57fef47291f470fada41686aac53a"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a5bd57fef47291f470fada41686aac53a">gmt_file_strict_check</a></td></tr>
 <tr class="separator:a5bd57fef47291f470fada41686aac53a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad204c533660938f04fb842a7b6341027" id="r_ad204c533660938f04fb842a7b6341027"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#ad204c533660938f04fb842a7b6341027">rds_file_strict_check</a></td></tr>
+<tr class="separator:ad204c533660938f04fb842a7b6341027"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04925279d99322a9a41c33f091d400e9" id="r_a04925279d99322a9a41c33f091d400e9"><td class="memItemLeft" align="right" valign="top">chihaya::Options&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtakane_1_1Options.html#a04925279d99322a9a41c33f091d400e9">delayed_array_options</a></td></tr>
 <tr class="separator:a04925279d99322a9a41c33f091d400e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -416,6 +418,21 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Whether to parallelize reading from disk and parsing, when available. </p>
+
+</div>
+</div>
+<a id="ad204c533660938f04fb842a7b6341027" name="ad204c533660938f04fb842a7b6341027"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad204c533660938f04fb842a7b6341027">&#9670;&#160;</a></span>rds_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::Options::rds_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Application-specific function to check the validity of a RDS file and its indices in <code><a class="el" href="namespacetakane_1_1rds__file.html#ab27e77b38f937d6e332b28ada6694250">rds_file::validate()</a></code>. This should accept a path to the directory containing the RDS file, the object metadata and additional reading options. It should throw an error if the RDS file is not valid, e.g., corrupted file, mismatched indices. </p>
 
 </div>
 </div>

@@ -19,12 +19,13 @@ var searchData=
   ['takane_3a_3agmt_5ffile_16',['gmt_file',['../namespacetakane_1_1gmt__file.html',1,'takane']]],
   ['takane_3a_3amulti_5fsample_5fdataset_17',['multi_sample_dataset',['../namespacetakane_1_1multi__sample__dataset.html',1,'takane']]],
   ['takane_3a_3aranged_5fsummarized_5fexperiment_18',['ranged_summarized_experiment',['../namespacetakane_1_1ranged__summarized__experiment.html',1,'takane']]],
-  ['takane_3a_3asequence_5finformation_19',['sequence_information',['../namespacetakane_1_1sequence__information.html',1,'takane']]],
-  ['takane_3a_3asequence_5fstring_5fset_20',['sequence_string_set',['../namespacetakane_1_1sequence__string__set.html',1,'takane']]],
-  ['takane_3a_3asimple_5flist_21',['simple_list',['../namespacetakane_1_1simple__list.html',1,'takane']]],
-  ['takane_3a_3asingle_5fcell_5fexperiment_22',['single_cell_experiment',['../namespacetakane_1_1single__cell__experiment.html',1,'takane']]],
-  ['takane_3a_3aspatial_5fexperiment_23',['spatial_experiment',['../namespacetakane_1_1spatial__experiment.html',1,'takane']]],
-  ['takane_3a_3astring_5ffactor_24',['string_factor',['../namespacetakane_1_1string__factor.html',1,'takane']]],
-  ['takane_3a_3asummarized_5fexperiment_25',['summarized_experiment',['../namespacetakane_1_1summarized__experiment.html',1,'takane']]],
-  ['takane_3a_3avcf_5fexperiment_26',['vcf_experiment',['../namespacetakane_1_1vcf__experiment.html',1,'takane']]]
+  ['takane_3a_3ards_5ffile_19',['rds_file',['../namespacetakane_1_1rds__file.html',1,'takane']]],
+  ['takane_3a_3asequence_5finformation_20',['sequence_information',['../namespacetakane_1_1sequence__information.html',1,'takane']]],
+  ['takane_3a_3asequence_5fstring_5fset_21',['sequence_string_set',['../namespacetakane_1_1sequence__string__set.html',1,'takane']]],
+  ['takane_3a_3asimple_5flist_22',['simple_list',['../namespacetakane_1_1simple__list.html',1,'takane']]],
+  ['takane_3a_3asingle_5fcell_5fexperiment_23',['single_cell_experiment',['../namespacetakane_1_1single__cell__experiment.html',1,'takane']]],
+  ['takane_3a_3aspatial_5fexperiment_24',['spatial_experiment',['../namespacetakane_1_1spatial__experiment.html',1,'takane']]],
+  ['takane_3a_3astring_5ffactor_25',['string_factor',['../namespacetakane_1_1string__factor.html',1,'takane']]],
+  ['takane_3a_3asummarized_5fexperiment_26',['summarized_experiment',['../namespacetakane_1_1summarized__experiment.html',1,'takane']]],
+  ['takane_3a_3avcf_5fexperiment_27',['vcf_experiment',['../namespacetakane_1_1vcf__experiment.html',1,'takane']]]
 ];
