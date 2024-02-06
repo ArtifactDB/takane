@@ -1,8 +1,13 @@
 <map id="takane/gmt_file.hpp" name="takane/gmt_file.hpp">
-<area shape="rect" id="node1" title="Validation for GMT files." alt="" coords="255,5,389,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,79,105,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="130,79,258,104"/>
-<area shape="rect" id="node4" title=" " alt="" coords="282,79,362,104"/>
-<area shape="rect" id="node5" title=" " alt="" coords="387,79,465,104"/>
-<area shape="rect" id="node6" title=" " alt="" coords="489,79,544,104"/>
+<area shape="rect" id="Node000001" title="Validation for GMT files." alt="" coords="254,5,387,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,105,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="276,34,115,77,114,72,275,29"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="129,79,256,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="300,34,229,73,226,69,297,29"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="281,79,360,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="323,31,323,63,318,63,318,31"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="384,79,462,105"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="339,29,395,68,392,72,336,34"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="486,79,539,105"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="354,29,472,73,470,78,352,34"/>
 </map>

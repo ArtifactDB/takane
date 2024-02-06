@@ -1,10 +1,23 @@
 <map id="takane/summarized_experiment.hpp" name="takane/summarized_experiment.hpp">
-<area shape="rect" id="node1" title="Validation for summarized experiments." alt="" coords="168,5,397,31"/>
-<area shape="rect" id="node2" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,174,168,199"/>
-<area shape="rect" id="node4" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="115,255,245,280"/>
-<area shape="rect" id="node5" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="263,328,404,353"/>
-<area shape="rect" id="node6" href="$ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="320,79,501,119"/>
-<area shape="rect" id="node7" href="$single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="414,167,541,207"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="116,401,244,427"/>
-<area shape="rect" id="node8" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="421,255,619,280"/>
+<area shape="rect" id="Node000001" title="Validation for summarized experiments." alt="" coords="168,5,396,31"/>
+<area shape="rect" id="Node000002" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,175,167,201"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,42,197,81,141,133,99,177,95,173,137,129,194,77,248,37"/>
+<area shape="rect" id="Node000004" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="114,256,245,282"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="274,46,187,257,182,255,269,44"/>
+<area shape="rect" id="Node000005" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="263,330,403,356"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="289,46,333,329,328,330,284,47"/>
+<area shape="rect" id="Node000006" href="$ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="320,79,500,120"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="315,37,380,76,377,81,313,41"/>
+<area shape="rect" id="Node000007" href="$single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="413,168,538,208"/>
+<area shape="poly" id="edge13_Node000001_Node000007" title=" " alt="" coords="390,32,465,50,495,62,515,77,523,101,519,125,508,149,494,169,490,166,503,146,514,124,518,101,511,81,493,67,464,55,388,37"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="116,404,243,429"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="91,216,96,248,105,281,120,317,139,351,173,402,168,405,134,353,115,319,99,283,90,249,85,217"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="182,298,182,403,177,403,177,298"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="294,365,207,405,204,401,292,360"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="402,135,339,330,334,329,397,134"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="436,131,463,166,458,169,432,134"/>
+<area shape="poly" id="edge10_Node000007_Node000005" title=" " alt="" coords="446,222,411,258,345,332,341,328,407,255,443,218"/>
+<area shape="rect" id="Node000008" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="421,256,618,282"/>
+<area shape="poly" id="edge11_Node000007_Node000008" title=" " alt="" coords="496,221,515,254,510,257,491,223"/>
+<area shape="poly" id="edge12_Node000008_Node000005" title=" " alt="" coords="474,290,365,332,364,327,473,285"/>
 </map>

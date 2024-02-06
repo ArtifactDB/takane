@@ -1,6 +1,10 @@
 <map id="takane/sequence_string_set.hpp" name="takane/sequence_string_set.hpp">
-<area shape="rect" id="node1" title="Validation for sequence string sets." alt="" coords="71,5,231,45"/>
-<area shape="rect" id="node2" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,93,136,119"/>
-<area shape="rect" id="node4" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,93,301,119"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="87,167,215,192"/>
+<area shape="rect" id="Node000001" title="Validation for sequence string sets." alt="" coords="71,5,230,46"/>
+<area shape="rect" id="Node000002" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="5,94,136,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,59,85,95,81,91,118,55"/>
+<area shape="rect" id="Node000004" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="160,94,301,120"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="183,55,220,91,216,95,179,59"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="87,168,214,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="97,128,139,165,135,169,94,132"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="207,132,166,169,162,165,204,128"/>
 </map>

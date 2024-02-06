@@ -1,7 +1,13 @@
 <map id="takane/bumpy_data_frame_array.hpp" name="takane/bumpy_data_frame_array.hpp">
-<area shape="rect" id="node1" title="Validation for bumpy data frame matrices." alt="" coords="170,5,345,45"/>
-<area shape="rect" id="node2" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,93,168,119"/>
-<area shape="rect" id="node4" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="192,93,323,119"/>
-<area shape="rect" id="node5" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="347,93,488,119"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="193,167,321,192"/>
+<area shape="rect" id="Node000001" title="Validation for bumpy data frame matrices." alt="" coords="168,5,343,46"/>
+<area shape="rect" id="Node000002" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,94,167,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,55,113,96,111,91,198,50"/>
+<area shape="rect" id="Node000004" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="190,94,321,120"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="258,62,258,93,253,93,253,62"/>
+<area shape="rect" id="Node000005" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="345,94,486,120"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="310,51,392,91,390,96,308,56"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="192,168,319,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="130,124,227,165,225,170,128,129"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="258,135,258,167,253,167,253,135"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="376,129,284,170,282,165,373,124"/>
 </map>

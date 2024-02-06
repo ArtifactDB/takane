@@ -1,7 +1,13 @@
 <map id="takane/vcf_experiment.hpp" name="takane/vcf_experiment.hpp">
-<area shape="rect" id="node1" title="Validation for VCF&#45;based experiments." alt="" coords="169,5,346,31"/>
-<area shape="rect" id="node2" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,79,168,104"/>
-<area shape="rect" id="node4" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="192,79,323,104"/>
-<area shape="rect" id="node5" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="347,79,488,104"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="193,152,321,177"/>
+<area shape="rect" id="Node000001" title="Validation for VCF&#45;based experiments." alt="" coords="167,5,344,31"/>
+<area shape="rect" id="Node000002" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,79,167,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,40,116,81,114,76,211,35"/>
+<area shape="rect" id="Node000004" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="190,79,321,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="258,46,258,79,253,79,253,46"/>
+<area shape="rect" id="Node000005" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="345,79,486,105"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="297,35,389,76,387,81,295,40"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="192,153,319,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="130,109,227,150,225,155,128,114"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="258,120,258,152,253,152,253,120"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="376,114,284,155,282,150,373,109"/>
 </map>

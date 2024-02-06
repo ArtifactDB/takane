@@ -1,14 +1,27 @@
 <map id="takane/_derived_from.hpp" name="takane/_derived_from.hpp">
-<area shape="rect" id="node1" title="Check for derived object relationships." alt="" coords="87,5,257,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,79,109,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="35,152,146,177"/>
-<area shape="rect" id="node4" title=" " alt="" coords="170,152,225,177"/>
-<area shape="rect" id="node5" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="411,79,522,104"/>
-<area shape="rect" id="node6" title=" " alt="" coords="375,152,455,177"/>
-<area shape="rect" id="node7" title=" " alt="" coords="479,152,558,177"/>
-<area shape="rect" id="node8" title=" " alt="" coords="583,152,655,177"/>
-<area shape="rect" id="node9" title=" " alt="" coords="679,152,823,177"/>
-<area shape="rect" id="node10" title=" " alt="" coords="847,152,982,177"/>
-<area shape="rect" id="node11" title=" " alt="" coords="1007,152,1145,177"/>
-<area shape="rect" id="node12" title=" " alt="" coords="249,152,351,177"/>
+<area shape="rect" id="Node000001" title="Check for derived object relationships." alt="" coords="87,5,257,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,109,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,34,91,73,88,68,151,29"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="37,153,147,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,33,108,140,103,138,163,30"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="170,153,224,178"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,31,195,137,190,138,171,32"/>
+<area shape="rect" id="Node000005" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="407,79,518,105"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="222,29,399,72,397,77,220,34"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="407,106,162,153,161,148,406,101"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="415,108,239,155,238,149,414,103"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="372,153,451,178"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="456,106,431,141,427,138,452,103"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="476,153,553,178"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="473,103,499,138,494,142,469,106"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="577,153,649,178"/>
+<area shape="poly" id="edge9_Node000005_Node000008" title=" " alt="" coords="489,103,575,143,572,148,487,108"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="673,153,817,178"/>
+<area shape="poly" id="edge10_Node000005_Node000009" title=" " alt="" coords="511,103,683,146,681,151,510,108"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="841,153,974,178"/>
+<area shape="poly" id="edge11_Node000005_Node000010" title=" " alt="" coords="518,99,826,148,825,154,517,105"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="999,153,1136,178"/>
+<area shape="poly" id="edge12_Node000005_Node000011" title=" " alt="" coords="518,96,984,150,983,155,518,102"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="248,153,349,178"/>
+<area shape="poly" id="edge13_Node000005_Node000012" title=" " alt="" coords="436,108,341,149,339,144,433,103"/>
 </map>

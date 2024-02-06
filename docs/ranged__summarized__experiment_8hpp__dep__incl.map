@@ -1,7 +1,13 @@
 <map id="takane/ranged_summarized_experiment.hpp" name="takane/ranged_summarized_experiment.hpp">
-<area shape="rect" id="node1" title="Validation for ranged summarized experiments." alt="" coords="5,5,187,45"/>
-<area shape="rect" id="node2" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="25,255,167,280"/>
-<area shape="rect" id="node4" href="$single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="83,93,210,133"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="32,328,160,353"/>
-<area shape="rect" id="node5" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="133,181,331,207"/>
+<area shape="rect" id="Node000001" title="Validation for ranged summarized experiments." alt="" coords="5,5,186,46"/>
+<area shape="rect" id="Node000002" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="27,256,167,282"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,61,74,94,72,141,77,187,95,255,90,257,72,188,66,141,69,94,78,60"/>
+<area shape="rect" id="Node000004" href="$single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="83,94,209,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="117,58,137,92,132,95,112,61"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="33,330,161,356"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,297,100,330,94,330,94,297"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="136,150,125,183,103,257,98,255,120,182,131,148"/>
+<area shape="rect" id="Node000005" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="135,183,331,208"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="181,143,221,180,218,184,177,147"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="198,218,121,258,119,253,195,213"/>
 </map>

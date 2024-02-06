@@ -1,5 +1,7 @@
 <map id="takane/multi_sample_dataset.hpp" name="takane/multi_sample_dataset.hpp">
-<area shape="rect" id="node1" title="Validation for multi&#45;sample datasets." alt="" coords="5,5,148,45"/>
-<area shape="rect" id="node2" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="6,93,147,119"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="13,167,141,192"/>
+<area shape="rect" id="Node000001" title="Validation for multi&#45;sample datasets." alt="" coords="5,5,147,46"/>
+<area shape="rect" id="Node000002" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="6,94,146,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="79,62,79,93,73,93,73,62"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="12,168,140,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="79,135,79,167,73,167,73,135"/>
 </map>

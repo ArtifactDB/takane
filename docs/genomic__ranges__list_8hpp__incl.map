@@ -1,15 +1,30 @@
 <map id="takane/genomic_ranges_list.hpp" name="takane/genomic_ranges_list.hpp">
-<area shape="rect" id="node1" title="Validation for genomic ranges lists." alt="" coords="207,5,367,45"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,167,77,192"/>
-<area shape="rect" id="node3" title=" " alt="" coords="101,167,181,192"/>
-<area shape="rect" id="node4" title=" " alt="" coords="425,93,503,119"/>
-<area shape="rect" id="node5" title=" " alt="" coords="206,167,261,192"/>
-<area shape="rect" id="node6" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="290,93,401,119"/>
-<area shape="rect" id="node13" title=" " alt="" coords="527,93,699,119"/>
-<area shape="rect" id="node7" title=" " alt="" coords="733,167,843,192"/>
-<area shape="rect" id="node8" title=" " alt="" coords="867,167,946,192"/>
-<area shape="rect" id="node9" title=" " alt="" coords="971,167,1115,192"/>
-<area shape="rect" id="node10" title=" " alt="" coords="285,167,419,192"/>
-<area shape="rect" id="node11" title=" " alt="" coords="444,167,583,192"/>
-<area shape="rect" id="node12" title=" " alt="" coords="607,167,708,192"/>
+<area shape="rect" id="Node000001" title="Validation for genomic ranges lists." alt="" coords="204,5,363,46"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,168,77,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="254,49,74,161,71,157,251,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="101,168,181,193"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="268,48,165,158,161,154,264,44"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="421,94,498,120"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="329,44,420,85,418,90,327,49"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="205,168,258,193"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="280,47,243,154,238,152,275,45"/>
+<area shape="rect" id="Node000006" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="287,94,398,120"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="300,45,326,80,322,83,296,48"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="522,94,693,120"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="364,44,544,87,542,92,363,49"/>
+<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="291,123,93,170,91,164,290,118"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="309,123,191,165,189,159,307,118"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="325,122,265,161,262,157,322,118"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="726,168,836,193"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="398,115,409,117,711,164,710,170,409,122,398,120"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="860,168,937,193"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="398,115,409,117,530,131,626,139,722,148,845,165,844,170,721,153,625,144,530,137,409,122,398,121"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="961,168,1105,193"/>
+<area shape="poly" id="edge11_Node000006_Node000009" title=" " alt="" coords="398,115,409,117,558,134,676,142,794,150,946,165,946,170,794,156,675,148,558,139,409,122,398,121"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="282,168,416,193"/>
+<area shape="poly" id="edge12_Node000006_Node000010" title=" " alt="" coords="346,120,349,152,344,152,341,120"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="440,168,578,193"/>
+<area shape="poly" id="edge13_Node000006_Node000011" title=" " alt="" coords="372,118,468,159,466,164,370,123"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="602,168,702,193"/>
+<area shape="poly" id="edge14_Node000006_Node000012" title=" " alt="" coords="396,118,587,162,586,167,395,123"/>
 </map>

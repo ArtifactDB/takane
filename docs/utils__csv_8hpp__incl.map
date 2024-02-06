@@ -1,10 +1,17 @@
 <map id="takane/utils_csv.hpp" name="takane/utils_csv.hpp">
-<area shape="rect" id="node1" title="Utilities for parsing CSVs." alt="" coords="475,5,616,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,79,133,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="158,79,365,104"/>
-<area shape="rect" id="node4" title=" " alt="" coords="389,79,493,104"/>
-<area shape="rect" id="node5" title=" " alt="" coords="518,79,573,104"/>
-<area shape="rect" id="node6" title=" " alt="" coords="597,79,675,104"/>
-<area shape="rect" id="node7" title=" " alt="" coords="700,79,759,104"/>
-<area shape="rect" id="node8" title=" " alt="" coords="783,79,851,104"/>
+<area shape="rect" id="Node000001" title="Utilities for parsing CSVs." alt="" coords="471,5,611,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,133,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="471,33,149,81,148,76,470,27"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="157,79,362,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="494,34,323,77,322,72,493,29"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="387,79,490,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="525,34,470,72,466,68,522,29"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="514,79,568,105"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="544,31,544,63,538,63,538,31"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="592,79,669,105"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="558,29,605,67,602,71,554,34"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="694,79,751,105"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="573,29,680,71,678,76,571,34"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="775,79,843,105"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="587,29,761,75,760,80,586,34"/>
 </map>

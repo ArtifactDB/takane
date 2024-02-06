@@ -7,7 +7,8 @@ var searchData=
   ['csvfieldcreator_4',['CsvFieldCreator',['../structtakane_1_1CsvFieldCreator.html',1,'takane']]],
   ['custom_5fderived_5ffrom_5',['custom_derived_from',['../structtakane_1_1Options.html#a7d8b3bc37a1544eff48798b06a33b386',1,'takane::Options']]],
   ['custom_5fdimensions_6',['custom_dimensions',['../structtakane_1_1Options.html#a627a97a5ca7a102246602baab3909906',1,'takane::Options']]],
-  ['custom_5fheight_7',['custom_height',['../structtakane_1_1Options.html#a321321c382dea1b04b415f9f3c86f727',1,'takane::Options']]],
-  ['custom_5fsatisfies_5finterface_8',['custom_satisfies_interface',['../structtakane_1_1Options.html#a2cec04779533c0397f05e38c5bf9d226',1,'takane::Options']]],
-  ['custom_5fvalidate_9',['custom_validate',['../structtakane_1_1Options.html#af7a851d46a6a1795a461640f44bd3220',1,'takane::Options']]]
+  ['custom_5fglobal_5fvalidate_7',['custom_global_validate',['../structtakane_1_1Options.html#abfeb32c5f4c75326e44ea6eebd51eb9c',1,'takane::Options']]],
+  ['custom_5fheight_8',['custom_height',['../structtakane_1_1Options.html#a321321c382dea1b04b415f9f3c86f727',1,'takane::Options']]],
+  ['custom_5fsatisfies_5finterface_9',['custom_satisfies_interface',['../structtakane_1_1Options.html#a2cec04779533c0397f05e38c5bf9d226',1,'takane::Options']]],
+  ['custom_5fvalidate_10',['custom_validate',['../structtakane_1_1Options.html#af7a851d46a6a1795a461640f44bd3220',1,'takane::Options']]]
 ];

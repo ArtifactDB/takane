@@ -1,6 +1,10 @@
 <map id="takane/single_cell_experiment.hpp" name="takane/single_cell_experiment.hpp">
-<area shape="rect" id="node1" title="Validation for single cell experiments." alt="" coords="13,5,139,45"/>
-<area shape="rect" id="node2" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="5,167,147,192"/>
-<area shape="rect" id="node4" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="45,93,243,119"/>
-<area shape="rect" id="node3" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="12,240,140,265"/>
+<area shape="rect" id="Node000001" title="Validation for single cell experiments." alt="" coords="13,5,138,46"/>
+<area shape="rect" id="Node000002" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="5,168,146,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="51,59,36,88,33,104,35,119,49,145,66,166,61,169,44,148,30,120,28,104,31,87,46,57"/>
+<area shape="rect" id="Node000004" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="45,94,242,120"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="104,56,135,92,131,95,100,60"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="12,241,139,267"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="78,209,78,241,73,241,73,209"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="124,133,89,169,85,165,120,129"/>
 </map>

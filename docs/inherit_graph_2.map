@@ -1,4 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structtakane_1_1CsvFieldCreator.html" title="Create comservatory::Field objects to capture column contents." alt="" coords="5,5,165,31"/>
-<area shape="rect" id="node2" href="$structtakane_1_1DummyCsvFieldCreator.html" title="Dummy column creator." alt="" coords="213,5,417,31"/>
+<area shape="rect" id="Node000000" href="$structtakane_1_1CsvFieldCreator.html" title="Create comservatory::Field objects to capture column contents." alt="" coords="5,5,165,31"/>
+<area shape="rect" id="Node000001" href="$structtakane_1_1DummyCsvFieldCreator.html" title="Dummy column creator." alt="" coords="213,5,416,31"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="180,16,212,16,212,21,180,21"/>
 </map>
