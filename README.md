@@ -65,7 +65,8 @@ Currently, **takane** provides validators for the following objects:
 - `sequence_string_set`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/sequence_string_set/1.0.md).
 - `simple_list`:
-  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/simple_list/1.0.md).
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/simple_list/1.0.md),
+  [1.1](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/simple_list/1.1.md).
 - `single_cell_experiment`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/single_cell_experiment/1.0.md).
 - `spatial_experiment`:

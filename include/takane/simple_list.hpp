@@ -123,7 +123,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unknown format '" + format + "'");
     }
 
-    if (version.ge(1, 1)) {
+    if (version.ge(1, 1, 0)) {
         auto len_info = internal::extract_length(metamap);
         if (len_info.first) {
             if (len_info.second != len) {
