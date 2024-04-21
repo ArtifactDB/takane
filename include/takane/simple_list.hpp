@@ -141,13 +141,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  */
 inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
     const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, "simple_list");
-    std::string format = internal::extract_format(metamap);
 
     auto len_info = internal::extract_length(metamap);
     if (len_info.first) {
         return len_info.second;
     }
 
+    std::string format = internal::extract_format(metamap);
     if (format == "hdf5") {
         auto handle = ritsuko::hdf5::open_file(path / "list_contents.h5");
         auto lhandle = handle.openGroup("simple_list");
