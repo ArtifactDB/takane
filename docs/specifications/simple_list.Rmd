@@ -18,7 +18,7 @@ This is based on an ordinary R list.
 
 The `OBJECT` file should contain a `simple_list` property, itself a JSON object with the following properties:
 
-- `version`, a string specifying the version of the `fasta_file` format.
+- `version`, a string specifying the version of the `simple_list` format.
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
