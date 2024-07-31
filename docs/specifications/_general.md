@@ -78,6 +78,7 @@ Known interfaces are listed below:
   Any number of assays are allowed.
   Any object may be used as an assay, as long as it has at least 2 dimensions with extents equal to that of the object itself.
   The row and column data should satisfy the `DATA_FRAME` interface, and should have number of rows equal to the number of rows or columns, respectively, of the object itself.
+- `IMAGE`: an image of arbitrary format.
 
 Different object types that satisfy the same object interface may not have the same on-disk representation.
 For example, a `vcf_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface but has a completely different on-disk representation from a `summarized_experiment`. 

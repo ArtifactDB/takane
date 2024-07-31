@@ -58,21 +58,41 @@ This file should contain a `spatial_experiment` group, which contains the follow
 - `image_formats`, a 1-dimensional string dataset specifying the format for each image.
   This should have the same length as `image_samples`.
   The datatype should be representable by a UTF-8 encoded string.
-  Values should be either `"PNG"` or `"TIFF"`.
+```{r, results="asis", echo=FALSE}
+if (.version >= package_version("1.1")) {
+    cat('  Values should be either `"PNG"`, `"TIFF"` or `"OTHER"`.')
+} else {
+    cat('  Values should be either `"PNG"` or `"TIFF"`.')
+}
+```
 - `image_scale_factor`, a 1-dimensional dataset containing the scaling factor for each image.
   This should have the same length as `image_samples`.
   The datatype of this dataset is representable by a 64-bit float.
   Each value should be positive; multiplying the coordinates in `coordinates` by the scaling factor converts them into pixel coordinates in the corresponding image.
 
 The number of images is determined from the length of `image_samples` in the `images/mapping.h5` file.
-Each image should be stored in an image file inside the `images` subdirectory, named after its positional index, e.g., `0` for the first image, `1` for the second image.
+```{r, results="asis", echo=FALSE}
+if (.version >= package_version("1.1")) {
+    cat("Each image should be represented by a file or directory inside the `images` subdirectory, named after its positional index, e.g., `0` for the first image, `1` for the second image.
 The exact name is determined from `image_formats`:
 
-- For PNG files, a `.png` file extension should be added.
-- For PNG files, a `.tif` file extension should be added.
+- For PNG images, a `.png` file extension should be added.
+  Thus, the full name of the file would look like `0.png` for the first image, `1.png` for the second image, and so on.
+- For TIFF images, a `.tif` file extension should be added.
+  Thus, the full name of the file would look like `0.tif` for the first image, `1.tif` for the second image, and so on.
+- For OTHER images, the positional index is directly used as the directory name inside `images`.
+  This directory should contain a child object that satisfies the `IMAGE` interface.")
+} else {
+    cat("Each image should be represented by a file inside the `images` subdirectory, named after its positional index, e.g., `0` for the first image, `1` for the second image.
+The exact name is determined from `image_formats`:
+
+- For PNG images, a `.png` file extension should be added.
+- For TIFF images, a `.tif` file extension should be added.
 
 Thus, the full name of the files would look like `0.png` for the first image, `1.tif` for the second image, and so on depending on the format.
-Each image file should start with the magic numbers for the expected format.
+Each image file should start with the magic numbers for its expected format.")
+}
+```
 
 ## Height
 

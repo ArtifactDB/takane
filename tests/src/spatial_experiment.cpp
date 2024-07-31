@@ -284,6 +284,69 @@ TEST_F(SpatialExperimentTest, ImageFormats) {
     expect_error("not currently supported");
 }
 
+TEST_F(SpatialExperimentTest, OtherImageFormats) {
+    spatial_experiment::Options options(20, 19);
+    options.num_samples = 2;
+    options.num_images_per_sample = 7;
+    spatial_experiment::mock(dir, options);
+
+    // Bumping the version so we actually get support for OTHER image types.
+    {
+        auto opath = dir / "OBJECT";
+        auto parsed = millijson::parse_file(opath.c_str());
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("spatial_experiment"));
+        spatial_experiment::add_object_metadata(parsed.get(), "1.1");
+        json_utils::dump(parsed.get(), opath);
+    }
+
+    size_t num_images = options.num_samples * options.num_images_per_sample;
+    {
+        H5::H5File handle(dir / "images" / "mapping.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("spatial_experiment");
+        ghandle.unlink("image_formats");
+        std::vector<std::string> replacement(num_images, "OTHER");
+        hdf5_utils::spawn_string_data(ghandle, "image_formats", H5T_VARIABLE, replacement);
+    }
+
+    {
+        auto idir = dir / "images";
+        for (const auto & entry : std::filesystem::directory_iterator(idir)) {
+            if (entry.path().filename() != "mapping.h5") {
+                std::filesystem::remove(entry.path());
+            }
+        }
+
+        for (size_t i = 0; i < num_images; ++i) {
+            auto ipath = idir / std::to_string(i);
+            std::filesystem::remove(ipath);
+            std::filesystem::create_directory(ipath);
+
+            auto optr = new millijson::Object;
+            std::shared_ptr<millijson::Base> contents(optr);
+            optr->values["type"] = std::shared_ptr<millijson::Base>(new millijson::String("some_image_class"));
+            optr->values["version"] = std::shared_ptr<millijson::Base>(new millijson::String("1.0"));
+            json_utils::dump(contents.get(), ipath / "OBJECT");
+        }
+    }
+    expect_error("satisfy the 'IMAGE' interface");
+
+    takane::Options vopt;
+    vopt.custom_satisfies_interface["IMAGE"].insert("some_image_class");
+    EXPECT_ANY_THROW({
+        try {
+            test_validate(dir, vopt);
+        } catch (std::exception& e) {
+            EXPECT_THAT(e.what(), ::testing::HasSubstr("no registered"));
+            throw;
+        }
+    });
+
+    // Mocking up a no-op function for our new class.
+    vopt.custom_validate["some_image_class"] = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) -> void {};
+    test_validate(dir, vopt);
+}
+
 TEST_F(SpatialExperimentTest, ImageSignature) {
     spatial_experiment::Options options(20, 19);
     options.num_samples = 1;
