@@ -144,8 +144,20 @@ TEST_F(SpatialExperimentTest, NoImages) {
     options.num_samples = 3;
     options.num_images_per_sample = 0;
     spatial_experiment::mock(dir, options);
+
     std::filesystem::remove_all(dir / "images");
     EXPECT_FALSE(std::filesystem::exists(dir / "images"));
+
+    // Bumping the version to support no images/ subdirectory.
+    {
+        auto opath = dir / "OBJECT";
+        auto parsed = millijson::parse_file(opath.c_str());
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("spatial_experiment"));
+        spatial_experiment::add_object_metadata(parsed.get(), "1.2");
+        json_utils::dump(parsed.get(), opath);
+    }
+
     test_validate(dir); 
 }
 

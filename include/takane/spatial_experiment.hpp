@@ -112,7 +112,7 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
 
 inline void validate_images(const std::filesystem::path& path, size_t ncols, Options& options, const ritsuko::Version& version) {
     auto image_dir = path / "images";
-    if (!std::filesystem::exists(image_dir)) {
+    if (!std::filesystem::exists(image_dir) && version.ge(1, 2, 0)) {
         // No images at all, which is permitted.
         return;
     }
