@@ -71,7 +71,8 @@ Currently, **takane** provides validators for the following objects:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/single_cell_experiment/1.0.md).
 - `spatial_experiment`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.0.md),
-  [1.1](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.1.md).
+  [1.1](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.1.md),
+  [1.2](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.2.md).
 - `string_factor`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/string_factor/1.0.md).
 - `summarized_experiment`:
