@@ -4,7 +4,7 @@ listings <- list.files(pattern="\\.Rmd$")
 default <- "1.0"
 known.variants <- list(
     simple_list.Rmd="1.1",
-    spatial_experiment.Rmd="1.1"
+    spatial_experiment.Rmd=c("1.1", "1.2")
 )
 
 dest <- "compiled"

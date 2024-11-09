@@ -139,6 +139,16 @@ TEST_F(SpatialExperimentTest, ColumnSamples) {
     expect_error("equal the number of columns");
 }
 
+TEST_F(SpatialExperimentTest, NoImages) {
+    spatial_experiment::Options options(20, 19);
+    options.num_samples = 3;
+    options.num_images_per_sample = 0;
+    spatial_experiment::mock(dir, options);
+    std::filesystem::remove_all(dir / "images");
+    EXPECT_FALSE(std::filesystem::exists(dir / "images"));
+    test_validate(dir); 
+}
+
 TEST_F(SpatialExperimentTest, ImageSamples) {
     spatial_experiment::Options options(20, 19);
     options.num_samples = 3;
