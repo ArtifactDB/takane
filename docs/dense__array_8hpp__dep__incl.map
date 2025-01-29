@@ -1,8 +1,8 @@
 <map id="takane/dense_array.hpp" name="takane/dense_array.hpp">
-<area shape="rect" id="Node000001" title="Validation for dense arrays." alt="" coords="176,5,335,31"/>
+<area shape="rect" id="Node000001" title="Validation for dense arrays." alt="" coords="176,5,334,31"/>
 <area shape="rect" id="Node000002" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,79,167,105"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,40,116,81,114,76,211,35"/>
-<area shape="rect" id="Node000004" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="190,79,321,105"/>
+<area shape="rect" id="Node000004" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="190,79,320,105"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="258,46,258,79,253,79,253,46"/>
 <area shape="rect" id="Node000005" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="345,79,486,105"/>
 <area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="297,35,389,76,387,81,295,40"/>

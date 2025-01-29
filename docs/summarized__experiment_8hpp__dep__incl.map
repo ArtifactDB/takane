@@ -2,9 +2,9 @@
 <area shape="rect" id="Node000001" title="Validation for summarized experiments." alt="" coords="168,5,396,31"/>
 <area shape="rect" id="Node000002" href="$__dimensions_8hpp.html" title="Dispatch to functions for the object&#39;s dimensions." alt="" coords="5,175,167,201"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,42,197,81,141,133,99,177,95,173,137,129,194,77,248,37"/>
-<area shape="rect" id="Node000004" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="114,256,245,282"/>
+<area shape="rect" id="Node000004" href="$__height_8hpp.html" title="Dispatch to functions for the object&#39;s height." alt="" coords="114,256,244,282"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="274,46,187,257,182,255,269,44"/>
-<area shape="rect" id="Node000005" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="263,330,403,356"/>
+<area shape="rect" id="Node000005" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="262,330,403,356"/>
 <area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="289,46,333,329,328,330,284,47"/>
 <area shape="rect" id="Node000006" href="$ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="320,79,500,120"/>
 <area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="315,37,380,76,377,81,313,41"/>

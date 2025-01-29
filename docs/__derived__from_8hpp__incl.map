@@ -1,8 +1,8 @@
 <map id="takane/_derived_from.hpp" name="takane/_derived_from.hpp">
-<area shape="rect" id="Node000001" title="Check for derived object relationships." alt="" coords="87,5,257,31"/>
+<area shape="rect" id="Node000001" title="Check for derived object relationships." alt="" coords="86,5,257,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,109,105"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,34,91,73,88,68,151,29"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="37,153,147,178"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="36,153,147,178"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,33,108,140,103,138,163,30"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="170,153,224,178"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,31,195,137,190,138,171,32"/>
@@ -22,6 +22,6 @@
 <area shape="poly" id="edge11_Node000005_Node000010" title=" " alt="" coords="518,99,826,148,825,154,517,105"/>
 <area shape="rect" id="Node000011" title=" " alt="" coords="999,153,1136,178"/>
 <area shape="poly" id="edge12_Node000005_Node000011" title=" " alt="" coords="518,96,984,150,983,155,518,102"/>
-<area shape="rect" id="Node000012" title=" " alt="" coords="248,153,349,178"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="248,153,348,178"/>
 <area shape="poly" id="edge13_Node000005_Node000012" title=" " alt="" coords="436,108,341,149,339,144,433,103"/>
 </map>
