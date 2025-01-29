@@ -65,7 +65,7 @@ if (.version >= package_version("1.1")) {
     cat('  Values should be either `"PNG"` or `"TIFF"`.')
 }
 ```
-- `image_scale_factor`, a 1-dimensional dataset containing the scaling factor for each image.
+- `image_scale_factors`, a 1-dimensional dataset containing the scaling factor for each image.
   This should have the same length as `image_samples`.
   The datatype of this dataset is representable by a 64-bit float.
   Each value should be positive; multiplying the coordinates in `coordinates` by the scaling factor converts them into pixel coordinates in the corresponding image.
