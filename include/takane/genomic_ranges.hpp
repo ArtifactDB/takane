@@ -93,7 +93,8 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, Op
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& other_obj = internal_json::extract_object(metadata.other, "genomic_ranges");
+    std::string foo("genomic_ranges");
+    const auto& other_obj = internal_json::extract_object(metadata.other, foo);
     const auto& vstring = internal_json::extract_string(other_obj, "version");
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
