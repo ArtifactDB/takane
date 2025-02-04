@@ -94,6 +94,11 @@ inline const std::string& extract_version_for_type(const JsonObjectMap& x, const
     return extract_version_for_type(x, type2);
 }
 
+inline const std::string& extract_typed_object_from_metadata(const JsonObjectMap& x, const char* type) {
+    std::string type2(type);
+    return extract_typed_object_from_metadata(x, type2);
+}
+
 }
 
 }
