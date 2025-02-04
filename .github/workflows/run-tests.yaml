@@ -31,7 +31,7 @@ jobs:
           }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Get latest CMake
       uses: lukka/get-cmake@latest
@@ -73,6 +73,8 @@ jobs:
 
     - name: Upload to Codecov
       if: ${{ matrix.config.cov }}
-      uses: codecov/codecov-action@v2.1.0
+      uses: codecov/codecov-action@v5
       with:
         directory: build/tests/CMakeFiles/
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

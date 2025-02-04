@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Compile markdown
       run: |
@@ -24,7 +24,7 @@ jobs:
         R -f _build.R
 
     - name: Upload markdown
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: built-spec
         path: docs/specifications/compiled
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-spec
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Add Pretty CSS
       uses: wei/wget@v1
@@ -49,7 +49,7 @@ jobs:
       run: sudo chmod 777 docs/html
 
     - name: Download markdown
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: built-spec
         path: docs/html/specifications
