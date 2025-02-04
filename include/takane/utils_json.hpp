@@ -89,9 +89,20 @@ inline const std::string& extract_version_for_type(const JsonObjectMap& x, const
 
 // Overloads to avoid false positive dangling-reference warnings from GCC 13+.
 // See https://stackoverflow.com/questions/78759847/gcc-14-possibly-dangling-reference-to-a-temporary-warning-or-not-depending-on for comments.
-inline const std::string& extract_version_for_type(const JsonObjectMap& x, const char* type) {
+inline const JsonObjectMap& extract_object(const JsonObjectMap& x, const char* name) {
+    std::string name2(name);
+    return extract_object(x, name2);
+}
+
+template<class Function_>
+const std::string& extract_string(const JsonObjectMap& x, const char* name, Function_ rethrow) {
+    std::string name2(name);
+    return extract_string(x, name2, std::move(rethrow));
+}
+
+inline const JsonObjectMap& extract_typed_object_from_metadata(const JsonObjectMap& x, const char* type) {
     std::string type2(type);
-    return extract_version_for_type(x, type2);
+    return extract_typed_object_from_metadata(x, type2);
 }
 
 inline const std::string& extract_string_from_typed_object(const JsonObjectMap& x, const char* name, const char* type) {
@@ -100,9 +111,9 @@ inline const std::string& extract_string_from_typed_object(const JsonObjectMap& 
     return extract_string_from_typed_object(x, name2, type2);
 }
 
-inline const JsonObjectMap& extract_typed_object_from_metadata(const JsonObjectMap& x, const char* type) {
+inline const std::string& extract_version_for_type(const JsonObjectMap& x, const char* type) {
     std::string type2(type);
-    return extract_typed_object_from_metadata(x, type2);
+    return extract_version_for_type(x, type2);
 }
 
 }
