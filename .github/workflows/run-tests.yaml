@@ -49,14 +49,6 @@ jobs:
         sudo apt-get install libhdf5-dev
         cmake -S . -B build -DCODE_COVERAGE=ON
 
-    - name: Configure the build
-      if: ${{ ! matrix.config.cov }}
-      run: cmake -S . -B build
-
-    - name: Configure the build with coverage
-      if: ${{ matrix.config.cov }}
-      run: cmake -S . -B build -DCODE_COVERAGE=ON
-
     - name: Run the build
       run: cmake --build build
 
