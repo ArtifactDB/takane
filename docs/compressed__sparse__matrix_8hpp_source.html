@@ -241,63 +241,64 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>}</div>
 <div class="foldopen" id="foldopen00168" data-start="{" data-end="}">
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno"><a class="line" href="namespacetakane_1_1compressed__sparse__matrix.html#aba6f6e02562554ed6e727c1565f029dd">  168</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1compressed__sparse__matrix.html#aba6f6e02562554ed6e727c1565f029dd">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vstring = internal_json::extract_version_for_type(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span>);</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    }</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;matrix.h5&quot;</span>);</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span>);</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">auto</span> layout = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, <span class="stringliteral">&quot;layout&quot;</span>);</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordtype">size_t</span> primary = 0;</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordflow">if</span> (layout == <span class="stringliteral">&quot;CSC&quot;</span>) {</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>        primary = 1;</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (layout != <span class="stringliteral">&quot;CSR&quot;</span>) {</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;layout&#39; attribute must be one of &#39;CSC&#39; or &#39;CSR&#39;&quot;</span>);</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    }</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keyword">auto</span> shape = internal::validate_shape(ghandle, options);</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordtype">size_t</span> num_nonzero = internal::validate_data(ghandle, options);</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keyword">auto</span> indptrs = internal::validate_indptrs(ghandle, shape[primary], num_nonzero);</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    internal::validate_indices(ghandle, indptrs, shape[1 - primary], options);</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordflow">if</span> (ghandle.exists(<span class="stringliteral">&quot;names&quot;</span>)) {</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>        std::vector&lt;hsize_t&gt; dims(shape.begin(), shape.end());</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>        internal_array::check_dimnames(ghandle, <span class="stringliteral">&quot;names&quot;</span>, dims, options);</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    }</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>}</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vstring = internal_json::extract_version_for_type(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    }</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;matrix.h5&quot;</span>);</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keyword">auto</span> layout = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, <span class="stringliteral">&quot;layout&quot;</span>);</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordtype">size_t</span> primary = 0;</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordflow">if</span> (layout == <span class="stringliteral">&quot;CSC&quot;</span>) {</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>        primary = 1;</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (layout != <span class="stringliteral">&quot;CSR&quot;</span>) {</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;layout&#39; attribute must be one of &#39;CSC&#39; or &#39;CSR&#39;&quot;</span>);</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    }</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span> </div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keyword">auto</span> shape = internal::validate_shape(ghandle, options);</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordtype">size_t</span> num_nonzero = internal::validate_data(ghandle, options);</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keyword">auto</span> indptrs = internal::validate_indptrs(ghandle, shape[primary], num_nonzero);</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    internal::validate_indices(ghandle, indptrs, shape[1 - primary], options);</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordflow">if</span> (ghandle.exists(<span class="stringliteral">&quot;names&quot;</span>)) {</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>        std::vector&lt;hsize_t&gt; dims(shape.begin(), shape.end());</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>        internal_array::check_dimnames(ghandle, <span class="stringliteral">&quot;names&quot;</span>, dims, options);</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    }</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>}</div>
 </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
-<div class="foldopen" id="foldopen00202" data-start="{" data-end="}">
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno"><a class="line" href="namespacetakane_1_1compressed__sparse__matrix.html#a5046da5f8217fa6cd0392596b3e0f307">  202</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1compressed__sparse__matrix.html#a5046da5f8217fa6cd0392596b3e0f307">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;matrix.h5&quot;</span>);</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span>);</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keyword">auto</span> shandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;shape&quot;</span>);</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    std::array&lt;uint64_t, 2&gt; output;</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    shandle.read(output.data(), H5::PredType::NATIVE_UINT64);</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordflow">return</span> output.front();</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>}</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="foldopen" id="foldopen00203" data-start="{" data-end="}">
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno"><a class="line" href="namespacetakane_1_1compressed__sparse__matrix.html#a5046da5f8217fa6cd0392596b3e0f307">  203</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1compressed__sparse__matrix.html#a5046da5f8217fa6cd0392596b3e0f307">height</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;matrix.h5&quot;</span>);</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span>);</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keyword">auto</span> shandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;shape&quot;</span>);</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    std::array&lt;uint64_t, 2&gt; output;</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    shandle.read(output.data(), H5::PredType::NATIVE_UINT64);</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordflow">return</span> output.front();</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>}</div>
 </div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
-<div class="foldopen" id="foldopen00217" data-start="{" data-end="}">
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno"><a class="line" href="namespacetakane_1_1compressed__sparse__matrix.html#a0c70aa2596036f1a9c602a10e589cc2c">  217</a></span><span class="keyword">inline</span> std::vector&lt;size_t&gt; <a class="code hl_function" href="namespacetakane_1_1compressed__sparse__matrix.html#a0c70aa2596036f1a9c602a10e589cc2c">dimensions</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;matrix.h5&quot;</span>);</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span>);</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keyword">auto</span> shandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;shape&quot;</span>);</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    std::array&lt;uint64_t, 2&gt; output;</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    shandle.read(output.data(), H5::PredType::NATIVE_UINT64);</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="keywordflow">return</span> std::vector&lt;size_t&gt;(output.begin(), output.end());</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>}</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
+<div class="foldopen" id="foldopen00218" data-start="{" data-end="}">
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno"><a class="line" href="namespacetakane_1_1compressed__sparse__matrix.html#a0c70aa2596036f1a9c602a10e589cc2c">  218</a></span><span class="keyword">inline</span> std::vector&lt;size_t&gt; <a class="code hl_function" href="namespacetakane_1_1compressed__sparse__matrix.html#a0c70aa2596036f1a9c602a10e589cc2c">dimensions</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, [[maybe_unused]] <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keyword">auto</span> handle = ritsuko::hdf5::open_file(path / <span class="stringliteral">&quot;matrix.h5&quot;</span>);</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keyword">auto</span> ghandle = ritsuko::hdf5::open_group(handle, <span class="stringliteral">&quot;compressed_sparse_matrix&quot;</span>);</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keyword">auto</span> shandle = ritsuko::hdf5::open_dataset(ghandle, <span class="stringliteral">&quot;shape&quot;</span>);</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    std::array&lt;uint64_t, 2&gt; output;</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    shandle.read(output.data(), H5::PredType::NATIVE_UINT64);</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">return</span> std::vector&lt;size_t&gt;(output.begin(), output.end());</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>}</div>
 </div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>}</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>}</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_1_1compressed__sparse__matrix_html_a0c70aa2596036f1a9c602a10e589cc2c"><div class="ttname"><a href="namespacetakane_1_1compressed__sparse__matrix.html#a0c70aa2596036f1a9c602a10e589cc2c">takane::compressed_sparse_matrix::dimensions</a></div><div class="ttdeci">std::vector&lt; size_t &gt; dimensions(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> compressed_sparse_matrix.hpp:217</div></div>
-<div class="ttc" id="anamespacetakane_1_1compressed__sparse__matrix_html_a5046da5f8217fa6cd0392596b3e0f307"><div class="ttname"><a href="namespacetakane_1_1compressed__sparse__matrix.html#a5046da5f8217fa6cd0392596b3e0f307">takane::compressed_sparse_matrix::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> compressed_sparse_matrix.hpp:202</div></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>}</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>}</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_1_1compressed__sparse__matrix_html_a0c70aa2596036f1a9c602a10e589cc2c"><div class="ttname"><a href="namespacetakane_1_1compressed__sparse__matrix.html#a0c70aa2596036f1a9c602a10e589cc2c">takane::compressed_sparse_matrix::dimensions</a></div><div class="ttdeci">std::vector&lt; size_t &gt; dimensions(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> compressed_sparse_matrix.hpp:218</div></div>
+<div class="ttc" id="anamespacetakane_1_1compressed__sparse__matrix_html_a5046da5f8217fa6cd0392596b3e0f307"><div class="ttname"><a href="namespacetakane_1_1compressed__sparse__matrix.html#a5046da5f8217fa6cd0392596b3e0f307">takane::compressed_sparse_matrix::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> compressed_sparse_matrix.hpp:203</div></div>
 <div class="ttc" id="anamespacetakane_1_1compressed__sparse__matrix_html_aba6f6e02562554ed6e727c1565f029dd"><div class="ttname"><a href="namespacetakane_1_1compressed__sparse__matrix.html#aba6f6e02562554ed6e727c1565f029dd">takane::compressed_sparse_matrix::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> compressed_sparse_matrix.hpp:168</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition</b> _derived_from.hpp:15</div></div>
 <div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition</b> utils_public.hpp:26</div></div>

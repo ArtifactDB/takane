@@ -110,43 +110,45 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
 <div class="foldopen" id="foldopen00033" data-start="{" data-end="}">
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="namespacetakane_1_1bed__file.html#a92c94c700a1550d416f12a31a20b6c17">   33</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1bed__file.html#a92c94c700a1550d416f12a31a20b6c17">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; bedmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, <span class="stringliteral">&quot;bed_file&quot;</span>);</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(bedmap, <span class="stringliteral">&quot;version&quot;</span>, <span class="stringliteral">&quot;bed_file&quot;</span>);</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    }</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">// Check if it&#39;s indexed.</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">bool</span> indexed = internal_files::is_indexed(bedmap);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keyword">auto</span> fpath = path / <span class="stringliteral">&quot;file.bed.&quot;</span>;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordflow">if</span> (indexed) {</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        fpath += <span class="stringliteral">&quot;bgz&quot;</span>;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        fpath += <span class="stringliteral">&quot;gz&quot;</span>;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    }</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    internal_files::check_gzip_signature(fpath);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;bed_file&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; bedmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">const</span> std::string version_name = <span class="stringliteral">&quot;version&quot;</span>; <span class="comment">// again, avoid dangling reference warnings.</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(bedmap, version_name, type_name);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    }</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="comment">// Check if it&#39;s indexed.</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">bool</span> indexed = internal_files::is_indexed(bedmap);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keyword">auto</span> fpath = path / <span class="stringliteral">&quot;file.bed.&quot;</span>;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordflow">if</span> (indexed) {</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        fpath += <span class="stringliteral">&quot;bgz&quot;</span>;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        fpath += <span class="stringliteral">&quot;gz&quot;</span>;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    }</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">if</span> (indexed) {</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keyword">auto</span> ixpath = fpath;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        internal_files::check_gzip_signature(ixpath);</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    }</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordflow">if</span> (options.bed_file_strict_check) {</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        options.bed_file_strict_check(path, metadata, options, indexed);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    }</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>}</div>
-</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    internal_files::check_gzip_signature(fpath);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">if</span> (indexed) {</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keyword">auto</span> ixpath = fpath;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        ixpath += <span class="stringliteral">&quot;.tbi&quot;</span>;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        internal_files::check_gzip_signature(ixpath);</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        internal_files::check_signature&lt;byteme::GzipFileReader&gt;(ixpath, <span class="stringliteral">&quot;TBI\1&quot;</span>, 4, <span class="stringliteral">&quot;tabix&quot;</span>);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">if</span> (options.bed_file_strict_check) {</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        options.bed_file_strict_check(path, metadata, options, indexed);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    }</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>}</div>
+</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>}</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>}</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_1_1bed__file_html_a92c94c700a1550d416f12a31a20b6c17"><div class="ttname"><a href="namespacetakane_1_1bed__file.html#a92c94c700a1550d416f12a31a20b6c17">takane::bed_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> bed_file.hpp:33</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition</b> _derived_from.hpp:15</div></div>
 <div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition</b> utils_public.hpp:26</div></div>
