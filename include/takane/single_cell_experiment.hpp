@@ -46,9 +46,11 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     auto sedims = ::takane::summarized_experiment::dimensions(path, metadata, options);
     size_t num_cols = sedims[1];
 
-    const auto& scemap = internal_json::extract_typed_object_from_metadata(metadata.other, "single_cell_experiment");
+    const std::string type_name = "single_cell_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& scemap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(scemap, "version", "single_cell_experiment");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(scemap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

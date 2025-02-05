@@ -234,7 +234,8 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, Opt
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
     ::takane::single_cell_experiment::validate(path, metadata, options);
 
-    const std::string& vstring = internal_json::extract_version_for_type(metadata.other, "spatial_experiment");
+    const std::string type_name = "spatial_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const std::string& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

@@ -30,14 +30,15 @@ namespace atomic_vector {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, "atomic_vector");
+    const std::string type_name = "atomic_vector"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "atomic_vector");
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
     auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "values");
     auto vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
     auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");

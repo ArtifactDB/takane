@@ -31,7 +31,8 @@ namespace bcf_file {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const std::string& vstring = internal_json::extract_version_for_type(metadata.other, "bcf_file");
+    const std::string type_name = "bcf_file"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const std::string& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

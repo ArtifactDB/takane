@@ -31,9 +31,11 @@ namespace bed_file {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    const auto& bedmap = internal_json::extract_typed_object_from_metadata(metadata.other, "bed_file");
+    const std::string type_name = "bed_file"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& bedmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(bedmap, "version", "bed_file");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(bedmap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
