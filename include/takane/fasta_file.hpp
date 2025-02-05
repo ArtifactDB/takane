@@ -30,15 +30,17 @@ namespace fasta_file {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& famap = internal_json::extract_typed_object_from_metadata(metadata.other, "fasta_file");
+    const std::string type_name = "fasta_file"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& famap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(famap, "version", "fasta_file");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(famap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    internal_files::check_sequence_type(famap, "fasta_file");
+    internal_files::check_sequence_type(famap, type_name.c_str());
 
     // Check if it's indexed.
     bool indexed = internal_files::is_indexed(famap);

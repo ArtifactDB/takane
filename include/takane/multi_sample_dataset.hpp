@@ -39,9 +39,11 @@ namespace multi_sample_dataset {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& dmap = internal_json::extract_typed_object_from_metadata(metadata.other, "multi_sample_dataset");
+    const std::string type_name = "multi_sample_dataset"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& dmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(dmap, "version", "multi_sample_dataset");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(dmap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -96,7 +98,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     if (num_columns.size() > 0) {
         try {
             auto handle = ritsuko::hdf5::open_file(path / "sample_map.h5");
-            auto ghandle = ritsuko::hdf5::open_group(handle, "multi_sample_dataset");
+            auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
 
             for (size_t e = 0, end = num_columns.size(); e < end; ++e) {
                 auto ename = std::to_string(e);

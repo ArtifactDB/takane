@@ -30,14 +30,15 @@ namespace string_factor {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    auto vstring = internal_json::extract_version_for_type(metadata.other, "string_factor");
+    const std::string type_name = "string_factor"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "string_factor");
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
     internal_factor::check_ordered_attribute(ghandle);
 
     size_t num_levels = internal_factor::validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);

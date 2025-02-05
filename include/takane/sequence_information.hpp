@@ -31,14 +31,15 @@ namespace sequence_information {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    auto vstring = internal_json::extract_version_for_type(metadata.other, "sequence_information");
+    const std::string type_name = "sequence_information"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "info.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "sequence_information");
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
 
     size_t nseq = 0;
     {

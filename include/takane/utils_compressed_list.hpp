@@ -46,7 +46,7 @@ inline hsize_t validate_group(const H5::Group& handle, size_t concatenated_lengt
 
 template<bool satisfies_interface_>
 void validate_directory(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const ObjectMetadata& metadata, Options& options) try {
-    auto vstring = internal_json::extract_version_for_type(metadata.other, object_type);
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, object_type);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

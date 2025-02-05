@@ -212,8 +212,11 @@ size_t parse_names(const std::filesystem::path& path) {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, "sequence_string_set");
-    const auto& vstring = internal_json::extract_string_from_typed_object(obj, "version", "sequence_string_set");
+    const std::string type_name = "sequence_string_set"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
+
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const auto& vstring = internal_json::extract_string_from_typed_object(obj, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -242,8 +245,9 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     std::array<bool, 255> allowed;
     std::fill(allowed.begin(), allowed.end(), false);
     {
-        const std::string& stype = internal_json::extract_string(obj, "sequence_type", [&](std::exception& e) -> void {
-            throw std::runtime_error("failed to extract 'sequence_string_set.sequence_type' from the object metadata; " + std::string(e.what())); 
+        const std::string stype_name = "sequence_type"; // avoid dangling reference again.
+        const std::string& stype = internal_json::extract_string(obj, stype_name, [&](std::exception& e) -> void {
+            throw std::runtime_error("failed to extract 'sequence_string_set." + stype_name + "' from the object metadata; " + std::string(e.what())); 
         });
 
         std::string allowable;
@@ -259,7 +263,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         } else if (stype == "custom") {
             std::fill(allowed.begin() + internal::char2int('!'), allowed.begin() + internal::char2int('~') + 1, true);
         } else {
-            throw std::runtime_error("invalid string '" + stype + "' in the 'sequence_string_set.sequence_type' property");
+            throw std::runtime_error("invalid string '" + stype + "' in the 'sequence_string_set." + stype_name + "' property");
         }
 
         for (auto a : allowable) {

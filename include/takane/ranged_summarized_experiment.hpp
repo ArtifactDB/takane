@@ -41,9 +41,11 @@ namespace ranged_summarized_experiment {
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
     ::takane::summarized_experiment::validate(path, metadata, options);
 
-    const auto& rsemap = internal_json::extract_typed_object_from_metadata(metadata.other, "ranged_summarized_experiment");
+    const std::string type_name = "ranged_summarized_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& rsemap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(rsemap, "version", "ranged_summarized_experiment");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(rsemap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

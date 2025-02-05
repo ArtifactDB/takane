@@ -29,21 +29,24 @@ namespace fastq_file {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    const auto& fqmap = internal_json::extract_typed_object_from_metadata(metadata.other, "fastq_file");
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+    const std::string type_name = "fastq_file"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& fqmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(fqmap, "version", "fastq_file");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(fqmap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    internal_files::check_sequence_type(fqmap, "fastq_file");
+    internal_files::check_sequence_type(fqmap, type_name.c_str());
 
     // Checking the quality type and offset.
     {
-        const std::string& qtype = internal_json::extract_string(fqmap, "quality_type", [&](std::exception& e) -> void {
-            throw std::runtime_error("failed to extract 'fastq_file.quality_type' from the object metadata; " + std::string(e.what())); 
+        const std::string qtype_name = "quality_type"; // again, avoid dangling reference warnings.
+        const std::string& qtype = internal_json::extract_string(fqmap, qtype_name, [&](std::exception& e) -> void {
+            throw std::runtime_error("failed to extract 'fastq_file." + qtype_name + "' from the object metadata; " + std::string(e.what())); 
         });
 
         if (qtype == "phred") {
@@ -62,7 +65,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
                 throw std::runtime_error("'fastq_file.quality_offset' property should be either 33 or 64");
             }
         } else if (qtype != "solexa") {
-            throw std::runtime_error("unknown value '" + qtype + "' for the 'fastq_file.quality_type' property");
+            throw std::runtime_error("unknown value '" + qtype + "' for the 'fastq_file." + qtype_name + "' property");
         }
     }
 

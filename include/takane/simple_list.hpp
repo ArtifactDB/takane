@@ -72,9 +72,11 @@ inline std::pair<bool, size_t> extract_length(const internal_json::JsonObjectMap
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, "simple_list");
+    const std::string type_name = "simple_list"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(metamap, "version", "simple_list");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(metamap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -115,7 +117,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     } else if (format == "hdf5") {
         auto handle = ritsuko::hdf5::open_file(path / "list_contents.h5");
-        auto ghandle = ritsuko::hdf5::open_group(handle, "simple_list");
+        auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
         auto loaded = uzuki2::hdf5::parse<uzuki2::DummyProvisioner>(ghandle, uzuki2::DummyExternals(num_external));
         len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
 

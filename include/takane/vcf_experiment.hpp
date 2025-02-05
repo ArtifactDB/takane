@@ -185,9 +185,11 @@ std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path,
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, "vcf_experiment");
+    const std::string type_name = "vcf_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(vcfmap, "version", "vcf_experiment");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(vcfmap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

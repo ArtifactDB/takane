@@ -42,16 +42,18 @@ namespace summarized_experiment {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& semap = internal_json::extract_typed_object_from_metadata(metadata.other, "summarized_experiment");
+    const std::string type_name = "summarized_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& semap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string& vstring = internal_json::extract_string_from_typed_object(semap, "version", "summarized_experiment");
+    const std::string version_name = "version"; // again, avoid dangling reference warnings.
+    const std::string& vstring = internal_json::extract_string_from_typed_object(semap, version_name, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
     // Validating the dimensions.
-    auto dims = internal_summarized_experiment::extract_dimensions_json(semap, "summarized_experiment");
+    auto dims = internal_summarized_experiment::extract_dimensions_json(semap, type_name);
     size_t num_rows = dims.first;
     size_t num_cols = dims.second;
 

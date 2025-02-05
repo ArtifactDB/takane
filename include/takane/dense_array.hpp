@@ -58,7 +58,8 @@ inline bool is_transposed(const H5::Group& ghandle) {
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    auto vstring = internal_json::extract_version_for_type(metadata.other, "dense_array");
+    const std::string type_name = "dense_array"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version '" + vstring + "'");

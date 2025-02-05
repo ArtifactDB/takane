@@ -51,14 +51,15 @@ struct SequenceLimits {
 };
 
 inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, Options& options) {
+    const std::string type_name = "sequence_information";
     auto smeta = read_object_metadata(path);
-    if (!derived_from(smeta.type, "sequence_information", options)) {
+    if (!derived_from(smeta.type, type_name, options)) {
         throw std::runtime_error("'sequence_information' directory should contain a 'sequence_information' object");
     }
     ::takane::validate(path, smeta, options);
 
     auto handle = ritsuko::hdf5::open_file(path / "info.h5");
-    auto ghandle = handle.openGroup("sequence_information");
+    auto ghandle = handle.openGroup(type_name.c_str());
 
     auto lhandle = ghandle.openDataSet("length");
     auto num_seq = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false);
@@ -93,7 +94,8 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, Op
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, "genomic_ranges");
+    const std::string type_name = "genomic_ranges"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
@@ -105,7 +107,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     // Now loading all three components.
     auto handle = ritsuko::hdf5::open_file(path / "ranges.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "genomic_ranges");
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
     auto id_handle = ritsuko::hdf5::open_dataset(ghandle, "sequence");
     auto num_ranges = ritsuko::hdf5::get_1d_length(id_handle, false);
     if (ritsuko::hdf5::exceeds_integer_limit(id_handle, 64, false)) {
