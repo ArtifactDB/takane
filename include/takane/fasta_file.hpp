@@ -40,7 +40,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    internal_files::check_sequence_type(famap, type_name);
+    internal_files::check_sequence_type(famap, type_name.c_str());
 
     // Check if it's indexed.
     bool indexed = internal_files::is_indexed(famap);

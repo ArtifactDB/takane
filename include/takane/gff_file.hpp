@@ -41,7 +41,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     auto fpath = path / "file.";
-    const std::string format_name = "format";
+    const std::string format_name = "format"; // again, avoid dangling reference warnings.
     const std::string& fstring = internal_json::extract_string_from_typed_object(gffmap, format_name, type_name);
     if (fstring == "GFF2") {
         fpath += "gff2";

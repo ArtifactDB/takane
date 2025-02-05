@@ -59,7 +59,7 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, Op
     ::takane::validate(path, smeta, options);
 
     auto handle = ritsuko::hdf5::open_file(path / "info.h5");
-    auto ghandle = handle.openGroup(type_name);
+    auto ghandle = handle.openGroup(type_name.c_str());
 
     auto lhandle = ghandle.openDataSet("length");
     auto num_seq = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false);
@@ -107,7 +107,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     // Now loading all three components.
     auto handle = ritsuko::hdf5::open_file(path / "ranges.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
     auto id_handle = ritsuko::hdf5::open_dataset(ghandle, "sequence");
     auto num_ranges = ritsuko::hdf5::get_1d_length(id_handle, false);
     if (ritsuko::hdf5::exceeds_integer_limit(id_handle, 64, false)) {

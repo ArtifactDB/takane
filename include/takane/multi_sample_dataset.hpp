@@ -98,7 +98,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     if (num_columns.size() > 0) {
         try {
             auto handle = ritsuko::hdf5::open_file(path / "sample_map.h5");
-            auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+            auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
 
             for (size_t e = 0, end = num_columns.size(); e < end; ++e) {
                 auto ename = std::to_string(e);

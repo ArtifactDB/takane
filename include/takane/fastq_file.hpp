@@ -40,11 +40,11 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    internal_files::check_sequence_type(fqmap, type_name);
+    internal_files::check_sequence_type(fqmap, type_name.c_str());
 
     // Checking the quality type and offset.
     {
-        const std::string qtype_name = "quality_type";
+        const std::string qtype_name = "quality_type"; // again, avoid dangling reference warnings.
         const std::string& qtype = internal_json::extract_string(fqmap, qtype_name, [&](std::exception& e) -> void {
             throw std::runtime_error("failed to extract 'fastq_file." + qtype_name + "' from the object metadata; " + std::string(e.what())); 
         });

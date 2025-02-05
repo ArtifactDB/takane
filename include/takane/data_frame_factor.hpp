@@ -73,7 +73,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
     size_t num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
 
     internal_other::validate_mcols(path, "element_annotations", num_codes, options);

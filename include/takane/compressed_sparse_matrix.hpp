@@ -166,7 +166,7 @@ inline void validate_indices(const H5::Group& handle, const std::vector<uint64_t
  * @param options Validation options.
  */
 inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const std::string type_name = "compressed_sparse_matrix";
+    const std::string type_name = "compressed_sparse_matrix"; // use a separate variable to avoid dangling reference warnings from GCC.
     const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
@@ -174,7 +174,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
     auto layout = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "layout");
     size_t primary = 0;
     if (layout == "CSC") {

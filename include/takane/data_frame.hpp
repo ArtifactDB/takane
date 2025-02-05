@@ -166,7 +166,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "basic_columns.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
 
     // Checking the number of rows.
     auto attr = ritsuko::hdf5::open_scalar_attribute(ghandle, "row-count");

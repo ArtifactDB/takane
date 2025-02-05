@@ -39,7 +39,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "info.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
 
     size_t nseq = 0;
     {

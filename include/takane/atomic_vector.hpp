@@ -38,7 +38,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
     auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "values");
     auto vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
     auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");

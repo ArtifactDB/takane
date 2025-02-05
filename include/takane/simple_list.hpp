@@ -117,7 +117,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     } else if (format == "hdf5") {
         auto handle = ritsuko::hdf5::open_file(path / "list_contents.h5");
-        auto ghandle = ritsuko::hdf5::open_group(handle, type_name);
+        auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
         auto loaded = uzuki2::hdf5::parse<uzuki2::DummyProvisioner>(ghandle, uzuki2::DummyExternals(num_external));
         len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
 
