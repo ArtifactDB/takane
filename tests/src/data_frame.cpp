@@ -159,7 +159,7 @@ TEST_F(Hdf5DataFrameTest, Data) {
         auto fhandle = dhandle.createGroup("0");
         hdf5_utils::attach_attribute(fhandle, "type", "something");
     }
-    expect_error("expected HDF5 groups");
+    expect_error("unsupported type");
 
     {
         auto handle = reopen();
