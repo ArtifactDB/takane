@@ -290,3 +290,113 @@ INSTANTIATE_TEST_SUITE_P(
     DenseArrayStringCheckTest,
     ::testing::Values(2, 5, 10, 20, 100) // buffer size.
 );
+
+TEST_F(DenseArrayTest, Vls) {
+    std::string heap = "abcdefghijklmno";
+    std::vector<size_t> expected_dimensions { 3, 4 };
+
+    {
+        initialize_directory_simple(dir, "dense_array", "1.1");
+        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dense_array");
+        hdf5_utils::attach_attribute(ghandle, "type", "vls");
+
+        const unsigned char* hptr = reinterpret_cast<const unsigned char*>(heap.c_str());
+        hsize_t hlen = heap.size();
+        H5::DataSpace hspace(1, &hlen);
+        auto hhandle = ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
+        hhandle.write(hptr, H5::PredType::NATIVE_UCHAR);
+
+        std::vector<ritsuko::hdf5::vls::Pointer<uint64_t, uint64_t> > pointers(expected_dimensions[0] * expected_dimensions[1]);
+        for (size_t i = 0; i < pointers.size(); ++i) {
+            pointers[i].offset = i; 
+            pointers[i].length = 1;
+        }
+        std::vector<hsize_t> pdims(expected_dimensions.begin(), expected_dimensions.end());
+        H5::DataSpace pspace(2, pdims.data());
+        auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<uint64_t, uint64_t>();
+        auto phandle = ghandle.createDataSet("pointers", ptype, pspace);
+        phandle.write(pointers.data(), ptype);
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_dimensions(dir), expected_dimensions);
+
+    // Adding a missing value placeholder.
+    {
+        {
+            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup("dense_array");
+            auto dhandle = ghandle.openDataSet("pointers");
+            dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
+        }
+        test_validate(dir);
+
+        // Adding the wrong missing value placeholder.
+        {
+            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup("dense_array");
+            auto dhandle = ghandle.openDataSet("pointers");
+            dhandle.removeAttr("missing-value-placeholder");
+            dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT, H5S_SCALAR);
+        }
+        expect_error("same type class");
+
+        // Removing for the next checks.
+        {
+            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup("dense_array");
+            auto dhandle = ghandle.openDataSet("pointers");
+            dhandle.removeAttr("missing-value-placeholder");
+        }
+    }
+
+    // Checking that this only works in the latest version.
+    {
+        auto opath = dir/"OBJECT";
+        auto parsed = millijson::parse_file(opath.c_str());
+        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        auto& av_entries = reinterpret_cast<millijson::Object*>(entries["dense_array"].get())->values;
+        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value = "1.0";
+        json_utils::dump(parsed.get(), opath);
+
+        expect_error("unsupported type");
+
+        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value = "1.1";
+        json_utils::dump(parsed.get(), opath);
+    }
+
+    // Shortening the heap to check that we perform bounds checks on the pointers.
+    {
+        {
+            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup("dense_array");
+            ghandle.unlink("heap");
+            hsize_t zero = 0;
+            H5::DataSpace hspace(1, &zero);
+            ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
+        }
+        expect_error("out of range");
+    }
+
+    // Checking that we check for 64-bit unsigned integer types. 
+    {
+        {
+            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
+            auto ghandle = handle.openGroup("dense_array");
+            ghandle.unlink("pointers");
+
+            std::vector<ritsuko::hdf5::vls::Pointer<int, int> > pointers(expected_dimensions[0] * expected_dimensions[1]);
+            for (auto& p : pointers) {
+                p.offset = 0;
+                p.length = 0;
+            }
+            std::vector<hsize_t> pdims(expected_dimensions.begin(), expected_dimensions.end());
+            H5::DataSpace pspace(2, pdims.data());
+            auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<int, int>();
+            auto phandle = ghandle.createDataSet("pointers", ptype, pspace);
+            phandle.write(pointers.data(), ptype);
+        }
+        expect_error("64-bit unsigned integer");
+    }
+}

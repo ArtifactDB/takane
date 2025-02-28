@@ -3,6 +3,9 @@ library(knitr)
 listings <- list.files(pattern="\\.Rmd$")
 default <- "1.0"
 known.variants <- list(
+    atomic_vector.Rmd="1.1",
+    dense_array.Rmd="1.1",
+    data_frame.Rmd="1.1",
     simple_list.Rmd="1.1",
     spatial_experiment.Rmd=c("1.1", "1.2")
 )

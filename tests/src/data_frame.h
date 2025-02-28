@@ -48,10 +48,6 @@ inline void mock(H5::Group& handle, hsize_t num_rows, const std::vector<data_fra
     auto attr = handle.createAttribute("row-count", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
     attr.write(H5::PredType::NATIVE_HSIZE, &num_rows);
 
-    H5::StrType stype(0, H5T_VARIABLE);
-    auto attr2 = handle.createAttribute("version", stype, H5S_SCALAR);
-    attr2.write(stype, std::string("1.0"));
-
     auto ghandle = handle.createGroup("data");
     size_t NC = columns.size();
     for (size_t c = 0; c < NC; ++c) {

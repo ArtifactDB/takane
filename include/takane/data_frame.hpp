@@ -4,6 +4,7 @@
 #include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
 #include "ritsuko/hdf5/hdf5.hpp"
+#include "ritsuko/hdf5/vls/vls.hpp"
 
 #include <cstdint>
 #include <string>
@@ -84,21 +85,51 @@ inline hsize_t validate_column_names(const H5::Group& ghandle, const Options& op
     throw std::runtime_error("failed to validate the column names for '" + ritsuko::hdf5::get_name(ghandle) + "'; " + std::string(e.what()));
 }
 
-inline void validate_column(const H5::Group& dhandle, const std::string& dset_name, hsize_t num_rows, const Options& options) try { 
+inline void validate_column(const H5::Group& dhandle, const std::string& dset_name, hsize_t num_rows, const ritsuko::Version& version, const Options& options) try { 
     auto dtype = dhandle.childObjType(dset_name);
     if (dtype == H5O_TYPE_GROUP) {
-        auto fhandle = dhandle.openGroup(dset_name);
-        auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(fhandle, "type");
-        if (type != "factor") {
-            throw std::runtime_error("expected HDF5 groups to have a 'type' attribute set to 'factor'");
-        }
+        auto ghandle = dhandle.openGroup(dset_name);
+        auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
 
-        internal_factor::check_ordered_attribute(fhandle);
+        if (type == "factor") {
+            internal_factor::check_ordered_attribute(ghandle);
+            auto num_levels = internal_factor::validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);
+            auto num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size);
+            if (num_codes != num_rows) {
+                throw std::runtime_error("expected column to have length equal to the number of rows");
+            }
 
-        auto num_levels = internal_factor::validate_factor_levels(fhandle, "levels", options.hdf5_buffer_size);
-        auto num_codes = internal_factor::validate_factor_codes(fhandle, "codes", num_levels, options.hdf5_buffer_size);
-        if (num_codes != num_rows) {
-            throw std::runtime_error("expected column to have length equal to the number of rows");
+        } else if (type == "vls") {
+            if (version.lt(1, 1, 0)) {
+                throw std::runtime_error("unsupported type '" + type + "'");
+            }
+
+            auto phandle = ritsuko::hdf5::vls::open_pointers(ghandle, "pointers", 64, 64);
+            auto vlen = ritsuko::hdf5::get_1d_length(phandle.getSpace(), false);
+            if (vlen != num_rows) {
+                throw std::runtime_error("expected column to have length equal to the number of rows");
+            }
+
+            auto hhandle = ritsuko::hdf5::vls::open_heap(ghandle, "heap");
+            auto hlen = ritsuko::hdf5::get_1d_length(hhandle.getSpace(), false);
+            ritsuko::hdf5::vls::validate_1d_array<uint64_t, uint64_t>(phandle, vlen, hlen, options.hdf5_buffer_size);
+
+            const char* missing_attr_name = "missing-value-placeholder";
+            if (phandle.attrExists(missing_attr_name)) {
+                auto attr = phandle.openAttribute(missing_attr_name);
+                { // TODO: replace the section with check_string_missing_placeholder_attribute()
+                    if (!ritsuko::hdf5::is_scalar(attr)) {
+                        throw std::runtime_error("expected the '" + ritsuko::hdf5::get_name(attr) + "' attribute to be a scalar");
+                    }
+                    if (attr.getTypeClass() != H5T_STRING) {
+                        throw std::runtime_error("expected the '" + ritsuko::hdf5::get_name(attr) + "' attribute to have the same type class as its dataset");
+                    }
+                    ritsuko::hdf5::validate_scalar_string_attribute(attr);
+                }
+            }
+
+        } else {
+            throw std::runtime_error("unsupported type '" + type + "'");
         }
 
     } else if (dtype == H5O_TYPE_DATASET) {
@@ -204,7 +235,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             }
 
         } else {
-            validate_column(dhandle, dset_name, num_rows, options);
+            validate_column(dhandle, dset_name, num_rows, version, options);
             ++num_basic;
         }
     }
