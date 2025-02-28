@@ -26,79 +26,6 @@ namespace takane {
 namespace atomic_vector {
 
 /**
- * @cond
- */
-namespace internal {
-
-inline void validate_dataset(const H5::DataSet& dhandle, hsize_t vlen, const std::string& type, hsize_t buffer_size) { 
-    const char* missing_attr_name = "missing-value-placeholder";
-
-    if (type == "string") {
-        if (!ritsuko::hdf5::is_utf8_string(dhandle)) {
-            throw std::runtime_error("expected a datatype for 'values' that can be represented by a UTF-8 encoded string");
-        }
-        auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);
-        std::string format = internal_string::fetch_format_attribute(ghandle);
-        internal_string::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, buffer_size);
-
-    } else {
-        if (type == "integer") {
-            if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
-                throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
-            }
-        } else if (type == "boolean") {
-            if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
-                throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
-            }
-        } else if (type == "number") {
-            if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
-                throw std::runtime_error("expected a datatype for 'values' that fits in a 64-bit float");
-            }
-        } else {
-            throw std::runtime_error("unsupported type '" + type + "'");
-        }
-
-        if (dhandle.attrExists(missing_attr_name)) {
-            auto missing_attr = dhandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_missing_placeholder_attribute(dhandle, missing_attr);
-        }
-    }
-
-    return vlen;
-}
-
-inline hsize_t validate_vls_array(const H5::Group& ghandle, hsize_t buffer_size) { 
-    auto phandle = ritsuko::hdf5::vls::open_pointers(ghandle, "pointers", 64, 64);
-    auto vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-    auto hhandle = ritsuko::hdf5::vls::open_heap(ghandle, "heap");
-    auto hlen = ritsuko::hdf5::get_1d_length(hhandle.getSpace(), false);
-    ritsuko::hdf5::vls::validate_1d_array<uint64_t, uint64_t>(ghandle, vlen, hlen, buffer_size);
-
-    const char* missing_attr_name = "missing-value-placeholder";
-    if (ghandle.attrExists(missing_attr)) {
-        auto attr = ghandle.openAttribute(missing_attr_name);
-
-        // TODO: replace with check_string_missing_placeholder_attribute()
-        {
-            if (!is_scalar(attr)) {
-                throw std::runtime_error("expected the '" + get_name(attr) + "' attribute to be a scalar");
-            }
-            if (attr.getTypeClass() != H5T_STRING) {
-                throw std::runtime_error("expected the '" + get_name(attr) + "' attribute to have the same type class as its dataset");
-            }
-            ritsuko::hdf5::validate_scalar_string_attribute(attr);
-        }
-    }
-
-    return vlen;
-}
-
-}
-/**
- * @endcond
- */
-
-/**
  * @param path Path to the directory containing the atomic vector.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
@@ -116,12 +43,64 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
     hsize_t vlen = 0;
 
+    const char* missing_attr_name = "missing-value-placeholder";
+
     if (version.ge(1, 1, 0) && type == "vls") {
-        vlen = internal::validate_vls_array(ghandle, options.hdf5_buffer_size);
+        auto phandle = ritsuko::hdf5::vls::open_pointers(ghandle, "pointers", 64, 64);
+        vlen = ritsuko::hdf5::get_1d_length(phandle.getSpace(), false);
+        auto hhandle = ritsuko::hdf5::vls::open_heap(ghandle, "heap");
+        auto hlen = ritsuko::hdf5::get_1d_length(hhandle.getSpace(), false);
+        ritsuko::hdf5::vls::validate_1d_array<uint64_t, uint64_t>(phandle, vlen, hlen, options.hdf5_buffer_size);
+
+        if (phandle.attrExists(missing_attr_name)) {
+            auto attr = phandle.openAttribute(missing_attr_name);
+
+            // TODO: replace the section with check_string_missing_placeholder_attribute()
+            {
+                if (!ritsuko::hdf5::is_scalar(attr)) {
+                    throw std::runtime_error("expected the '" + ritsuko::hdf5::get_name(attr) + "' attribute to be a scalar");
+                }
+                if (attr.getTypeClass() != H5T_STRING) {
+                    throw std::runtime_error("expected the '" + ritsuko::hdf5::get_name(attr) + "' attribute to have the same type class as its dataset");
+                }
+                ritsuko::hdf5::validate_scalar_string_attribute(attr);
+            }
+        }
+
     } else {
         auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "values");
         vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-        internal::validate_dataset(dhandle, vlen, type, options.hdf4_buffer_size);
+
+        if (type == "string") {
+            if (!ritsuko::hdf5::is_utf8_string(dhandle)) {
+                throw std::runtime_error("expected a datatype for 'values' that can be represented by a UTF-8 encoded string");
+            }
+            auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);
+            std::string format = internal_string::fetch_format_attribute(ghandle);
+            internal_string::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, options.hdf5_buffer_size);
+
+        } else {
+            if (type == "integer") {
+                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                    throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
+                }
+            } else if (type == "boolean") {
+                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                    throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
+                }
+            } else if (type == "number") {
+                if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
+                    throw std::runtime_error("expected a datatype for 'values' that fits in a 64-bit float");
+                }
+            } else {
+                throw std::runtime_error("unsupported type '" + type + "'");
+            }
+
+            if (dhandle.attrExists(missing_attr_name)) {
+                auto missing_attr = dhandle.openAttribute(missing_attr_name);
+                ritsuko::hdf5::check_missing_placeholder_attribute(dhandle, missing_attr);
+            }
+        }
     }
 
     internal_string::validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
