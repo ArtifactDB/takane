@@ -5,6 +5,8 @@
 #include "simple_list.h"
 #include "utils.h"
 
+#include "ritsuko/hdf5/vls/vls.hpp"
+
 #include <numeric>
 #include <string>
 #include <vector>
@@ -528,4 +530,112 @@ TEST_F(Hdf5DataFrameTest, Metadata) {
 
     simple_list::mock(odir);
     test_validate(dir);
+}
+
+TEST_F(Hdf5DataFrameTest, Vls) {
+    std::string heap = "abcdefghijklmno";
+    hsize_t nrows = 10;
+
+    {
+        initialize_directory_simple(dir, "data_frame", "1.1");
+        auto path = dir / "basic_columns.h5";
+        H5::H5File handle(std::string(path), H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup(name);
+        std::vector<data_frame::ColumnDetails> columns(1);
+        columns[0].name = "superstring";
+        data_frame::mock(ghandle, nrows, columns);
+
+        auto xhandle = ghandle.openGroup("data");
+        xhandle.unlink("0");
+        auto vhandle = xhandle.createGroup("0");
+        hdf5_utils::attach_attribute(vhandle, "type", "vls");
+
+        const unsigned char* hptr = reinterpret_cast<const unsigned char*>(heap.c_str());
+        hsize_t hlen = heap.size();
+        H5::DataSpace hspace(1, &hlen);
+        auto hhandle = vhandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
+        hhandle.write(hptr, H5::PredType::NATIVE_UCHAR);
+
+        std::vector<ritsuko::hdf5::vls::Pointer<uint64_t, uint64_t> > pointers(nrows);
+        for (size_t i = 0; i < nrows; ++i) {
+            pointers[i].offset = i; 
+            pointers[i].length = 1;
+        }
+        H5::DataSpace pspace(1, &nrows);
+        auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<uint64_t, uint64_t>();
+        auto phandle = vhandle.createDataSet("pointers", ptype, pspace);
+        phandle.write(pointers.data(), ptype);
+    }
+
+    test_validate(dir);
+
+    // Adding a missing value placeholder.
+    {
+        {
+            auto handle = reopen();
+            auto dhandle = handle.openDataSet("data_frame/data/0/pointers");
+            dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
+        }
+        test_validate(dir);
+
+        // Adding the wrong missing value placeholder.
+        {
+            auto handle = reopen();
+            auto dhandle = handle.openDataSet("data_frame/data/0/pointers");
+            dhandle.removeAttr("missing-value-placeholder");
+            dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT, H5S_SCALAR);
+        }
+        expect_error("same type class");
+
+        // Removing for the next checks.
+        {
+            auto handle = reopen();
+            auto dhandle = handle.openDataSet("data_frame/data/0/pointers");
+            dhandle.removeAttr("missing-value-placeholder");
+        }
+    }
+
+    // Checking that this only works in the latest version.
+    {
+        auto opath = dir/"OBJECT";
+        auto parsed = millijson::parse_file(opath.c_str());
+        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        auto& df_entries = reinterpret_cast<millijson::Object*>(entries["data_frame"].get())->values;
+        reinterpret_cast<millijson::String*>(df_entries["version"].get())->value = "1.0";
+        json_utils::dump(parsed.get(), opath);
+
+        expect_error("unsupported type");
+
+        reinterpret_cast<millijson::String*>(df_entries["version"].get())->value = "1.1";
+        json_utils::dump(parsed.get(), opath);
+    }
+
+    // Shortening the heap to check that we perform bounds checks on the pointers.
+    {
+        {
+            auto handle = reopen();
+            auto vhandle = handle.openGroup("data_frame/data/0");
+            vhandle.unlink("heap");
+            hsize_t zero = 0;
+            H5::DataSpace hspace(1, &zero);
+            vhandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
+        }
+        expect_error("out of range");
+    }
+
+    // Checking that we check for 64-bit unsigned integer types. 
+    {
+        {
+            auto handle = reopen();
+            auto vhandle = handle.openGroup("data_frame/data/0");
+            vhandle.unlink("pointers");
+
+            std::vector<ritsuko::hdf5::vls::Pointer<int, int> > pointers(nrows);
+            H5::DataSpace pspace(1, &nrows);
+            auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<int, int>();
+            auto phandle = vhandle.createDataSet("pointers", ptype, pspace);
+            phandle.write(pointers.data(), ptype);
+        }
+        expect_error("64-bit unsigned integer");
+    }
 }

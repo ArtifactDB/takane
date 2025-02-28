@@ -90,4 +90,4 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 include(GoogleTest)
-gtest_discover_tests(libtest)
+gtest_discover_tests(libtest DISCOVERY_MODE PRE_TEST)

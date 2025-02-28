@@ -45,7 +45,11 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     const char* missing_attr_name = "missing-value-placeholder";
 
-    if (version.ge(1, 1, 0) && type == "vls") {
+    if (type == "vls") {
+        if (version.lt(1, 1, 0)) {
+            throw std::runtime_error("unsupported type '" + type + "'");
+        }
+
         auto phandle = ritsuko::hdf5::vls::open_pointers(ghandle, "pointers", 64, 64);
         vlen = ritsuko::hdf5::get_1d_length(phandle.getSpace(), false);
         auto hhandle = ritsuko::hdf5::vls::open_heap(ghandle, "heap");
@@ -54,9 +58,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
         if (phandle.attrExists(missing_attr_name)) {
             auto attr = phandle.openAttribute(missing_attr_name);
-
-            // TODO: replace the section with check_string_missing_placeholder_attribute()
-            {
+            { // TODO: replace the section with check_string_missing_placeholder_attribute()
                 if (!ritsuko::hdf5::is_scalar(attr)) {
                     throw std::runtime_error("expected the '" + ritsuko::hdf5::get_name(attr) + "' attribute to be a scalar");
                 }

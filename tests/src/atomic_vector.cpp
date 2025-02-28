@@ -271,6 +271,21 @@ TEST_F(AtomicVectorTest, Vls) {
         }
     }
 
+    // Checking that this only works in the latest version.
+    {
+        auto opath = dir/"OBJECT";
+        auto parsed = millijson::parse_file(opath.c_str());
+        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        auto& av_entries = reinterpret_cast<millijson::Object*>(entries["atomic_vector"].get())->values;
+        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value = "1.0";
+        json_utils::dump(parsed.get(), opath);
+
+        expect_error("unsupported type");
+
+        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value = "1.1";
+        json_utils::dump(parsed.get(), opath);
+    }
+
     // Shortening the heap to check that we perform bounds checks on the pointers.
     {
         {
@@ -292,9 +307,6 @@ TEST_F(AtomicVectorTest, Vls) {
             ghandle.unlink("pointers");
 
             std::vector<ritsuko::hdf5::vls::Pointer<int, int> > pointers(3);
-            pointers[0].offset = 0; pointers[0].length = 5;
-            pointers[1].length = 5; pointers[1].length = 7;
-            pointers[1].length = 12; pointers[1].length = 3;
             hsize_t plen = pointers.size();
             H5::DataSpace pspace(1, &plen);
             auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<int, int>();
