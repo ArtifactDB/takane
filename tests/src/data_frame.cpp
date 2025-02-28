@@ -595,6 +595,16 @@ TEST_F(Hdf5DataFrameTest, Vls) {
         }
     }
 
+    // Checking that mismatches in the number of rows is detected.
+    {
+        {
+            auto handle = reopen();
+            auto dhandle = handle.openDataSet("data_frame/data/0/pointers");
+            dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
+        }
+        test_validate(dir);
+    }
+
     // Checking that this only works in the latest version.
     {
         auto opath = dir/"OBJECT";
@@ -631,11 +641,36 @@ TEST_F(Hdf5DataFrameTest, Vls) {
             vhandle.unlink("pointers");
 
             std::vector<ritsuko::hdf5::vls::Pointer<int, int> > pointers(nrows);
+            for (auto& pp : pointers) {
+                pp.offset = 0;
+                pp.length = 0;
+            }
             H5::DataSpace pspace(1, &nrows);
             auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<int, int>();
             auto phandle = vhandle.createDataSet("pointers", ptype, pspace);
             phandle.write(pointers.data(), ptype);
         }
         expect_error("64-bit unsigned integer");
+    }
+
+    // Checking that we check for 64-bit unsigned integer types. 
+    {
+        {
+            auto handle = reopen();
+            auto vhandle = handle.openGroup("data_frame/data/0");
+            vhandle.unlink("pointers");
+
+            hsize_t nrows_p1 = nrows + 1;
+            std::vector<ritsuko::hdf5::vls::Pointer<uint8_t, uint8_t> > pointers(nrows_p1);
+            for (auto& pp : pointers) {
+                pp.offset = 0;
+                pp.length = 0;
+            }
+            H5::DataSpace pspace(1, &nrows_p1);
+            auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<uint8_t, uint8_t>();
+            auto phandle = vhandle.createDataSet("pointers", ptype, pspace);
+            phandle.write(pointers.data(), ptype);
+        }
+        expect_error("number of rows");
     }
 }

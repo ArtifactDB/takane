@@ -115,15 +115,11 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @return Length of the vector.
  */
 inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    const std::string type_name = "atomic_vector"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
     auto ghandle = handle.openGroup("atomic_vector");
     auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
 
-    if (version.ge(1, 1, 0) && type == "vls") {
+    if (type == "vls") {
         auto phandle = ghandle.openDataSet("pointers");
         return ritsuko::hdf5::get_1d_length(phandle.getSpace(), false);
     } else {

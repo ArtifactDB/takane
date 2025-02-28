@@ -241,6 +241,7 @@ TEST_F(AtomicVectorTest, Vls) {
     }
 
     test_validate(dir);
+    EXPECT_EQ(test_height(dir), 3);
 
     // Adding a missing value placeholder.
     {
@@ -307,6 +308,10 @@ TEST_F(AtomicVectorTest, Vls) {
             ghandle.unlink("pointers");
 
             std::vector<ritsuko::hdf5::vls::Pointer<int, int> > pointers(3);
+            for (auto& p : pointers) {
+                p.offset = 0;
+                p.length = 0;
+            }
             hsize_t plen = pointers.size();
             H5::DataSpace pspace(1, &plen);
             auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<int, int>();
