@@ -22,11 +22,34 @@ The `OBJECT` file should contain a `dense_array` property, itself a JSON object 
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-## Directory structure
+## Directory contents
 
-The directory should contain an `array.h5` HDF5 file, which in turn should contain a `dense_array` group.
+The directory should contain an `array.h5` HDF5 file.
+This file should contain a `dense_array` group with the following attributes:
+
+- `type`, a scalar string attribute specifying the type of the array 
+```{r, results="asis", echo=FALSE}
+if (.version < package_version("1.1")) {
+cat('  This should be one of `"integer"`, `"boolean"`, `"string"` or `"number"`.')
+} else {
+cat('  This should be one of `"integer"`, `"boolean"`, `"string"`, `"vls"` or `"number"`.')
+}
+```
+  The datatype of the attribute should be representable by a UTF-8 encoded string.
+
+```{r, results="asis", echo=FALSE}
+if (.version < package_version("1.1")) {
+cat('## Vector representation
+
+The `dense_array` group should contain `values`, a 1-dimensional dataset.')
+} else {
+cat('## Non-VLS representations
+
+For all `type != "vls"`, the `dense_array` group should contain `values`, a 1-dimensional dataset.')
+}
+```
 The group should contain `data`, an N-dimensional dataset containing the values of the dense array.
-This should have a `type` attribute specifying the type of the dense array and the expected HDF5 datatype of the dataset itself:
+The datatype of this dataset depends on `type`:
 
 - For `type = "integer"` or `"boolean"`, the datatype should be representable by a 32-bit signed integer.
   Check out the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for more details.
@@ -34,16 +57,40 @@ This should have a `type` attribute specifying the type of the dense array and t
   Both integer and float datatypes may be used here.
 - For `type = "string"`, the datatype should be representable by a UTF-8 encoded string.
 
-Missing values in the atomic vector are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `dense_array/data` dataset.
+Missing values in the array are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `dense_array/data` dataset.
 The attribute should be a scalar and should have the same datatype as `dense_array/data`, 
 (except in the case of strings, where any datatype may be used for the attribute as long as it is compatible with a UTF-8 encoded string).
 All values in the dataset equal to the placeholder should be treated as missing.
 See the [HDF5 policy draft (v0.1.0)](https://github.com/ArtifactDB/Bioc-HDF5-policy/tree/v0.1.0) for details.
 
+```{r, results="asis", echo=FALSE}
+if (.version >= package_version("1.1")) {
+cat('## VLS representation
+    
+For `type = "vls"`, the dense array consists of strings stored in [**ritsuko**\'s custom variable length string (VLS) array](https://github.com/ArtifactDB/ritsuko).
+Here, the `dense_array` group should contain the `pointers` and `heap` datasets.
+
+- The `pointers` dataset should be an N-dimensional dataset of a compound datatype of 2 members, `"offset"` and `"length"`.
+  Each member should be of a datatype that can be represented by an unsigned 64-bit integer.
+- The `heap` dataset should be a 1-dimensional dataset of unsigned 8-bit integers.
+
+Each entry of `pointers` refers to a slice `[offset, offset + length)` of the `heap` dataset.
+This slice defines a variable length UTF-8 encoded string of length `length` - unless the slice contains a null terminator, in which case the string is defined as the interval to the first null. 
+Pointers may be in any order, overlapping or non-contiguous, as long as `[offset, offset + length)` lies within the boundaries of the heap.
+
+Missing values in the dense array are represented by placeholder values, defined in the `missing-value-placeholder` attribute of the `dense_array/pointers` dataset.
+The attribute should be a scalar and should be of any HDF5 string datatype that can be represented by a UTF-8 encoded string.')
+}
+```
+
+## Dimension names
+
 Optionally, the `dense_array` group may contain a `names` subgroup.
 This may contain any number of 1-dimensional string datasets named after the corresponding dimension of `dense_array/data`, e.g., `0` for the first dimension, `1` for the second dimension, and so on.
 Each dataset contains the names for its dimension and should have a length equal to the extent of that dimension.
 The datatype of each dataset should be representable by a UTF-8 encoded string.
+
+## Transposition
 
 Optionally, the `dense_array` group may have a `transposed` attribute.
 This should be scalar and have a datatype that is representable by a 32-bit signed integer.
@@ -53,10 +100,26 @@ This is necessary for efficiently reading/writing from frameworks that use, e.g.
 
 ## Height
 
-The height of the dense array is defined as the extent of the first dimension in the `dense_array/data` dataset of `array.h5`.
+The height of the dense array is defined as the extent of the first dimension of the
+```{r, results="asis", echo=FALSE}
+if (.version >= package_version("1.1")) {
+    cat('`dense_array/values` dataset (for `type != "vls"`) or `dense_array/pointers` dataset (for `type == "vls"`)')
+} else {
+    cat("`dense_array/values` dataset")
+}
+```
+in `array.h5`.
 If the array is transposed, the extent of the last dimension is used instead.
 
 ## Dimensions
 
-The dimensions of the dense array are defined as the dimensions of the `dense_array/data` dataset of `array.h5`.
+The dimensions of the dense array are defined as the dimensions of the 
+```{r, results="asis", echo=FALSE}
+if (.version >= package_version("1.1")) {
+    cat('`dense_array/values` dataset (for `type != "vls"`) or `dense_array/pointers` dataset (for `type == "vls"`)')
+} else {
+    cat("`dense_array/values` dataset")
+}
+```
+in `array.h5`.
 If the array is transposed, the dimensions are reversed.

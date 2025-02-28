@@ -45,7 +45,7 @@ The `atomic_vector` group should in turn contain `values`, a 1-dimensional datas
 } else {
 cat('## Non-VLS representations
 
-For all `type != "vls"`, the `atomic_vector` group should in turn contain `values`, a 1-dimensional dataset.')
+For all `type != "vls"`, the `atomic_vector` group should contain `values`, a 1-dimensional dataset.')
 }
 ```
 The HDF5 datatype of the dataset should match the `type` attribute:
@@ -76,7 +76,7 @@ The attribute itself should contain one of the following values:
 if (.version >= package_version("1.1")) {
 cat('## VLS representation
     
-For `type == "vls"`, the atomic vector consists of strings stored in [**ritsuko**\'s custom variable length string (VLS) array](https://github.com/ArtifactDB/ritsuko).
+For `type = "vls"`, the atomic vector consists of strings stored in [**ritsuko**\'s custom variable length string (VLS) array](https://github.com/ArtifactDB/ritsuko).
 Here, the `atomic_vector` group should contain the `pointers` and `heap` datasets.
 
 - The `pointers` dataset should be a 1-dimensional dataset of a compound datatype of 2 members, `"offset"` and `"length"`.
