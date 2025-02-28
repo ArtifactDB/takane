@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "ritsuko/hdf5/hdf5.hpp"
+#include "ritsuko/hdf5/vls/vls.hpp"
 
 #include "utils_public.hpp"
 #include "utils_string.hpp"
@@ -25,24 +26,11 @@ namespace takane {
 namespace atomic_vector {
 
 /**
- * @param path Path to the directory containing the atomic vector.
- * @param metadata Metadata for the object, typically read from its `OBJECT` file.
- * @param options Validation options.
+ * @cond
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const std::string type_name = "atomic_vector"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
+namespace internal {
 
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-    auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "values");
-    auto vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-    auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
-
+inline void validate_dataset(const H5::DataSet& dhandle, hsize_t vlen, const std::string& type, hsize_t buffer_size) { 
     const char* missing_attr_name = "missing-value-placeholder";
 
     if (type == "string") {
@@ -51,7 +39,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
         auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);
         std::string format = internal_string::fetch_format_attribute(ghandle);
-        internal_string::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, options.hdf5_buffer_size);
+        internal_string::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, buffer_size);
 
     } else {
         if (type == "integer") {
@@ -76,6 +64,66 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
     }
 
+    return vlen;
+}
+
+inline hsize_t validate_vls_array(const H5::Group& ghandle, hsize_t buffer_size) { 
+    auto phandle = ritsuko::hdf5::vls::open_pointers(ghandle, "pointers", 64, 64);
+    auto vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
+    auto hhandle = ritsuko::hdf5::vls::open_heap(ghandle, "heap");
+    auto hlen = ritsuko::hdf5::get_1d_length(hhandle.getSpace(), false);
+    ritsuko::hdf5::vls::validate_1d_array<uint64_t, uint64_t>(ghandle, vlen, hlen, buffer_size);
+
+    const char* missing_attr_name = "missing-value-placeholder";
+    if (ghandle.attrExists(missing_attr)) {
+        auto attr = ghandle.openAttribute(missing_attr_name);
+
+        // TODO: replace with check_string_missing_placeholder_attribute()
+        {
+            if (!is_scalar(attr)) {
+                throw std::runtime_error("expected the '" + get_name(attr) + "' attribute to be a scalar");
+            }
+            if (attr.getTypeClass() != H5T_STRING) {
+                throw std::runtime_error("expected the '" + get_name(attr) + "' attribute to have the same type class as its dataset");
+            }
+            ritsuko::hdf5::validate_scalar_string_attribute(attr);
+        }
+    }
+
+    return vlen;
+}
+
+}
+/**
+ * @endcond
+ */
+
+/**
+ * @param path Path to the directory containing the atomic vector.
+ * @param metadata Metadata for the object, typically read from its `OBJECT` file.
+ * @param options Validation options.
+ */
+inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+    const std::string type_name = "atomic_vector"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+    if (version.major != 1) {
+        throw std::runtime_error("unsupported version string '" + vstring + "'");
+    }
+
+    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
+    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
+    auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
+    hsize_t vlen = 0;
+
+    if (version.ge(1, 1, 0) && type == "vls") {
+        vlen = internal::validate_vls_array(ghandle, options.hdf5_buffer_size);
+    } else {
+        auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "values");
+        vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
+        internal::validate_dataset(dhandle, vlen, type, options.hdf4_buffer_size);
+    }
+
     internal_string::validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
 }
 
@@ -86,10 +134,21 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @return Length of the vector.
  */
 inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+    const std::string type_name = "atomic_vector"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
+    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+
     auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
     auto ghandle = handle.openGroup("atomic_vector");
-    auto dhandle = ghandle.openDataSet("values");
-    return ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
+    auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
+
+    if (version.ge(1, 1, 0) && type == "vls") {
+        auto phandle = ghandle.openDataSet("pointers");
+        return ritsuko::hdf5::get_1d_length(phandle.getSpace(), false);
+    } else {
+        auto dhandle = ghandle.openDataSet("values");
+        return ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
+    }
 }
 
 }
