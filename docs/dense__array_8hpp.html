@@ -99,8 +99,9 @@ $(function(){ initResizable(false); });
 
 <p>Validation for dense arrays.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
-<code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
+<div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
+<code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
+<code>#include &quot;ritsuko/hdf5/vls/vls.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils__public_8hpp_source.html">utils_public.hpp</a>&quot;</code><br />
 <code>#include &quot;utils_array.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
@@ -113,41 +114,43 @@ Include dependency graph for dense_array.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="dense__array_8hpp__incl.png" border="0" usemap="#atakane_2dense__array_8hpp" alt=""/></div>
 <map name="atakane_2dense__array_8hpp" id="atakane_2dense__array_8hpp">
-<area shape="rect" title="Validation for dense arrays." alt="" coords="400,5,558,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,148,105"/>
-<area shape="poly" title=" " alt="" coords="411,34,161,78,160,73,410,29"/>
-<area shape="rect" title=" " alt="" coords="172,79,299,105"/>
-<area shape="poly" title=" " alt="" coords="439,34,292,77,290,72,437,29"/>
-<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="424,79,534,105"/>
-<area shape="poly" title=" " alt="" coords="482,31,482,63,476,63,476,31"/>
-<area shape="rect" title=" " alt="" coords="119,153,172,178"/>
-<area shape="poly" title=" " alt="" coords="453,34,356,81,312,107,248,134,188,154,186,149,246,129,310,102,354,77,451,29"/>
-<area shape="rect" title=" " alt="" coords="197,153,276,178"/>
-<area shape="poly" title=" " alt="" coords="465,34,417,68,357,107,278,148,275,143,354,102,414,63,462,29"/>
-<area shape="rect" title=" " alt="" coords="559,79,663,105"/>
-<area shape="poly" title=" " alt="" coords="503,29,577,69,574,74,500,34"/>
-<area shape="rect" title=" " alt="" coords="688,79,745,105"/>
-<area shape="poly" title=" " alt="" coords="520,29,674,75,672,80,519,34"/>
-<area shape="rect" title=" " alt="" coords="770,79,847,105"/>
-<area shape="poly" title=" " alt="" coords="537,29,755,76,754,81,536,34"/>
-<area shape="rect" title=" " alt="" coords="872,79,932,105"/>
-<area shape="poly" title=" " alt="" coords="559,27,694,46,857,76,856,81,694,52,559,32"/>
-<area shape="poly" title=" " alt="" coords="424,105,318,126,188,155,187,150,317,121,423,100"/>
-<area shape="poly" title=" " alt="" coords="439,108,292,151,290,146,437,103"/>
-<area shape="rect" title=" " alt="" coords="424,153,534,178"/>
-<area shape="poly" title=" " alt="" coords="482,105,482,137,476,137,476,105"/>
-<area shape="rect" title=" " alt="" coords="558,153,635,178"/>
-<area shape="poly" title=" " alt="" coords="500,103,565,142,562,147,498,107"/>
-<area shape="rect" title=" " alt="" coords="660,153,731,178"/>
-<area shape="poly" title=" " alt="" coords="517,103,646,145,644,150,515,108"/>
-<area shape="rect" title=" " alt="" coords="756,153,899,178"/>
-<area shape="poly" title=" " alt="" coords="535,102,754,146,752,152,534,107"/>
-<area shape="rect" title=" " alt="" coords="923,153,1056,178"/>
-<area shape="poly" title=" " alt="" coords="535,100,548,102,726,126,908,150,908,155,726,132,547,107,534,105"/>
-<area shape="rect" title=" " alt="" coords="1081,153,1218,178"/>
-<area shape="poly" title=" " alt="" coords="535,100,548,102,691,118,805,127,919,135,1066,150,1065,155,919,141,804,132,691,124,547,107,534,106"/>
-<area shape="rect" title=" " alt="" coords="300,153,400,178"/>
-<area shape="poly" title=" " alt="" coords="459,108,387,147,384,142,456,103"/>
+<area shape="rect" title="Validation for dense arrays." alt="" coords="532,5,691,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,133,105"/>
+<area shape="poly" title=" " alt="" coords="532,32,149,81,148,76,532,26"/>
+<area shape="rect" title=" " alt="" coords="156,79,299,105"/>
+<area shape="poly" title=" " alt="" coords="547,34,308,78,308,73,546,29"/>
+<area shape="rect" title=" " alt="" coords="323,79,479,105"/>
+<area shape="poly" title=" " alt="" coords="577,34,452,76,451,71,575,29"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="603,79,714,105"/>
+<area shape="poly" title=" " alt="" coords="622,30,644,64,640,67,617,33"/>
+<area shape="rect" title=" " alt="" coords="298,153,352,178"/>
+<area shape="poly" title=" " alt="" coords="599,34,553,69,492,107,437,129,367,153,366,148,435,124,489,102,550,65,596,30"/>
+<area shape="rect" title=" " alt="" coords="376,153,455,178"/>
+<area shape="poly" title=" " alt="" coords="605,33,577,68,536,107,499,130,462,149,460,144,497,126,533,103,573,65,601,30"/>
+<area shape="rect" title=" " alt="" coords="738,79,842,105"/>
+<area shape="poly" title=" " alt="" coords="643,29,747,70,745,75,641,34"/>
+<area shape="rect" title=" " alt="" coords="867,79,924,105"/>
+<area shape="poly" title=" " alt="" coords="664,29,852,76,851,81,662,34"/>
+<area shape="rect" title=" " alt="" coords="949,79,1026,105"/>
+<area shape="poly" title=" " alt="" coords="683,29,934,76,933,81,682,34"/>
+<area shape="rect" title=" " alt="" coords="1051,79,1111,105"/>
+<area shape="poly" title=" " alt="" coords="692,25,847,44,1036,76,1035,81,846,50,691,30"/>
+<area shape="poly" title=" " alt="" coords="603,105,497,126,367,155,366,150,496,121,602,100"/>
+<area shape="poly" title=" " alt="" coords="618,108,471,151,469,146,616,103"/>
+<area shape="rect" title=" " alt="" coords="603,153,714,178"/>
+<area shape="poly" title=" " alt="" coords="661,105,661,137,656,137,656,105"/>
+<area shape="rect" title=" " alt="" coords="737,153,814,178"/>
+<area shape="poly" title=" " alt="" coords="680,103,744,142,742,147,677,107"/>
+<area shape="rect" title=" " alt="" coords="839,153,910,178"/>
+<area shape="poly" title=" " alt="" coords="696,103,825,145,823,150,694,108"/>
+<area shape="rect" title=" " alt="" coords="935,153,1078,178"/>
+<area shape="poly" title=" " alt="" coords="714,102,933,146,932,152,713,107"/>
+<area shape="rect" title=" " alt="" coords="1102,153,1236,178"/>
+<area shape="poly" title=" " alt="" coords="714,100,727,102,905,126,1087,150,1087,155,905,132,726,107,714,105"/>
+<area shape="rect" title=" " alt="" coords="1260,153,1398,178"/>
+<area shape="poly" title=" " alt="" coords="714,100,727,102,870,118,984,127,1098,135,1245,150,1244,155,1098,141,984,132,870,124,726,107,714,106"/>
+<area shape="rect" title=" " alt="" coords="479,153,579,178"/>
+<area shape="poly" title=" " alt="" coords="638,108,566,147,563,142,635,103"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
