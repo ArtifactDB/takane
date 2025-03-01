@@ -261,7 +261,7 @@ TEST_F(AtomicVectorTest, Vls) {
             dhandle.removeAttr("missing-value-placeholder");
             dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT, H5S_SCALAR);
         }
-        expect_error("same type class");
+        expect_error("string datatype");
 
         // Removing for the next checks.
         {

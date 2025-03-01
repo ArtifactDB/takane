@@ -58,15 +58,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
         if (phandle.attrExists(missing_attr_name)) {
             auto attr = phandle.openAttribute(missing_attr_name);
-            { // TODO: replace the section with check_string_missing_placeholder_attribute()
-                if (!ritsuko::hdf5::is_scalar(attr)) {
-                    throw std::runtime_error("expected the '" + ritsuko::hdf5::get_name(attr) + "' attribute to be a scalar");
-                }
-                if (attr.getTypeClass() != H5T_STRING) {
-                    throw std::runtime_error("expected the '" + ritsuko::hdf5::get_name(attr) + "' attribute to have the same type class as its dataset");
-                }
-                ritsuko::hdf5::validate_scalar_string_attribute(attr);
-            }
+            ritsuko::hdf5::check_string_missing_placeholder_attribute(attr);
         }
 
     } else {
@@ -79,7 +71,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             }
             auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);
             std::string format = internal_string::fetch_format_attribute(ghandle);
-            internal_string::validate_string_format(dhandle, vlen, format, missingness.first, missingness.second, options.hdf5_buffer_size);
+            internal_string::validate_string_format(dhandle, vlen, format, missingness, options.hdf5_buffer_size);
 
         } else {
             if (type == "integer") {
@@ -100,7 +92,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
             if (dhandle.attrExists(missing_attr_name)) {
                 auto missing_attr = dhandle.openAttribute(missing_attr_name);
-                ritsuko::hdf5::check_missing_placeholder_attribute(dhandle, missing_attr);
+                ritsuko::hdf5::check_numeric_missing_placeholder_attribute(dhandle, missing_attr);
             }
         }
     }

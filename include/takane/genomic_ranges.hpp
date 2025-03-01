@@ -61,22 +61,24 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, Op
     auto handle = ritsuko::hdf5::open_file(path / "info.h5");
     auto ghandle = handle.openGroup(type_name.c_str());
 
+    const char* missing_attr_name = "missing-value-placeholder";
+
     auto lhandle = ghandle.openDataSet("length");
     auto num_seq = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false);
     ritsuko::hdf5::Stream1dNumericDataset<uint64_t> lstream(&lhandle, num_seq, options.hdf5_buffer_size);
-    auto lmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<uint64_t>(lhandle, "missing-value-placeholder");
+    auto lmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<uint64_t>(lhandle, missing_attr_name);
 
     auto chandle = ghandle.openDataSet("circular");
     ritsuko::hdf5::Stream1dNumericDataset<int32_t> cstream(&chandle, num_seq, options.hdf5_buffer_size);
-    auto cmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<int32_t>(chandle, "missing-value-placeholder");
+    auto cmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<int32_t>(chandle, missing_attr_name);
 
     SequenceLimits output(num_seq);
     for (size_t i = 0; i < num_seq; ++i, lstream.next(), cstream.next()) {
         auto slen = lstream.get();
         auto circ = cstream.get();
-        output.has_seqlen[i] = !(lmissing.first && lmissing.second == slen);
+        output.has_seqlen[i] = !(lmissing.has_value() && *lmissing == slen);
         output.seqlen[i] = slen;
-        output.has_circular[i] = !(cmissing.first && cmissing.second == circ);
+        output.has_circular[i] = !(cmissing.has_value() && *cmissing == circ);
         output.circular[i] = circ;
     }
 

@@ -33,8 +33,8 @@ TEST_F(Hdf5StringFormatTest, None) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        takane::internal_string::validate_string_format(dhandle, 10, "none", false, "", 10000);
-        expect_error("unsupported format", dhandle, 10, "foobar", false, "", 10000);
+        takane::internal_string::validate_string_format(dhandle, 10, "none", {}, 10000);
+        expect_error("unsupported format", dhandle, 10, "foobar", std::optional<std::string>{}, 10000);
     }
 }
 
@@ -48,8 +48,8 @@ TEST_F(Hdf5StringFormatTest, Date) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        expect_error("date-formatted string", dhandle, 5, "date", false, "", 10000);
-        takane::internal_string::validate_string_format(dhandle, 5, "date", true, "", 10000);
+        expect_error("date-formatted string", dhandle, 5, "date", std::optional<std::string>{}, 10000);
+        takane::internal_string::validate_string_format(dhandle, 5, "date", "", 10000);
     }
 
     {
@@ -60,7 +60,7 @@ TEST_F(Hdf5StringFormatTest, Date) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        takane::internal_string::validate_string_format(dhandle, 5, "date", false, "", 10000);
+        takane::internal_string::validate_string_format(dhandle, 5, "date", {}, 10000);
     }
 
     // Checking for missing placeholder.
@@ -80,8 +80,8 @@ TEST_F(Hdf5StringFormatTest, Date) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        expect_error("date-formatted string", dhandle, 5, "date", true, "foobar", 10000);
-        takane::internal_string::validate_string_format(dhandle, 5, "date", true, "aarontllun", 10000);
+        expect_error("date-formatted string", dhandle, 5, "date", "foobar", 10000);
+        takane::internal_string::validate_string_format(dhandle, 5, "date", "aarontllun", 10000);
     }
 }
 
@@ -98,7 +98,7 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        expect_error("date/time-formatted string", dhandle, 5, "date-time", false, "", 10000);
+        expect_error("date/time-formatted string", dhandle, 5, "date-time", std::optional<std::string>{}, 10000);
     }
 
     {
@@ -114,7 +114,7 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        takane::internal_string::validate_string_format(dhandle, 5, "date-time", false, "", 10000);
+        takane::internal_string::validate_string_format(dhandle, 5, "date-time", {}, 10000);
     }
 
     // Checking for missing placeholder.
@@ -135,8 +135,8 @@ TEST_F(Hdf5StringFormatTest, DateTime) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foobar");
-        expect_error("date/time-formatted string", dhandle, 5, "date-time", true, "foobar", 10000);
-        takane::internal_string::validate_string_format(dhandle, 5, "date-time", true, "aarontllun", 10000);
+        expect_error("date/time-formatted string", dhandle, 5, "date-time", "foobar", 10000);
+        takane::internal_string::validate_string_format(dhandle, 5, "date-time", "aarontllun", 10000);
     }
 }
 

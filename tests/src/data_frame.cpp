@@ -410,7 +410,7 @@ TEST_F(Hdf5DataFrameTest, String) {
         xhandle.removeAttr("missing-value-placeholder");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-    expect_error("same type class as");
+    expect_error("string datatype");
 }
 
 TEST_F(Hdf5DataFrameTest, StringFormat) {
@@ -585,7 +585,7 @@ TEST_F(Hdf5DataFrameTest, Vls) {
             dhandle.removeAttr("missing-value-placeholder");
             dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT, H5S_SCALAR);
         }
-        expect_error("same type class");
+        expect_error("string datatype");
 
         // Removing for the next checks.
         {

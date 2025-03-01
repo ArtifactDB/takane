@@ -72,7 +72,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
         if (lhandle.attrExists(missing_attr_name)) {
             auto ahandle = lhandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_missing_placeholder_attribute(lhandle, ahandle);
+            ritsuko::hdf5::check_numeric_missing_placeholder_attribute(lhandle, ahandle);
         }
     }
 
@@ -86,7 +86,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
         if (chandle.attrExists(missing_attr_name)) {
             auto ahandle = chandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_missing_placeholder_attribute(chandle, ahandle);
+            ritsuko::hdf5::check_numeric_missing_placeholder_attribute(chandle, ahandle);
         }
     }
 
@@ -100,7 +100,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
         if (gnhandle.attrExists(missing_attr_name)) {
             auto ahandle = gnhandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_missing_placeholder_attribute(gnhandle, ahandle);
+            ritsuko::hdf5::check_string_missing_placeholder_attribute(ahandle);
         }
     }
 }

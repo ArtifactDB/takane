@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include <stdexcept>
+#include <optional>
 
 #include "ritsuko/ritsuko.hpp"
 #include "ritsuko/hdf5/hdf5.hpp"
@@ -66,19 +67,16 @@ hsize_t validate_factor_codes(const H5::Group& handle, const std::string& name, 
         throw std::runtime_error("expected a datatype for '" + name + "' that fits in a 64-bit unsigned integer");
     }
 
-    bool has_missing = false;
-    uint64_t missing_placeholder = 0;
+    std::optional<uint64_t> missing_placeholder;
     if (allow_missing) {
-        auto missingness = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<uint64_t>(chandle, "missing-value-placeholder");
-        has_missing = missingness.first;
-        missing_placeholder = missingness.second;
+        missing_placeholder = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<uint64_t>(chandle, "missing-value-placeholder");
     }
 
     auto len = ritsuko::hdf5::get_1d_length(chandle.getSpace(), false);
     ritsuko::hdf5::Stream1dNumericDataset<uint64_t> stream(&chandle, len, buffer_size);
     for (hsize_t i = 0; i < len; ++i, stream.next()) {
         auto x = stream.get();
-        if (has_missing && x == missing_placeholder) {
+        if (missing_placeholder.has_value() && x == *missing_placeholder) {
             continue;
         }
         if (static_cast<hsize_t>(x) >= num_levels) {

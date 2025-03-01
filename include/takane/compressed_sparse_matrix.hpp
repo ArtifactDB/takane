@@ -74,7 +74,7 @@ inline size_t validate_data(const H5::Group& handle, const Options&) try {
 
     if (dhandle.attrExists("missing-value-placeholder")) {
         auto attr = dhandle.openAttribute("missing-value-placeholder");
-        ritsuko::hdf5::check_missing_placeholder_attribute(dhandle, attr);
+        ritsuko::hdf5::check_numeric_missing_placeholder_attribute(dhandle, attr);
     }
 
     return ritsuko::hdf5::get_1d_length(dhandle, false);

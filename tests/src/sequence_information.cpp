@@ -196,7 +196,7 @@ TEST_F(SequenceInformationTest, Genome) {
         auto dhandle = hdf5_utils::spawn_string_data(ghandle, "genome", 10, { "foo", "bar", "" });
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT16, H5S_SCALAR);
     }
-    expect_error("same type");
+    expect_error("string datatype");
 
     {
         auto handle = reopen();

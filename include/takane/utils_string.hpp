@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include <stdexcept>
+#include <optional>
 
 #include "ritsuko/ritsuko.hpp"
 #include "ritsuko/hdf5/hdf5.hpp"
@@ -31,12 +32,12 @@ std::string fetch_format_attribute(const H5Object_& handle) {
     return ritsuko::hdf5::load_scalar_string_attribute(attr);
 }
 
-inline void validate_string_format(const H5::DataSet& handle, hsize_t len, const std::string& format, bool has_missing, const std::string& missing_value, hsize_t buffer_size) {
+inline void validate_string_format(const H5::DataSet& handle, hsize_t len, const std::string& format, const std::optional<std::string>& missing_value, hsize_t buffer_size) {
     if (format == "date") {
         ritsuko::hdf5::Stream1dStringDataset stream(&handle, len, buffer_size);
         for (hsize_t i = 0; i < len; ++i, stream.next()) {
             auto x = stream.steal();
-            if (has_missing && missing_value == x) {
+            if (missing_value.has_value() && x == *missing_value) {
                 continue;
             }
             if (!ritsuko::is_date(x.c_str(), x.size())) {
@@ -48,7 +49,7 @@ inline void validate_string_format(const H5::DataSet& handle, hsize_t len, const
         ritsuko::hdf5::Stream1dStringDataset stream(&handle, len, buffer_size);
         for (hsize_t i = 0; i < len; ++i, stream.next()) {
             auto x = stream.steal();
-            if (has_missing && missing_value == x) {
+            if (missing_value.has_value() && x == *missing_value) {
                 continue;
             }
             if (!ritsuko::is_rfc3339(x.c_str(), x.size())) {
