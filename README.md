@@ -19,7 +19,8 @@ Currently, **takane** provides validators for the following objects:
 - `atomic_vector_list`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector_list/1.0.md).
 - `atomic_vector`:
-  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector/1.0.md).
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector/1.0.md),
+  [1.1](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/atomic_vector/1.1.md).
 - `bam_file`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/bam_file/1.0.md).
 - `bcf_file`:
@@ -41,9 +42,11 @@ Currently, **takane** provides validators for the following objects:
 - `data_frame_list`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame_list/1.0.md).
 - `data_frame`:
-  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame/1.0.md).
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame/1.0.md),
+  [1.1](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/data_frame/1.1.md).
 - `dense_array`:
-  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/dense_array/1.0.md).
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/dense_array/1.0.md),
+  [1.1](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/dense_array/1.1.md).
 - `fasta_file`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/fasta_file/1.0.md).
 - `fastq_file`:
