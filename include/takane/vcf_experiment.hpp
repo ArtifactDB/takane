@@ -238,8 +238,9 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @return Number of rows in the VCF experiment.
  */
 inline size_t height([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, "vcf_experiment");
-    auto dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, "vcf_experiment");
+    const std::string type_name = "vcf_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
+    auto dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);
     return dims.first;
 }
 
@@ -250,8 +251,9 @@ inline size_t height([[maybe_unused]] const std::filesystem::path& path, const O
  * @return A vector of length 2 containing the dimensions of the VCF experiment.
  */
 inline std::vector<size_t> dimensions([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, "vcf_experiment");
-    auto dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, "vcf_experiment");
+    const std::string type_name = "vcf_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
+    auto dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);
     return std::vector<size_t>{ dims.first, dims.second };
 }
 

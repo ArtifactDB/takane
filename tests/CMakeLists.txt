@@ -74,14 +74,6 @@ target_link_libraries(
 )
 
 target_compile_options(libtest PRIVATE -Wall -Wextra -Wpedantic -Werror)
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    # Too many false positives with this warning in the latest version of GCC.
-    include(CheckCXXCompilerFlag)
-    check_cxx_compiler_flag("-Wno-dangling-reference" GCC_NO_DANGLING)
-    if(GCC_NO_DANGLING)
-        target_compile_options(libtest PRIVATE -Wno-dangling-reference)
-    endif()
-endif()
 
 set(CODE_COVERAGE OFF CACHE BOOL "Enable coverage testing")
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

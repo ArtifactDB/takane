@@ -363,7 +363,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @return The number of sequences.
  */
 inline size_t height([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, "sequence_string_set");
+    const std::string type_name = "sequence_string_set"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
     auto lIt = obj.find("length");
     const auto& val = lIt->second;
     return reinterpret_cast<const millijson::Number*>(val.get())->value;

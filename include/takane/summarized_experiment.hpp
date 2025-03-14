@@ -120,9 +120,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @return Number of rows in the summarized experiment.
  */
 inline size_t height([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+    const std::string type_name = "summarized_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
     // Assume it's all valid, so we go straight for the kill.
-    const auto& semap = internal_json::extract_object(metadata.other, "summarized_experiment");
-    auto dims = internal_summarized_experiment::extract_dimensions_json(semap, "summarized_experiment");
+    const auto& semap = internal_json::extract_object(metadata.other, type_name);
+    auto dims = internal_summarized_experiment::extract_dimensions_json(semap, type_name);
     return dims.first;
 }
 
@@ -133,9 +134,10 @@ inline size_t height([[maybe_unused]] const std::filesystem::path& path, const O
  * @return A vector of length 2 containing the dimensions of the summarized experiment.
  */
 inline std::vector<size_t> dimensions([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+    const std::string type_name = "summarized_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
     // Assume it's all valid, so we go straight for the kill.
-    const auto& semap = internal_json::extract_object(metadata.other, "summarized_experiment");
-    auto dims = internal_summarized_experiment::extract_dimensions_json(semap, "summarized_experiment");
+    const auto& semap = internal_json::extract_object(metadata.other, type_name);
+    auto dims = internal_summarized_experiment::extract_dimensions_json(semap, type_name);
     return std::vector<size_t>{ dims.first, dims.second };
 }
 

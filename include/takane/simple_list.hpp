@@ -142,7 +142,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @return The number of list elements.
  */
 inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, "simple_list");
+    const std::string type_name = "simple_list"; // use a separate variable to avoid dangling reference warnings from GCC.
+    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
     auto len_info = internal::extract_length(metamap);
     if (len_info.first) {
