@@ -29,21 +29,22 @@ TEST_F(BigBedFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory_simple(dir, name, "1.0");
+    auto bbpath = (dir / "file.bb").string();
     {
-        std::ofstream handle(dir / "file.bb");
+        std::ofstream handle(bbpath);
         handle << "foobar";
     }
     expect_error("incorrect bigBed file signature");
 
     {
-        byteme::RawFileWriter handle(dir / "file.bb");
+        byteme::RawFileWriter handle(bbpath.c_str(), {});
         uint32_t val = 0x8789F2EB;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
     test_validate(dir);
 
     {
-        byteme::RawFileWriter handle(dir / "file.bb");
+        byteme::RawFileWriter handle(bbpath.c_str(), {});
         uint32_t val = 0xEBF28987;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
@@ -52,9 +53,9 @@ TEST_F(BigBedFileTest, Basic) {
 
 TEST_F(BigBedFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
-
+    auto bbpath = (dir / "file.bb").string();
     {
-        byteme::RawFileWriter handle(dir / "file.bb");
+        byteme::RawFileWriter handle(bbpath.c_str(), {});
         uint32_t val = 0xEBF28987;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }

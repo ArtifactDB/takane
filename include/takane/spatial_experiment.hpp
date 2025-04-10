@@ -85,7 +85,7 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
         ipath += ".png";
         // Magic number from http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature
         std::array<unsigned char, 8> expected { 137, 80, 78, 71, 13, 10, 26, 10 };
-        internal_files::check_signature(ipath, expected.data(), expected.size(), "PNG");
+        internal_files::check_signature<byteme::RawFileReader>(ipath, expected.data(), expected.size(), "PNG");
 
     } else if (format == "TIFF") {
         ipath += ".tif";

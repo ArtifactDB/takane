@@ -29,44 +29,47 @@ TEST_F(BcfFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory_simple(dir, name, "1.0");
+    auto bcfpath = (dir / "file.bcf").string();
     {
-        std::ofstream handle(dir / "file.bcf");
+        std::ofstream handle(bcfpath.c_str(), {});
         handle << "foo\1";
     }
     expect_error("incorrect GZIP file signature");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.bcf");
+        byteme::GzipFileWriter handle(bcfpath.c_str(), {});
         handle.write("foobar\2\1");
     }
     expect_error("incorrect BCF file signature");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.bcf");
+        byteme::GzipFileWriter handle(bcfpath.c_str(), {});
         handle.write("BCF\2\1");
     }
     test_validate(dir);
 
+    auto tbipath = (dir / "file.bcf.tbi").string();
     {
-        byteme::GzipFileWriter handle(dir / "file.bcf.tbi");
+        byteme::GzipFileWriter handle(tbipath.c_str(), {});
         handle.write("foobar\1");
     }
     expect_error("incorrect tabix file signature");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.bcf.tbi");
+        byteme::GzipFileWriter handle(tbipath.c_str(), {});
         handle.write("TBI\1");
     }
     test_validate(dir);
 
+    auto csipath = (dir / "file.bcf.csi").string();
     {
-        byteme::GzipFileWriter handle(dir / "file.bcf.csi");
+        byteme::GzipFileWriter handle(csipath.c_str(), {});
         handle.write("foobar\1");
     }
     expect_error("incorrect CSI index file signature");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.bcf.csi");
+        byteme::GzipFileWriter handle(csipath.c_str(), {});
         handle.write("CSI\1");
     }
     test_validate(dir);
@@ -74,9 +77,9 @@ TEST_F(BcfFileTest, Basic) {
 
 TEST_F(BcfFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
-
+    auto bcfpath = (dir / "file.bcf").string();
     {
-        byteme::GzipFileWriter handle(dir / "file.bcf");
+        byteme::GzipFileWriter handle(bcfpath.c_str(), {});
         handle.write("BCF\2\1");
     }
 

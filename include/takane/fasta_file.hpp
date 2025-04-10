@@ -52,8 +52,12 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     internal_files::check_gzip_signature(fpath);
-    auto reader = internal_other::open_reader<byteme::GzipFileReader>(fpath, 10);
-    byteme::PerByte<> pb(&reader);
+    auto reader = internal_other::open_reader<byteme::GzipFileReader>(fpath, [&]{
+        byteme::GzipFileReaderOptions gopt;
+        gopt.buffer_size = 10; // we just need a little bit.
+        return gopt;
+    }());
+    byteme::PerByteSerial<char> pb(std::move(reader));
     if (!pb.valid() || pb.get() != '>') {
         throw std::runtime_error("FASTA file does not start with '>'");
     }

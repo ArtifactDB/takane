@@ -29,16 +29,17 @@ TEST_F(FastaFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory(dir);
+    auto fapath = (dir / "file.fasta.gz").string();
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }";
-        byteme::GzipFileWriter handle(dir / "file.fasta.gz");
+        byteme::GzipFileWriter handle(fapath.c_str(), {});
         handle.write("asdasd\nACGT\n");
     }
     expect_error("start with '>'");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.fasta.gz");
+        byteme::GzipFileWriter handle(fapath.c_str(), {});
         handle.write(">asdasd\nACGT\n");
     }
     test_validate(dir);
@@ -71,17 +72,17 @@ TEST_F(FastaFileTest, Basic) {
 
 TEST_F(FastaFileTest, Indexed) {
     initialize_directory(dir);
-
+    auto fbpath = (dir / "file.fasta.bgz").string();
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\" } }";
-        byteme::GzipFileWriter fhandle(dir / "file.fasta.bgz");
+        byteme::GzipFileWriter fhandle(fbpath.c_str(), {});
         fhandle.write("asdasd\nACGT\n");
     }
     expect_error("start with '>'");
 
     {
-        byteme::GzipFileWriter fhandle(dir / "file.fasta.bgz");
+        byteme::GzipFileWriter fhandle(fbpath.c_str(), {});
         fhandle.write(">asdasd\nACGT\n");
     }
     expect_error("missing FASTA index file");
@@ -105,7 +106,9 @@ TEST_F(FastaFileTest, Strict) {
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }";
-        byteme::GzipFileWriter fhandle(dir / "file.fasta.gz");
+
+        auto fgpath = dir / "file.fasta.gz";
+        byteme::GzipFileWriter fhandle(fgpath.c_str(), {});
         fhandle.write(">asdasd\nACGT\n");
     }
 

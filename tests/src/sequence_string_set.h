@@ -88,13 +88,13 @@ inline void mock(const std::filesystem::path& dir, size_t length, const Options&
 
     if (options.quality_type != QualityType::NONE) {
         auto spath = dir / "sequences.fastq.gz";
-        byteme::GzipFileWriter writer(spath.c_str());
+        byteme::GzipFileWriter writer(spath.c_str(), {});
         for (size_t i = 0; i < length; ++i) {
             dump_fastq(writer, i, "AAAAAA", "EEEEEE");
         }
     } else {
         auto spath = dir / "sequences.fasta.gz";
-        byteme::GzipFileWriter writer(spath.c_str());
+        byteme::GzipFileWriter writer(spath.c_str(), {});
         for (size_t i = 0; i < length; ++i) {
             dump_fasta(writer, i, "AAAAAA");
         }

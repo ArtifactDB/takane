@@ -17,7 +17,7 @@ inline void initialize_with_metadata(const std::filesystem::path& dir, const std
 
 inline void dump_compressed_json(const std::filesystem::path& dir, const std::string& buffer) {
     auto path = dir / "list_contents.json.gz";
-    byteme::GzipFileWriter writer(path.c_str());
+    byteme::GzipFileWriter writer(path.c_str(), {});
     writer.write(reinterpret_cast<const unsigned char*>(buffer.data()), buffer.size());
 }
 

@@ -29,16 +29,17 @@ TEST_F(FastqFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory(dir);
+    auto fqpath = (dir / "file.fastq.gz").string();
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 33 } }";
-        byteme::GzipFileWriter handle(dir / "file.fastq.gz");
+        byteme::GzipFileWriter handle(fqpath.c_str(), {});
         handle.write("asdasd\nACGT\n+\n!!!!\n");
     }
     expect_error("start with '@'");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.fastq.gz");
+        byteme::GzipFileWriter handle(fqpath.c_str(), {});
         handle.write("@asdasd\nACGT\n+\n!!!!\n");
     }
     test_validate(dir);
@@ -102,17 +103,17 @@ TEST_F(FastqFileTest, Basic) {
 
 TEST_F(FastqFileTest, Indexed) {
     initialize_directory(dir);
-
+    auto fqpath = (dir / "file.fastq.bgz").string();
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }";
-        byteme::GzipFileWriter fhandle(dir / "file.fastq.bgz");
+        byteme::GzipFileWriter fhandle(fqpath.c_str(), {});
         fhandle.write("asdasd\nACGT\n+\n!!!!\n");
     }
     expect_error("start with '@'");
 
     {
-        byteme::GzipFileWriter fhandle(dir / "file.fastq.bgz");
+        byteme::GzipFileWriter fhandle(fqpath.c_str(), {});
         fhandle.write("@asdasd\nACGT\n+\n!!!!\n");
     }
     expect_error("missing FASTQ index file");
@@ -132,11 +133,11 @@ TEST_F(FastqFileTest, Indexed) {
 
 TEST_F(FastqFileTest, Strict) {
     initialize_directory(dir);
-
+    auto fqpath = (dir / "file.fastq.gz").string();
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }";
-        byteme::GzipFileWriter fhandle(dir / "file.fastq.gz");
+        byteme::GzipFileWriter fhandle(fqpath.c_str(), {});
         fhandle.write("@asdasd\nACGT\n+\n!!!!\n");
     }
 

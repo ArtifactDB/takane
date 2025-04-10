@@ -29,21 +29,22 @@ TEST_F(BigWigFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory_simple(dir, name, "1.0");
+    auto bwpath = (dir / "file.bw").string();
     {
-        std::ofstream handle(dir / "file.bw");
+        std::ofstream handle(bwpath.c_str(), {});
         handle << "foobar";
     }
     expect_error("incorrect bigWig file signature");
 
     {
-        byteme::RawFileWriter handle(dir / "file.bw");
+        byteme::RawFileWriter handle(bwpath.c_str(), {});
         uint32_t val = 0x888FFC26;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
     test_validate(dir);
 
     {
-        byteme::RawFileWriter handle(dir / "file.bw");
+        byteme::RawFileWriter handle(bwpath.c_str(), {});
         uint32_t val = 0x26FC8F88;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }
@@ -52,9 +53,9 @@ TEST_F(BigWigFileTest, Basic) {
 
 TEST_F(BigWigFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
-
+    auto bwpath = (dir / "file.bw").string();
     {
-        byteme::RawFileWriter handle(dir / "file.bw");
+        byteme::RawFileWriter handle(bwpath.c_str(), {});
         uint32_t val = 0x888FFC26;
         handle.write(reinterpret_cast<unsigned char*>(&val), sizeof(val));
     }

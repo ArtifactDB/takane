@@ -111,14 +111,14 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     if (format == "json.gz") {
         uzuki2::json::Options opt;
         opt.parallel = options.parallel_reads;
-        auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz");
-        auto loaded = uzuki2::json::parse<uzuki2::DummyProvisioner>(gzreader, uzuki2::DummyExternals(num_external), std::move(opt));
+        auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
+        auto loaded = uzuki2::json::parse<uzuki2::DummyProvisioner>(*gzreader, uzuki2::DummyExternals(num_external), opt);
         len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
 
     } else if (format == "hdf5") {
         auto handle = ritsuko::hdf5::open_file(path / "list_contents.h5");
         auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-        auto loaded = uzuki2::hdf5::parse<uzuki2::DummyProvisioner>(ghandle, uzuki2::DummyExternals(num_external));
+        auto loaded = uzuki2::hdf5::parse<uzuki2::DummyProvisioner>(ghandle, uzuki2::DummyExternals(num_external), {});
         len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
 
     } else {
@@ -168,8 +168,8 @@ inline size_t height(const std::filesystem::path& path, const ObjectMetadata& me
 
         uzuki2::json::Options opt;
         opt.parallel = options.parallel_reads;
-        auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz");
-        auto ptr = uzuki2::json::parse<uzuki2::DummyProvisioner>(gzreader, uzuki2::DummyExternals(num_external), std::move(opt));
+        auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
+        auto ptr = uzuki2::json::parse<uzuki2::DummyProvisioner>(*gzreader, uzuki2::DummyExternals(num_external), opt);
         return reinterpret_cast<const uzuki2::List*>(ptr.get())->size();
     }
 }

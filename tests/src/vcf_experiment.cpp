@@ -65,51 +65,52 @@ TEST_F(VcfExperimentTest, MetadataRetrieval) {
 }
 
 TEST_F(VcfExperimentTest, BasicParsing) {
+    auto vpath = (dir / "file.vcf.gz").string();
     {
         std::ofstream handle(dir / "OBJECT");
         handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [1, 2], \"expanded\": false } }";
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write("##fileformat");
     }
     expect_error("incomplete VCF file signature");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write("##filefooomat");
     }
     expect_error("incorrect VCF file signature");
 
     std::string contents; 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         contents = "##fileformat=VCFv4\n";
         writer.write(contents);
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("##aasdasd");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         contents += "##aasdasd\n";
         writer.write(contents);
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("#CHROM");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n");
         writer.write("chr1\t1\tfoo\tA\tC\t10\tPASS\tNS=1\tGT\n");
@@ -117,21 +118,21 @@ TEST_F(VcfExperimentTest, BasicParsing) {
     expect_error("does not match the number of samples");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsam1\tsam2");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("#CHROM\tREF\tALT\tQUAL\tFILTER\n");
     }
     expect_error("expected at least 9 fields");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         contents += "##foobarbar\n";
         contents += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsam1\tsam2\n";
         writer.write(contents);
@@ -139,7 +140,7 @@ TEST_F(VcfExperimentTest, BasicParsing) {
     expect_error("does not match the number of records");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t1\tfoo\tA\tC\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n");
     }
@@ -154,11 +155,11 @@ TEST_F(VcfExperimentTest, CollapsedParsing) {
     contents += "chr1\t1\tfoo1\tA\tC\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
     contents += "chr1\t2\tfoo2\tA\tC,T\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
 
+    auto vpath = (dir / "file.vcf.gz").string();
     {
         std::ofstream handle(dir / "OBJECT");
         handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [4, 2], \"expanded\": false } }";
-
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
     }
     expect_error("does not match the number of records");
@@ -166,14 +167,14 @@ TEST_F(VcfExperimentTest, CollapsedParsing) {
     contents += "chr1\t3\tfoo3\tA\t.\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
     contents += "chr1\t4\tfoo4\tAGGGG\tACTG,<DEL>,<MUL>\t10\tPASS\tNS=1\tGT\t1|0\t0|0";
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
     }
     expect_error("premature end");
 
     contents += "\n";
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
     }
     test_validate(dir);
@@ -196,53 +197,54 @@ TEST_F(VcfExperimentTest, ExpandedParsing) {
     contents += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsam1\tsam2\n";
     contents += "chr1\t1\tfoo1\tA\tC\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
 
+    auto vpath = (dir / "file.vcf.gz").string();
     {
         std::ofstream handle(dir / "OBJECT");
         handle << "{ \"type\": \"vcf_experiment\", \"vcf_experiment\": { \"version\": \"1.0\", \"dimensions\": [4, 2], \"expanded\": true } }";
 
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t2\tfoo2");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t2\tfoo2\n");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t2\tfoo2\tA\t");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t2\tfoo2\tA\tC");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t2\tfoo2\tA\tC,T");
     }
     expect_error("expected a 1:1 mapping");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t2\tfoo2\tA\tC\n");
     }
     expect_error("premature end");
 
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
         writer.write("chr1\t2\tfoo2\tA\tC\t");
     }
@@ -252,14 +254,14 @@ TEST_F(VcfExperimentTest, ExpandedParsing) {
     contents += "chr1\t3\tfoo3\tA\t.\t10\tPASS\tNS=1\tGT\t1|0\t0|0\n";
     contents += "chr1\t4\tfoo4\tAGGGG\t<DEL>\t10\tPASS\tNS=1\tGT\t1|0\t0|0";
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
     }
     expect_error("premature end");
 
     contents += "\n";
     {
-        byteme::GzipFileWriter writer(dir / "file.vcf.gz");
+        byteme::GzipFileWriter writer(vpath.c_str(), {});
         writer.write(contents);
     }
     test_validate(dir);

@@ -46,7 +46,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     auto ixpath = ipath;
     ixpath += ".bai";
     if (std::filesystem::exists(ixpath)) {
-        internal_files::check_signature(ixpath, "BAI\1", 4, "BAM index");
+        internal_files::check_signature<byteme::RawFileReader>(ixpath, "BAI\1", 4, "BAM index");
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf

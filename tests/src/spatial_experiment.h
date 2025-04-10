@@ -110,7 +110,7 @@ inline void mock(const std::filesystem::path& dir, const Options& options) {
             };
 
             magical.push_back(0); // just adding something past the signature.
-            byteme::RawFileWriter writer(path.c_str());
+            byteme::RawFileWriter writer(path.c_str(), {});
             writer.write(magical.data(), magical.size());
         }
 

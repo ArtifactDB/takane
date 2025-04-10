@@ -36,7 +36,8 @@ TEST_F(GmtFileTest, Basic) {
     expect_error("GZIP file signature");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.gmt.gz");
+        auto ggpath = (dir / "file.gmt.gz").string();
+        byteme::GzipFileWriter handle(ggpath.c_str(), {});
         handle.write("set\tmy set\ta\tb\tc\n");
     }
     test_validate(dir);
@@ -46,7 +47,8 @@ TEST_F(GmtFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
 
     {
-        byteme::GzipFileWriter fhandle(dir / "file.gmt.gz");
+        auto ggpath = (dir / "file.gmt.gz").string();
+        byteme::GzipFileWriter fhandle(ggpath.c_str(), {});
         fhandle.write("set\tmy set\ta\tb\tc\n");
     }
 

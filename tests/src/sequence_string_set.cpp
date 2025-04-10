@@ -131,25 +131,25 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
     auto spath = dir / "sequences.fasta.gz";
     {
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("foobar\n");
         }
         expect_error("sequence name should start with '>'");
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">foobar\n");
         }
         expect_error("sequence name should be a non-negative integer");
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">\n");
         }
         expect_error("sequence name should be its index");
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             for (size_t i = 0; i < 200; ++i) {
                 sequence_string_set::dump_fasta(writer, i % 10, "ACGT");
             }
@@ -163,7 +163,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
 
         // Zero length sequences are okay.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nACGT\n");
             writer.write(">1\n\n");
         }
@@ -171,7 +171,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
 
         // But they must be newline-terminated.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nACGT\n");
             writer.write(">1\n");
         }
@@ -181,7 +181,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
     // Checking the count.
     sequence_string_set::mock(dir, 5, options);
     {
-        byteme::GzipFileWriter writer(spath.c_str());
+        byteme::GzipFileWriter writer(spath.c_str(), {});
         sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
     }
     expect_error("observed number of sequences");
@@ -189,7 +189,7 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
     // Simulating sequences with annoying newlines everywhere.
     sequence_string_set::mock(dir, 5, options);
     {
-        byteme::GzipFileWriter writer(spath.c_str());
+        byteme::GzipFileWriter writer(spath.c_str(), {});
         sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
         sequence_string_set::dump_fasta(writer, 1, "\nAAAAAACCCCGGGGTTTT");
         sequence_string_set::dump_fasta(writer, 2, "AAAAAACCCCGGGGTTTT\n");
@@ -217,25 +217,25 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     auto spath = dir / "sequences.fastq.gz";
     {
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("foobar\n");
         }
         expect_error("sequence name should start with '@'");
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@foobar\n");
         }
         expect_error("sequence name should be a non-negative integer");
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@\n");
         }
         expect_error("sequence name should be its index");
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             for (size_t i = 0; i < 200; ++i) {
                 sequence_string_set::dump_fastq(writer, i % 10, "ACGT", "FECD");
             }
@@ -249,7 +249,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
         // Ignores gunk on the + line.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nACGT\n+123123123\nFECD\n");
             writer.write("@1\nACGT\n+ foo bar\nFECD\n");
         }
@@ -257,7 +257,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
         // Works when you have '@' in the quality scores.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nACGT\n+\n@@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
@@ -265,14 +265,14 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
         // Fails with a mismatch in the lengths.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nACGT\n+\n@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
         expect_error("unequal lengths");
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
@@ -280,7 +280,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
         // More complicated mismatch in the lengths.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n");
             writer.write("@1\nACGT\n+\n++++\n");
         }
@@ -288,7 +288,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
         // Zero length sequences are okay.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\n\n+\n\n");
             writer.write("@1\n\n+\n\n");
         }
@@ -296,7 +296,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
         // But they must be newline-terminated.
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\n\n+\n\n");
             writer.write("@1\n\n+\n");
         }
@@ -306,7 +306,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     // Checking the count.
     sequence_string_set::mock(dir, 5, options);
     {
-        byteme::GzipFileWriter writer(spath.c_str());
+        byteme::GzipFileWriter writer(spath.c_str(), {});
         sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "~~~~!!!!AAAAFFFF");
     }
     expect_error("observed number of sequences");
@@ -314,7 +314,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     // Simulating sequences with annoying newlines everywhere.
     sequence_string_set::mock(dir, 10, options);
     {
-        byteme::GzipFileWriter writer(spath.c_str());
+        byteme::GzipFileWriter writer(spath.c_str(), {});
         sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
         sequence_string_set::dump_fastq(writer, 1, "\nAAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
         sequence_string_set::dump_fastq(writer, 2, "AAAACCCCGGGGTTTT\n", "FFFFEEEEDDDDCCCC");
@@ -340,7 +340,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nacgt\n");
             writer.write(">1\na.c-g.tacgryswkmbdhvn.-\n");
             writer.write(">2\nTACGRYSWKMBDHVN.-\n");
@@ -348,7 +348,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nacgt\n");
             writer.write(">1\nuuuu\n");
             writer.write(">2\nACGT\n");
@@ -363,7 +363,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
 
         auto spath = dir / "sequences.fastq.gz";
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nacgu\n+\n;;;;\n");
         }
         expect_error("forbidden character 'u'");
@@ -378,7 +378,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nacgU\n");
             writer.write(">1\na.c-g.uacgryswkmbdhvn.-\n");
             writer.write(">2\nUACGRYSWKMBDHVN.-\n");
@@ -386,7 +386,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nacgu\n");
             writer.write(">1\nTTTT\n");
             writer.write(">2\nACGU\n");
@@ -401,7 +401,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nacgt\n");
             writer.write(">1\nACD.EFGHIKLMNP-QRSTVWY\n");
             writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
@@ -409,7 +409,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nacgt\n");
             writer.write(">1\nxxxx\n");
             writer.write(">2\nACGU\n");
@@ -424,7 +424,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write(">0\nxxxx\n");
             writer.write(">1\n!;;;*8acac~\n");
             writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
@@ -444,7 +444,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nacgt\n+\n!!!!\n");
             writer.write("@1\nacgt\n+\n!!!!\n");
             writer.write("@2\nacgt\n+\n!!!!\n");
@@ -452,7 +452,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nacgt\n+\n\1\1\1\1\n");
             writer.write("@1\nacgt\n+\n!!!!\n");
             writer.write("@2\nacgt\n+\n!!!!\n");
@@ -467,7 +467,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nacgt\n+\n@@@@\n");
             writer.write("@1\nacgt\n+\n@@@@\n");
             writer.write("@2\nacgt\n+\n@@@@\n");
@@ -475,7 +475,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nacgt\n+\n????\n");
             writer.write("@1\nacgt\n+\n@@@@\n");
             writer.write("@2\nacgt\n+\n@@@@\n");
@@ -490,7 +490,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nacgt\n+\n;;;;\n");
             writer.write("@1\nacgt\n+\n@@@@\n");
             writer.write("@2\nacgt\n+\n@@@@\n");
@@ -498,7 +498,7 @@ TEST_F(SequenceStringSetTest, QualityType) {
         test_validate(dir);
 
         {
-            byteme::GzipFileWriter writer(spath.c_str());
+            byteme::GzipFileWriter writer(spath.c_str(), {});
             writer.write("@0\nacgt\n+\n::::\n");
             writer.write("@1\nacgt\n+\n@@@@\n");
             writer.write("@2\nacgt\n+\n@@@@\n");
@@ -525,7 +525,7 @@ TEST_F(SequenceStringSetTest, Names) {
 
     auto npath = dir / "names.txt.gz";
     {
-        byteme::GzipFileWriter writer(npath.c_str());
+        byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
             std::string tmpname = "gene_" + std::to_string(i + 1);
             writer.write("\"" + tmpname + "\"\n");
@@ -543,7 +543,7 @@ TEST_F(SequenceStringSetTest, Names) {
 
     // Works with newlines.
     {
-        byteme::GzipFileWriter writer(npath.c_str());
+        byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
             std::string tmpname = "gene\n" + std::to_string(i + 1);
             writer.write("\"" + tmpname + "\"\n");
@@ -553,7 +553,7 @@ TEST_F(SequenceStringSetTest, Names) {
 
     // Errors out with differences in counts.
     {
-        byteme::GzipFileWriter writer(npath.c_str());
+        byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 5; ++i) {
             std::string tmpname = "gene-" + std::to_string(i + 1);
             writer.write("\"" + tmpname + "\"\n");
@@ -563,7 +563,7 @@ TEST_F(SequenceStringSetTest, Names) {
 
     // Errors out with quotes.
     {
-        byteme::GzipFileWriter writer(npath.c_str());
+        byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
             std::string tmpname = "gene-" + std::to_string(i + 1);
             writer.write(tmpname + "\n");
@@ -572,7 +572,7 @@ TEST_F(SequenceStringSetTest, Names) {
     expect_error("should start with a quote");
 
     {
-        byteme::GzipFileWriter writer(npath.c_str());
+        byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
             std::string tmpname = "gene-" + std::to_string(i + 1);
             writer.write("\"" + tmpname + "\"a\n");
@@ -582,7 +582,7 @@ TEST_F(SequenceStringSetTest, Names) {
 
     // Errors out with non-newline.
     {
-        byteme::GzipFileWriter writer(npath.c_str());
+        byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
             std::string tmpname = "gene-" + std::to_string(i + 1);
             if (i) {

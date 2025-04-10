@@ -44,7 +44,8 @@ TEST_F(GffFileTest, Basic2) {
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"format\": \"GFF2\" } }";
-        byteme::GzipFileWriter fhandle(dir / "file.gff2.gz");
+        auto ggpath = (dir / "file.gff2.gz").string();
+        byteme::GzipFileWriter fhandle(ggpath.c_str(), {});
         fhandle.write("chr1\t1\t2\n");
     }
     test_validate(dir);
@@ -52,16 +53,17 @@ TEST_F(GffFileTest, Basic2) {
 
 TEST_F(GffFileTest, Basic3) {
     initialize_directory(dir);
+    auto ggpath = (dir / "file.gff3.gz").string();
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"format\": \"GFF3\" } }";
-        byteme::GzipFileWriter fhandle(dir / "file.gff3.gz");
+        byteme::GzipFileWriter fhandle(ggpath.c_str(), {});
         fhandle.write("chr1\t1\t2\n");
     }
     expect_error("GFF3 file signature");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.gff3.gz");
+        byteme::GzipFileWriter handle(ggpath.c_str(), {});
         handle.write("##gff-version 3.1.26\nchr1\t1\t2\n");
     }
     test_validate(dir);
@@ -73,19 +75,21 @@ TEST_F(GffFileTest, Indexed) {
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"format\": \"GFF2\", \"indexed\": true } }";
-        byteme::GzipFileWriter fhandle(dir / "file.gff2.bgz");
+        auto ggpath = (dir / "file.gff2.bgz").string();
+        byteme::GzipFileWriter fhandle(ggpath.c_str(), {});
         fhandle.write("chr1\t1\t2\n");
     }
     expect_error("failed to open");
 
+    auto ggpath = (dir / "file.gff2.bgz.tbi").string();
     {
-        byteme::GzipFileWriter ihandle(dir / "file.gff2.bgz.tbi");
+        byteme::GzipFileWriter ihandle(ggpath.c_str(), {});
         ihandle.write("foobar");
     }
     expect_error("tabix file signature");
 
     {
-        byteme::GzipFileWriter ihandle(dir / "file.gff2.bgz.tbi");
+        byteme::GzipFileWriter ihandle(ggpath.c_str(), {});
         ihandle.write("TBI\1");
     }
     test_validate(dir);
@@ -96,7 +100,8 @@ TEST_F(GffFileTest, Strict) {
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"format\": \"GFF2\" } }";
-        byteme::GzipFileWriter fhandle(dir / "file.gff2.gz");
+        auto ggpath = (dir / "file.gff2.gz").string();
+        byteme::GzipFileWriter fhandle(ggpath.c_str(), {});
         fhandle.write("chr1\t1\t2\n");
     }
 

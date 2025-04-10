@@ -29,20 +29,21 @@ TEST_F(RdsFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory_simple(dir, name, "1.0");
+    auto rpath = (dir / "file.rds").string();
     {
-        byteme::GzipFileWriter fhandle(dir / "file.rds");
+        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
         fhandle.write("X");
     }
     expect_error("incomplete");
 
     {
-        byteme::GzipFileWriter fhandle(dir / "file.rds");
+        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
         fhandle.write("B\n");
     }
     expect_error("incorrect");
 
     {
-        byteme::GzipFileWriter fhandle(dir / "file.rds");
+        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
         fhandle.write("X\n");
     }
     test_validate(dir);
@@ -50,8 +51,9 @@ TEST_F(RdsFileTest, Basic) {
 
 TEST_F(RdsFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
+    auto rpath = (dir / "file.rds").string();
     {
-        byteme::GzipFileWriter fhandle(dir / "file.rds");
+        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
         fhandle.write("X\n");
     }
 

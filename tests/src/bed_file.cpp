@@ -36,7 +36,8 @@ TEST_F(BedFileTest, Basic) {
     expect_error("GZIP file signature");
 
     {
-        byteme::GzipFileWriter handle(dir / "file.bed.gz");
+        auto bdpath = (dir / "file.bed.gz").string();
+        byteme::GzipFileWriter handle(bdpath.c_str(), {});
         handle.write("chr1\t1\t2\n");
     }
     test_validate(dir);
@@ -48,19 +49,22 @@ TEST_F(BedFileTest, Indexed) {
     {
         std::ofstream ohandle(dir / "OBJECT");
         ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"indexed\": true } }";
-        byteme::GzipFileWriter fhandle(dir / "file.bed.bgz");
+        auto bbpath = (dir / "file.bed.bgz").string();
+        byteme::GzipFileWriter fhandle(bbpath.c_str(), {});
         fhandle.write("chr1\t1\t2\n");
     }
     expect_error("failed to open");
 
     {
-        byteme::GzipFileWriter ihandle(dir / "file.bed.bgz.tbi");
+        auto bbpath = (dir / "file.bed.bgz.tbi").string();
+        byteme::GzipFileWriter ihandle(bbpath.c_str(), {});
         ihandle.write("YAY");
     }
     expect_error("tabix file signature");
 
     {
-        byteme::GzipFileWriter ihandle(dir / "file.bed.bgz.tbi");
+        auto bbpath = (dir / "file.bed.bgz.tbi").string();
+        byteme::GzipFileWriter ihandle(bbpath.c_str(), {});
         ihandle.write("TBI\1");
     }
     test_validate(dir);
@@ -70,7 +74,8 @@ TEST_F(BedFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
 
     {
-        byteme::GzipFileWriter fhandle(dir / "file.bed.gz");
+        auto bgpath = (dir / "file.bed.gz").string();
+        byteme::GzipFileWriter fhandle(bgpath.c_str(), {});
         fhandle.write("chr1\t1\t2\n");
     }
 

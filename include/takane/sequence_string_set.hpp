@@ -35,24 +35,23 @@ inline int char2int(char val) {
     return static_cast<int>(val) - static_cast<int>(std::numeric_limits<char>::min());
 }
 
-template<bool has_quality_, bool parallel_>
-size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> allowed, char lowest_quality) {
-    auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path);
-    typedef typename std::conditional<parallel_, byteme::PerByteParallel<>, byteme::PerByte<> >::type PB;
-    PB pb(&gzreader);
+template<bool has_quality_>
+size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> allowed, char lowest_quality, bool parallel) {
+    auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
+    auto pb = internal_other::wrap_reader_for_bytes<char>(std::move(gzreader), parallel);
 
     size_t nseq = 0;
     size_t line_count = 0;
     auto advance_and_check = [&]() -> char {
-        if (!pb.advance()) {
+        if (!pb->advance()) {
             throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
         }
-        return pb.get();
+        return pb->get();
     };
 
-    while (pb.valid()) {
+    while (pb->valid()) {
         // Processing the name. 
-        char val = pb.get();
+        char val = pb->get();
         if constexpr(!has_quality_) {
             if (val != '>') {
                 throw std::runtime_error("sequence name should start with '>' at line " + std::to_string(line_count + 1));
@@ -86,10 +85,10 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
             while (true) {
                 if (val == '\n') {
                     ++line_count;
-                    if (!pb.advance()) {
+                    if (!pb->advance()) {
                         break;
                     }
-                    val = pb.get();
+                    val = pb->get();
                     if (val == '>') {
                         break;
                     }
@@ -137,7 +136,7 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
                 if (val == '\n') {
                     ++line_count;
                     if (qual_length >= seq_length) {
-                        while (pb.advance() && pb.get() == '\n') {} // sneak past any newlines.
+                        while (pb->advance() && pb->get() == '\n') {} // sneak past any newlines.
                         break;
                     }
                 } else {
@@ -159,23 +158,21 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
     return nseq;
 }
 
-template<bool parallel_>
-size_t parse_names(const std::filesystem::path& path) {
-    auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path);
-    typedef typename std::conditional<parallel_, byteme::PerByteParallel<>, byteme::PerByte<> >::type PB;
-    PB pb(&gzreader);
+inline size_t parse_names(const std::filesystem::path& path, bool parallel) {
+    auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
+    auto pb = internal_other::wrap_reader_for_bytes<char>(std::move(gzreader), parallel);
 
     size_t nseq = 0;
     size_t line_count = 0;
     auto advance_and_check = [&]() -> char {
-        if (!pb.advance()) {
+        if (!pb->advance()) {
             throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
         }
-        return pb.get();
+        return pb->get();
     };
 
-    while (pb.valid()) {
-        char val = pb.get();
+    while (pb->valid()) {
+        char val = pb->get();
         if (val != '"') {
             throw std::runtime_error("name should start with a quote");
         }
@@ -187,7 +184,7 @@ size_t parse_names(const std::filesystem::path& path) {
                 if (val == '\n') {
                     ++nseq;
                     ++line_count;
-                    pb.advance();
+                    pb->advance();
                     break;
                 } else if (val != '"') {
                     throw std::runtime_error("characters present after end quote at line " + std::to_string(line_count + 1));
@@ -322,18 +319,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     size_t nseq = 0;
     if (has_qualities) {
         auto spath = path / "sequences.fastq.gz";
-        if (options.parallel_reads) {
-            nseq = internal::parse_sequences<true, true>(spath, allowed, lowest_quality);
-        } else {
-            nseq = internal::parse_sequences<true, false>(spath, allowed, lowest_quality);
-        }
+        nseq = internal::parse_sequences<true>(spath, allowed, lowest_quality, options.parallel_reads);
     } else {
         auto spath = path / "sequences.fasta.gz";
-        if (options.parallel_reads) {
-            nseq = internal::parse_sequences<false, true>(spath, allowed, lowest_quality);
-        } else {
-            nseq = internal::parse_sequences<false, false>(spath, allowed, lowest_quality);
-        }
+        nseq = internal::parse_sequences<false>(spath, allowed, lowest_quality, options.parallel_reads);
     }
     if (nseq != expected_nseq) {
         throw std::runtime_error("observed number of sequences is different from the expected number (" + std::to_string(nseq) + " to " + std::to_string(expected_nseq) + ")");
@@ -341,12 +330,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     auto npath = path / "names.txt.gz";
     if (std::filesystem::exists(npath)) {
-        size_t nnames = 0;
-        if (options.parallel_reads) {
-            nnames = internal::parse_names<true>(npath);
-        } else {
-            nnames = internal::parse_names<false>(npath);
-        }
+        size_t nnames = internal::parse_names(npath, options.parallel_reads);
         if (nnames != expected_nseq) {
             throw std::runtime_error("number of names is different from the number of sequences (" + std::to_string(nnames) + " to " + std::to_string(expected_nseq) + ")");
         }
