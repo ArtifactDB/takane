@@ -147,9 +147,9 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <span class="keyword">const</span> <span class="keywordtype">size_t</span> expected_len = expected.size();</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        <span class="keyword">auto</span> reader = internal_other::open_reader&lt;byteme::GzipFileReader&gt;(fpath, [&amp;]{</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            byteme::GzipFileReaderOptions opt;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>            opt.buffer_size = expected_len;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>            <span class="keywordflow">return</span> opt;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            byteme::GzipFileReaderOptions gopt;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>            gopt.buffer_size = expected_len;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>            <span class="keywordflow">return</span> gopt;</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        }());</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        byteme::PerByteSerial&lt;char&gt; pb(std::move(reader));</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        <span class="keywordtype">bool</span> okay = pb.valid();</div>

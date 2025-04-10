@@ -125,7 +125,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keywordflow">if</span> (parallel) {</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteParallel&lt;char&gt;(std::move(gzreader)));</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteParallel&lt;char&gt;(std::move(gzreader)));</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteSerial&lt;char&gt;(std::move(gzreader)));</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    }</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">size_t</span> nseq = 0;</div>
@@ -252,7 +252,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordflow">if</span> (parallel) {</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteParallel&lt;char&gt;(std::move(gzreader)));</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteParallel&lt;char&gt;(std::move(gzreader)));</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteSerial&lt;char&gt;(std::move(gzreader)));</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    }</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordtype">size_t</span> nseq = 0;</div>
