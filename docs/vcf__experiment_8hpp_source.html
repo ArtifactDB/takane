@@ -118,221 +118,216 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">inline</span> std::pair&lt;size_t, size_t&gt; scan_vcf_dimensions(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keywordtype">bool</span> expanded, <span class="keywordtype">bool</span> parallel) {</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    internal_files::check_gzip_signature(path);</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">auto</span> reader = internal_other::open_reader&lt;byteme::GzipFileReader&gt;(path, byteme::GzipFileReaderOptions());</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    std::unique_ptr&lt;byteme::PerByteInterface&lt;char&gt; &gt; pb;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordflow">if</span> (parallel) {</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteParallel&lt;char&gt;(std::move(reader)));</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        pb.reset(<span class="keyword">new</span> byteme::PerByteSerial&lt;char&gt;(std::move(reader)));</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    }</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="comment">// Checking the signature.</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    {</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <span class="keyword">const</span> std::string expected = <span class="stringliteral">&quot;##fileformat=VCFv&quot;</span>;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        <span class="keyword">const</span> <span class="keywordtype">size_t</span> len = expected.size();</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <span class="keywordtype">bool</span> okay = pb-&gt;valid();</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len; ++i) {</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>            <span class="keywordflow">if</span> (!okay) {</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incomplete VCF file signature&quot;</span>);</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>            }</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>            <span class="keywordflow">if</span> (pb-&gt;get() != expected[i]) {</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incorrect VCF file signature&quot;</span>);</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            }</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            okay = pb-&gt;advance();</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        }</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="comment">// Scanning until we find a line that doesn&#39;t start with &#39;##&#39;.</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        <span class="keywordflow">if</span> (pb-&gt;get() == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>            <span class="keywordtype">bool</span> escape = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 2; ++i) {</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>                <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end to the VCF file&quot;</span>);</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>                }</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>                <span class="keywordflow">if</span> (pb-&gt;get() != <span class="charliteral">&#39;#&#39;</span>) {</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>                    escape = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>                    <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>                }</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>            }</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>            <span class="keywordflow">if</span> (escape) {</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>            }</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        }</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end to the VCF file&quot;</span>);</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        }</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    }</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="comment">// Scanning the header line to count the number of samples.</span></div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="keywordtype">size_t</span> num_samples = 0;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    {</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        <span class="keywordtype">size_t</span> num_indents = 0;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>            <span class="keywordtype">char</span> current = pb-&gt;get();</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>            <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\t&#39;</span>) {</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>                ++num_indents;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>            } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>                pb-&gt;advance(); <span class="comment">// skip past the newline.</span></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>            }</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end to the VCF file&quot;</span>);</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>            }</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        }</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        <span class="keywordflow">if</span> (num_indents &lt; 8) {</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected at least 9 fields in the VCF header line, including &#39;FORMAT&#39;&quot;</span>);</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        }</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        num_samples = num_indents - 8;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    }</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">auto</span> pb = internal_other::wrap_reader_for_bytes&lt;char&gt;(std::move(reader), parallel);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="comment">// Checking the signature.</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    {</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="keyword">const</span> std::string expected = <span class="stringliteral">&quot;##fileformat=VCFv&quot;</span>;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="keyword">const</span> <span class="keywordtype">size_t</span> len = expected.size();</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        <span class="keywordtype">bool</span> okay = pb-&gt;valid();</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len; ++i) {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            <span class="keywordflow">if</span> (!okay) {</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incomplete VCF file signature&quot;</span>);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>            }</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>            <span class="keywordflow">if</span> (pb-&gt;get() != expected[i]) {</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incorrect VCF file signature&quot;</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>            }</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>            okay = pb-&gt;advance();</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        }</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    }</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="comment">// Scanning until we find a line that doesn&#39;t start with &#39;##&#39;.</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keywordflow">if</span> (pb-&gt;get() == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            <span class="keywordtype">bool</span> escape = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 2; ++i) {</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end to the VCF file&quot;</span>);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>                }</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>                <span class="keywordflow">if</span> (pb-&gt;get() != <span class="charliteral">&#39;#&#39;</span>) {</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>                    escape = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>                    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>                }</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            }</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>            <span class="keywordflow">if</span> (escape) {</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>            }</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        }</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end to the VCF file&quot;</span>);</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        }</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    }</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="comment">// Scanning the header line to count the number of samples.</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordtype">size_t</span> num_samples = 0;</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    {</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        <span class="keywordtype">size_t</span> num_indents = 0;</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>            <span class="keywordtype">char</span> current = pb-&gt;get();</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>            <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\t&#39;</span>) {</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>                ++num_indents;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>            } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>                pb-&gt;advance(); <span class="comment">// skip past the newline.</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>            }</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end to the VCF file&quot;</span>);</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>            }</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        }</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        <span class="keywordflow">if</span> (num_indents &lt; 8) {</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected at least 9 fields in the VCF header line, including &#39;FORMAT&#39;&quot;</span>);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        }</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        num_samples = num_indents - 8;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    }</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">size_t</span> expected_rows = 0;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordflow">if</span> (expanded) {</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        <span class="keywordflow">while</span> (pb-&gt;valid()) {</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            ++expected_rows;</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">size_t</span> expected_rows = 0;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">if</span> (expanded) {</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        <span class="keywordflow">while</span> (pb-&gt;valid()) {</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>            ++expected_rows;</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>            <span class="comment">// Scanning up to the ALT field, which is the 5th one. We need this to</span></div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>            <span class="comment">// find the number of alternative alleles (and thus the expansion of rows).</span></div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>            <span class="keywordtype">size_t</span> num_indents = 0;</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>                <span class="keywordtype">char</span> current = pb-&gt;get();</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\t&#39;</span>) {</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                    ++num_indents;</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                    <span class="keywordflow">if</span> (num_indents == 4) { </div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                        <span class="keywordflow">if</span> (!pb-&gt;advance()) { <span class="comment">// get past this indent.</span></div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>                            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>                        }</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                        <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>                    }</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                }</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>                }</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>            }</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            <span class="comment">// Checking that we don&#39;t have any commas if it&#39;s expanded.</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>                <span class="keywordtype">char</span> current = pb-&gt;get();</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>                <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;,&#39;</span>) {</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a 1:1 mapping of rows to alternative alleles when &#39;vcf_experiment.expanded = true&#39;&quot;</span>);</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\t&#39;</span>) {</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>                    <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>                }</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>                <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>                }</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>            }</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span> </div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>            <span class="comment">// Chomping the rest of the line; we assume all lines are newline-terminated.</span></div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>                <span class="keywordflow">if</span> (pb-&gt;get() == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>                    pb-&gt;advance(); <span class="comment">// skip past the newline.</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>                    <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>                } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>                    <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>                        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>                    }</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>                }</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>            }</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>        }</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        <span class="keywordflow">if</span> (pb-&gt;valid()) {</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>                <span class="keywordflow">if</span> (pb-&gt;get() == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>                    ++expected_rows; <span class="comment">// assume all files are newline-terminated.</span></div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>                    <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>                        <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>                    }</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>                } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>                    <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>                        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>                    }</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>                }</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>            }</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        }</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    }</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">return</span> std::make_pair(expected_rows, num_samples);</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>}</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>}</div>
-<div class="foldopen" id="foldopen00191" data-start="{" data-end="}">
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno"><a class="line" href="namespacetakane_1_1vcf__experiment.html#a895f693a3b50a1efefec6324522ac7a9">  191</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1vcf__experiment.html#a895f693a3b50a1efefec6324522ac7a9">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;vcf_experiment&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vcfmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keyword">const</span> std::string version_name = <span class="stringliteral">&quot;version&quot;</span>; <span class="comment">// again, avoid dangling reference warnings.</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(vcfmap, version_name, type_name);</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    }</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="comment">// Other bits and pieces of the metadata to check.</span></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keyword">auto</span> dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, <span class="stringliteral">&quot;vcf_experiment&quot;</span>);</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordtype">bool</span> exp = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    {</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>        <span class="keyword">auto</span> eIt = vcfmap.find(<span class="stringliteral">&quot;expanded&quot;</span>);</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>        <span class="keywordflow">if</span> (eIt == vcfmap.end()) {</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a &#39;vcf_experiment.expanded&#39; property&quot;</span>);</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>        }</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>        <span class="keyword">const</span> <span class="keyword">auto</span>&amp; val = eIt-&gt;second;</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>        <span class="keywordflow">if</span> (val-&gt;type() != millijson::BOOLEAN) {</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;vcf_experiment.expanded&#39; property should be a JSON boolean&quot;</span>);</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>        }</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>        exp = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>millijson::Boolean*<span class="keyword">&gt;</span>(val.get())-&gt;value;</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    }</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keyword">auto</span> ipath = path / <span class="stringliteral">&quot;file.vcf.gz&quot;</span>;</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    std::pair&lt;size_t, size_t&gt; obs_dims;</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>        obs_dims = internal::scan_vcf_dimensions(ipath, exp, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">parallel_reads</a>);</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to parse &#39;&quot;</span> + ipath.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    }</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <span class="keywordflow">if</span> (obs_dims.first != dims.first) {</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;reported &#39;vcf_experiment.dimensions[0]&#39; does not match the number of records in &#39;&quot;</span> + ipath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    }</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <span class="keywordflow">if</span> (obs_dims.second != dims.second) {</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;reported &#39;vcf_experiment.dimensions[1]&#39; does not match the number of samples in &#39;&quot;</span> + ipath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    }</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>}</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>            <span class="comment">// Scanning up to the ALT field, which is the 5th one. We need this to</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>            <span class="comment">// find the number of alternative alleles (and thus the expansion of rows).</span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            <span class="keywordtype">size_t</span> num_indents = 0;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                <span class="keywordtype">char</span> current = pb-&gt;get();</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>                <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\t&#39;</span>) {</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>                    ++num_indents;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                    <span class="keywordflow">if</span> (num_indents == 4) { </div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>                        <span class="keywordflow">if</span> (!pb-&gt;advance()) { <span class="comment">// get past this indent.</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>                            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                        }</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                    }</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>                }</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>                }</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>            }</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>            <span class="comment">// Checking that we don&#39;t have any commas if it&#39;s expanded.</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>                <span class="keywordtype">char</span> current = pb-&gt;get();</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>                <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;,&#39;</span>) {</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a 1:1 mapping of rows to alternative alleles when &#39;vcf_experiment.expanded = true&#39;&quot;</span>);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\t&#39;</span>) {</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>                    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>                }</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>                <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>                    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>                }</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>            }</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>            <span class="comment">// Chomping the rest of the line; we assume all lines are newline-terminated.</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>                <span class="keywordflow">if</span> (pb-&gt;get() == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>                    pb-&gt;advance(); <span class="comment">// skip past the newline.</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>                    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>                } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>                    <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>                        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>                    }</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>                }</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>            }</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>        }</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>        <span class="keywordflow">if</span> (pb-&gt;valid()) {</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>            <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>                <span class="keywordflow">if</span> (pb-&gt;get() == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>                    ++expected_rows; <span class="comment">// assume all files are newline-terminated.</span></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>                    <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>                        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>                    }</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>                } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>                    <span class="keywordflow">if</span> (!pb-&gt;advance()) {</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>                        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;premature end of line for VCF record&quot;</span>);</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>                    }</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>                }</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>            }</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        }</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    }</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="keywordflow">return</span> std::make_pair(expected_rows, num_samples);</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>}</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>}</div>
+<div class="foldopen" id="foldopen00186" data-start="{" data-end="}">
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno"><a class="line" href="namespacetakane_1_1vcf__experiment.html#a895f693a3b50a1efefec6324522ac7a9">  186</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacetakane_1_1vcf__experiment.html#a895f693a3b50a1efefec6324522ac7a9">validate</a>(<span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;vcf_experiment&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vcfmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keyword">const</span> std::string version_name = <span class="stringliteral">&quot;version&quot;</span>; <span class="comment">// again, avoid dangling reference warnings.</span></div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keyword">const</span> std::string&amp; vstring = internal_json::extract_string_from_typed_object(vcfmap, version_name, type_name);</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keyword">auto</span> version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), <span class="comment">/* skip_patch = */</span> <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">if</span> (version.major != 1) {</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;unsupported version string &#39;&quot;</span> + vstring + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    }</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="comment">// Other bits and pieces of the metadata to check.</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keyword">auto</span> dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, <span class="stringliteral">&quot;vcf_experiment&quot;</span>);</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">bool</span> exp = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    {</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>        <span class="keyword">auto</span> eIt = vcfmap.find(<span class="stringliteral">&quot;expanded&quot;</span>);</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        <span class="keywordflow">if</span> (eIt == vcfmap.end()) {</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;expected a &#39;vcf_experiment.expanded&#39; property&quot;</span>);</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>        }</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>        <span class="keyword">const</span> <span class="keyword">auto</span>&amp; val = eIt-&gt;second;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>        <span class="keywordflow">if</span> (val-&gt;type() != millijson::BOOLEAN) {</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;vcf_experiment.expanded&#39; property should be a JSON boolean&quot;</span>);</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>        }</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>        exp = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>millijson::Boolean*<span class="keyword">&gt;</span>(val.get())-&gt;value;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    }</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keyword">auto</span> ipath = path / <span class="stringliteral">&quot;file.vcf.gz&quot;</span>;</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    std::pair&lt;size_t, size_t&gt; obs_dims;</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <span class="keywordflow">try</span> {</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>        obs_dims = internal::scan_vcf_dimensions(ipath, exp, options.<a class="code hl_variable" href="structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e">parallel_reads</a>);</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    } <span class="keywordflow">catch</span> (std::exception&amp; e) {</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;failed to parse &#39;&quot;</span> + ipath.string() + <span class="stringliteral">&quot;&#39;; &quot;</span> + std::string(e.what()));</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    }</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keywordflow">if</span> (obs_dims.first != dims.first) {</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;reported &#39;vcf_experiment.dimensions[0]&#39; does not match the number of records in &#39;&quot;</span> + ipath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    }</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">if</span> (obs_dims.second != dims.second) {</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;reported &#39;vcf_experiment.dimensions[1]&#39; does not match the number of samples in &#39;&quot;</span> + ipath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    }</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>}</div>
 </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span> </div>
-<div class="foldopen" id="foldopen00240" data-start="{" data-end="}">
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno"><a class="line" href="namespacetakane_1_1vcf__experiment.html#a515661d2fc555a9a9810382cc8a19cfa">  240</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1vcf__experiment.html#a515661d2fc555a9a9810382cc8a19cfa">height</a>([[maybe_unused]] <span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;vcf_experiment&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vcfmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keyword">auto</span> dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordflow">return</span> dims.first;</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>}</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
+<div class="foldopen" id="foldopen00235" data-start="{" data-end="}">
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno"><a class="line" href="namespacetakane_1_1vcf__experiment.html#a515661d2fc555a9a9810382cc8a19cfa">  235</a></span><span class="keyword">inline</span> <span class="keywordtype">size_t</span> <a class="code hl_function" href="namespacetakane_1_1vcf__experiment.html#a515661d2fc555a9a9810382cc8a19cfa">height</a>([[maybe_unused]] <span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;vcf_experiment&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vcfmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keyword">auto</span> dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keywordflow">return</span> dims.first;</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>}</div>
 </div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="foldopen" id="foldopen00253" data-start="{" data-end="}">
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno"><a class="line" href="namespacetakane_1_1vcf__experiment.html#a2b45a2172b125c6bad1dc9a0255c0808">  253</a></span><span class="keyword">inline</span> std::vector&lt;size_t&gt; <a class="code hl_function" href="namespacetakane_1_1vcf__experiment.html#a2b45a2172b125c6bad1dc9a0255c0808">dimensions</a>([[maybe_unused]] <span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;vcf_experiment&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vcfmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    <span class="keyword">auto</span> dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    <span class="keywordflow">return</span> std::vector&lt;size_t&gt;{ dims.first, dims.second };</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>}</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
+<div class="foldopen" id="foldopen00248" data-start="{" data-end="}">
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno"><a class="line" href="namespacetakane_1_1vcf__experiment.html#a2b45a2172b125c6bad1dc9a0255c0808">  248</a></span><span class="keyword">inline</span> std::vector&lt;size_t&gt; <a class="code hl_function" href="namespacetakane_1_1vcf__experiment.html#a2b45a2172b125c6bad1dc9a0255c0808">dimensions</a>([[maybe_unused]] <span class="keyword">const</span> std::filesystem::path&amp; path, <span class="keyword">const</span> <a class="code hl_struct" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp; metadata, [[maybe_unused]] <a class="code hl_struct" href="structtakane_1_1Options.html">Options</a>&amp; options) {</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keyword">const</span> std::string type_name = <span class="stringliteral">&quot;vcf_experiment&quot;</span>; <span class="comment">// use a separate variable to avoid dangling reference warnings from GCC.</span></div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; vcfmap = internal_json::extract_typed_object_from_metadata(metadata.<a class="code hl_variable" href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">other</a>, type_name);</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keyword">auto</span> dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordflow">return</span> std::vector&lt;size_t&gt;{ dims.first, dims.second };</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>}</div>
 </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>}</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>}</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span> </div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="anamespacetakane_1_1vcf__experiment_html_a2b45a2172b125c6bad1dc9a0255c0808"><div class="ttname"><a href="namespacetakane_1_1vcf__experiment.html#a2b45a2172b125c6bad1dc9a0255c0808">takane::vcf_experiment::dimensions</a></div><div class="ttdeci">std::vector&lt; size_t &gt; dimensions(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> vcf_experiment.hpp:253</div></div>
-<div class="ttc" id="anamespacetakane_1_1vcf__experiment_html_a515661d2fc555a9a9810382cc8a19cfa"><div class="ttname"><a href="namespacetakane_1_1vcf__experiment.html#a515661d2fc555a9a9810382cc8a19cfa">takane::vcf_experiment::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> vcf_experiment.hpp:240</div></div>
-<div class="ttc" id="anamespacetakane_1_1vcf__experiment_html_a895f693a3b50a1efefec6324522ac7a9"><div class="ttname"><a href="namespacetakane_1_1vcf__experiment.html#a895f693a3b50a1efefec6324522ac7a9">takane::vcf_experiment::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> vcf_experiment.hpp:191</div></div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>}</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>}</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="anamespacetakane_1_1vcf__experiment_html_a2b45a2172b125c6bad1dc9a0255c0808"><div class="ttname"><a href="namespacetakane_1_1vcf__experiment.html#a2b45a2172b125c6bad1dc9a0255c0808">takane::vcf_experiment::dimensions</a></div><div class="ttdeci">std::vector&lt; size_t &gt; dimensions(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> vcf_experiment.hpp:248</div></div>
+<div class="ttc" id="anamespacetakane_1_1vcf__experiment_html_a515661d2fc555a9a9810382cc8a19cfa"><div class="ttname"><a href="namespacetakane_1_1vcf__experiment.html#a515661d2fc555a9a9810382cc8a19cfa">takane::vcf_experiment::height</a></div><div class="ttdeci">size_t height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> vcf_experiment.hpp:235</div></div>
+<div class="ttc" id="anamespacetakane_1_1vcf__experiment_html_a895f693a3b50a1efefec6324522ac7a9"><div class="ttname"><a href="namespacetakane_1_1vcf__experiment.html#a895f693a3b50a1efefec6324522ac7a9">takane::vcf_experiment::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> vcf_experiment.hpp:186</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition</b> _derived_from.hpp:15</div></div>
 <div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition</b> utils_public.hpp:26</div></div>
 <div class="ttc" id="astructtakane_1_1ObjectMetadata_html_a3b46efa17e6ca667bc902073cf7151cd"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd">takane::ObjectMetadata::other</a></div><div class="ttdeci">std::unordered_map&lt; std::string, std::shared_ptr&lt; millijson::Base &gt; &gt; other</div><div class="ttdef"><b>Definition</b> utils_public.hpp:35</div></div>
