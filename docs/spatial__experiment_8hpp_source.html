@@ -161,7 +161,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        ipath += <span class="stringliteral">&quot;.png&quot;</span>;</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        <span class="comment">// Magic number from http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature</span></div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        std::array&lt;unsigned char, 8&gt; expected { 137, 80, 78, 71, 13, 10, 26, 10 };</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        internal_files::check_signature(ipath, expected.data(), expected.size(), <span class="stringliteral">&quot;PNG&quot;</span>);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        internal_files::check_signature&lt;byteme::RawFileReader&gt;(ipath, expected.data(), expected.size(), <span class="stringliteral">&quot;PNG&quot;</span>);</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (format == <span class="stringliteral">&quot;TIFF&quot;</span>) {</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        ipath += <span class="stringliteral">&quot;.tif&quot;</span>;</div>

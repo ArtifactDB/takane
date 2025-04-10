@@ -127,31 +127,35 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* expected = <span class="stringliteral">&quot;X\n&quot;</span>;</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">size_t</span> expected_len = 2;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">auto</span> reader = internal_other::open_reader&lt;byteme::GzipFileReader&gt;(fpath, expected_len);</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    byteme::PerByte&lt;&gt; pb(&amp;reader);</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">bool</span> okay = pb.valid();</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; expected_len; ++i) {</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keywordflow">if</span> (!okay) {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incomplete RDS file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        }</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keywordflow">if</span> (pb.get() != expected[i]) {</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incorrect RDS file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        }</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        okay = pb.advance();</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    }</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">if</span> (options.<a class="code hl_variable" href="structtakane_1_1Options.html#ad204c533660938f04fb842a7b6341027">rds_file_strict_check</a>) {</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        options.<a class="code hl_variable" href="structtakane_1_1Options.html#ad204c533660938f04fb842a7b6341027">rds_file_strict_check</a>(path, metadata, options);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">auto</span> reader = internal_other::open_reader&lt;byteme::GzipFileReader&gt;(fpath, [&amp;]{</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        byteme::GzipFileReaderOptions gopt;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        gopt.buffer_size = expected_len;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordflow">return</span> gopt;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    }());</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    byteme::PerByteSerial&lt;char&gt; pb(std::move(reader));</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">bool</span> okay = pb.valid();</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; expected_len; ++i) {</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        <span class="keywordflow">if</span> (!okay) {</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incomplete RDS file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        }</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <span class="keywordflow">if</span> (pb.get() != expected[i]) {</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;incorrect RDS file signature for &#39;&quot;</span> + fpath.string() + <span class="stringliteral">&quot;&#39;&quot;</span>);</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        }</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        okay = pb.advance();</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    }</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
-</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>}</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordflow">if</span> (options.<a class="code hl_variable" href="structtakane_1_1Options.html#ad204c533660938f04fb842a7b6341027">rds_file_strict_check</a>) {</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        options.<a class="code hl_variable" href="structtakane_1_1Options.html#ad204c533660938f04fb842a7b6341027">rds_file_strict_check</a>(path, metadata, options);</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    }</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>}</div>
+</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>}</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>}</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="anamespacetakane_1_1rds__file_html_ab27e77b38f937d6e332b28ada6694250"><div class="ttname"><a href="namespacetakane_1_1rds__file.html#ab27e77b38f937d6e332b28ada6694250">takane::rds_file::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> rds_file.hpp:32</div></div>
 <div class="ttc" id="anamespacetakane_html"><div class="ttname"><a href="namespacetakane.html">takane</a></div><div class="ttdoc">takane validation functions.</div><div class="ttdef"><b>Definition</b> _derived_from.hpp:15</div></div>
 <div class="ttc" id="astructtakane_1_1ObjectMetadata_html"><div class="ttname"><a href="structtakane_1_1ObjectMetadata.html">takane::ObjectMetadata</a></div><div class="ttdoc">Object metadata, including the type and other fields.</div><div class="ttdef"><b>Definition</b> utils_public.hpp:26</div></div>
