@@ -27,16 +27,16 @@ inline std::pair<size_t, size_t> extract_dimensions_json(const internal_json::Js
     }
 
     auto dptr = reinterpret_cast<const millijson::Array*>(dims.get());
-    if (dptr->values.size() != 2) {
+    if (dptr->value().size() != 2) {
         throw std::runtime_error("expected '" + type + ".dimensions' to be an array of length 2");
     }
 
     size_t counter = 0;
-    for (const auto& x : dptr->values) {
+    for (const auto& x : dptr->value()) {
         if (x->type() != millijson::NUMBER) {
             throw std::runtime_error("expected '" + type + ".dimensions' to be an array of numbers");
         }
-        auto val = reinterpret_cast<const millijson::Number*>(x.get())->value;
+        auto val = reinterpret_cast<const millijson::Number*>(x.get())->value();
         if (val < 0 || std::floor(val) != val) {
             throw std::runtime_error("expected '" + type + ".dimensions' to contain non-negative integers");
         }
@@ -58,17 +58,17 @@ inline void check_names_json(const std::filesystem::path& dir, std::unordered_se
     }
 
     auto aptr = reinterpret_cast<const millijson::Array*>(parsed.get());
-    size_t number = aptr->values.size();
+    size_t number = aptr->value().size();
     present.reserve(number);
 
     for (size_t i = 0; i < number; ++i) {
-        auto eptr = aptr->values[i];
+        auto eptr = aptr->value()[i];
         if (eptr->type() != millijson::STRING) {
             throw std::runtime_error("expected an array of strings");
         }
 
         auto nptr = reinterpret_cast<const millijson::String*>(eptr.get());
-        auto name = nptr->value;
+        auto name = nptr->value();
         if (name.empty()) {
             throw std::runtime_error("name should not be an empty string");
         }

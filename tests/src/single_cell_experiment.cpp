@@ -37,7 +37,7 @@ TEST_F(SingleCellExperimentTest, Basic) {
 
     // Hits the base RSE checks.
     auto opath = dir / "OBJECT";
-    auto parsed = millijson::parse_file(opath.c_str());
+    auto parsed = millijson::parse_file(opath.c_str(), {});
     {
         ::summarized_experiment::add_object_metadata(parsed.get(), "1.0", 99, 23);
         json_utils::dump(parsed.get(), opath);
@@ -130,9 +130,9 @@ TEST_F(SingleCellExperimentTest, MainExperimentName) {
     single_cell_experiment::mock(dir, options);
 
     auto opath = dir / "OBJECT";
-    auto parsed = millijson::parse_file(opath.c_str());
-    auto& toplevel = reinterpret_cast<millijson::Object*>(parsed.get())->values;
-    auto& scemap = reinterpret_cast<millijson::Object*>(toplevel["single_cell_experiment"].get())->values;
+    auto parsed = millijson::parse_file(opath.c_str(), {});
+    auto& toplevel = reinterpret_cast<millijson::Object*>(parsed.get())->value();
+    auto& scemap = reinterpret_cast<millijson::Object*>(toplevel["single_cell_experiment"].get())->value();
     {
         scemap["main_experiment_name"] = std::shared_ptr<millijson::Base>(new millijson::Number(2));
         json_utils::dump(parsed.get(), opath);

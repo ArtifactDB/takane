@@ -60,7 +60,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
                 throw std::runtime_error("'fastq_file.quality_offset' property should be a JSON number");
             }
 
-            double offset = reinterpret_cast<const millijson::Number*>(val.get())->value;
+            double offset = reinterpret_cast<const millijson::Number*>(val.get())->value();
             if (offset != 33 && offset != 64) {
                 throw std::runtime_error("'fastq_file.quality_offset' property should be either 33 or 64");
             }

@@ -275,15 +275,15 @@ TEST_F(AtomicVectorTest, Vls) {
     // Checking that this only works in the latest version.
     {
         auto opath = dir/"OBJECT";
-        auto parsed = millijson::parse_file(opath.c_str());
-        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->values;
-        auto& av_entries = reinterpret_cast<millijson::Object*>(entries["atomic_vector"].get())->values;
-        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value = "1.0";
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->value();
+        auto& av_entries = reinterpret_cast<millijson::Object*>(entries["atomic_vector"].get())->value();
+        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value() = "1.0";
         json_utils::dump(parsed.get(), opath);
 
         expect_error("unsupported type");
 
-        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value = "1.1";
+        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value() = "1.1";
         json_utils::dump(parsed.get(), opath);
     }
 

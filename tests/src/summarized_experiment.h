@@ -24,23 +24,23 @@ struct Options {
 };
 
 inline void add_object_metadata(millijson::Base* input, const std::string& version, size_t num_rows, size_t num_cols) {
-    auto& remap = reinterpret_cast<millijson::Object*>(input)->values;
-    auto optr = new millijson::Object;
+    auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
+    auto optr = new millijson::Object({});
     remap["summarized_experiment"] = std::shared_ptr<millijson::Base>(optr);
-    optr->add("version", std::shared_ptr<millijson::Base>(new millijson::String(version)));
+    optr->value()["version"] = std::shared_ptr<millijson::Base>(new millijson::String(version));
 
-    auto aptr = new millijson::Array;
-    optr->add("dimensions", std::shared_ptr<millijson::Base>(aptr));
-    aptr->add(std::shared_ptr<millijson::Base>(new millijson::Number(num_rows)));
-    aptr->add(std::shared_ptr<millijson::Base>(new millijson::Number(num_cols)));
+    auto aptr = new millijson::Array({});
+    optr->value()["dimensions"] = std::shared_ptr<millijson::Base>(aptr);
+    aptr->value().emplace_back(new millijson::Number(num_rows));
+    aptr->value().emplace_back(new millijson::Number(num_cols));
 }
 
 inline void mock(const std::filesystem::path& dir, const Options& options) {
     initialize_directory(dir);
 
-    auto optr = new millijson::Object;
+    auto optr = new millijson::Object({});
     std::shared_ptr<millijson::Base> contents(optr);
-    optr->values["type"] = std::shared_ptr<millijson::Base>(new millijson::String("summarized_experiment"));
+    optr->value()["type"] = std::shared_ptr<millijson::Base>(new millijson::String("summarized_experiment"));
     add_object_metadata(contents.get(), "1.0", options.num_rows, options.num_cols);
     json_utils::dump(contents.get(), dir / "OBJECT");
 

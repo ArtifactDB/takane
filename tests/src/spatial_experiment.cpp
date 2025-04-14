@@ -37,7 +37,7 @@ TEST_F(SpatialExperimentTest, Basic) {
 
     // Hits the base RSE checks.
     auto opath = dir / "OBJECT";
-    auto parsed = millijson::parse_file(opath.c_str());
+    auto parsed = millijson::parse_file(opath.c_str(), {});
     {
         ::summarized_experiment::add_object_metadata(parsed.get(), "1.0", 99, 23);
         json_utils::dump(parsed.get(), opath);
@@ -151,8 +151,8 @@ TEST_F(SpatialExperimentTest, NoImages) {
     // Bumping the version to support no images/ subdirectory.
     {
         auto opath = dir / "OBJECT";
-        auto parsed = millijson::parse_file(opath.c_str());
-        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
         remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("spatial_experiment"));
         spatial_experiment::add_object_metadata(parsed.get(), "1.2");
         json_utils::dump(parsed.get(), opath);
@@ -315,8 +315,8 @@ TEST_F(SpatialExperimentTest, OtherImageFormats) {
     // Bumping the version so we actually get support for OTHER image types.
     {
         auto opath = dir / "OBJECT";
-        auto parsed = millijson::parse_file(opath.c_str());
-        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
         remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("spatial_experiment"));
         spatial_experiment::add_object_metadata(parsed.get(), "1.1");
         json_utils::dump(parsed.get(), opath);
@@ -344,10 +344,10 @@ TEST_F(SpatialExperimentTest, OtherImageFormats) {
             std::filesystem::remove(ipath);
             std::filesystem::create_directory(ipath);
 
-            auto optr = new millijson::Object;
+            auto optr = new millijson::Object({});
             std::shared_ptr<millijson::Base> contents(optr);
-            optr->values["type"] = std::shared_ptr<millijson::Base>(new millijson::String("some_image_class"));
-            optr->values["version"] = std::shared_ptr<millijson::Base>(new millijson::String("1.0"));
+            optr->value()["type"] = std::shared_ptr<millijson::Base>(new millijson::String("some_image_class"));
+            optr->value()["version"] = std::shared_ptr<millijson::Base>(new millijson::String("1.0"));
             json_utils::dump(contents.get(), ipath / "OBJECT");
         }
     }

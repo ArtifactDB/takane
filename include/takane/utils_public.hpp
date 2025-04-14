@@ -48,7 +48,7 @@ inline ObjectMetadata reformat_object_metadata(millijson::Base* raw) {
     }
 
     ObjectMetadata output;
-    output.other = std::move(reinterpret_cast<millijson::Object*>(raw)->values);
+    output.other = std::move(reinterpret_cast<millijson::Object*>(raw)->value());
 
     auto tIt = output.other.find("type");
     if (tIt == output.other.end()) {
@@ -60,7 +60,7 @@ inline ObjectMetadata reformat_object_metadata(millijson::Base* raw) {
         throw std::runtime_error("metadata should have a 'type' string");
     }
 
-    output.type = std::move(reinterpret_cast<millijson::String*>(tval.get())->value);
+    output.type = std::move(reinterpret_cast<millijson::String*>(tval.get())->value());
     output.other.erase(tIt);
     return output;
 }

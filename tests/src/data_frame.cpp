@@ -608,15 +608,15 @@ TEST_F(Hdf5DataFrameTest, Vls) {
     // Checking that this only works in the latest version.
     {
         auto opath = dir/"OBJECT";
-        auto parsed = millijson::parse_file(opath.c_str());
-        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->values;
-        auto& df_entries = reinterpret_cast<millijson::Object*>(entries["data_frame"].get())->values;
-        reinterpret_cast<millijson::String*>(df_entries["version"].get())->value = "1.0";
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->value();
+        auto& df_entries = reinterpret_cast<millijson::Object*>(entries["data_frame"].get())->value();
+        reinterpret_cast<millijson::String*>(df_entries["version"].get())->value() = "1.0";
         json_utils::dump(parsed.get(), opath);
 
         expect_error("unsupported type");
 
-        reinterpret_cast<millijson::String*>(df_entries["version"].get())->value = "1.1";
+        reinterpret_cast<millijson::String*>(df_entries["version"].get())->value() = "1.1";
         json_utils::dump(parsed.get(), opath);
     }
 

@@ -20,12 +20,12 @@ struct Options : public ::ranged_summarized_experiment::Options {
 };
 
 inline void add_object_metadata(millijson::Base* input, const std::string& version, const std::string& main_exp_name) {
-    auto& remap = reinterpret_cast<millijson::Object*>(input)->values;
-    auto optr = new millijson::Object;
+    auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
+    auto optr = new millijson::Object({});
     remap["single_cell_experiment"] = std::shared_ptr<millijson::Base>(optr);
-    optr->add("version", std::shared_ptr<millijson::Base>(new millijson::String(version)));
+    optr->value()["version"] = std::shared_ptr<millijson::Base>(new millijson::String(version));
     if (!main_exp_name.empty()) {
-        optr->add("main_experiment_name", std::shared_ptr<millijson::Base>(new millijson::String(main_exp_name)));
+        optr->value()["main_experiment_name"] = std::shared_ptr<millijson::Base>(new millijson::String(main_exp_name));
     }
 }
 
@@ -34,8 +34,8 @@ inline void mock(const std::filesystem::path& dir, const Options& options) {
 
     auto opath = dir / "OBJECT";
     {
-        auto parsed = millijson::parse_file(opath.c_str());
-        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->values;
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
         remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("single_cell_experiment"));
         add_object_metadata(parsed.get(), "1.0", options.main_exp_name);
         json_utils::dump(parsed.get(), opath);

@@ -117,7 +117,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         if (ver->type() != millijson::STRING) {
             throw std::runtime_error("expected 'main_experiment_name' to be a string");
         }
-        const auto& mname = reinterpret_cast<const millijson::String*>(ver.get())->value;
+        const auto& mname = reinterpret_cast<const millijson::String*>(ver.get())->value();
         if (mname.empty()) {
             throw std::runtime_error("expected 'main_experiment_name' to be a non-empty string");
         }

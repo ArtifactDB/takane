@@ -46,7 +46,7 @@ inline std::string extract_format(const internal_json::JsonObjectMap& map) {
     if (val->type() != millijson::STRING) {
         throw std::runtime_error("'simple_list.format' in the object metadata should be a JSON string");
     }
-    return reinterpret_cast<millijson::String*>(val.get())->value;
+    return reinterpret_cast<millijson::String*>(val.get())->value();
 }
 
 inline std::pair<bool, size_t> extract_length(const internal_json::JsonObjectMap& map) {
@@ -58,7 +58,7 @@ inline std::pair<bool, size_t> extract_length(const internal_json::JsonObjectMap
     if (val->type() != millijson::NUMBER) {
         throw std::runtime_error("'simple_list.length' in the object metadata should be a JSON number");
     }
-    return std::pair<bool, size_t>(true, reinterpret_cast<millijson::Number*>(val.get())->value);
+    return std::pair<bool, size_t>(true, reinterpret_cast<millijson::Number*>(val.get())->value());
 }
 
 }

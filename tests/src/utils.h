@@ -112,7 +112,7 @@ namespace json_utils {
 
 inline void dump(const millijson::Base* ptr, std::ostream& output) {
     if (ptr->type() == millijson::ARRAY) {
-        const auto& vals = reinterpret_cast<const millijson::Array*>(ptr)->values;
+        const auto& vals = reinterpret_cast<const millijson::Array*>(ptr)->value();
         output << "[";
         bool first = true;
         for (const auto& x : vals) {
@@ -125,7 +125,7 @@ inline void dump(const millijson::Base* ptr, std::ostream& output) {
         output << "]";
 
     } else if (ptr->type() == millijson::OBJECT) {
-        const auto& vals = reinterpret_cast<const millijson::Object*>(ptr)->values;
+        const auto& vals = reinterpret_cast<const millijson::Object*>(ptr)->value();
 
         // Sorting them so we have a stable output.
         std::vector<std::string> all_names;
@@ -147,15 +147,15 @@ inline void dump(const millijson::Base* ptr, std::ostream& output) {
         output << "}";
 
     } else if (ptr->type() == millijson::STRING) {
-        const auto& val = reinterpret_cast<const millijson::String*>(ptr)->value;
+        const auto& val = reinterpret_cast<const millijson::String*>(ptr)->value();
         output << "\"" << val << "\"";
 
     } else if (ptr->type() == millijson::NUMBER) {
-        const auto& val = reinterpret_cast<const millijson::Number*>(ptr)->value;
+        const auto& val = reinterpret_cast<const millijson::Number*>(ptr)->value();
         output << val;
 
     } else if (ptr->type() == millijson::BOOLEAN) {
-        const auto& val = reinterpret_cast<const millijson::Boolean*>(ptr)->value;
+        const auto& val = reinterpret_cast<const millijson::Boolean*>(ptr)->value();
         if (val) {
             output << "true";
         } else {

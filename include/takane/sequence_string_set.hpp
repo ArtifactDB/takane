@@ -231,7 +231,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
             throw std::runtime_error("'sequence_string_set.length' property should be a JSON number");
         }
 
-        auto num = reinterpret_cast<const millijson::Number*>(val.get())->value;
+        auto num = reinterpret_cast<const millijson::Number*>(val.get())->value();
         if (num < 0 || std::floor(num) != num) {
             throw std::runtime_error("'sequence_string_set.length' should be a non-negative integer");
         }
@@ -281,7 +281,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
                 throw std::runtime_error("'sequence_string_set.quality_type' property should be a JSON string");
             }
 
-            const auto& qtype = reinterpret_cast<const millijson::String*>(val.get())->value;
+            const auto& qtype = reinterpret_cast<const millijson::String*>(val.get())->value();
             has_qualities = true;
 
             if (qtype == "phred") {
@@ -295,7 +295,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
                     throw std::runtime_error("'sequence_string_set.quality_offset' property should be a JSON number");
                 }
 
-                double offset = reinterpret_cast<const millijson::Number*>(val.get())->value;
+                double offset = reinterpret_cast<const millijson::Number*>(val.get())->value();
                 if (offset == 33) {
                     lowest_quality = '!';
                 } else if (offset == 64) {
@@ -351,7 +351,7 @@ inline size_t height([[maybe_unused]] const std::filesystem::path& path, const O
     const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
     auto lIt = obj.find("length");
     const auto& val = lIt->second;
-    return reinterpret_cast<const millijson::Number*>(val.get())->value;
+    return reinterpret_cast<const millijson::Number*>(val.get())->value();
 }
 
 }

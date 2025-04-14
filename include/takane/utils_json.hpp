@@ -17,10 +17,10 @@ typedef std::unordered_map<std::string, std::shared_ptr<millijson::Base> > JsonO
 template<typename Path_>
 std::shared_ptr<millijson::Base> parse_file(const Path_& path) {
     if constexpr(std::is_same<typename Path_::value_type, char>::value) {
-        return millijson::parse_file(path.c_str());
+        return millijson::parse_file(path.c_str(), {});
     } else {
         auto cpath = path.string();
-        return millijson::parse_file(cpath.c_str());
+        return millijson::parse_file(cpath.c_str(), {});
     }
 }
 
@@ -33,7 +33,7 @@ inline const JsonObjectMap& extract_object(const JsonObjectMap& x, const std::st
     if (val->type() != millijson::OBJECT) {
         throw std::runtime_error("property should be a JSON object");
     }
-    return reinterpret_cast<millijson::Object*>(val.get())->values;
+    return reinterpret_cast<millijson::Object*>(val.get())->value();
 }
 
 inline const std::string& extract_string(const JsonObjectMap& x, const std::string& name) {
@@ -45,7 +45,7 @@ inline const std::string& extract_string(const JsonObjectMap& x, const std::stri
     if (val->type() != millijson::STRING) {
         throw std::runtime_error("property should be a JSON string");
     }
-    return reinterpret_cast<millijson::String*>(val.get())->value;
+    return reinterpret_cast<millijson::String*>(val.get())->value();
 }
 
 template<class Function_>

@@ -88,7 +88,7 @@ inline bool is_indexed(const internal_json::JsonObjectMap& objmap) {
         throw std::runtime_error("property should be a JSON boolean");
     }
 
-    return reinterpret_cast<const millijson::Boolean*>(val.get())->value;
+    return reinterpret_cast<const millijson::Boolean*>(val.get())->value();
 }
 
 inline void check_sequence_type(const internal_json::JsonObjectMap& objmap, const char* msg) {
@@ -102,7 +102,7 @@ inline void check_sequence_type(const internal_json::JsonObjectMap& objmap, cons
         throw std::runtime_error("'" + std::string(msg) + ".sequence_type' property should be a JSON string");
     }
 
-    const auto& stype = reinterpret_cast<const millijson::String*>(val.get())->value;
+    const auto& stype = reinterpret_cast<const millijson::String*>(val.get())->value();
     if (stype != "RNA" && stype != "DNA" && stype != "AA" && stype != "custom") {
         throw std::runtime_error("unsupported value '" + stype + "' for the '" + std::string(msg) + ".sequence_type' property");
     }

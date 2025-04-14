@@ -207,7 +207,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         if (val->type() != millijson::BOOLEAN) {
             throw std::runtime_error("'vcf_experiment.expanded' property should be a JSON boolean");
         }
-        exp = reinterpret_cast<const millijson::Boolean*>(val.get())->value;
+        exp = reinterpret_cast<const millijson::Boolean*>(val.get())->value();
     }
 
     auto ipath = path / "file.vcf.gz";
