@@ -139,7 +139,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;fastq_file.quality_offset&#39; property should be a JSON number&quot;</span>);</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>            }</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>            <span class="keywordtype">double</span> offset = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>millijson::Number*<span class="keyword">&gt;</span>(val.get())-&gt;value;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>            <span class="keywordtype">double</span> offset = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>millijson::Number*<span class="keyword">&gt;</span>(val.get())-&gt;value();</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>            <span class="keywordflow">if</span> (offset != 33 &amp;&amp; offset != 64) {</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;fastq_file.quality_offset&#39; property should be either 33 or 64&quot;</span>);</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>            }</div>

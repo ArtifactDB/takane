@@ -122,7 +122,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordflow">if</span> (val-&gt;type() != millijson::STRING) {</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;simple_list.format&#39; in the object metadata should be a JSON string&quot;</span>);</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    }</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordflow">return</span> <span class="keyword">reinterpret_cast&lt;</span>millijson::String*<span class="keyword">&gt;</span>(val.get())-&gt;value;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordflow">return</span> <span class="keyword">reinterpret_cast&lt;</span>millijson::String*<span class="keyword">&gt;</span>(val.get())-&gt;value();</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>}</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">inline</span> std::pair&lt;bool, size_t&gt; extract_length(<span class="keyword">const</span> internal_json::JsonObjectMap&amp; map) {</div>
@@ -134,7 +134,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">if</span> (val-&gt;type() != millijson::NUMBER) {</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;simple_list.length&#39; in the object metadata should be a JSON number&quot;</span>);</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">return</span> std::pair&lt;bool, size_t&gt;(<span class="keyword">true</span>, <span class="keyword">reinterpret_cast&lt;</span>millijson::Number*<span class="keyword">&gt;</span>(val.get())-&gt;value);</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">return</span> std::pair&lt;bool, size_t&gt;(<span class="keyword">true</span>, <span class="keyword">reinterpret_cast&lt;</span>millijson::Number*<span class="keyword">&gt;</span>(val.get())-&gt;value());</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>}</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>}</div>

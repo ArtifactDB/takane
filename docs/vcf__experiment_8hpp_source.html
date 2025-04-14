@@ -282,7 +282,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>        <span class="keywordflow">if</span> (val-&gt;type() != millijson::BOOLEAN) {</div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>            <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;&#39;vcf_experiment.expanded&#39; property should be a JSON boolean&quot;</span>);</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>        }</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>        exp = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>millijson::Boolean*<span class="keyword">&gt;</span>(val.get())-&gt;value;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>        exp = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>millijson::Boolean*<span class="keyword">&gt;</span>(val.get())-&gt;value();</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    }</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keyword">auto</span> ipath = path / <span class="stringliteral">&quot;file.vcf.gz&quot;</span>;</div>
