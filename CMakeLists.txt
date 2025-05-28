@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(takane
-    VERSION 0.8.0
+    VERSION 0.9.0
     DESCRIPTION "ArtifactDB file validators"
     LANGUAGES CXX)
 
@@ -19,9 +19,9 @@ option(TAKANE_FETCH_EXTERN "Automatically fetch takane's external dependencies."
 if(TAKANE_FETCH_EXTERN)
     add_subdirectory(extern)
 else()
-    find_package(artifactdb_ritsuko CONFIG REQUIRED)
-    find_package(artifactdb_uzuki2 CONFIG REQUIRED)
-    find_package(artifactdb_chihaya CONFIG REQUIRED)
+    find_package(artifactdb_ritsuko 0.6.0 CONFIG REQUIRED)
+    find_package(artifactdb_uzuki2 2.0.0 CONFIG REQUIRED)
+    find_package(artifactdb_chihaya 1.1.0 CONFIG REQUIRED)
 endif()
 
 target_link_libraries(takane INTERFACE artifactdb::ritsuko artifactdb::chihaya artifactdb::uzuki2)
@@ -66,5 +66,10 @@ configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/artifactdb_takaneConfig.cmake"
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/artifactdb_takane)
 
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/artifactdb_takaneConfigVersion.cmake"
+    COMPATIBILITY SameMajorVersion)
+
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/artifactdb_takaneConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/artifactdb_takaneConfigVersion.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/artifactdb_takane)

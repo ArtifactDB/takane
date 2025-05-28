@@ -1,9 +1,9 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-find_dependency(artifactdb_ritsuko CONFIG REQUIRED)
-find_dependency(artifactdb_uzuki2 CONFIG REQUIRED)
-find_dependency(artifactdb_chihaya CONFIG REQUIRED)
+find_dependency(artifactdb_ritsuko 0.6.0 CONFIG REQUIRED)
+find_dependency(artifactdb_uzuki2 2.0.0 CONFIG REQUIRED)
+find_dependency(artifactdb_chihaya 1.1.0 CONFIG REQUIRED)
 
 if(@UZUKI2_FIND_HDF5@)
     find_package(HDF5 COMPONENTS C CXX)
