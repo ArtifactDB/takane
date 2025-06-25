@@ -6,6 +6,10 @@ Every object is represented by a directory on disk.
 All files related to the object are stored within this directory.
 This allows each object to be represented by any number of arbitrarily named files without interfering with other objects in different directories. 
 
+An object directory may contain any number of files and subdirectories. 
+The specification may assign different semantics to the presence or absence of certain files/subdirectories.
+However, if a subdirectory is present, it should not be empty, as some storage systems cannot easily represent an empty directory (e.g., S3).
+
 ## Object metadata
 
 All object directories should contain an `OBJECT` file.
