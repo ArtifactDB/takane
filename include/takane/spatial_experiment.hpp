@@ -84,7 +84,7 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
     if (format == "PNG") {
         ipath += ".png";
         // Magic number from http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature
-        std::array<unsigned char, 8> expected { 137, 80, 78, 71, 13, 10, 26, 10 };
+        constexpr std::array<unsigned char, 8> expected { 137, 80, 78, 71, 13, 10, 26, 10 };
         internal_files::check_signature<byteme::RawFileReader>(ipath, expected.data(), expected.size(), "PNG");
 
     } else if (format == "TIFF") {
@@ -92,8 +92,8 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
         std::array<unsigned char, 4> observed;
         internal_files::extract_signature(ipath, observed.data(), observed.size());
         // Magic numbers from https://en.wikipedia.org/wiki/Magic_number_(programming)
-        std::array<unsigned char, 4> iisig = { 0x49, 0x49, 0x2A, 0x00 };
-        std::array<unsigned char, 4> mmsig = { 0x4D, 0x4D, 0x00, 0x2A };
+        constexpr std::array<unsigned char, 4> iisig { 0x49, 0x49, 0x2A, 0x00 };
+        constexpr std::array<unsigned char, 4> mmsig { 0x4D, 0x4D, 0x00, 0x2A };
         if (observed != iisig && observed != mmsig) {
             throw std::runtime_error("incorrect TIFF file signature for '" + ipath.string() + "'");
         }
@@ -104,6 +104,31 @@ inline void validate_image(const std::filesystem::path& path, size_t i, const st
             throw std::runtime_error("object in '" + ipath.string() + "' should satisfy the 'IMAGE' interface");
         }
         ::takane::validate(ipath, imeta, options);
+
+    } else if (format == "JPEG" && version.ge(1, 3, 0)) {
+        ipath += ".jpg";
+        // Common prefix of the JPEG-related magic numbers from https://en.wikipedia.org/wiki/List_of_file_signatures
+        constexpr std::array<unsigned char, 2> expected { 0xFF, 0xD8 };
+        internal_files::check_signature<byteme::RawFileReader>(ipath, expected.data(), expected.size(), "JPEG");
+
+    } else if (format == "GIF" && version.ge(1, 3, 0)) {
+        ipath += ".gif";
+        // Common prefix of the old and new magic numbers from https://en.wikipedia.org/wiki/GIF
+        constexpr std::array<unsigned char, 4> expected{ 0x47, 0x49, 0x46, 0x38 };
+        internal_files::check_signature<byteme::RawFileReader>(ipath, expected.data(), expected.size(), "GIF");
+
+    } else if (format == "WEBP" && version.ge(1, 3, 0)) {
+        ipath += ".webp";
+        std::array<unsigned char, 12> observed;
+        internal_files::extract_signature(ipath, observed.data(), observed.size());
+        constexpr std::array<unsigned char, 4> first4 { 0x52, 0x49, 0x46, 0x46 };
+        constexpr std::array<unsigned char, 4> last4 { 0x57, 0x45, 0x42, 0x50 };
+        std::array<unsigned char, 4> observed_first, observed_last;
+        std::copy_n(observed.begin(), 4, observed_first.begin());
+        std::copy_n(observed.begin() + 8, 4, observed_last.begin());
+        if (observed_first != first4 || observed_last != last4) {
+            throw std::runtime_error("incorrect WEBP file signature for '" + ipath.string() + "'");
+        }
 
     } else {
         throw std::runtime_error("image format '" + format + "' is not currently supported");
@@ -209,7 +234,7 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, Opt
         throw std::runtime_error("failed to validate '" + mappath.string() + "'; " + std::string(e.what()));
     }
 
-    // Now validating the images themselves.
+    // Now validating the images themselves. 
     size_t num_images = image_formats.size();
     for (size_t i = 0; i < num_images; ++i) {
         validate_image(image_dir, i, image_formats[i], options, version);
