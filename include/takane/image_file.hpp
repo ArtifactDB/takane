@@ -79,19 +79,19 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         const std::filesystem::path ipath = prefix + ".tif";
         internal::validate_tiff(ipath);
 
-    } else if (format == "JPEG" && version.ge(1, 3, 0)) {
+    } else if (format == "JPEG") {
         auto ipath = prefix + ".jpg";
         // Common prefix of the JPEG-related magic numbers from https://en.wikipedia.org/wiki/List_of_file_signatures
         constexpr std::array<unsigned char, 2> expected { 0xFF, 0xD8 };
         internal_files::check_signature<byteme::RawFileReader>(ipath, expected.data(), expected.size(), "JPEG");
 
-    } else if (format == "GIF" && version.ge(1, 3, 0)) {
+    } else if (format == "GIF") {
         auto ipath = prefix + ".gif";
         // Common prefix of the old and new magic numbers from https://en.wikipedia.org/wiki/GIF
         constexpr std::array<unsigned char, 4> expected{ 0x47, 0x49, 0x46, 0x38 };
         internal_files::check_signature<byteme::RawFileReader>(ipath, expected.data(), expected.size(), "GIF");
 
-    } else if (format == "WEBP" && version.ge(1, 3, 0)) {
+    } else if (format == "WEBP") {
         auto ipath = prefix + ".webp";
         std::array<unsigned char, 12> observed;
         internal_files::extract_signature(ipath, observed.data(), observed.size());
