@@ -4,6 +4,8 @@
 #include "spatial_experiment.h"
 #include "utils.h"
 
+#include "takane/spatial_experiment.hpp"
+
 #include <string>
 #include <vector>
 #include <filesystem>
@@ -159,6 +161,19 @@ TEST_F(SpatialExperimentTest, NoImages) {
     }
 
     test_validate(dir); 
+}
+
+TEST_F(SpatialExperimentTest, ExtraImages) {
+    spatial_experiment::Options options(20, 19);
+    options.num_samples = 2;
+    options.num_images_per_sample = 1;
+    spatial_experiment::mock(dir, options);
+
+    {
+        auto ipath = dir / "images" / "2.tif";
+        std::ofstream ohandle(ipath);
+    }
+    expect_error("more objects than expected");
 }
 
 TEST_F(SpatialExperimentTest, ImageSamples) {
@@ -369,48 +384,36 @@ TEST_F(SpatialExperimentTest, OtherImageFormats) {
     test_validate(dir, vopt);
 }
 
-TEST_F(SpatialExperimentTest, ImageSignature) {
+TEST_F(SpatialExperimentTest, NoImageFormats) {
     spatial_experiment::Options options(20, 19);
-    options.num_samples = 1;
-    options.num_images_per_sample = 2;
+    options.num_samples = 2;
+    options.num_images_per_sample = 7;
+    options.specify_format = false;
     spatial_experiment::mock(dir, options);
-    test_validate(dir); 
 
-    // Overriding each image.
+    expect_error("image_formats");
+
+    // Bumping the version so we actually get support for missing image formats.
     {
-        auto ipath = dir / "images" / "0.png";
-        {
-            std::ofstream ohandle(ipath);
-        }
-        expect_error("incomplete PNG file signature");
-
-        {
-            std::ofstream ohandle(ipath);
-            ohandle << "chino-chan";
-        }
-        expect_error("incorrect PNG file signature");
+        auto opath = dir / "OBJECT";
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
+        remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("spatial_experiment"));
+        spatial_experiment::add_object_metadata(parsed.get(), "1.3");
+        json_utils::dump(parsed.get(), opath);
     }
+    test_validate(dir);
 
-    spatial_experiment::mock(dir, options);
-    {
-        auto ipath = dir / "images" / "1.tif";
-        {
-            std::ofstream ohandle(ipath);
-        }
-        expect_error("too small");
-
-        {
-            std::ofstream ohandle(ipath);
-            ohandle << "chino-chan";
-        }
-        expect_error("incorrect TIFF file signature");
-    }
-
-    // Replacing an image.
+    // Latest version also works in the presence of image_formats.
+    options.specify_format = true;
     spatial_experiment::mock(dir, options);
     {
-        auto ipath = dir / "images" / "2.tif";
-        std::ofstream ohandle(ipath);
+        auto opath = dir / "OBJECT";
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
+        remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("spatial_experiment"));
+        spatial_experiment::add_object_metadata(parsed.get(), "1.3");
+        json_utils::dump(parsed.get(), opath);
     }
-    expect_error("more objects than expected");
+    test_validate(dir);
 }

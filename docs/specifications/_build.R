@@ -7,7 +7,7 @@ known.variants <- list(
     dense_array.Rmd="1.1",
     data_frame.Rmd="1.1",
     simple_list.Rmd="1.1",
-    spatial_experiment.Rmd=c("1.1", "1.2")
+    spatial_experiment.Rmd=c("1.1", "1.2", "1.3")
 )
 
 dest <- "compiled"

@@ -4,6 +4,7 @@
 #include "ritsuko/hdf5/hdf5.hpp"
 
 #include "single_cell_experiment.hpp"
+#include "image_file.hpp"
 #include "utils_factor.hpp"
 #include "utils_public.hpp"
 #include "utils_other.hpp"
@@ -80,31 +81,18 @@ inline void validate_coordinates(const std::filesystem::path& path, size_t ncols
 
 inline void validate_image(const std::filesystem::path& path, size_t i, const std::string& format, Options& options, const ritsuko::Version& version) {
     auto ipath = path / std::to_string(i);
-
     if (format == "PNG") {
         ipath += ".png";
-        // Magic number from http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#PNG-file-signature
-        std::array<unsigned char, 8> expected { 137, 80, 78, 71, 13, 10, 26, 10 };
-        internal_files::check_signature<byteme::RawFileReader>(ipath, expected.data(), expected.size(), "PNG");
-
+        image_file::internal::validate_png(ipath);
     } else if (format == "TIFF") {
         ipath += ".tif";
-        std::array<unsigned char, 4> observed;
-        internal_files::extract_signature(ipath, observed.data(), observed.size());
-        // Magic numbers from https://en.wikipedia.org/wiki/Magic_number_(programming)
-        std::array<unsigned char, 4> iisig = { 0x49, 0x49, 0x2A, 0x00 };
-        std::array<unsigned char, 4> mmsig = { 0x4D, 0x4D, 0x00, 0x2A };
-        if (observed != iisig && observed != mmsig) {
-            throw std::runtime_error("incorrect TIFF file signature for '" + ipath.string() + "'");
-        }
-
+        image_file::internal::validate_tiff(ipath);
     } else if (format == "OTHER" && version.ge(1, 1, 0)) {
         auto imeta = read_object_metadata(ipath);
         if (!satisfies_interface(imeta.type, "IMAGE", options)) {
             throw std::runtime_error("object in '" + ipath.string() + "' should satisfy the 'IMAGE' interface");
         }
         ::takane::validate(ipath, imeta, options);
-
     } else {
         throw std::runtime_error("image format '" + format + "' is not currently supported");
     }
@@ -122,6 +110,7 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, Opt
     auto ghandle = ritsuko::hdf5::open_group(ihandle, "spatial_experiment");
 
     std::vector<std::string> image_formats;
+
     try {
         struct SampleMapMessenger {
             static std::string level() { return "sample name"; }
@@ -158,20 +147,10 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, Opt
             throw std::runtime_error("expected 'image_scale_factors' to have the same length as 'image_samples'");
         }
 
-        auto format_handle = ritsuko::hdf5::open_dataset(ghandle, "image_formats");
-        if (!ritsuko::hdf5::is_utf8_string(format_handle)) {
-            throw std::runtime_error("expected 'image_formats' to have a datatype that can be represented by a UTF-8 encoded string");
-        }
-        if (ritsuko::hdf5::get_1d_length(format_handle.getSpace(), false) != num_images) {
-            throw std::runtime_error("expected 'image_formats' to have the same length as 'image_samples'");
-        }
-
         ritsuko::hdf5::Stream1dNumericDataset<uint64_t> sample_stream(&sample_handle, num_images, options.hdf5_buffer_size);
         ritsuko::hdf5::Stream1dStringDataset id_stream(&id_handle, num_images, options.hdf5_buffer_size);
         ritsuko::hdf5::Stream1dNumericDataset<double> scale_stream(&scale_handle, num_images, options.hdf5_buffer_size);
-        ritsuko::hdf5::Stream1dStringDataset format_stream(&format_handle, num_images, options.hdf5_buffer_size);
         std::vector<std::unordered_set<std::string> > collected(num_samples);
-        image_formats.reserve(num_images);
 
         for (hsize_t i = 0; i < num_images; ++i) {
             auto sample = sample_stream.get();
@@ -193,10 +172,28 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, Opt
                 throw std::runtime_error("entries of 'image_scale_factors' should be finite and positive");
             }
             scale_stream.next();
+        }
 
-            auto fmt = format_stream.steal();
-            image_formats.push_back(std::move(fmt));
-            format_stream.next();
+        if (version.ge(1, 3, 0) && !ghandle.exists("image_formats")) { 
+            image_formats.resize(num_images, "OTHER");
+
+        } else {
+            auto format_handle = ritsuko::hdf5::open_dataset(ghandle, "image_formats");
+            if (!ritsuko::hdf5::is_utf8_string(format_handle)) {
+                throw std::runtime_error("expected 'image_formats' to have a datatype that can be represented by a UTF-8 encoded string");
+            }
+            if (ritsuko::hdf5::get_1d_length(format_handle.getSpace(), false) != num_images) {
+                throw std::runtime_error("expected 'image_formats' to have the same length as 'image_samples'");
+            }
+            image_formats.reserve(num_images);
+
+            ritsuko::hdf5::Stream1dStringDataset format_stream(&format_handle, num_images, options.hdf5_buffer_size);
+
+            for (hsize_t i = 0; i < num_images; ++i) {
+                auto fmt = format_stream.steal();
+                image_formats.push_back(std::move(fmt));
+                format_stream.next();
+            }
         }
 
         for (const auto& x : collected) {
@@ -209,7 +206,7 @@ inline void validate_images(const std::filesystem::path& path, size_t ncols, Opt
         throw std::runtime_error("failed to validate '" + mappath.string() + "'; " + std::string(e.what()));
     }
 
-    // Now validating the images themselves.
+    // Now validating the images themselves. 
     size_t num_images = image_formats.size();
     for (size_t i = 0; i < num_images; ++i) {
         validate_image(image_dir, i, image_formats[i], options, version);

@@ -59,6 +59,8 @@ Currently, **takane** provides validators for the following objects:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gff_file/1.0.md).
 - `gmt_file`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gmt_file/1.0.md).
+- `image_file`:
+  [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/image_file/1.0.md).
 - `multi_sample_dataset`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/multi_sample_dataset/1.0.md).
 - `ranged_summarized_experiment`:
@@ -76,6 +78,7 @@ Currently, **takane** provides validators for the following objects:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.0.md),
   [1.1](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.1.md),
   [1.2](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.2.md).
+  [1.3](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/spatial_experiment/1.3.md).
 - `string_factor`:
   [1.0](https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/string_factor/1.0.md).
 - `summarized_experiment`:

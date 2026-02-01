@@ -1,0 +1,37 @@
+```{r, results="hide", echo=FALSE}
+knitr::opts_chunk$set(error=FALSE)
+if (!exists(".version")) {
+    .version <- package_version("1.0")
+}
+```
+
+```{r, results="asis", echo=FALSE}
+cat("# Image file (", as.character(.version), ")", sep="")
+```
+
+## Overview
+
+The `image_file` format specifies the expected representation for an image file in one of the standard formats.
+
+## Object metadata
+
+The `OBJECT` file should contain a `bam_file` property, itself a JSON object with the following properties:
+
+- `version`, a string specifying the version of the `bam_file` format.
+```{r, results="asis", echo=FALSE}
+cat("  This should be set to \"", as.character(.version), "\".", sep="")
+```
+- `format`, a string specifying the format of the file.
+  This may be one of `"PNG"`, `"TIFF"`, `"JPEG"`, `"GIF"` or `"WEBP"`.
+
+## Directory structure
+
+The directory should contain:
+
+- `file.png`, a PNG file if `format` is `"PNG"`.
+- `file.tif`, a TIFF file if `format` is `"TIFF"`.
+- `file.jpg`, a JPEG file if `format` is `"JPEG"`.
+- `file.gif`, a GIF file if `format` is `"GIF"`.
+- `file.webp`, a WEBP file if `format` is `"WEBP"`.
+
+All formats are validated based on their magic numbers.

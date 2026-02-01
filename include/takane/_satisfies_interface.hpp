@@ -23,6 +23,7 @@ inline auto default_registry() {
     registry["SIMPLE_LIST"] = { "simple_list" };
     registry["DATA_FRAME"] = { "data_frame" };
     registry["SUMMARIZED_EXPERIMENT"] = { "summarized_experiment", "vcf_experiment" };
+    registry["IMAGE"] = { "image_file" };
     return registry;
 }
 
