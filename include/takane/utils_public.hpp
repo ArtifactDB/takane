@@ -232,6 +232,14 @@ public:
      * Options to use for validating **chihaya** specifications in `delayed_array::validate()`.
      */
     chihaya::Options delayed_array_options;
+
+    /**
+     * Application-specific function to check the validity of an image file in `image_file::validate()`.
+     * This should accept a path to the directory containing the image file, the object metadata, and additional reading options.
+     * It should throw an error if the image file is not valid.
+     */
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> image_file_strict_check;
+
 };
 
 }

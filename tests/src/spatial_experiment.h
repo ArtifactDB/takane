@@ -12,9 +12,16 @@
 namespace spatial_experiment {
 
 struct Options : public ::single_cell_experiment::Options {
-    Options(size_t nr, size_t nc, size_t ns = 1, size_t ni = 1) : ::single_cell_experiment::Options(nr, nc), num_samples(ns), num_images_per_sample(ni) {}
+    Options(size_t nr, size_t nc, size_t ns = 1, size_t ni = 1, bool sp = true) : 
+        ::single_cell_experiment::Options(nr, nc),
+        num_samples(ns),
+        num_images_per_sample(ni),
+        specify_format(sp)
+    {}
+
     size_t num_samples;
     size_t num_images_per_sample;
+    bool specify_format;
 };
 
 inline void add_object_metadata(millijson::Base* input, const std::string& version) {
@@ -84,36 +91,52 @@ inline void mock(const std::filesystem::path& dir, const Options& options) {
         num_images = image_ids.size();
     }
 
-    {
-        std::vector<std::string> formats;
-        formats.reserve(num_images);
-        for (size_t i = 0; i < num_images; ++i) {
-            std::vector<unsigned char> magical;
-            auto path = idir / std::to_string(i);
+    std::vector<std::string> formats;
+    formats.reserve(num_images);
+    for (size_t i = 0; i < num_images; ++i) {
+        std::vector<unsigned char> magical;
+        std::string format, ext;
 
-            switch (i%3) {
-                case 0:
-                    formats.push_back("PNG");
-                    magical = std::vector<unsigned char>{ 137, 80, 78, 71, 13, 10, 26, 10 };
-                    path += ".png";
-                    break;
-                case 1:
-                    formats.push_back("TIFF");
-                    magical = std::vector<unsigned char>{ 77, 77, 0, 42 }; 
-                    path += ".tif";
-                    break;
-                case 2:
-                    formats.push_back("TIFF");
-                    magical = std::vector<unsigned char>{ 73, 73, 42, 0 };
-                    path += ".tif";
-                    break;
-            };
+        switch (i%3) {
+            case 0:
+                format = "PNG";
+                magical = std::vector<unsigned char>{ 137, 80, 78, 71, 13, 10, 26, 10 };
+                ext = ".png";
+                break;
+            case 1:
+                format = "TIFF";
+                magical = std::vector<unsigned char>{ 77, 77, 0, 42 }; 
+                ext = ".tif";
+                break;
+            case 2:
+                format = "TIFF";
+                magical = std::vector<unsigned char>{ 73, 73, 42, 0 };
+                ext = ".tif";
+                break;
+        };
 
-            magical.push_back(0); // just adding something past the signature.
-            byteme::RawFileWriter writer(path.c_str(), {});
-            writer.write(magical.data(), magical.size());
+        auto path = idir / std::to_string(i);
+        magical.push_back(0); // just adding something past the signature.
+
+        if (options.specify_format) {
+            formats.push_back(format);
+            path += ext;
+        } else {
+            std::filesystem::create_directory(path);
+
+            auto opath = path / "OBJECT";
+            byteme::RawFileWriter writer(opath.c_str(), {});
+            auto obody = "{ \"type\": \"image_file\", \"image_file\": { \"version\": \"1.0\", \"format\": \"" + format + "\" } }";
+            writer.write(reinterpret_cast<const unsigned char*>(obody.c_str()), obody.size());
+
+            path /= "file" + ext;
         }
 
+        byteme::RawFileWriter writer(path.c_str(), {});
+        writer.write(magical.data(), magical.size());
+    }
+
+    if (options.specify_format) {
         hdf5_utils::spawn_string_data(ghandle, "image_formats", 5, formats);
     }
 }
