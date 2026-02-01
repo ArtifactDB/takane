@@ -29,7 +29,7 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 The directory should contain:
 
 - `file.png`, a PNG file if `format` is `"PNG"`.
-- `file.tiff`, a TIFF file if `format` is `"TIFF"`.
+- `file.tif`, a TIFF file if `format` is `"TIFF"`.
 - `file.jpg`, a JPEG file if `format` is `"JPEG"`.
 - `file.gif`, a GIF file if `format` is `"GIF"`.
 - `file.webp`, a WEBP file if `format` is `"WEBP"`.

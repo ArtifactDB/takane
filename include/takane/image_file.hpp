@@ -61,7 +61,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     const std::string type_name = "image_file"; // use a separate variable to avoid dangling reference warnings from GCC.
     const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const auto& vstring = internal_json::extract_string_from_typed_object(obj, "version", type_name);
+    const std::string vname = "version";
+    const auto& vstring = internal_json::extract_string_from_typed_object(obj, vname, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
