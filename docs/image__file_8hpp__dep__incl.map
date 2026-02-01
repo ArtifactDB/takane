@@ -1,0 +1,10 @@
+<map id="takane/image_file.hpp" name="takane/image_file.hpp">
+<area shape="rect" id="Node000001" title="Validation for standard image files." alt="" coords="5,5,152,31"/>
+<area shape="rect" id="Node000002" href="$__validate_8hpp.html" title="Validation dispatch function." alt="" coords="8,153,149,178"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="59,45,47,61,38,80,37,100,44,119,68,151,64,154,39,121,32,100,33,78,42,59,54,41"/>
+<area shape="rect" id="Node000004" href="$spatial__experiment_8hpp.html" title="Validation for spatial experiments." alt="" coords="48,79,245,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="102,40,137,77,133,80,98,44"/>
+<area shape="rect" id="Node000003" href="$takane_8hpp.html" title="Umbrella header for takane." alt="" coords="15,226,142,252"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="81,194,81,226,76,226,76,194"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="127,118,92,154,88,150,123,114"/>
+</map>

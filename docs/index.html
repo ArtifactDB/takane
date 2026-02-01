@@ -117,6 +117,7 @@ $(function(){ initResizable(false); });
 <li><code>genomic_ranges</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/genomic_ranges/1.0.md">1.0</a>.</li>
 <li><code>gff_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gff_file/1.0.md">1.0</a>.</li>
 <li><code>gmt_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/gmt_file/1.0.md">1.0</a>.</li>
+<li><code>image_file</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/image_file/1.0.md">1.0</a>.</li>
 <li><code>multi_sample_dataset</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/multi_sample_dataset/1.0.md">1.0</a>.</li>
 <li><code>ranged_summarized_experiment</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/ranged_summarized_experiment/1.0.md">1.0</a>.</li>
 <li><code>sequence_information</code>: <a href="https://github.com/ArtifactDB/takane/tree/gh-pages/docs/specifications/sequence_information/1.0.md">1.0</a>.</li>
@@ -133,7 +134,7 @@ $(function(){ initResizable(false); });
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="takane_8hpp.html">takane/takane.hpp</a>&quot;</span></div>
 <div class="line"> </div>
 <div class="line"><a class="code hl_function" href="namespacetakane.html#a5d957cd7981863fed73738d0b0cf6531">takane::validate</a>(dir);</div>
-<div class="ttc" id="anamespacetakane_html_a5d957cd7981863fed73738d0b0cf6531"><div class="ttname"><a href="namespacetakane.html#a5d957cd7981863fed73738d0b0cf6531">takane::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> _validate.hpp:107</div></div>
+<div class="ttc" id="anamespacetakane_html_a5d957cd7981863fed73738d0b0cf6531"><div class="ttname"><a href="namespacetakane.html#a5d957cd7981863fed73738d0b0cf6531">takane::validate</a></div><div class="ttdeci">void validate(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, Options &amp;options)</div><div class="ttdef"><b>Definition</b> _validate.hpp:109</div></div>
 <div class="ttc" id="atakane_8hpp_html"><div class="ttname"><a href="takane_8hpp.html">takane.hpp</a></div><div class="ttdoc">Umbrella header for takane.</div></div>
 </div><!-- fragment --><p>The idea is to bind to the <b>takane</b> library in application-specific frameworks, e.g., via R/Python's foreign function interfaces. This consistently enforces the format expectations for each object, regardless of how the saving was performed by each application. For example, we might use the <a href="https://github.com/ArtifactDB/alabaster.base"><b>alabaster</b></a> framework to save Bioconductor objects to disk:</p>
 <div class="fragment"><div class="line">library(alabaster.base)</div>

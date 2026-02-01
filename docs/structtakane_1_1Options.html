@@ -144,6 +144,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:ad204c533660938f04fb842a7b6341027"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04925279d99322a9a41c33f091d400e9" id="r_a04925279d99322a9a41c33f091d400e9"><td class="memItemLeft" align="right" valign="top">chihaya::Options&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a04925279d99322a9a41c33f091d400e9">delayed_array_options</a></td></tr>
 <tr class="separator:a04925279d99322a9a41c33f091d400e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ef712f2d0cdb23d92eaa0cc83816f66" id="r_a4ef712f2d0cdb23d92eaa0cc83816f66"><td class="memItemLeft" align="right" valign="top">std::function&lt; void(const std::filesystem::path &amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ef712f2d0cdb23d92eaa0cc83816f66">image_file_strict_check</a></td></tr>
+<tr class="separator:a4ef712f2d0cdb23d92eaa0cc83816f66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Validation options. </p>
@@ -418,6 +420,21 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Buffer size to use when reading data from a HDF5 file. </p>
+
+</div>
+</div>
+<a id="a4ef712f2d0cdb23d92eaa0cc83816f66" name="a4ef712f2d0cdb23d92eaa0cc83816f66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ef712f2d0cdb23d92eaa0cc83816f66">&#9670;&#160;</a></span>image_file_strict_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;void(const std::filesystem::path&amp;, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a>&amp;, <a class="el" href="structtakane_1_1Options.html">Options</a>&amp;)&gt; takane::Options::image_file_strict_check</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Application-specific function to check the validity of an image file in <code><a class="el" href="namespacetakane_1_1image__file.html#a8687039e51462e5308726e149059c743">image_file::validate()</a></code>. This should accept a path to the directory containing the image file, the object metadata, and additional reading options. It should throw an error if the image file is not valid. </p>
 
 </div>
 </div>

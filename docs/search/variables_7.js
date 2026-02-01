@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['other_0',['other',['../structtakane_1_1ObjectMetadata.html#a3b46efa17e6ca667bc902073cf7151cd',1,'takane::ObjectMetadata']]]
+  ['num_5frows_0',['num_rows',['../structtakane_1_1csv__data__frame_1_1Parameters.html#a5470182fe9fbbd21a97cf3964f8935c4',1,'takane::csv_data_frame::Parameters']]]
 ];
