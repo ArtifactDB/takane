@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "ritsuko/hdf5/hdf5.hpp"
+#include "byteme/byteme.hpp"
 
 #include "utils_public.hpp"
 #include "utils_string.hpp"

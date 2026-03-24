@@ -30,10 +30,8 @@ TEST_F(BigWigFileTest, Basic) {
 
     initialize_directory_simple(dir, name, "1.0");
     auto bwpath = (dir / "file.bw").string();
-    {
-        std::ofstream handle(bwpath.c_str(), {});
-        handle << "foobar";
-    }
+
+    quick_text_write(bwpath, "foobar");
     expect_error("incorrect bigWig file signature");
 
     {
@@ -54,6 +52,7 @@ TEST_F(BigWigFileTest, Basic) {
 TEST_F(BigWigFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
     auto bwpath = (dir / "file.bw").string();
+
     {
         byteme::RawFileWriter handle(bwpath.c_str(), {});
         uint32_t val = 0x888FFC26;

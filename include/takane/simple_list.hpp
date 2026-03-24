@@ -107,7 +107,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
     }
 
-    size_t len;
+    std::size_t len;
     if (format == "json.gz") {
         uzuki2::json::Options opt;
         opt.parallel = options.parallel_reads;

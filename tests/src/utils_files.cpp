@@ -16,7 +16,7 @@ struct FileSignatureTest : public::testing::Test {
     static void expect_error_check(const std::string& msg, Args_&& ... args) {
         EXPECT_ANY_THROW({
             try {
-                takane::internal_files::check_signature<byteme::RawFileReader>(std::forward<Args_>(args)...);
+                takane::internal_files::check_raw_signature(std::forward<Args_>(args)...);
             } catch (std::exception& e) {
                 EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
                 throw;
@@ -57,14 +57,14 @@ TEST_F(FileSignatureTest, Character) {
         std::ofstream handle(path);
         handle << "FOOBAR";
     }
-    takane::internal_files::check_signature<byteme::RawFileReader>(path, "FOOBAR", 6, "ASD");
+    takane::internal_files::check_raw_signature(path, "FOOBAR", 6, "ASD");
 
     // Works with non-ASCII characters.
     {
         std::ofstream handle(path);
         handle << "FOO\1BAR\2asdasd\3asd\n";
     }
-    takane::internal_files::check_signature<byteme::RawFileReader>(path, "FOO\1BAR\2", 8, "ASD");
+    takane::internal_files::check_raw_signature(path, "FOO\1BAR\2", 8, "ASD");
 }
 
 TEST_F(FileSignatureTest, Unsigned) {
@@ -88,7 +88,7 @@ TEST_F(FileSignatureTest, Unsigned) {
         byteme::RawFileWriter writer(path.c_str(), {});
         writer.write(foo, 4);
     }
-    takane::internal_files::check_signature<byteme::RawFileReader>(path, foo, 4, "ASD");
+    takane::internal_files::check_raw_signature(path, foo, 4, "ASD");
 }
 
 TEST_F(FileSignatureTest, Extraction) {

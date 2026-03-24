@@ -30,32 +30,22 @@ TEST_F(RdsFileTest, Basic) {
 
     initialize_directory_simple(dir, name, "1.0");
     auto rpath = (dir / "file.rds").string();
-    {
-        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
-        fhandle.write("X");
-    }
+
+    quick_gzip_write(rpath, "X");
     expect_error("incomplete");
 
-    {
-        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
-        fhandle.write("B\n");
-    }
+    quick_gzip_write(rpath, "B\n");
     expect_error("incorrect");
 
-    {
-        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
-        fhandle.write("X\n");
-    }
+    quick_gzip_write(rpath, "X\n");
     test_validate(dir);
 }
 
 TEST_F(RdsFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
     auto rpath = (dir / "file.rds").string();
-    {
-        byteme::GzipFileWriter fhandle(rpath.c_str(), {});
-        fhandle.write("X\n");
-    }
+
+    quick_gzip_write(rpath, "X\n");
 
     takane::Options opts;
     opts.rds_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};

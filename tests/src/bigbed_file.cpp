@@ -30,10 +30,8 @@ TEST_F(BigBedFileTest, Basic) {
 
     initialize_directory_simple(dir, name, "1.0");
     auto bbpath = (dir / "file.bb").string();
-    {
-        std::ofstream handle(bbpath);
-        handle << "foobar";
-    }
+
+    quick_text_write(bbpath, "foobar");
     expect_error("incorrect bigBed file signature");
 
     {
@@ -54,6 +52,7 @@ TEST_F(BigBedFileTest, Basic) {
 TEST_F(BigBedFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
     auto bbpath = (dir / "file.bb").string();
+
     {
         byteme::RawFileWriter handle(bbpath.c_str(), {});
         uint32_t val = 0xEBF28987;

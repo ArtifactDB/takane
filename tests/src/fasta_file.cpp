@@ -29,88 +29,69 @@ TEST_F(FastaFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory(dir);
+
+    auto objpath = (dir / "OBJECT").string();
+    quick_text_write(objpath,
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
+    );
+
     auto fapath = (dir / "file.fasta.gz").string();
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }";
-        byteme::GzipFileWriter handle(fapath.c_str(), {});
-        handle.write("asdasd\nACGT\n");
-    }
+    quick_gzip_write(fapath, "asdasd\nACGT\n");
     expect_error("start with '>'");
 
-    {
-        byteme::GzipFileWriter handle(fapath.c_str(), {});
-        handle.write(">asdasd\nACGT\n");
-    }
+    quick_gzip_write(fapath, ">asdasd\nACGT\n");
     test_validate(dir);
 
     // Works with different sequence types.
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"RNA\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"RNA\" } }"
+    );
     test_validate(dir);
 
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"AA\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"AA\" } }"
+    );
     test_validate(dir);
 
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"custom\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"custom\" } }"
+    );
     test_validate(dir);
 
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"foo\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"foo\" } }"
+    );
     expect_error("foo");
 }
 
 TEST_F(FastaFileTest, Indexed) {
     initialize_directory(dir);
+
+    quick_text_write((dir / "OBJECT").string(),
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\" } }"
+    );
+
     auto fbpath = (dir / "file.fasta.bgz").string();
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\" } }";
-        byteme::GzipFileWriter fhandle(fbpath.c_str(), {});
-        fhandle.write("asdasd\nACGT\n");
-    }
+    quick_gzip_write(fbpath, "asdasd\nACGT\n");
     expect_error("start with '>'");
 
-    {
-        byteme::GzipFileWriter fhandle(fbpath.c_str(), {});
-        fhandle.write(">asdasd\nACGT\n");
-    }
+    quick_gzip_write(fbpath, ">asdasd\nACGT\n");
     expect_error("missing FASTA index file");
 
-    {
-        std::ofstream ihandle(dir / "file.fasta.fai");
-        ihandle << "";
-    }
+    quick_text_write((dir / "file.fasta.fai").string(), "");
     expect_error("missing BGZF index file");
 
-    {
-        std::ofstream ihandle(dir / "file.fasta.bgz.gzi");
-        ihandle << "";
-    }
+    quick_text_write((dir / "file.fasta.bgz.gzi").string(), "");
     test_validate(dir);
 }
 
 TEST_F(FastaFileTest, Strict) {
     initialize_directory(dir);
 
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }";
-
-        auto fgpath = dir / "file.fasta.gz";
-        byteme::GzipFileWriter fhandle(fgpath.c_str(), {});
-        fhandle.write(">asdasd\nACGT\n");
-    }
+    quick_text_write((dir / "OBJECT").string(),
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
+    );
+    quick_gzip_write((dir / "file.fasta.gz").string(), ">asdasd\nACGT\n");
 
     takane::Options opts;
     opts.fasta_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) {};

@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <filesystem>
 #include <array>
+#include <vector>
+#include <cstddef>
 
 #include "utils_other.hpp"
 #include "utils_json.hpp"
@@ -14,66 +16,40 @@ namespace takane {
 
 namespace internal_files {
 
-template<class Reader_>
-auto set_buffer_options(size_t len) {
-    if constexpr(std::is_same<Reader_, byteme::RawFileReader>::value) {
-        byteme::RawFileReaderOptions opt;
-        opt.buffer_size = len;
-        return opt;
-    } else {
-        byteme::GzipFileReaderOptions opt;
-        opt.buffer_size = len;
-        return opt;
+template<class Reader_, typename Type_>
+void check_signature(Reader_& reader, const Type_* expected, std::size_t len, const char* msg, const std::filesystem::path& path) {
+    std::vector<Type_> buffer(len);
+    if (reader.read(reinterpret_cast<unsigned char*>(buffer.data()), len) != len) {
+        throw std::runtime_error("incomplete " + std::string(msg) + " file signature for '" + path.string() + "'");
+    }
+    for (std::size_t i = 0; i < len; ++i) {
+        if (buffer[i] != expected[i]) {
+            throw std::runtime_error("incorrect " + std::string(msg) + " file signature for '" + path.string() + "'");
+        }
     }
 }
 
-template<class Reader_>
-void check_signature(const std::filesystem::path& path, const char* expected, size_t len, const char* msg) {
-    auto reader = internal_other::open_reader<Reader_>(path, set_buffer_options<Reader_>(len));
-    byteme::PerByteSerial<char> pb(std::move(reader));
-    bool okay = pb.valid();
-    for (size_t i = 0; i < len; ++i) {
-        if (!okay) {
-            throw std::runtime_error("incomplete " + std::string(msg) + " file signature for '" + path.string() + "'");
-        }
-        if (pb.get() != expected[i]) {
-            throw std::runtime_error("incorrect " + std::string(msg) + " file signature for '" + path.string() + "'");
-        }
-        okay = pb.advance();
-    }
+template<typename Type_>
+void check_raw_signature(const std::filesystem::path& path, const Type_* expected, std::size_t len, const char* msg) {
+    auto reader = internal_other::open_reader<byteme::RawFileReader>(path, byteme::RawFileReaderOptions());
+    check_signature(*reader, expected, len, msg, path);
 }
 
-template<class Reader_>
-void check_signature(const std::filesystem::path& path, const unsigned char* expected, size_t len, const char* msg) {
-    auto reader = internal_other::open_reader<Reader_>(path, set_buffer_options<Reader_>(len));
-    byteme::PerByteSerial<unsigned char> pb(std::move(reader));
-    bool okay = pb.valid();
-    for (size_t i = 0; i < len; ++i) {
-        if (!okay) {
-            throw std::runtime_error("incomplete " + std::string(msg) + " file signature for '" + path.string() + "'");
-        }
-        if (pb.get() != expected[i]) {
-            throw std::runtime_error("incorrect " + std::string(msg) + " file signature for '" + path.string() + "'");
-        }
-        okay = pb.advance();
-    }
+template<typename Type_>
+void check_gunzipped_signature(const std::filesystem::path& path, const Type_* expected, std::size_t len, const char* msg) {
+    auto reader = internal_other::open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
+    check_signature(*reader, expected, len, msg, path);
 }
 
 inline void check_gzip_signature(const std::filesystem::path& path) {
     std::array<unsigned char, 2> gzmagic { 0x1f, 0x8b };
-    check_signature<byteme::RawFileReader>(path, gzmagic.data(), gzmagic.size(), "GZIP");
+    check_raw_signature(path, gzmagic.data(), gzmagic.size(), "GZIP");
 }
 
-inline void extract_signature(const std::filesystem::path& path, unsigned char* store, size_t len) {
-    auto reader = internal_other::open_reader<byteme::RawFileReader>(path, set_buffer_options<byteme::RawFileReader>(len));
-    byteme::PerByteSerial<unsigned char> pb(std::move(reader));
-    bool okay = pb.valid();
-    for (size_t i = 0; i < len; ++i) {
-        if (!okay) {
-            throw std::runtime_error("file at '" + path.string() + "' is too small to extract a signature of length " + std::to_string(len));
-        }
-        store[i] = pb.get();
-        okay = pb.advance();
+inline void extract_signature(const std::filesystem::path& path, unsigned char* store, std::size_t len) {
+    auto reader = internal_other::open_reader<byteme::RawFileReader>(path, byteme::RawFileReaderOptions());
+    if (reader->read(store, len) != len) {
+        throw std::runtime_error("file at '" + path.string() + "' is too small to extract a signature of length " + std::to_string(len));
     }
 }
 

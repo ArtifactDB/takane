@@ -29,55 +29,37 @@ TEST_F(BedFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory_simple(dir, name, "1.0");
-    {
-        std::ofstream handle(dir / "file.bed.gz");
-        handle << "WHEE";
-    }
+    auto bdpath = (dir / "file.bed.gz").string();
+
+    quick_text_write(bdpath, "WHEE");
     expect_error("GZIP file signature");
 
-    {
-        auto bdpath = (dir / "file.bed.gz").string();
-        byteme::GzipFileWriter handle(bdpath.c_str(), {});
-        handle.write("chr1\t1\t2\n");
-    }
+    quick_gzip_write(bdpath, "chr1\t1\t2\n");
     test_validate(dir);
 }
 
 TEST_F(BedFileTest, Indexed) {
     initialize_directory(dir);
 
-    {
-        std::ofstream ohandle(dir / "OBJECT");
-        ohandle << "{ \"type\": \"" << name << "\", \"" << name << "\": { \"version\": \"1.0\", \"indexed\": true } }";
-        auto bbpath = (dir / "file.bed.bgz").string();
-        byteme::GzipFileWriter fhandle(bbpath.c_str(), {});
-        fhandle.write("chr1\t1\t2\n");
-    }
+    quick_text_write((dir / "OBJECT").string(), 
+        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"indexed\": true } }"
+    );
+
+    quick_gzip_write((dir / "file.bed.bgz").string(), "chr1\t1\t2\n");
     expect_error("failed to open");
 
-    {
-        auto bbpath = (dir / "file.bed.bgz.tbi").string();
-        byteme::GzipFileWriter ihandle(bbpath.c_str(), {});
-        ihandle.write("YAY");
-    }
+    auto tbipath = (dir / "file.bed.bgz.tbi").string();
+    quick_gzip_write(tbipath, "YAY");
     expect_error("tabix file signature");
 
-    {
-        auto bbpath = (dir / "file.bed.bgz.tbi").string();
-        byteme::GzipFileWriter ihandle(bbpath.c_str(), {});
-        ihandle.write("TBI\1");
-    }
+    quick_gzip_write(tbipath, "TBI\1");
     test_validate(dir);
 }
 
 TEST_F(BedFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
 
-    {
-        auto bgpath = (dir / "file.bed.gz").string();
-        byteme::GzipFileWriter fhandle(bgpath.c_str(), {});
-        fhandle.write("chr1\t1\t2\n");
-    }
+    quick_gzip_write((dir / "file.bed.gz").string(), "chr1\t1\t2\n");
 
     takane::Options opts;
     opts.bed_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) {};

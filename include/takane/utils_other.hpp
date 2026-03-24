@@ -26,17 +26,18 @@ std::unique_ptr<byteme::Reader> open_reader(const Path_& path, Args_&& ... args)
     if constexpr(std::is_same<typename Path_::value_type, char>::value) {
         return std::make_unique<Reader_>(path.c_str(), std::forward<Args_>(args)...);
     } else {
+        // Dealing with windows...
         auto str = path.string();
         return std::make_unique<Reader_>(str.c_str(), std::forward<Args_>(args)...);
     }
 }
 
 template<typename Type_>
-std::unique_ptr<byteme::PerByteInterface<Type_> > wrap_reader_for_bytes(std::unique_ptr<byteme::Reader> reader, bool parallel) {
+std::unique_ptr<byteme::BufferedReader<Type_> > wrap_reader_for_bytes(std::unique_ptr<byteme::Reader> reader, bool parallel) {
     if (parallel) {
-        return std::make_unique<byteme::PerByteParallel<Type_> >(std::move(reader));
+        return std::make_unique<byteme::ParallelBufferedReader<Type_, decltype(reader)> >(std::move(reader), 65536);
     } else {
-        return std::make_unique<byteme::PerByteSerial<Type_> >(std::move(reader));
+        return std::make_unique<byteme::SerialBufferedReader<Type_, decltype(reader)> >(std::move(reader), 65536);
     }
 }
 

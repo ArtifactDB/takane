@@ -2,6 +2,7 @@
 #define TAKANE_GFF_FILE_HPP
 
 #include "utils_files.hpp"
+
 #include "ritsuko/ritsuko.hpp"
 
 #include <filesystem>
@@ -64,33 +65,15 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     internal_files::check_gzip_signature(fpath);
 
     if (fstring == "GFF3") {
-        const std::string expected = "##gff-version 3";
-        const size_t expected_len = expected.size();
-
-        auto reader = internal_other::open_reader<byteme::GzipFileReader>(fpath, [&]{
-            byteme::GzipFileReaderOptions gopt;
-            gopt.buffer_size = expected_len;
-            return gopt;
-        }());
-        byteme::PerByteSerial<char> pb(std::move(reader));
-        bool okay = pb.valid();
-
-        for (size_t i = 0; i < expected_len; ++i) {
-            if (!okay) {
-                throw std::runtime_error("incomplete GFF3 file signature for '" + fpath.string() + "'");
-            }
-            if (pb.get() != expected[i]) {
-                throw std::runtime_error("incorrect GFF3 file signature for '" + fpath.string() + "'");
-            }
-            okay = pb.advance();
-        }
+        const std::string signature = "##gff-version 3";
+        internal_files::check_gunzipped_signature(fpath, signature.c_str(), signature.size(), "GFF3");
     }
 
     if (indexed) {
         auto ixpath = fpath;
         ixpath += ".tbi";
         internal_files::check_gzip_signature(ixpath);
-        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "TBI\1", 4, "tabix");
+        internal_files::check_gunzipped_signature(ixpath, "TBI\1", 4, "tabix");
     }
 
     if (options.gff_file_strict_check) {

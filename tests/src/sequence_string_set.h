@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <numeric>
+#include <fstream>
 
 #include "H5Cpp.h"
 #include "utils.h"
@@ -22,21 +23,13 @@ struct Options {
 };
 
 inline void dump_fasta(byteme::GzipFileWriter& writer, size_t i, const std::string& seq) {
-    writer.write(">");
-    writer.write(std::to_string(i));
-    writer.write("\n");
-    writer.write(seq);
-    writer.write("\n");
+    std::string record = ">" + std::to_string(i) + "\n" + seq + "\n";
+    writer.write(reinterpret_cast<const unsigned char*>(record.c_str()), record.size());
 }
 
 inline void dump_fastq(byteme::GzipFileWriter& writer, size_t i, const std::string& seq, const std::string& qual) {
-    writer.write("@");
-    writer.write(std::to_string(i));
-    writer.write("\n");
-    writer.write(seq);
-    writer.write("\n+\n");
-    writer.write(qual);
-    writer.write("\n");
+    std::string record = "@" + std::to_string(i) + "\n" + seq + "\n+\n" + qual + "\n";
+    writer.write(reinterpret_cast<const unsigned char*>(record.c_str()), record.size());
 }
 
 inline void mock(const std::filesystem::path& dir, size_t length, const Options& options) {

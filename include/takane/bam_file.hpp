@@ -41,12 +41,12 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     // Magic numbers taken from https://samtools.github.io/hts-specs/SAMv1.pdf
     auto ipath = path / "file.bam";
     internal_files::check_gzip_signature(ipath);
-    internal_files::check_signature<byteme::GzipFileReader>(ipath, "BAM\1", 4, "BAM");
+    internal_files::check_gunzipped_signature(ipath, "BAM\1", 4, "BAM");
 
     auto ixpath = ipath;
     ixpath += ".bai";
     if (std::filesystem::exists(ixpath)) {
-        internal_files::check_signature<byteme::RawFileReader>(ixpath, "BAI\1", 4, "BAM index");
+        internal_files::check_raw_signature(ixpath, "BAI\1", 4, "BAM index");
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
@@ -54,7 +54,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     ixpath += ".csi";
     if (std::filesystem::exists(ixpath)) {
         internal_files::check_gzip_signature(ixpath);
-        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "CSI\1", 4, "CSI index");
+        internal_files::check_gunzipped_signature(ixpath, "CSI\1", 4, "CSI index");
     }
 
     if (options.bam_file_strict_check) {

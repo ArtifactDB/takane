@@ -30,58 +30,36 @@ TEST_F(BcfFileTest, Basic) {
 
     initialize_directory_simple(dir, name, "1.0");
     auto bcfpath = (dir / "file.bcf").string();
-    {
-        std::ofstream handle(bcfpath.c_str(), {});
-        handle << "foo\1";
-    }
+
+    quick_text_write(bcfpath, "foo\1");
     expect_error("incorrect GZIP file signature");
 
-    {
-        byteme::GzipFileWriter handle(bcfpath.c_str(), {});
-        handle.write("foobar\2\1");
-    }
+    quick_gzip_write(bcfpath, "foobar\2\1");
     expect_error("incorrect BCF file signature");
 
-    {
-        byteme::GzipFileWriter handle(bcfpath.c_str(), {});
-        handle.write("BCF\2\1");
-    }
+    quick_gzip_write(bcfpath, "BCF\2\1");
     test_validate(dir);
 
     auto tbipath = (dir / "file.bcf.tbi").string();
-    {
-        byteme::GzipFileWriter handle(tbipath.c_str(), {});
-        handle.write("foobar\1");
-    }
+    quick_gzip_write(tbipath, "foobar\1");
     expect_error("incorrect tabix file signature");
 
-    {
-        byteme::GzipFileWriter handle(tbipath.c_str(), {});
-        handle.write("TBI\1");
-    }
+    quick_gzip_write(tbipath, "TBI\1");
     test_validate(dir);
 
     auto csipath = (dir / "file.bcf.csi").string();
-    {
-        byteme::GzipFileWriter handle(csipath.c_str(), {});
-        handle.write("foobar\1");
-    }
+    quick_gzip_write(csipath, "foobar\1");
     expect_error("incorrect CSI index file signature");
 
-    {
-        byteme::GzipFileWriter handle(csipath.c_str(), {});
-        handle.write("CSI\1");
-    }
+    quick_gzip_write(csipath, "CSI\1");
     test_validate(dir);
 }
 
 TEST_F(BcfFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
+
     auto bcfpath = (dir / "file.bcf").string();
-    {
-        byteme::GzipFileWriter handle(bcfpath.c_str(), {});
-        handle.write("BCF\2\1");
-    }
+    quick_gzip_write(bcfpath, "BCF\2\1");
 
     takane::Options opts;
     opts.bcf_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};

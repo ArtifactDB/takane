@@ -7,7 +7,6 @@
 #include "data_frame.h"
 #include "simple_list.h"
 
-#include <fstream>
 #include <string>
 
 struct SequenceStringSetTest : public ::testing::Test {
@@ -34,84 +33,73 @@ struct SequenceStringSetTest : public ::testing::Test {
 
 TEST_F(SequenceStringSetTest, MetadataRetrieval) {
     initialize_directory(dir);
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"2.0\" } }";
-    }
+    auto objpath = (dir / "OBJECT").string();
+
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"2.0\" } }"
+    );
     expect_error("unsupported version");
 
     // Checking the length.
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\" } }"
+    );
     expect_error("expected a 'sequence_string_set.length' property");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": true } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": true } }"
+    );
     expect_error("JSON number");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 1.5 } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 1.5 } }"
+    );
     expect_error("non-negative integer");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": -10 } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": -10 } }"
+    );
     expect_error("non-negative integer");
 
     // Checking the sequence type.
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10 } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10 } }"
+    );
     expect_error("failed to extract 'sequence_string_set.sequence_type'");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"foobar\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"foobar\" } }"
+    );
     expect_error("invalid string 'foobar'");
 
     // Checking the quality type.
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": true } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": true } }"
+    );
     expect_error("should be a JSON string");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"blah\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"blah\" } }"
+    );
     expect_error("invalid string 'blah'");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"phred\" } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"phred\" } }"
+    );
     expect_error("expected a 'sequence_string_set.quality_offset'");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", ";
-        handle << "\"quality_type\": \"phred\", \"quality_offset\": true } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", "
+        "\"quality_type\": \"phred\", \"quality_offset\": true } }"
+    );
     expect_error("JSON number");
 
-    {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", ";
-        handle << "\"quality_type\": \"phred\", \"quality_offset\": 10 } }";
-    }
+    quick_text_write(objpath,
+        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", "
+        "\"quality_type\": \"phred\", \"quality_offset\": 10 } }"
+    );
     expect_error("33 or 64");
 }
-
 
 TEST_F(SequenceStringSetTest, FastaParsing) {
     sequence_string_set::Options options;
@@ -130,22 +118,13 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
     // Name checks.
     auto spath = dir / "sequences.fasta.gz";
     {
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("foobar\n");
-        }
+        quick_gzip_write(spath.string(), "foobar\n");
         expect_error("sequence name should start with '>'");
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">foobar\n");
-        }
+        quick_gzip_write(spath.string(), ">foobar\n");
         expect_error("sequence name should be a non-negative integer");
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">\n");
-        }
+        quick_gzip_write(spath.string(), ">\n");
         expect_error("sequence name should be its index");
 
         {
@@ -162,19 +141,17 @@ TEST_F(SequenceStringSetTest, FastaParsing) {
         sequence_string_set::mock(dir, 2, options);
 
         // Zero length sequences are okay.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nACGT\n");
-            writer.write(">1\n\n");
-        }
+        quick_gzip_write(spath.string(),
+            ">0\nACGT\n"
+            ">1\n\n"
+        );
         test_validate(dir);
 
         // But they must be newline-terminated.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nACGT\n");
-            writer.write(">1\n");
-        }
+        quick_gzip_write(spath.string(),
+            ">0\nACGT\n"
+            ">1\n"
+        );
         expect_error("premature end");
     }
 
@@ -216,22 +193,13 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
     // Name checks.
     auto spath = dir / "sequences.fastq.gz";
     {
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("foobar\n");
-        }
+        quick_gzip_write(spath.string(), "foobar\n");
         expect_error("sequence name should start with '@'");
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@foobar\n");
-        }
+        quick_gzip_write(spath.string(), "@foobar\n");
         expect_error("sequence name should be a non-negative integer");
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@\n");
-        }
+        quick_gzip_write(spath.string(), "@\n");
         expect_error("sequence name should be its index");
 
         {
@@ -248,58 +216,51 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
         sequence_string_set::mock(dir, 2, options);
 
         // Ignores gunk on the + line.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nACGT\n+123123123\nFECD\n");
-            writer.write("@1\nACGT\n+ foo bar\nFECD\n");
-        }
+        quick_gzip_write(spath.string(),
+            "@0\nACGT\n+123123123\nFECD\n"
+            "@1\nACGT\n+ foo bar\nFECD\n"
+        );
         test_validate(dir);
 
         // Works when you have '@' in the quality scores.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nACGT\n+\n@@@@\n");
-            writer.write("@1\nACGT\n+\n++++\n");
-        }
+        quick_gzip_write(spath.string(),
+            "@0\nACGT\n+\n@@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
         test_validate(dir);
 
         // Fails with a mismatch in the lengths.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nACGT\n+\n@@@\n");
-            writer.write("@1\nACGT\n+\n++++\n");
-        }
+        quick_gzip_write(spath.string(),
+            "@0\nACGT\n+\n@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
         expect_error("unequal lengths");
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@@@@\n");
-            writer.write("@1\nACGT\n+\n++++\n");
-        }
+        quick_gzip_write(spath.string(),
+            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
         test_validate(dir); // OK!
 
         // More complicated mismatch in the lengths.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n");
-            writer.write("@1\nACGT\n+\n++++\n");
-        }
+        quick_gzip_write(spath.string(),
+            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
         expect_error("unequal lengths");
 
         // Zero length sequences are okay.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\n\n+\n\n");
-            writer.write("@1\n\n+\n\n");
-        }
+        quick_gzip_write(spath.string(),
+            "@0\n\n+\n\n"
+            "@1\n\n+\n\n"
+        );
         test_validate(dir);
 
         // But they must be newline-terminated.
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\n\n+\n\n");
-            writer.write("@1\n\n+\n");
-        }
+        quick_gzip_write(spath.string(),
+            "@0\n\n+\n\n"
+            "@1\n\n+\n"
+        );
         expect_error("premature end");
     }
 
@@ -331,7 +292,7 @@ TEST_F(SequenceStringSetTest, FastqParsing) {
 
 TEST_F(SequenceStringSetTest, SequenceTypes) {
     sequence_string_set::Options options;
-    auto spath = dir / "sequences.fasta.gz";
+    auto spath = (dir / "sequences.fasta.gz").string();
 
     // DNA.
     {
@@ -339,20 +300,18 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         sequence_string_set::mock(dir, 3, options);
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nacgt\n");
-            writer.write(">1\na.c-g.tacgryswkmbdhvn.-\n");
-            writer.write(">2\nTACGRYSWKMBDHVN.-\n");
-        }
+        quick_gzip_write(spath,
+            ">0\nacgt\n"
+            ">1\na.c-g.tacgryswkmbdhvn.-\n"
+            ">2\nTACGRYSWKMBDHVN.-\n"
+        );
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nacgt\n");
-            writer.write(">1\nuuuu\n");
-            writer.write(">2\nACGT\n");
-        }
+        quick_gzip_write(spath,
+            ">0\nacgt\n"
+            ">1\nuuuu\n"
+            ">2\nACGT\n"
+        );
         expect_error("forbidden character 'u'");
     }
 
@@ -361,11 +320,7 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         options.quality_type = sequence_string_set::QualityType::PHRED33;
         sequence_string_set::mock(dir, 1, options);
 
-        auto spath = dir / "sequences.fastq.gz";
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nacgu\n+\n;;;;\n");
-        }
+        quick_gzip_write((dir / "sequences.fastq.gz").string(), "@0\nacgu\n+\n;;;;\n");
         expect_error("forbidden character 'u'");
 
         options.quality_type = sequence_string_set::QualityType::NONE;
@@ -377,20 +332,18 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         sequence_string_set::mock(dir, 3, options);
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nacgU\n");
-            writer.write(">1\na.c-g.uacgryswkmbdhvn.-\n");
-            writer.write(">2\nUACGRYSWKMBDHVN.-\n");
-        }
+        quick_gzip_write(spath,
+            ">0\nacgU\n"
+            ">1\na.c-g.uacgryswkmbdhvn.-\n"
+            ">2\nUACGRYSWKMBDHVN.-\n"
+        );
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nacgu\n");
-            writer.write(">1\nTTTT\n");
-            writer.write(">2\nACGU\n");
-        }
+        quick_gzip_write(spath,
+            ">0\nacgu\n"
+            ">1\nTTTT\n"
+            ">2\nACGU\n"
+        );
         expect_error("forbidden character 'T'");
     }
 
@@ -400,20 +353,18 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         sequence_string_set::mock(dir, 3, options);
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nacgt\n");
-            writer.write(">1\nACD.EFGHIKLMNP-QRSTVWY\n");
-            writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
-        }
+        quick_gzip_write(spath,
+            ">0\nacgt\n"
+            ">1\nACD.EFGHIKLMNP-QRSTVWY\n"
+            ">2\nacd.efghiklmnp-qrstvwy\n"
+        );
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nacgt\n");
-            writer.write(">1\nxxxx\n");
-            writer.write(">2\nACGU\n");
-        }
+        quick_gzip_write(spath,
+            ">0\nacgt\n"
+            ">1\nxxxx\n"
+            ">2\nACGU\n"
+        );
         expect_error("forbidden character 'x'");
     }
 
@@ -423,19 +374,18 @@ TEST_F(SequenceStringSetTest, SequenceTypes) {
         sequence_string_set::mock(dir, 3, options);
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write(">0\nxxxx\n");
-            writer.write(">1\n!;;;*8acac~\n");
-            writer.write(">2\nacd.efghiklmnp-qrstvwy\n");
-        }
+        quick_gzip_write(spath,
+            ">0\nxxxx\n"
+            ">1\n!;;;*8acac~\n"
+            ">2\nacd.efghiklmnp-qrstvwy\n"
+        );
         test_validate(dir);
     }
 }
 
 TEST_F(SequenceStringSetTest, QualityType) {
     sequence_string_set::Options options;
-    auto spath = dir / "sequences.fastq.gz";
+    auto spath = (dir / "sequences.fastq.gz").string();
 
     // Phred+33.
     {
@@ -443,20 +393,18 @@ TEST_F(SequenceStringSetTest, QualityType) {
         sequence_string_set::mock(dir, 3, options);
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nacgt\n+\n!!!!\n");
-            writer.write("@1\nacgt\n+\n!!!!\n");
-            writer.write("@2\nacgt\n+\n!!!!\n");
-        }
+        quick_gzip_write(spath,
+            "@0\nacgt\n+\n!!!!\n"
+            "@1\nacgt\n+\n!!!!\n"
+            "@2\nacgt\n+\n!!!!\n"
+        );
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nacgt\n+\n\1\1\1\1\n");
-            writer.write("@1\nacgt\n+\n!!!!\n");
-            writer.write("@2\nacgt\n+\n!!!!\n");
-        }
+        quick_gzip_write(spath,
+            "@0\nacgt\n+\n\1\1\1\1\n"
+            "@1\nacgt\n+\n!!!!\n"
+            "@2\nacgt\n+\n!!!!\n"
+        );
         expect_error("out-of-range quality score");
     }
 
@@ -466,20 +414,18 @@ TEST_F(SequenceStringSetTest, QualityType) {
         sequence_string_set::mock(dir, 3, options);
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nacgt\n+\n@@@@\n");
-            writer.write("@1\nacgt\n+\n@@@@\n");
-            writer.write("@2\nacgt\n+\n@@@@\n");
-        }
+        quick_gzip_write(spath,
+            "@0\nacgt\n+\n@@@@\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nacgt\n+\n????\n");
-            writer.write("@1\nacgt\n+\n@@@@\n");
-            writer.write("@2\nacgt\n+\n@@@@\n");
-        }
+        quick_gzip_write(spath,
+            "@0\nacgt\n+\n????\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
         expect_error("out-of-range quality score");
     }
 
@@ -489,20 +435,18 @@ TEST_F(SequenceStringSetTest, QualityType) {
         sequence_string_set::mock(dir, 3, options);
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nacgt\n+\n;;;;\n");
-            writer.write("@1\nacgt\n+\n@@@@\n");
-            writer.write("@2\nacgt\n+\n@@@@\n");
-        }
+        quick_gzip_write(spath,
+            "@0\nacgt\n+\n;;;;\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
         test_validate(dir);
 
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            writer.write("@0\nacgt\n+\n::::\n");
-            writer.write("@1\nacgt\n+\n@@@@\n");
-            writer.write("@2\nacgt\n+\n@@@@\n");
-        }
+        quick_gzip_write(spath,
+            "@0\nacgt\n+\n::::\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
         expect_error("out-of-range quality score");
     }
 
@@ -510,10 +454,9 @@ TEST_F(SequenceStringSetTest, QualityType) {
     {
         options.quality_type = sequence_string_set::QualityType::NONE;
         sequence_string_set::mock(dir, 10, options);
-        {
-            std::ofstream handle(dir / "OBJECT");
-            handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }";
-        }
+        quick_text_write((dir / "OBJECT").string(),
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }"
+        );
         test_validate(dir);
     }
 }
@@ -527,8 +470,8 @@ TEST_F(SequenceStringSetTest, Names) {
     {
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
-            std::string tmpname = "gene_" + std::to_string(i + 1);
-            writer.write("\"" + tmpname + "\"\n");
+            std::string tmpname = "\"gene_" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
     test_validate(dir);
@@ -545,8 +488,8 @@ TEST_F(SequenceStringSetTest, Names) {
     {
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
-            std::string tmpname = "gene\n" + std::to_string(i + 1);
-            writer.write("\"" + tmpname + "\"\n");
+            std::string tmpname = "\"gene\n" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
     test_validate(dir);
@@ -555,8 +498,8 @@ TEST_F(SequenceStringSetTest, Names) {
     {
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 5; ++i) {
-            std::string tmpname = "gene-" + std::to_string(i + 1);
-            writer.write("\"" + tmpname + "\"\n");
+            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
     expect_error("number of names");
@@ -565,8 +508,8 @@ TEST_F(SequenceStringSetTest, Names) {
     {
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
-            std::string tmpname = "gene-" + std::to_string(i + 1);
-            writer.write(tmpname + "\n");
+            std::string tmpname = "gene-" + std::to_string(i + 1) + "\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
     expect_error("should start with a quote");
@@ -574,21 +517,21 @@ TEST_F(SequenceStringSetTest, Names) {
     {
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
-            std::string tmpname = "gene-" + std::to_string(i + 1);
-            writer.write("\"" + tmpname + "\"a\n");
+            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"a\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
     expect_error("present after end quote");
 
-    // Errors out with non-newline.
+    // Errors out if there no terminating newline.
     {
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
-            std::string tmpname = "gene-" + std::to_string(i + 1);
-            if (i) {
-                writer.write("\n");
+            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"";
+            if (i < 9) {
+                tmpname += "\n";
             }
-            writer.write("\"" + tmpname + "\"");
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
     expect_error("premature end");

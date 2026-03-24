@@ -42,14 +42,14 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     // We relax it a little to support both BCF1 and BCF2+ formats.
     auto ipath = path / "file.bcf";
     internal_files::check_gzip_signature(ipath);
-    internal_files::check_signature<byteme::GzipFileReader>(ipath, "BCF", 3, "BCF");
+    internal_files::check_gunzipped_signature(ipath, "BCF", 3, "BCF");
 
     // Magic number taken from https://samtools.github.io/hts-specs/tabix.pdf
     auto ixpath = ipath;
     ixpath += ".tbi";
     if (std::filesystem::exists(ixpath)) {
         internal_files::check_gzip_signature(ixpath);
-        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "TBI\1", 4, "tabix");
+        internal_files::check_gunzipped_signature(ixpath, "TBI\1", 4, "tabix");
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
@@ -57,7 +57,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     ixpath += ".csi";
     if (std::filesystem::exists(ixpath)) {
         internal_files::check_gzip_signature(ixpath);
-        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "CSI\1", 4, "CSI index");
+        internal_files::check_gunzipped_signature(ixpath, "CSI\1", 4, "CSI index");
     }
 
     if (options.bcf_file_strict_check) {

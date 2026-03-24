@@ -18,6 +18,13 @@ FetchContent_Declare(
   GIT_TAG master #^1.1.0
 )
 
+FetchContent_Declare(
+  byteme
+  GIT_REPOSITORY https://github.com/LTLA/byteme
+  GIT_TAG master #^2.1.1
+)
+
 FetchContent_MakeAvailable(uzuki2)
 FetchContent_MakeAvailable(ritsuko)
 FetchContent_MakeAvailable(chihaya)
+FetchContent_MakeAvailable(byteme)

@@ -2,7 +2,6 @@
 #define TAKANE_SUMMARIZED_EXPERIMENT_HPP
 
 #include "millijson/millijson.hpp"
-#include "byteme/byteme.hpp"
 
 #include "utils_public.hpp"
 #include "utils_other.hpp"

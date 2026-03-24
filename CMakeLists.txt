@@ -22,6 +22,7 @@ else()
     find_package(artifactdb_ritsuko 0.6.0 CONFIG REQUIRED)
     find_package(artifactdb_uzuki2 2.0.0 CONFIG REQUIRED)
     find_package(artifactdb_chihaya 1.1.0 CONFIG REQUIRED)
+    find_package(ltla_byteme 2.1.1 CONFIG REQUIRED)
 endif()
 
 target_link_libraries(takane INTERFACE artifactdb::ritsuko artifactdb::chihaya artifactdb::uzuki2)

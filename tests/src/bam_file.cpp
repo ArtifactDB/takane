@@ -29,59 +29,46 @@ TEST_F(BamFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory_simple(dir, name, "1.0");
-    auto bampath = (dir / "file.bam").string();
-    {
-        std::ofstream handle(bampath.c_str(), {});
-        handle << "FOO";
-    }
-    expect_error("incorrect GZIP file signature");
 
     {
-        byteme::GzipFileWriter handle(bampath.c_str(), {});
-        handle.write("foo\1");
+        auto bampath = (dir / "file.bam").string();
+        quick_text_write(bampath, "FOO");
+        expect_error("incorrect GZIP file signature");
+
+        quick_gzip_write(bampath, "foo\1");
+        expect_error("incorrect BAM file signature");
+
+        quick_gzip_write(bampath, "BAM\1");
+        test_validate(dir);
     }
-    expect_error("incorrect BAM file signature");
 
     {
-        byteme::GzipFileWriter handle(bampath.c_str(), {});
-        handle.write("BAM\1");
+        auto baipath = (dir / "file.bam.bai").string();
+        quick_text_write(baipath, "foobar\1");
+        expect_error("incorrect BAM index file signature");
+
+        quick_text_write(baipath, "BAI\1");
+        test_validate(dir);
     }
-    test_validate(dir);
 
     {
-        std::ofstream handle(dir / "file.bam.bai");
-        handle << "foobar\1";
-    }
-    expect_error("incorrect BAM index file signature");
+        auto csipath = (dir / "file.bam.csi").string();
+        quick_text_write(csipath, "FOO");
+        expect_error("incorrect GZIP file signature");
 
-    {
-        std::ofstream handle(dir / "file.bam.bai");
-        handle << "BAI\1";
-    }
-    test_validate(dir);
+        quick_gzip_write(csipath, "foobar\1");
+        expect_error("incorrect CSI index file signature");
 
-    auto csipath = (dir / "file.bam.csi").string();
-    {
-        byteme::GzipFileWriter handle(csipath.c_str(), {});
-        handle.write("foobar\1");
+        quick_gzip_write(csipath, "CSI\1");
+        test_validate(dir);
     }
-    expect_error("incorrect CSI index file signature");
-
-    {
-        byteme::GzipFileWriter handle(csipath.c_str(), {});
-        handle.write("CSI\1");
-    }
-    test_validate(dir);
 }
 
 TEST_F(BamFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
 
-    {
-        auto bampath = (dir / "file.bam").string();
-        byteme::GzipFileWriter handle(bampath.c_str(), {});
-        handle.write("BAM\1");
-    }
+    auto bampath = (dir / "file.bam").string();
+    quick_gzip_write(bampath, "BAM\1");
 
     takane::Options opts;
     opts.bam_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};

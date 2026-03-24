@@ -29,28 +29,20 @@ TEST_F(GmtFileTest, Basic) {
     expect_error("unsupported version");
 
     initialize_directory_simple(dir, name, "1.0");
-    {
-        std::ofstream handle(dir / "file.gmt.gz");
-        handle << "WHEE";
-    }
+    auto gmtpath = (dir / "file.gmt.gz").string();
+
+    quick_text_write(gmtpath, "WHEE");
     expect_error("GZIP file signature");
 
-    {
-        auto ggpath = (dir / "file.gmt.gz").string();
-        byteme::GzipFileWriter handle(ggpath.c_str(), {});
-        handle.write("set\tmy set\ta\tb\tc\n");
-    }
+    quick_gzip_write(gmtpath, "set\tmy set\ta\tb\tc\n");
     test_validate(dir);
 }
 
 TEST_F(GmtFileTest, Strict) {
     initialize_directory_simple(dir, name, "1.0");
 
-    {
-        auto ggpath = (dir / "file.gmt.gz").string();
-        byteme::GzipFileWriter fhandle(ggpath.c_str(), {});
-        fhandle.write("set\tmy set\ta\tb\tc\n");
-    }
+    auto gmtpath = (dir / "file.gmt.gz").string();
+    quick_gzip_write(gmtpath, "set\tmy set\ta\tb\tc\n");
 
     takane::Options opts;
     opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};

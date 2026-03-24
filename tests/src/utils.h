@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 #include "millijson/millijson.hpp"
 #include "ritsuko/hdf5/hdf5.hpp"
@@ -49,6 +50,26 @@ void expect_validation_error(const std::filesystem::path& dir, const std::string
             throw;
         }
     });
+}
+
+inline void quick_text_write(const std::string& path, const char* msg) {
+    std::ofstream handle(path);
+    handle << msg;
+}
+
+inline void quick_text_write(const std::string& path, const std::string& msg) {
+    std::ofstream handle(path);
+    handle << msg;
+}
+
+inline void quick_gzip_write(const std::string& path, const char* msg) {
+    byteme::GzipFileWriter handle(path.c_str(), {});
+    handle.write(reinterpret_cast<const unsigned char*>(msg), std::strlen(msg));
+}
+
+inline void quick_gzip_write(const std::string& path, const std::string& msg) {
+    byteme::GzipFileWriter handle(path.c_str(), {});
+    handle.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
 }
 
 namespace hdf5_utils {

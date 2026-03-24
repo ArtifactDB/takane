@@ -44,27 +44,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
 
     // Check magic numbers.
     internal_files::check_gzip_signature(fpath);
-
-    const char* expected = "X\n";
-    size_t expected_len = 2;
-
-    auto reader = internal_other::open_reader<byteme::GzipFileReader>(fpath, [&]{
-        byteme::GzipFileReaderOptions gopt;
-        gopt.buffer_size = expected_len;
-        return gopt;
-    }());
-    byteme::PerByteSerial<char> pb(std::move(reader));
-    bool okay = pb.valid();
-
-    for (size_t i = 0; i < expected_len; ++i) {
-        if (!okay) {
-            throw std::runtime_error("incomplete RDS file signature for '" + fpath.string() + "'");
-        }
-        if (pb.get() != expected[i]) {
-            throw std::runtime_error("incorrect RDS file signature for '" + fpath.string() + "'");
-        }
-        okay = pb.advance();
-    }
+    internal_files::check_gunzipped_signature(fpath, "X\n", 2, "RDS");
 
     if (options.rds_file_strict_check) {
         options.rds_file_strict_check(path, metadata, options);

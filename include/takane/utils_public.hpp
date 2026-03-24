@@ -9,7 +9,6 @@
 #include "H5Cpp.h"
 
 #include "millijson/millijson.hpp"
-#include "byteme/byteme.hpp"
 #include "chihaya/chihaya.hpp"
 #include "utils_json.hpp"
 

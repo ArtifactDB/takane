@@ -56,7 +56,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         auto ixpath = fpath;
         ixpath += ".tbi";
         internal_files::check_gzip_signature(ixpath);
-        internal_files::check_signature<byteme::GzipFileReader>(ixpath, "TBI\1", 4, "tabix");
+        internal_files::check_gunzipped_signature(ixpath, "TBI\1", 4, "tabix");
     }
 
     if (options.bed_file_strict_check) {

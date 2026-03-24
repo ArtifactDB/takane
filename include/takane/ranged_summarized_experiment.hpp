@@ -2,7 +2,6 @@
 #define TAKANE_RANGED_SUMMARIZED_EXPERIMENT_HPP
 
 #include "millijson/millijson.hpp"
-#include "byteme/byteme.hpp"
 
 #include "summarized_experiment.hpp"
 
