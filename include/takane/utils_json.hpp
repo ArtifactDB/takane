@@ -10,8 +10,6 @@
 
 namespace takane {
 
-namespace internal_json {
-
 typedef std::unordered_map<std::string, std::shared_ptr<millijson::Base> > JsonObjectMap;
 
 template<typename Path_>
@@ -71,7 +69,7 @@ const std::string& extract_string(const JsonObjectMap& x, const std::string& nam
 }
 
 inline const JsonObjectMap& extract_typed_object_from_metadata(const JsonObjectMap& x, const std::string& type) {
-    return internal_json::extract_object(x, type, [&](std::exception& e) {
+    return extract_object(x, type, [&](std::exception& e) {
         throw std::runtime_error("failed to extract '" + type + "' from the object metadata; " + std::string(e.what())); 
     });
 }
@@ -85,8 +83,6 @@ inline const std::string& extract_string_from_typed_object(const JsonObjectMap& 
 inline const std::string& extract_version_for_type(const JsonObjectMap& x, const std::string& type) {
     const auto& obj = extract_typed_object_from_metadata(x, type);
     return extract_string_from_typed_object(obj, "version", type);
-}
-
 }
 
 }

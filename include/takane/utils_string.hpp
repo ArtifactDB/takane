@@ -1,88 +1,117 @@
 #ifndef TAKANE_UTILS_STRING_HPP
 #define TAKANE_UTILS_STRING_HPP
 
-#include <unordered_set>
 #include <string>
-#include <cstdint>
+#include <cstddef>
 #include <vector>
 #include <stdexcept>
 #include <optional>
 
 #include "ritsuko/ritsuko.hpp"
-#include "ritsuko/hdf5/hdf5.hpp"
+#include "sanisizer/sanisizer.hpp"
+
+#include "utils_other.hpp"
 
 namespace takane {
 
-namespace internal_string {
-
 template<class H5Object_>
-std::string fetch_format_attribute(const H5Object_& handle) {
-    if (!handle.attrExists("format")) {
-        return "none";
-    }
-
-    auto attr = handle.openAttribute("format");
-    if (!ritsuko::hdf5::is_scalar(attr)) {
-        throw std::runtime_error("expected 'format' attribute to be a scalar");
+std::string open_and_load_scalar_string_attribute(const H5Object_& handle, const std::string& name) {
+    auto attr = handle.openAttribute(name);
+    if (attr.getSpace().getSimpleExtentNdims() != 0) {
+        throw std::runtime_error("expected '" + name + "' attribute to be a scalar");
     }
     if (!ritsuko::hdf5::is_utf8_string(attr)) {
-        throw std::runtime_error("expected 'format' to have a datatype that can be represented by a UTF-8 encoded string");
+        throw std::runtime_error("expected '" + name + "' to have a datatype that can be represented by a UTF-8 encoded string");
     }
-
-    return ritsuko::hdf5::load_scalar_string_attribute(attr);
+    return ritsuko::hdf5::read_scalar_string(attr);
 }
 
-inline void validate_string_format(const H5::DataSet& handle, hsize_t len, const std::string& format, const std::optional<std::string>& missing_value, hsize_t buffer_size) {
-    if (format == "date") {
-        ritsuko::hdf5::Stream1dStringDataset stream(&handle, len, buffer_size);
-        for (hsize_t i = 0; i < len; ++i, stream.next()) {
-            auto x = stream.steal();
-            if (missing_value.has_value() && x == *missing_value) {
-                continue;
-            }
+template<class H5Object_>
+std::string open_and_load_string_format(const H5Object_& handle) {
+    if (!handle.attrExists("format")) {
+        return "none";
+    } else {
+        return open_and_load_scalar_string_attribute(handle, "format");        
+    }
+}
+
+template<bool date_>
+inline void validate_dates_or_times(const H5::DataSet& handle, hsize_t len, const std::optional<std::string>& missing_value, [[maybe_unused]] hsize_t buffer_size) {
+    ritsuko::hdf5::Stream1dStringDataset stream(&handle, len);
+    auto buffer = sanisizer::create<std::vector<std::string> >(stream.chunk_size());
+
+    auto check_string = [&](const std::string& x) -> void {
+        if constexpr(date_) {
             if (!ritsuko::is_date(x.c_str(), x.size())) {
                 throw std::runtime_error("expected a date-formatted string (got '" + x + "')");
             }
-        }
-
-    } else if (format == "date-time") {
-        ritsuko::hdf5::Stream1dStringDataset stream(&handle, len, buffer_size);
-        for (hsize_t i = 0; i < len; ++i, stream.next()) {
-            auto x = stream.steal();
-            if (missing_value.has_value() && x == *missing_value) {
-                continue;
-            }
+        } else {
             if (!ritsuko::is_rfc3339(x.c_str(), x.size())) {
                 throw std::runtime_error("expected a date/time-formatted string (got '" + x + "')");
             }
         }
+    };
 
+    while (true) {
+        auto available = stream.load(buffer.data());
+        if (available == 0) {
+            break;
+        }
+        if (missing_value.has_value()) {
+            for (I<decltype(available)> i = 0; i < available; ++i) {
+                const auto& x = buffer[i];
+                if (x != *missing_value) {
+                    check_string(x);
+                }
+            }
+        } else {
+            for (I<decltype(available)> i = 0; i < available; ++i) {
+                check_string(buffer[i]);
+            }
+        }
+    }
+}
+
+inline void validate_string_format(
+    const H5::DataSet& handle,
+    hsize_t len,
+    const std::string& format,
+    const std::optional<std::string>& missing_value,
+    hsize_t buffer_size
+) {
+    if (format == "date") {
+        validate_dates_or_times<true>(handle, len, missing_value, buffer_size);
+    } else if (format == "date-time") {
+        validate_dates_or_times<false>(handle, len, missing_value, buffer_size);
     } else if (format == "none") {
-        ritsuko::hdf5::validate_1d_string_dataset(handle, len, buffer_size);
-
+        ritsuko::hdf5::validate_1d_strings(handle, len);
     } else {
         throw std::runtime_error("unsupported format '" + format + "'");
     }
 }
 
-inline void validate_names(const H5::Group& handle, const std::string& name, size_t len, hsize_t buffer_size) {
+inline void validate_names(const H5::Group& handle, const std::string& name, std::size_t len) {
     if (!handle.exists(name)) {
         return;
     }
 
-    auto nhandle = ritsuko::hdf5::open_dataset(handle, name.c_str());
+    auto nhandle = handle.openDataSet(name);
     if (!ritsuko::hdf5::is_utf8_string(nhandle)) {
         throw std::runtime_error("expected '" + name + "' to have a datatype that can be represented by a UTF-8 encoded string");
     }
 
-    auto nlen = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), false);
-    if (len != nlen) {
+    auto nspace = nhandle.getSpace();
+    if (nspace.getSimpleExtentNdims() != 1) {
+        throw std::runtime_error("expected '" + name + "' to be a 1-dimensional dataset");
+    }
+    hsize_t nlen;
+    nspace.getSimpleExtentDims(&nlen);
+
+    if (!sanisizer::is_equal(len, nlen)) {
         throw std::runtime_error("'" + name + "' should have the same length as the parent object (got " + std::to_string(nlen) + ", expected " + std::to_string(len) + ")");
     }
 
-    ritsuko::hdf5::validate_1d_string_dataset(nhandle, len, buffer_size);
-}
-
+    ritsuko::hdf5::validate_1d_strings(nhandle, nlen);
 }
 
 }

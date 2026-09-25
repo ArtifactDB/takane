@@ -3,21 +3,19 @@
 
 #include <filesystem>
 #include <string>
+#include <type_traits>
 
 #include "utils_public.hpp"
 #include "byteme/byteme.hpp"
 
 namespace takane {
 
-/**
- * @cond
- */
 void validate(const std::filesystem::path&, const ObjectMetadata&, Options&);
 size_t height(const std::filesystem::path&, const ObjectMetadata&, Options&);
 bool satisfies_interface(const std::string&, const std::string&, const Options&);
-/**
- * @endcond
- */
+
+template<typename Input_>
+using I = std::remove_cv_t<std::remove_reference_t<Input_> >;
 
 namespace internal_other {
 
