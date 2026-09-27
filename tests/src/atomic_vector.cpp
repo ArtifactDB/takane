@@ -22,7 +22,7 @@ static std::size_t test_height(const std::filesystem::path& dir) {
 }
 // PURGE ME //
 
-static void expect_error(const std::filesystem::path& dir, const std::string& msg) {
+static void expect_validation_error(const std::filesystem::path& dir, const std::string& msg) {
     std::string err;
     try {
         test_validate(dir);
@@ -38,7 +38,7 @@ TEST(AtomicVector, PreambleError) {
     auto dir = define_test_path("atomic_vector");
 
     initialize_directory_simple(dir, "atomic_vector", "2.0");
-    expect_error(dir, "unsupported version string");
+    expect_validation_error(dir, "unsupported version string");
 
     // Check that the type is correctly extracted.
     {
@@ -48,7 +48,7 @@ TEST(AtomicVector, PreambleError) {
         ghandle.removeAttr("type");
         ghandle.createAttribute("type", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error(dir, "UTF-8 encoded string");
+    expect_validation_error(dir, "UTF-8 encoded string");
 }
 
 TEST(AtomicVector, ValuesError) {
@@ -62,7 +62,7 @@ TEST(AtomicVector, ValuesError) {
         ghandle.unlink("values");
         ghandle.createDataSet("values", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
-    expect_error(dir, "1-dimensional dataset");
+    expect_validation_error(dir, "1-dimensional dataset");
 
     {
         mock_atomic_vector(dir, 50, AtomicVectorType::INTEGER);
@@ -71,7 +71,7 @@ TEST(AtomicVector, ValuesError) {
         ghandle.removeAttr("type");
         add_hdf5_attribute(ghandle, "type", "foobar");
     }
-    expect_error(dir, "unsupported type");
+    expect_validation_error(dir, "unsupported type");
 }
 
 /*****************************************/
@@ -106,7 +106,7 @@ TEST(AtomicVector, IntegerError) {
         ghandle.unlink("values");
         add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_FLOAT, 99);
     }
-    expect_error(dir, "32-bit signed integer");
+    expect_validation_error(dir, "32-bit signed integer");
 }
 
 /*****************************************/
@@ -141,7 +141,7 @@ TEST(AtomicVector, BooleanError) {
         ghandle.unlink("values");
         add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT64, 100);
     }
-    expect_error(dir, "32-bit signed integer");
+    expect_validation_error(dir, "32-bit signed integer");
 }
 
 /*****************************************/
@@ -176,7 +176,7 @@ TEST(AtomicVector, NumberError) {
         ghandle.unlink("values");
         add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT64, 82);
     }
-    expect_error(dir, "64-bit float");
+    expect_validation_error(dir, "64-bit float");
 }
 
 /*****************************************/
@@ -242,7 +242,7 @@ TEST(AtomicVector, StringValuesError) {
         ghandle.unlink("values");
         add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT, 100);
     }
-    expect_error(dir, "represented by a UTF-8 encoded string");
+    expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
     // Check that NULL pointers are validated.
     {
@@ -251,7 +251,7 @@ TEST(AtomicVector, StringValuesError) {
         ghandle.unlink("values");
         add_hdf5_dataset(ghandle, "values", H5::StrType(0, H5T_VARIABLE), 100);
     }
-    expect_error(dir, "NULL");
+    expect_validation_error(dir, "NULL");
 }
 
 TEST(AtomicVector, StringFormatError) {
@@ -264,7 +264,7 @@ TEST(AtomicVector, StringFormatError) {
         auto ghandle = handle.openGroup("atomic_vector");
         ghandle.createAttribute("format", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
-    expect_error(dir, "represented by a UTF-8 encoded string");
+    expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
     // Test that the format is validated.
     {
@@ -273,7 +273,7 @@ TEST(AtomicVector, StringFormatError) {
         ghandle.removeAttr("format");
         add_hdf5_attribute(ghandle, "format", "date");
     }
-    expect_error(dir, "date-formatted string");
+    expect_validation_error(dir, "date-formatted string");
 }
 
 /*****************************************/
@@ -302,7 +302,7 @@ TEST(AtomicVector, NumericMissingError) {
         auto dhandle = ghandle.openDataSet("values");
         auto attr = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
-    expect_error(dir, "missing-value-placeholder");
+    expect_validation_error(dir, "missing-value-placeholder");
 }
 
 TEST(AtomicVector, StringMissingOkay) {
@@ -350,7 +350,7 @@ TEST(AtomicVector, StringMissingError) {
         auto dhandle = ghandle.openDataSet("values");
         auto attr = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
-    expect_error(dir, "missing-value-placeholder");
+    expect_validation_error(dir, "missing-value-placeholder");
 }
 
 /*****************************************/
@@ -377,7 +377,7 @@ TEST(AtomicVector, NamesError) {
         auto ghandle = handle.openGroup("atomic_vector");
         add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 33);
     }
-    expect_error(dir, "same length");
+    expect_validation_error(dir, "same length");
 }
 
 /*****************************************/
@@ -438,7 +438,7 @@ TEST(AtomicVector, VlsHeapError) {
         const hsize_t len = 10;
         ghandle.createDataSet("heap", H5::PredType::NATIVE_INT8, H5::DataSpace(1, &len));
     }
-    expect_error(dir, "8-bit unsigned integer");
+    expect_validation_error(dir, "8-bit unsigned integer");
 }
 
 TEST(AtomicVector, VlsPointersShapeError) {
@@ -451,7 +451,7 @@ TEST(AtomicVector, VlsPointersShapeError) {
         ghandle.unlink("pointers");
         ghandle.createDataSet("pointers", ritsuko::cvls::define_pointer_datatype<std::uint32_t, std::uint32_t>(), H5S_SCALAR);
     }
-    expect_error(dir, "1-dimensional");
+    expect_validation_error(dir, "1-dimensional");
 }
 
 TEST(AtomicVector, VlsPointersContentError) {
@@ -468,7 +468,7 @@ TEST(AtomicVector, VlsPointersContentError) {
         H5::DataSpace hspace(1, &zero);
         ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
     }
-    expect_error(dir, "out of range");
+    expect_validation_error(dir, "out of range");
 }
 
 TEST(AtomicVector, VlsMissingError) {
@@ -482,7 +482,7 @@ TEST(AtomicVector, VlsMissingError) {
         auto dhandle = ghandle.openDataSet("pointers");
         dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, H5T_VARIABLE), H5S_SCALAR);
     }
-    expect_error(dir, "NULL");
+    expect_validation_error(dir, "NULL");
 }
 
 TEST(AtomicVector, VlsVersionError) {
@@ -497,5 +497,5 @@ TEST(AtomicVector, VlsVersionError) {
         reinterpret_cast<millijson::String*>(av_entries["version"].get())->value() = "1.0";
         dump_json(parsed.get(), opath);
     }
-    expect_error(dir, "unsupported type");
+    expect_validation_error(dir, "unsupported type");
 }

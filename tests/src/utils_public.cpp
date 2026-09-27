@@ -7,7 +7,7 @@
 #include <string>
 #include <filesystem>
 
-static void expect_error(const std::filesystem::path& dir, const std::string& msg) {
+static void expect_read_object_error(const std::filesystem::path& dir, const std::string& msg) {
     std::string err;
     try {
         takane::read_object_metadata(dir);
@@ -18,7 +18,7 @@ static void expect_error(const std::filesystem::path& dir, const std::string& ms
 }
 
 TEST(ReadObjectMetadata, Basic) {
-    auto dir = define_test_path("readobj");
+    auto dir = define_test_path("utils_public");
 
     initialize_directory(dir);
     auto objpath = (dir / "OBJECT").string();
@@ -34,17 +34,17 @@ TEST(ReadObjectMetadata, Basic) {
 }
 
 TEST(ReadObjectMetadata, Error) {
-    auto dir = define_test_path("readobj");
+    auto dir = define_test_path("utils_public");
 
     initialize_directory(dir);
     auto objpath = (dir / "OBJECT").string();
 
     quick_text_write(objpath, "[]");
-    expect_error(dir, "JSON object");
+    expect_read_object_error(dir, "JSON object");
 
     quick_text_write(objpath, "{}");
-    expect_error(dir, "type");
+    expect_read_object_error(dir, "type");
 
     quick_text_write(objpath, "{ \"type\": 2 }");
-    expect_error(dir, "string");
+    expect_read_object_error(dir, "string");
 }

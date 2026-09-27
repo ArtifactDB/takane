@@ -36,7 +36,7 @@ std::string open_and_load_string_format(const H5Object_& handle) {
 }
 
 template<bool date_>
-inline void validate_dates_or_times(const H5::DataSet& handle, hsize_t len, const std::optional<std::string>& missing_value, [[maybe_unused]] hsize_t buffer_size) {
+inline void validate_dates_or_times(const H5::DataSet& handle, hsize_t len, const std::optional<std::string>& missing_value, hsize_t buffer_size) {
     ritsuko::hdf5::Stream1dStringDataset stream(
         &handle,
         len, 

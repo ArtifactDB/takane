@@ -48,17 +48,26 @@ inline void initialize_directory_simple(const std::filesystem::path& dir, const 
     dump_object_metadata_simple(dir, name, version);
 }
 
-template<typename ... Args_>
-void expect_validation_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
-    EXPECT_ANY_THROW({
-        try {
-            test_validate(dir, std::forward<Args_>(args)...);
-        } catch (std::exception& e) {
-            EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-            throw;
-        }
-    });
+template<class Function_>
+void expect_error(const std::string& msg, Function_ fun) {
+    std::string err;
+    try {
+        fun();
+    } catch (std::exception& e) {
+        err = e.what();
+    }
+    EXPECT_THAT(err, ::testing::HasSubstr(msg));
 }
+
+//template<typename ... Args_>
+//void expect_validation_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
+//    expect_error(
+//        msg,
+//        [&]() -> void {
+//            test_validate(dir, std::forward<Args_>(args)...);
+//        }
+//    );
+//}
 
 inline void quick_text_write(const std::string& path, const char* msg) {
     std::ofstream handle(path);
