@@ -23,7 +23,7 @@
 //std::vector<size_t> test_dimensions(const std::filesystem::path&);
 //std::vector<size_t> test_dimensions(const std::filesystem::path&, takane::Options& opts);
 
-std::filesystem::path define_test_path(const std::filesystem::path& stub) {
+inline std::filesystem::path define_test_path(const std::filesystem::path& stub) {
     const std::filesystem::path dir = "TEST-OBJECTS";
     if (!std::filesystem::exists(dir)) {
         std::filesystem::create_directory(dir);

@@ -7,26 +7,19 @@
 #include <string>
 #include <filesystem>
 
-struct ReadObjectTest : public::testing::Test {
-    ReadObjectTest() {
-        dir = "TEST_readobj";
+static void expect_error(const std::filesystem::path& dir, const std::string& msg) {
+    std::string err;
+    try {
+        takane::read_object_metadata(dir);
+    } catch (std::exception& e) {
+        err = e.what();
     }
+    EXPECT_THAT(err, ::testing::HasSubstr(msg));
+}
 
-    std::filesystem::path dir;
+TEST(ReadObjectMetadata, Basic) {
+    auto dir = define_test_path("readobj");
 
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::read_object_metadata(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(ReadObjectTest, Basic) {
     initialize_directory(dir);
     auto objpath = (dir / "OBJECT").string();
 
@@ -40,16 +33,18 @@ TEST_F(ReadObjectTest, Basic) {
     EXPECT_EQ(meta.other.size(), 1);
 }
 
-TEST_F(ReadObjectTest, Fails) {
+TEST(ReadObjectMetadata, Error) {
+    auto dir = define_test_path("readobj");
+
     initialize_directory(dir);
     auto objpath = (dir / "OBJECT").string();
 
     quick_text_write(objpath, "[]");
-    expect_error("JSON object");
+    expect_error(dir, "JSON object");
 
     quick_text_write(objpath, "{}");
-    expect_error("type");
+    expect_error(dir, "type");
 
     quick_text_write(objpath, "{ \"type\": 2 }");
-    expect_error("string");
+    expect_error(dir, "string");
 }

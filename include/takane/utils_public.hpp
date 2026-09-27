@@ -9,6 +9,7 @@
 #include "H5Cpp.h"
 #include "millijson/millijson.hpp"
 #include "chihaya/chihaya.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include "utils_json.hpp"
 
@@ -70,11 +71,14 @@ inline ObjectMetadata reformat_object_metadata(millijson::Base* raw) {
  * @param path Path to a directory containing an object.
  * @return Object metadata, including the type and other fields.
  */
-inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) try {
-    std::shared_ptr<millijson::Base> obj = parse_file(path / "OBJECT");
-    return reformat_object_metadata(obj.get());
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to read the OBJECT file at '" + path.string() + "'; " + std::string(e.what()));
+inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) {
+    try {
+        std::shared_ptr<millijson::Base> obj = parse_file(path / "OBJECT");
+        return reformat_object_metadata(obj.get());
+    } catch (std::exception& e) {
+        throw std::runtime_error("failed to read the OBJECT file at '" + path.string() + "'; " + std::string(e.what()));
+    }
+    return {};
 }
 
 /**
@@ -100,7 +104,7 @@ struct Options {
      * Size of the buffer (in terms of the number of elements) to use for reading contiguous HDF5 datasets.
      * This is ignored for chunked datasets where the buffer size is automatically set to the size of each chunk. 
      */
-    hsize_t hdf5_buffer_size = 10000;
+    hsize_t hdf5_buffer_size = sanisizer::cap<hsize_t>(10000);
 
 public:
     /**

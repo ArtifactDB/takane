@@ -37,7 +37,15 @@ std::string open_and_load_string_format(const H5Object_& handle) {
 
 template<bool date_>
 inline void validate_dates_or_times(const H5::DataSet& handle, hsize_t len, const std::optional<std::string>& missing_value, [[maybe_unused]] hsize_t buffer_size) {
-    ritsuko::hdf5::Stream1dStringDataset stream(&handle, len);
+    ritsuko::hdf5::Stream1dStringDataset stream(
+        &handle,
+        len, 
+        [&]{
+            ritsuko::hdf5::Stream1dStringDatasetOptions opt;
+            opt.contiguous_chunk_size = buffer_size;
+            return opt;
+        }()
+    );
     auto buffer = sanisizer::create<std::vector<std::string> >(stream.chunk_size());
 
     auto check_string = [&](const std::string& x) -> void {
@@ -84,13 +92,21 @@ inline void validate_string_format(
     } else if (format == "date-time") {
         validate_dates_or_times<false>(handle, len, missing_value, buffer_size);
     } else if (format == "none") {
-        ritsuko::hdf5::validate_1d_strings(handle, len);
+        ritsuko::hdf5::validate_1d_strings(
+            handle,
+            len,
+            [&]{
+                ritsuko::hdf5::Validate1dStringsOptions opt;
+                opt.contiguous_chunk_size = buffer_size;
+                return opt;
+            }()
+        );
     } else {
         throw std::runtime_error("unsupported format '" + format + "'");
     }
 }
 
-inline void validate_names(const H5::Group& handle, const std::string& name, std::size_t len) {
+inline void validate_names(const H5::Group& handle, const std::string& name, std::size_t len, hsize_t buffer_size) {
     if (!handle.exists(name)) {
         return;
     }
@@ -111,7 +127,15 @@ inline void validate_names(const H5::Group& handle, const std::string& name, std
         throw std::runtime_error("'" + name + "' should have the same length as the parent object (got " + std::to_string(nlen) + ", expected " + std::to_string(len) + ")");
     }
 
-    ritsuko::hdf5::validate_1d_strings(nhandle, nlen);
+    ritsuko::hdf5::validate_1d_strings(
+        nhandle,
+        nlen,
+        [&]{
+            ritsuko::hdf5::Validate1dStringsOptions opt;
+            opt.contiguous_chunk_size = buffer_size;
+            return opt;
+        }()
+    );
 }
 
 }

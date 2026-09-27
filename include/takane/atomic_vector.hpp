@@ -56,7 +56,16 @@ inline void validate_atomic_vector(const std::filesystem::path& path, const Obje
             throw std::runtime_error("expected 'pointers' to be a 1-dimensional dataset");
         }
         pspace.getSimpleExtentDims(&vlen);
-        ritsuko::cvls::validate_1d_pointers<std::uint64_t, std::uint64_t>(phandle, vlen, hlen);
+        ritsuko::cvls::validate_1d_pointers<std::uint64_t, std::uint64_t>(
+            phandle,
+            vlen,
+            hlen,
+            [&]{
+                ritsuko::cvls::Validate1dPointersOptions opt;
+                opt.contiguous_chunk_size = options.hdf5_buffer_size;
+                return opt;
+            }()
+        );
 
         check_string_missing_placeholder(phandle, missing_attr_name);
 
@@ -67,7 +76,6 @@ inline void validate_atomic_vector(const std::filesystem::path& path, const Obje
             throw std::runtime_error("expected 'values' to be a 1-dimensional dataset");
         }
         dspace.getSimpleExtentDims(&vlen);
-
 
         if (type == "string") {
             if (!ritsuko::hdf5::is_utf8_string(dhandle)) {
@@ -98,7 +106,7 @@ inline void validate_atomic_vector(const std::filesystem::path& path, const Obje
         }
     }
 
-    validate_names(ghandle, "names", vlen);
+    validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
 }
 
 /**
