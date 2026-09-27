@@ -29,7 +29,9 @@ namespace takane {
  */
 inline void validate_atomic_vector(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "atomic_vector"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = extract_version_for_type(metadata.other, type_name);
+
+    const auto& type_meta = extract_json_type_metadata(metadata.other, type_name);
+    const auto& vstring = extract_json_version_string(type_meta, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");

@@ -73,7 +73,7 @@ inline ObjectMetadata reformat_object_metadata(millijson::Base* raw) {
  */
 inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) {
     try {
-        std::shared_ptr<millijson::Base> obj = parse_file(path / "OBJECT");
+        std::shared_ptr<millijson::Base> obj = parse_json_file(path / "OBJECT");
         return reformat_object_metadata(obj.get());
     } catch (std::exception& e) {
         throw std::runtime_error("failed to read the OBJECT file at '" + path.string() + "'; " + std::string(e.what()));

@@ -28,9 +28,21 @@ TEST(ReadObjectMetadata, Basic) {
 
     // Works across multiple lines.
     quick_text_write(objpath, "{ \"type\": \"baz-stuff\", \n \"foobar\": \"whee\" }\n");
-    auto meta = takane::read_object_metadata(dir);
-    EXPECT_EQ(meta.type, "baz-stuff");
-    EXPECT_EQ(meta.other.size(), 1);
+    {
+        auto meta = takane::read_object_metadata(dir);
+        EXPECT_EQ(meta.type, "baz-stuff");
+        EXPECT_EQ(meta.other.size(), 1);
+        EXPECT_TRUE(meta.other.find("foobar") != meta.other.end());
+    }
+
+    quick_text_write(objpath, "{ \"type\": \"baz-stuff\", \n \"foobar\": \"whee\", \"superblah\"\n:\n2 }\n");
+    {
+        auto meta = takane::read_object_metadata(dir);
+        EXPECT_EQ(meta.type, "baz-stuff");
+        EXPECT_EQ(meta.other.size(), 2);
+        EXPECT_TRUE(meta.other.find("foobar") != meta.other.end());
+        EXPECT_TRUE(meta.other.find("superblah") != meta.other.end());
+    }
 }
 
 TEST(ReadObjectMetadata, Error) {
