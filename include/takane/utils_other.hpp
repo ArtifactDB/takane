@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #include "utils_public.hpp"
 #include "byteme/byteme.hpp"
@@ -16,6 +17,20 @@ bool satisfies_interface(const std::string&, const std::string&, const Options&)
 
 template<typename Input_>
 using I = std::remove_cv_t<std::remove_reference_t<Input_> >;
+
+template<typename Type_, class Stream_, class Action_>
+void iterate_stream(Stream_& stream, Action_ action) {
+    auto buffer = sanisizer::create<std::vector<Type_> >(stream.chunk_size());
+    while (true) {
+        auto available = stream.load(buffer.data());
+        if (available == 0) {
+            break;
+        }
+        for (I<decltype(available)> i = 0; i < available; ++i) {
+            action(i + stream.start(), buffer[i]);
+        }
+    }
+}
 
 namespace internal_other {
 

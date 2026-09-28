@@ -46,9 +46,8 @@ inline void validate_dates_or_times(const H5::DataSet& handle, hsize_t len, cons
             return opt;
         }()
     );
-    auto buffer = sanisizer::create<std::vector<std::string> >(stream.chunk_size());
 
-    auto check_string = [&](const std::string& x) -> void {
+    auto check_string = [&](hsize_t, const std::string& x) -> void {
         if constexpr(date_) {
             if (!ritsuko::is_date(x.c_str(), x.size())) {
                 throw std::runtime_error("expected a date-formatted string (got '" + x + "')");
@@ -60,23 +59,17 @@ inline void validate_dates_or_times(const H5::DataSet& handle, hsize_t len, cons
         }
     };
 
-    while (true) {
-        auto available = stream.load(buffer.data());
-        if (available == 0) {
-            break;
-        }
-        if (missing_value.has_value()) {
-            for (I<decltype(available)> i = 0; i < available; ++i) {
-                const auto& x = buffer[i];
+    if (missing_value.has_value()) {
+        iterate_stream<std::string>(
+            stream,
+            [&](hsize_t i, const std::string& x) -> void {
                 if (x != *missing_value) {
-                    check_string(x);
+                    check_string(i, x);
                 }
             }
-        } else {
-            for (I<decltype(available)> i = 0; i < available; ++i) {
-                check_string(buffer[i]);
-            }
-        }
+        );
+    } else {
+        iterate_stream<std::string>(stream, check_string);
     }
 }
 

@@ -10,50 +10,58 @@
 #include <filesystem>
 #include <fstream>
 
-struct AtomicVectorListTest : public::testing::Test {
-    AtomicVectorListTest() {
-        dir = "TEST_atomic_vector_list";
-        name = "atomic_vector_list";
+// PURGE ME //
+static void test_validate(const std::filesystem::path& dir) {
+    takane::validate_atomic_vector(dir, takane::read_object_metadata(dir), {});
+}
+
+static std::size_t test_height(const std::filesystem::path& dir) {
+    return takane::height_of_atomic_vector(dir, takane::read_object_metadata(dir), {});
+}
+
+static void expect_validation_error(const std::filesystem::path& dir, const std::string& msg) {
+    std::string err;
+    try {
+        test_validate(dir);
+    } catch (std::exception& e) {
+        err = e.what();
     }
+    EXPECT_THAT(err, ::testing::HasSubstr(msg));
+}
+// PURGE ME //
 
-    std::filesystem::path dir;
-    std::string name;
+TEST(AtomicVectorList, Okay) {
+    auto dir = define_test_path("atomic_vector_list");
 
-    H5::H5File initialize() {
-        initialize_directory_simple(dir, name, "1.0");
-        return H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
+    {
+        H5::H5File handle(dir / "partitions.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("atomic_vector_length");
+        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
+        mock_atomic_vector(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
     }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 4);
 
-    H5::H5File reopen() {
-        return H5::H5File(dir / "partitions.h5", H5F_ACC_RDWR);
-    }
+    // Works with other vector types.
+    mock_atomic_vector(dir / "concatenated", 10, atomic_vector::Type::STRING);
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 4);
+}
 
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(AtomicVectorListTest, Basic) {
+TEST(AtomicVectorList, Error) {
     initialize_directory_simple(dir, name, "2.0");
     expect_error("unsupported version string");
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
+        H5::H5File handle(dir / "partitions.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("atomic_vector_list");
         hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
         initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
     }
     expect_error("should contain an 'atomic_vector'");
 
     {
-        initialize_directory_simple(dir / "concatenated", "atomic_vector", "1.0");
+        initialize_directory_simple(dir / "concatenated", "atomic_vector", "2.0");
     }
     expect_error("failed to validate the 'concatenated'");
 
@@ -61,10 +69,4 @@ TEST_F(AtomicVectorListTest, Basic) {
         atomic_vector::mock(dir / "concatenated", 7, atomic_vector::Type::INTEGER);
     }
     expect_error("sum of 'lengths'");
-
-    {
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 4);
 }

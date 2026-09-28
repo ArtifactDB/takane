@@ -14,14 +14,14 @@
 
 #include "takane/utils_public.hpp"
 
-//void test_validate(const std::filesystem::path&);
-//void test_validate(const std::filesystem::path&, takane::Options& opts);
-//
-//size_t test_height(const std::filesystem::path&);
-//size_t test_height(const std::filesystem::path&, takane::Options& opts);
-//
-//std::vector<size_t> test_dimensions(const std::filesystem::path&);
-//std::vector<size_t> test_dimensions(const std::filesystem::path&, takane::Options& opts);
+void test_validate(const std::filesystem::path&);
+void test_validate(const std::filesystem::path&, takane::Options& opts);
+
+std::size_t test_height(const std::filesystem::path&);
+std::size_t test_height(const std::filesystem::path&, const takane::Options& opts);
+
+std::vector<std::size_t> test_dimensions(const std::filesystem::path&);
+std::vector<std::size_t> test_dimensions(const std::filesystem::path&, const takane::Options& opts);
 
 inline std::filesystem::path define_test_path(const std::filesystem::path& stub) {
     const std::filesystem::path dir = "TEST_OBJECTS";
@@ -59,15 +59,15 @@ void expect_error(const std::string& msg, Function_ fun) {
     EXPECT_THAT(err, ::testing::HasSubstr(msg));
 }
 
-//template<typename ... Args_>
-//void expect_validation_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
-//    expect_error(
-//        msg,
-//        [&]() -> void {
-//            test_validate(dir, std::forward<Args_>(args)...);
-//        }
-//    );
-//}
+template<typename ... Args_>
+void expect_validation_error(const std::filesystem::path& dir, const std::string& msg, Args_&& ... args) {
+    expect_error(
+        msg,
+        [&]() -> void {
+            test_validate(dir, std::forward<Args_>(args)...);
+        }
+    );
+}
 
 inline void quick_text_write(const std::string& path, const char* msg) {
     std::ofstream handle(path);

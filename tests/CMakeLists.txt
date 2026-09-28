@@ -64,7 +64,7 @@ add_executable(
     src/utils_public.cpp
     src/utils_string.cpp
 #    src/utils_files.cpp
-#    src/utils.cpp
+    src/utils.cpp
 #    src/dispatch.cpp
 )
 

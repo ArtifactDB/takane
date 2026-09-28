@@ -12,28 +12,6 @@
 #include <filesystem>
 #include <fstream>
 
-// PURGE ME //
-static void test_validate(const std::filesystem::path& dir) {
-    takane::validate_atomic_vector(dir, takane::read_object_metadata(dir), {});
-}
-
-static std::size_t test_height(const std::filesystem::path& dir) {
-    return takane::height_of_atomic_vector(dir, takane::read_object_metadata(dir), {});
-}
-// PURGE ME //
-
-static void expect_validation_error(const std::filesystem::path& dir, const std::string& msg) {
-    std::string err;
-    try {
-        test_validate(dir);
-    } catch (std::exception& e) {
-        err = e.what();
-    }
-    EXPECT_THAT(err, ::testing::HasSubstr(msg));
-}
-
-/*****************************************/
-
 TEST(AtomicVector, PreambleError) {
     auto dir = define_test_path("atomic_vector");
 
