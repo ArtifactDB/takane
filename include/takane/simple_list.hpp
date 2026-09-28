@@ -4,7 +4,11 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <cstddef>
+#include <optional>
+#include <cmath>
 
+#include "H5Cpp.h"
 #include "uzuki2/uzuki2.hpp"
 #include "byteme/byteme.hpp"
 
@@ -21,23 +25,9 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, Options&);
-/**
- * @endcond
- */
+void validate(const std::filesystem::path&, const Options&);
 
-/**
- * @namespace takane::simple_list
- * @brief Definitions for simple lists.
- */
-namespace simple_list {
-
-/**
- * @cond
- */
-namespace internal {
-
-inline std::string extract_format(const internal_json::JsonObjectMap& map) {
+inline std::string extract_simple_list_format(const JsonObjectMap& map) {
     auto fIt = map.find("format");
     if (fIt == map.end()) {
         return "hdf5";
@@ -49,18 +39,21 @@ inline std::string extract_format(const internal_json::JsonObjectMap& map) {
     return reinterpret_cast<millijson::String*>(val.get())->value();
 }
 
-inline std::pair<bool, size_t> extract_length(const internal_json::JsonObjectMap& map) {
+inline std::optional<std::size_t> extract_simple_list_length(const JsonObjectMap& map) {
+    std::optional<std::size_t> output;
     auto lIt = map.find("length");
-    if (lIt == map.end()) {
-        return std::pair<bool, size_t>(false, 0);
+    if (lIt != map.end()) {
+        const auto& val = lIt->second;
+        if (val->type() != millijson::NUMBER) {
+            throw std::runtime_error("'simple_list.length' in the object metadata should be a JSON number");
+        }
+        const auto num = reinterpret_cast<millijson::Number*>(val.get())->value();
+        if (num != std::trunc(num)) {
+            throw std::runtime_error("'simple_list.length' in the object metadata should be an integer");
+        }
+        output = sanisizer::from_float<std::size_t>(num);
     }
-    const auto& val = lIt->second;
-    if (val->type() != millijson::NUMBER) {
-        throw std::runtime_error("'simple_list.length' in the object metadata should be a JSON number");
-    }
-    return std::pair<bool, size_t>(true, reinterpret_cast<millijson::Number*>(val.get())->value());
-}
-
+    return output;
 }
 /**
  * @endcond
@@ -71,29 +64,28 @@ inline std::pair<bool, size_t> extract_length(const internal_json::JsonObjectMap
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_simple_list(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "simple_list"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string version_name = "version"; // again, avoid dangling reference warnings.
-    const std::string& vstring = internal_json::extract_string_from_typed_object(metamap, version_name, type_name);
+    const auto& metamap = extract_json_type_metadata(metadata.other, type_name);
+    const std::string& vstring = extract_json_version_string(metamap, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    std::string format = internal::extract_format(metamap);
+    std::string format = extract_simple_list_format(metamap);
 
     auto other_dir = path / "other_contents";
-    int num_external = 0;
+    std::size_t num_external = 0;
     if (std::filesystem::exists(other_dir)) {
         auto status = std::filesystem::status(other_dir);
         if (status.type() != std::filesystem::file_type::directory) {
             throw std::runtime_error("expected 'other_contents' to be a directory");
         } 
 
-        num_external = internal_other::count_directory_entries(other_dir);
-        for (int e = 0; e < num_external; ++e) {
+        num_external = count_directory_entries(other_dir);
+        for (I<decltype(num_external)> e = 0; e < num_external; ++e) {
             auto epath = other_dir / std::to_string(e);
             if (!std::filesystem::exists(epath)) {
                 throw std::runtime_error("expected an external list object at '" + std::filesystem::relative(epath, path).string() + "'");
@@ -111,13 +103,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     if (format == "json.gz") {
         uzuki2::json::Options opt;
         opt.parallel = options.parallel_reads;
-        auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
+        auto gzreader = open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
         auto loaded = uzuki2::json::parse<uzuki2::DummyProvisioner>(*gzreader, uzuki2::DummyExternals(num_external), opt);
         len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
 
     } else if (format == "hdf5") {
-        auto handle = ritsuko::hdf5::open_file(path / "list_contents.h5");
-        auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
+        H5::H5File handle(path / "list_contents.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(type_name);
         auto loaded = uzuki2::hdf5::parse<uzuki2::DummyProvisioner>(ghandle, uzuki2::DummyExternals(num_external), {});
         len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
 
@@ -126,11 +118,9 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     }
 
     if (version.ge(1, 1, 0)) {
-        auto len_info = internal::extract_length(metamap);
-        if (len_info.first) {
-            if (len_info.second != len) {
-                throw std::runtime_error("'simple_list.length' differs from the length of the list");
-            }
+        auto len_info = extract_simple_list_length(metamap);
+        if (len_info.has_value() && *len_info != len) {
+            throw std::runtime_error("'simple_list.length' differs from the length of the list");
         }
     }
 }
@@ -141,18 +131,18 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return The number of list elements.
  */
-inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline std::size_t height_of_simple_list(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "simple_list"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& metamap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
+    const auto& metamap = extract_json_type_metadata(metadata.other, type_name);
 
-    auto len_info = internal::extract_length(metamap);
-    if (len_info.first) {
-        return len_info.second;
+    auto len_info = extract_simple_list_length(metamap);
+    if (len_info.has_value()) {
+        return *len_info;
     }
 
-    std::string format = internal::extract_format(metamap);
+    std::string format = extract_simple_list_format(metamap);
     if (format == "hdf5") {
-        auto handle = ritsuko::hdf5::open_file(path / "list_contents.h5");
+        H5::H5File handle(path / "list_contents.h5", H5F_ACC_RDONLY);
         auto lhandle = handle.openGroup("simple_list");
         auto vhandle = lhandle.openGroup("data");
         return vhandle.getNumObjs();
@@ -161,19 +151,17 @@ inline size_t height(const std::filesystem::path& path, const ObjectMetadata& me
         // Not much choice but to parse the entire list here. We do so using the
         // dummy, which still has enough self-awareness to hold its own length.
         auto other_dir = path / "other_contents";
-        int num_external = 0;
+        std::size_t num_external = 0;
         if (std::filesystem::exists(other_dir)) {
-            num_external = internal_other::count_directory_entries(other_dir);
+            num_external = count_directory_entries(other_dir);
         }
 
         uzuki2::json::Options opt;
         opt.parallel = options.parallel_reads;
-        auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
+        auto gzreader = open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
         auto ptr = uzuki2::json::parse<uzuki2::DummyProvisioner>(*gzreader, uzuki2::DummyExternals(num_external), opt);
         return reinterpret_cast<const uzuki2::List*>(ptr.get())->size();
     }
-}
-
 }
 
 }

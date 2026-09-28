@@ -23,7 +23,7 @@ add_executable(
 #    src/sequence_information.cpp
     src/atomic_vector.cpp
 #    src/string_factor.cpp
-#    src/simple_list.cpp
+    src/simple_list.cpp
 #    src/data_frame_factor.cpp
 #    src/atomic_vector_list.cpp
 #    src/data_frame_list.cpp

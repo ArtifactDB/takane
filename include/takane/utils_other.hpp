@@ -6,8 +6,10 @@
 #include <type_traits>
 #include <vector>
 
-#include "utils_public.hpp"
+#include "sanisizer/sanisizer.hpp"
 #include "byteme/byteme.hpp"
+
+#include "utils_public.hpp"
 
 namespace takane {
 
@@ -31,8 +33,6 @@ void iterate_stream(Stream_& stream, Action_ action) {
         }
     }
 }
-
-namespace internal_other {
 
 template<class Reader_, typename Path_, typename ... Args_>
 std::unique_ptr<byteme::Reader> open_reader(const Path_& path, Args_&& ... args) {
@@ -88,18 +88,16 @@ inline void validate_metadata(const std::filesystem::path& parent, const std::st
     throw std::runtime_error("failed to validate '" + name + "'; " + std::string(e.what()));
 }
 
-inline size_t count_directory_entries(const std::filesystem::path& path) {
-    size_t num_dir_obj = 0;
+inline std::size_t count_directory_entries(const std::filesystem::path& path) {
+    std::size_t num_dir_obj = 0;
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         const auto& p = entry.path().filename().string();
         if (p.size() && (p[0] == '.' || p[0] == '_')) {
             continue;
         }
-        ++num_dir_obj;
+        num_dir_obj = sanisizer::sum<std::size_t>(num_dir_obj, 1);
     }
     return num_dir_obj;
-}
-
 }
 
 }

@@ -10,7 +10,7 @@
 #include "atomic_vector.hpp"
 #include "atomic_vector_list.hpp"
 //#include "string_factor.hpp"
-//#include "simple_list.hpp"
+#include "simple_list.hpp"
 //#include "data_frame.hpp"
 //#include "data_frame_factor.hpp"
 //#include "sequence_information.hpp"
@@ -53,14 +53,14 @@ namespace takane {
  */
 inline auto default_validate_registry() {
     std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> > registry;
-    registry["atomic_vector"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { validate_atomic_vector(p, m, o); };
+    registry["atomic_vector"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_atomic_vector(p, m, o); };
 //    registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { string_factor::validate(p, m, o); };
-//    registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { simple_list::validate(p, m, o); };
+    registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_simple_list(p, m, o); };
 //    registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { data_frame::validate(p, m, o); };
 //    registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { data_frame_factor::validate(p, m, o); };
 //    registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { sequence_information::validate(p, m, o); };
 //    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges::validate(p, m, o); };
-    registry["atomic_vector_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { validate_atomic_vector_list(p, m, o); };
+    registry["atomic_vector_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_atomic_vector_list(p, m, o); };
 //    registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { data_frame_list::validate(p, m, o); };
 //    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges_list::validate(p, m, o); };
 //    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { dense_array::validate(p, m, o); };

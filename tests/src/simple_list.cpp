@@ -2,208 +2,313 @@
 #include <gmock/gmock.h>
 
 #include "utils.h"
-#include "atomic_vector.h"
-#include "simple_list.h"
+#include "mock_atomic_vector.h"
+#include "mock_simple_list.h"
+
+#include "takane/simple_list.hpp"
 
 #include <string>
 #include <filesystem>
 #include <fstream>
 
-struct SimpleListTest : public::testing::Test {
-    SimpleListTest() {
-        dir = "TEST_simple_list";
-        name = "simple_list";
+TEST(ExtractSimpleListFormat, Basic) {
+    takane::JsonObjectMap tmp;
+    EXPECT_EQ(takane::extract_simple_list_format(tmp), "hdf5");
+
+    tmp["format"] = std::make_shared<millijson::Number>(10);
+    expect_error(
+        "JSON string",
+        [&]() -> void {
+            takane::extract_simple_list_format(tmp);
+        }
+    );
+
+    tmp["format"] = std::make_shared<millijson::String>("foobar");
+    EXPECT_EQ(takane::extract_simple_list_format(tmp), "foobar");
+}
+
+TEST(ExtractSimpleListLength, Basic) {
+    takane::JsonObjectMap tmp;
+    EXPECT_FALSE(takane::extract_simple_list_length(tmp).has_value());
+
+    tmp["length"] = std::make_shared<millijson::String>("foobar");
+    expect_error(
+        "JSON number",
+        [&]() -> void {
+            takane::extract_simple_list_length(tmp);
+        }
+    );
+
+    tmp["length"] = std::make_shared<millijson::Number>(10);
+    EXPECT_EQ(takane::extract_simple_list_length(tmp), 10);
+
+    tmp["length"] = std::make_shared<millijson::Number>(0.5);
+    expect_error(
+        "integer",
+        [&]() -> void {
+            takane::extract_simple_list_length(tmp);
+        }
+    );
+
+    tmp["length"] = std::make_shared<millijson::Number>(-1);
+    expect_error(
+        "negative",
+        [&]() -> void {
+            takane::extract_simple_list_length(tmp);
+        }
+    );
+}
+
+/*****************************************/
+
+TEST(SimpleList, JsonOkay) {
+    auto dir = define_test_path("simple_list");
+    initialize_simple_list_with_metadata(dir, "1.0", "json.gz");
+
+    {
+        dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [] }");
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
+
+    {
+        dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [ { \"type\": \"integer\", \"values\": 2 }, {\"type\": \"nothing\"} ] }");
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+
+    // Throwing in some externals.
+    {
+        dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [ { \"type\": \"external\", \"index\": 0 } ] }");
+        auto odir = dir / "other_contents";
+        initialize_directory(odir);
+        mock_atomic_vector(odir / "0", 23, AtomicVectorType::INTEGER);
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 1);
+}
+
+TEST(SimpleList, JsonLength) {
+    auto dir = define_test_path("simple_list");
+    initialize_directory(dir);
+
+    // Validates against the length, if supplied.
+    {
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"format\": \"json.gz\", \"length\": 3 } }";
+        dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [ {\"type\":\"nothing\"}, {\"type\":\"integer\",\"values\":[2,3]}, {\"type\":\"nothing\"} ] }");
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 3);
+
+    // But also ignores it if no length is supplied.
+    {
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"format\": \"json.gz\" } }";
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 3);
+}
+
+TEST(SimpleList, JsonError) {
+    auto dir = define_test_path("simple_list");
+
+    // Check that we actually run through uzuki2's validator.
+    {
+        initialize_simple_list_with_metadata(dir, "1.0", "json.gz");
+        dump_compressed_json(dir, "{ \"type\": \"integer\", \"values\": [] }");
+    }
+    expect_validation_error(dir, "top-level");
+}
+
+/*****************************************/
+
+TEST(SimpleList, Hdf5Okay) {
+    auto dir = define_test_path("simple_list");
+
+    {
+        initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        ghandle.createGroup("data");
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
+
+    {
+        initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        auto dhandle = ghandle.createGroup("data");
+        {
+            auto ghandle = dhandle.createGroup("0");
+            add_hdf5_attribute(ghandle, "uzuki_object", "vector");
+            add_hdf5_attribute(ghandle, "uzuki_type", "integer");
+            add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT32, 10);
+        }
+        {
+            auto ghandle = dhandle.createGroup("1");
+            add_hdf5_attribute(ghandle, "uzuki_object", "nothing");
+        }
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+
+    // Throwing in some externals.
+    {
+        initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        auto dhandle = ghandle.createGroup("data");
+        {
+            auto ghandle = dhandle.createGroup("0");
+            add_hdf5_attribute(ghandle, "uzuki_object", "external");
+            auto xhandle = ghandle.createDataSet("index", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+            const int val = 0;
+            xhandle.write(&val, H5::PredType::NATIVE_INT);
+        }
+        auto odir = dir / "other_contents";
+        initialize_directory(odir);
+        mock_atomic_vector(odir / "0", 23, AtomicVectorType::INTEGER);
     }
 
-    std::filesystem::path dir;
-    std::string name;
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 1);
+}
 
-    void dump_json(const std::string& buffer) {
-        simple_list::dump_compressed_json(dir, buffer);
+TEST(SimpleList, Hdf5Default) {
+    auto dir = define_test_path("simple_list");
+
+    // Still works with an implicit default format of HDF5.
+    {
+        initialize_directory(dir);
+        {
+            std::ofstream output(dir / "OBJECT");
+            output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.0\" } }";
+        }
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        ghandle.createGroup("data");
     }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
+}
 
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir, std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
+TEST(SimpleList, Hdf5Length) {
+    auto dir = define_test_path("simple_list");
+    initialize_directory(dir);
+
+    // Validates against the length, if supplied.
+    {
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"format\": \"hdf5\", \"length\": 3 } }";
+        initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        auto dhandle = ghandle.createGroup("data");
+        {
+            auto ghandle = dhandle.createGroup("0");
+            add_hdf5_attribute(ghandle, "uzuki_object", "nothing");
+        }
+        {
+            auto ghandle = dhandle.createGroup("1");
+            add_hdf5_attribute(ghandle, "uzuki_object", "vector");
+            add_hdf5_attribute(ghandle, "uzuki_type", "integer");
+            add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT32, 10);
+        }
+        {
+            auto ghandle = dhandle.createGroup("2");
+            add_hdf5_attribute(ghandle, "uzuki_object", "nothing");
+        }
     }
-};
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 3);
 
-TEST_F(SimpleListTest, Basics) {
-    simple_list::initialize_with_metadata(dir, "2.0", "whee");
-    expect_error("unsupported version");
+    // But also ignores it if no length is supplied.
+    {
+        std::ofstream output(dir / "OBJECT");
+        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\"  } }";
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 3);
+}
 
-    simple_list::initialize_with_metadata(dir, "1.0", "whee");
-    expect_error("unknown format");
+TEST(SimpleList, Hdf5Error) {
+    auto dir = define_test_path("simple_list");
+
+    // Check that we actually run through uzuki2's validator.
+    {
+        initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
+        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("simple_list");
+        add_hdf5_attribute(ghandle, "uzuki_object", "vector");
+        add_hdf5_attribute(ghandle, "uzuki_type", "integer");
+        add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT32, 10);
+    }
+    expect_validation_error(dir, "top-level");
+}
+
+/*****************************************/
+
+TEST(SimpleList, GeneralError) {
+    auto dir = define_test_path("simple_list");
+
+    initialize_simple_list_with_metadata(dir, "2.0", "whee");
+    expect_validation_error(dir, "unsupported version");
+
+    initialize_simple_list_with_metadata(dir, "1.0", "whee");
+    expect_validation_error(dir, "unknown format");
 
     {
         initialize_directory(dir);
         std::ofstream output(dir / "OBJECT");
         output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.0\", \"format\": null } }";
     }
-    expect_error("should be a JSON string");
+    expect_validation_error(dir, "should be a JSON string");
 }
 
-TEST_F(SimpleListTest, JsonBasic) {
-    simple_list::initialize_with_metadata(dir, "1.0", "json.gz");
+TEST(SimpleList, ExternalError) {
+    auto dir = define_test_path("simple_list");
+    initialize_simple_list_with_metadata(dir, "1.0", "json.gz");
+    dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [] }");
 
-    // Success!
-    {
-        dump_json("{ \"type\": \"list\", \"values\": [] }");
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 0);
-
-    // Throwing in some externals.
     auto odir = dir / "other_contents";
     {
         std::ofstream x(odir);
     }
-    expect_error("expected 'other_contents' to be a directory");
+    expect_validation_error(dir, "expected 'other_contents' to be a directory");
 
     initialize_directory(odir);
     auto dir0 = odir / "asdasd";
     {
         std::ofstream x(dir0);
     }
-    expect_error("expected an external list object at 'other_contents/0'");
+    expect_validation_error(dir, "expected an external list object at 'other_contents/0'");
 
     initialize_directory(odir);
     dir0 = odir / "0";
     {
         std::ofstream x(dir0);
     }
-    expect_error("failed to validate external list object at 'other_contents/0'");
+    expect_validation_error(dir, "failed to validate external list object at 'other_contents/0'");
 
-    ::atomic_vector::mock(dir0, 23, ::atomic_vector::Type::INTEGER);
-    expect_error("fewer instances");
-
-    // Success again!
-    {
-        dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"external\", \"index\": 0 } ] }");
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 1);
+    mock_atomic_vector(dir0, 23, AtomicVectorType::INTEGER);
+    expect_validation_error(dir, "fewer instances");
 }
 
-TEST_F(SimpleListTest, JsonLength) {
+TEST(SimpleList, LengthError) {
+    auto dir = define_test_path("simple_list");
+
     {
         initialize_directory(dir);
         std::ofstream output(dir / "OBJECT");
         output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"format\": \"json.gz\", \"length\": 2 } }";
-        dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"nothing\" } ] }");
+        dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [ { \"type\": \"nothing\" } ] }");
     }
-    expect_error("length of the list");
-
-    {
-        dump_json("{ \"type\": \"list\", \"values\": [ { \"type\": \"nothing\" }, { \"type\": \"nothing\" } ] }");
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 2);
-}
-
-TEST_F(SimpleListTest, Hdf5Basic) {
-    // Success!
-    {
-        simple_list::initialize_with_metadata(dir, "1.0", "hdf5");
-        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("simple_list");
-        H5::StrType stype(0, H5T_VARIABLE);
-        auto ahandle = ghandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
-        ahandle.write(stype, std::string("list"));
-        ghandle.createGroup("data");
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 0);
-
-    // Still works with an implicit default format of HDF5.
-    dump_object_metadata_simple(dir, "simple_list", "1.0");
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 0);
-
-    // Throwing in some externals.
-    auto odir = dir / "other_contents";
-    initialize_directory(odir);
-    auto dir0 = odir / "0";
-    ::atomic_vector::mock(dir0, 23, ::atomic_vector::Type::INTEGER);
-    expect_error("fewer instances");
-
-    // Actually referencing those externals, so we get success again!
-    {
-        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("simple_list");
-
-        H5::StrType stype(0, H5T_VARIABLE);
-        auto ahandle = ghandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
-        ahandle.write(stype, std::string("list"));
-
-        auto dhandle = ghandle.createGroup("data");
-        auto zhandle = dhandle.createGroup("0");
-        {
-            auto xhandle = zhandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
-            xhandle.write(stype, std::string("external"));
-        }
-
-        auto xhandle = zhandle.createDataSet("index", H5::PredType::NATIVE_INT32, H5S_SCALAR);
-        int val = 0;
-        xhandle.write(&val, H5::PredType::NATIVE_INT);
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 1);
-}
-
-TEST_F(SimpleListTest, Hdf5Length) {
-    H5::StrType stype(0, H5T_VARIABLE);
-
-    {
-        initialize_directory(dir);
-        std::ofstream output(dir / "OBJECT");
-        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"length\": 2 } }";
-
-        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("simple_list");
-        auto ahandle = ghandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
-        ahandle.write(stype, std::string("list"));
-
-        auto dhandle = ghandle.createGroup("data");
-        auto zhandle = dhandle.createGroup("0");
-        {
-            auto xhandle = zhandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
-            xhandle.write(stype, std::string("nothing"));
-        }
-    }
-    expect_error("length of the list");
-
-    {
-        H5::H5File handle(dir / "list_contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("simple_list");
-        auto dhandle = ghandle.openGroup("data");
-        auto zhandle = dhandle.createGroup("1");
-        {
-            auto xhandle = zhandle.createAttribute("uzuki_object", stype, H5S_SCALAR);
-            xhandle.write(stype, std::string("nothing"));
-        }
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 2);
-
-    // Still works in v1.1 without the length argument.
-    {
-        std::ofstream output(dir / "OBJECT");
-        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\" } }";
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 2);
-
-    {
-        std::ofstream output(dir / "OBJECT");
-        output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.1\", \"length\": true } }";
-    }
-    expect_error("should be a JSON number");
+    expect_validation_error(dir, "length of the list");
 }
