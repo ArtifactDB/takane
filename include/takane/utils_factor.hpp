@@ -8,21 +8,22 @@
 #include <stdexcept>
 #include <optional>
 
+#include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
-#include "ritsuko/hdf5/hdf5.hpp"
+#include "sanisizer/sanisizer.hpp"
+
+#include "utils_other.hpp"
+#include "utils_missing.hpp"
 
 namespace takane {
 
-namespace internal_factor {
-
 template<class H5Object_>
-void check_ordered_attribute(const H5Object_& handle) {
+void check_factor_ordered_attribute(const H5Object_& handle) {
     if (!handle.attrExists("ordered")) {
         return;
     }
-
     auto attr = handle.openAttribute("ordered");
-    if (!ritsuko::hdf5::is_scalar(attr)) {
+    if (attr.getSpace().getSimpleExtentNdims() != 0) {
         throw std::runtime_error("expected 'ordered' attribute to be a scalar");
     }
     if (ritsuko::hdf5::exceeds_integer_limit(attr, 32, true)) {
@@ -39,54 +40,91 @@ struct DefaultFactorMessenger {
 // These factor level/code checks are useful elsewhere but with different error messages;
 // in such cases, we just do some compile-time switches that only affect the error message.
 template<class ErrorMessenger_ = DefaultFactorMessenger>
-hsize_t validate_factor_levels(const H5::Group& handle, const std::string& name, hsize_t buffer_size) {
-    auto lhandle = ritsuko::hdf5::open_dataset(handle, name.c_str());
-    if (!ritsuko::hdf5::is_utf8_string(lhandle)) {
-        throw std::runtime_error("expected '" + name + "' to have a datatype that can be represented by a UTF-8 encoded string");
+hsize_t validate_factor_levels(const H5::DataSet& handle, hsize_t buffer_size) {
+    if (!ritsuko::hdf5::is_utf8_string(handle)) {
+        throw std::runtime_error("expected a datatype that can be represented by a UTF-8 encoded string");
     }
 
-    auto len = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false);
+    auto lspace = handle.getSpace();
+    if (lspace.getSimpleExtentNdims() != 1) {
+        throw std::runtime_error("expected a 1-dimensional dataset");
+    }
+    hsize_t len;
+    lspace.getSimpleExtentDims(&len);
+
+    ritsuko::hdf5::Stream1dStringDataset stream(
+        &handle,
+        len,
+        [&]{
+            ritsuko::hdf5::Stream1dStringDatasetOptions opt;
+            opt.contiguous_chunk_size = buffer_size;
+            return opt;
+        }()
+    );
+
     std::unordered_set<std::string> present;
-
-    ritsuko::hdf5::Stream1dStringDataset stream(&lhandle, len, buffer_size);
-    for (hsize_t i = 0; i < len; ++i, stream.next()) {
-        auto x = stream.steal();
-        if (present.find(x) != present.end()) {
-            throw std::runtime_error("'" + name + "' contains duplicated " + ErrorMessenger_::level() + " '" + x + "'");
+    iterate_stream<std::string>(
+        stream,
+        [&](hsize_t, std::string x) -> void {
+            if (present.find(x) != present.end()) {
+                throw std::runtime_error("detected duplicated " + ErrorMessenger_::level() + " '" + x + "'");
+            }
+            present.insert(std::move(x));
         }
-        present.insert(std::move(x));
-    }
+    );
 
     return len;
 }
 
 template<class ErrorMessenger_ = DefaultFactorMessenger>
-hsize_t validate_factor_codes(const H5::Group& handle, const std::string& name, hsize_t num_levels, hsize_t buffer_size, bool allow_missing = true) {
-    auto chandle = ritsuko::hdf5::open_dataset(handle, name.c_str());
-    if (ritsuko::hdf5::exceeds_integer_limit(chandle, 64, false)) {
-        throw std::runtime_error("expected a datatype for '" + name + "' that fits in a 64-bit unsigned integer");
+hsize_t validate_factor_codes(const H5::DataSet& handle, hsize_t num_levels, hsize_t buffer_size, bool allow_missing) {
+    if (ritsuko::hdf5::exceeds_integer_limit(handle, 64, false)) {
+        throw std::runtime_error("expected a datatype that fits in a 64-bit unsigned integer");
     }
 
-    std::optional<uint64_t> missing_placeholder;
+    auto cspace = handle.getSpace();
+    if (cspace.getSimpleExtentNdims() != 1) {
+        throw std::runtime_error("expected a 1-dimensional dataset");
+    }
+    hsize_t len;
+    cspace.getSimpleExtentDims(&len);
+
+    ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t> stream(
+        &handle,
+        len,
+        [&]{
+            ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+            opt.contiguous_chunk_size = buffer_size;
+            return opt;
+        }()
+    );
+
+    std::optional<std::uint64_t> missing_placeholder;
     if (allow_missing) {
-        missing_placeholder = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<uint64_t>(chandle, "missing-value-placeholder");
+        missing_placeholder = read_numeric_missing_placeholder<std::uint64_t>(handle, "missing-value-placeholder");
     }
 
-    auto len = ritsuko::hdf5::get_1d_length(chandle.getSpace(), false);
-    ritsuko::hdf5::Stream1dNumericDataset<uint64_t> stream(&chandle, len, buffer_size);
-    for (hsize_t i = 0; i < len; ++i, stream.next()) {
-        auto x = stream.get();
-        if (missing_placeholder.has_value() && x == *missing_placeholder) {
-            continue;
-        }
-        if (static_cast<hsize_t>(x) >= num_levels) {
-            throw std::runtime_error("expected " + ErrorMessenger_::codes() + " to be less than the number of " + ErrorMessenger_::levels() + " in '" + name + "'");
-        }
+    if (missing_placeholder.has_value()) {
+        iterate_stream<std::uint64_t>( 
+            stream,
+            [&](hsize_t, std::uint64_t x) -> void {
+                if (x != *missing_placeholder && sanisizer::is_greater_than_or_equal(x, num_levels)) {
+                    throw std::runtime_error("expected " + ErrorMessenger_::codes() + " to be less than the number of " + ErrorMessenger_::levels());
+                }
+            }
+        );
+    } else {
+        iterate_stream<std::uint64_t>( 
+            stream,
+            [&](hsize_t, std::uint64_t x) -> void {
+                if (sanisizer::is_greater_than_or_equal(x, num_levels)) {
+                    throw std::runtime_error("expected " + ErrorMessenger_::codes() + " to be less than the number of " + ErrorMessenger_::levels());
+                }
+            }
+        );
     }
 
     return len;
-}
-
 }
 
 }

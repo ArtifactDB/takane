@@ -29,7 +29,7 @@ void iterate_stream(Stream_& stream, Action_ action) {
             break;
         }
         for (I<decltype(available)> i = 0; i < available; ++i) {
-            action(i + stream.start(), buffer[i]);
+            action(i + stream.start(), std::move(buffer[i]));
         }
     }
 }

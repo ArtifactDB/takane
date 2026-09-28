@@ -55,7 +55,7 @@ add_executable(
 #    src/image_file.cpp
 #    src/utils_compressed_list.cpp
 #    src/utils_bumpy_array.cpp
-#    src/utils_factor.cpp
+    src/utils_factor.cpp
 #    src/utils_other.cpp
 #    src/utils_array.cpp
 #    src/utils_summarized_experiment.cpp

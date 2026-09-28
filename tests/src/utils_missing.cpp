@@ -32,7 +32,7 @@ TEST(CheckStringMissingPlaceholder, Okay) {
         auto dhandle = handle.openDataSet("foo");
         takane::check_string_missing_placeholder(dhandle, "missing-value-placeholder");
         auto val = takane::read_string_missing_placeholder(dhandle, "missing-value-placeholder");
-        EXPECT_TRUE(val.has_value());
+        ASSERT_TRUE(val.has_value());
         EXPECT_EQ(*val, "foobar");
     }
 }
@@ -100,30 +100,43 @@ TEST(CheckNumericMissingPlaceholder, Okay) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
         takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+        EXPECT_FALSE(takane::read_numeric_missing_placeholder<int>(dhandle, "missing-value-placeholder").has_value());
     }
 
     // Actually check the placeholder.
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet("foo");
-        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR); 
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR); 
+        const int val = 99;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
         takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+
+        auto val = takane::read_numeric_missing_placeholder<int>(dhandle, "missing-value-placeholder");
+        ASSERT_TRUE(val.has_value());
+        EXPECT_EQ(*val, 99);
     }
 
     // Try a floating-point dataset. 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto dhandle = add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_DOUBLE, 20);
-        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR); 
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR); 
+        const double val = 0.5;
+        ahandle.write(H5::PredType::NATIVE_DOUBLE, &val);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
         takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+
+        auto val = takane::read_numeric_missing_placeholder<double>(dhandle, "missing-value-placeholder");
+        ASSERT_TRUE(val.has_value());
+        EXPECT_EQ(*val, 0.5);
     }
 }
 
@@ -146,6 +159,12 @@ TEST(CheckNumericMissingPlaceholder, Error) {
                 takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
             }
         );
+        expect_error(
+            "scalar",
+            [&]() -> void {
+                takane::read_numeric_missing_placeholder<int>(dhandle, "missing-value-placeholder");
+            }
+        );
     }
 
     {
@@ -160,6 +179,12 @@ TEST(CheckNumericMissingPlaceholder, Error) {
             "same datatype",
             [&]() -> void {
                 takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+            }
+        );
+        expect_error(
+            "same datatype",
+            [&]() -> void {
+                takane::read_numeric_missing_placeholder<int>(dhandle, "missing-value-placeholder");
             }
         );
     }
