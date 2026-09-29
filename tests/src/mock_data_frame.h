@@ -14,6 +14,7 @@ enum class DataFrameColumnType {
     STRING,
     BOOLEAN,
     FACTOR,
+    VLS,
     OTHER
 };
 
@@ -92,6 +93,24 @@ inline H5::Group mock_data_frame(H5::Group& handle, hsize_t num_rows, const std:
             }
             auto chandle = add_hdf5_dataset(dhandle, "codes", H5::PredType::NATIVE_UINT16, num_rows);
             chandle.write(codes.data(), H5::PredType::NATIVE_INT);
+
+        } else if (curcol.type == DataFrameColumnType::VLS) {
+            auto vhandle = ghandle.createGroup(colname);
+            add_hdf5_attribute(vhandle, "type", "vls");
+            auto vtype = ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>();
+            auto phandle = vhandle.createDataSet("pointers", vtype, H5::DataSpace(1, &num_rows));
+
+            std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > buffer(num_rows);
+            hsize_t previous = 0;
+            for (hsize_t i = 0; i < num_rows; ++i) {
+                buffer[i].offset = previous; 
+                const auto len = 1 + i % 10;
+                buffer[i].length = len;
+                previous += len;
+            }
+            phandle.write(buffer.data(), vtype);
+
+            add_hdf5_dataset(vhandle, "heap", H5::PredType::NATIVE_UINT8, previous);
         }
     }
 
@@ -99,7 +118,15 @@ inline H5::Group mock_data_frame(H5::Group& handle, hsize_t num_rows, const std:
 }
 
 inline H5::Group mock_data_frame(const std::filesystem::path& path, hsize_t num_rows, const std::vector<DataFrameColumnDetails>& columns) {
-    initialize_directory_simple(path, "data_frame", "1.0");
+    std::string vstring = "1.0";
+    for (const auto& col : columns) {
+        if (col.type == DataFrameColumnType::VLS) {
+            vstring = "1.1";
+            break;
+        }
+    }
+
+    initialize_directory_simple(path, "data_frame", vstring);
     H5::H5File handle(path / "basic_columns.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("data_frame");
     return mock_data_frame(ghandle, num_rows, columns);

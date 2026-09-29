@@ -90,7 +90,7 @@ inline hsize_t validate_column(const H5::Group& dhandle, const std::string& dset
             check_string_missing_placeholder(phandle, missing_attr_name);
 
         } else {
-            throw std::runtime_error("unsupported type '" + type + "'");
+            throw std::runtime_error("unknown column type '" + type + "'");
         }
 
     } else if (dtype == H5O_TYPE_DATASET) {
