@@ -67,9 +67,14 @@ TEST_F(ValidateMetadataTest, Metadata) {
 TEST(CountDirectoryEntries, Basic) {
     std::filesystem::path path = "TEST_countdir";
     std::filesystem::create_directory(path);
-    std::filesystem::create_directory(path / "_whee");
-    std::filesystem::create_directory(path / ".foo");
+    EXPECT_EQ(takane::internal_other::count_directory_entries(path), 0);
+
     std::filesystem::create_directory(path / "blah");
     std::filesystem::create_directory(path / "asdasd");
+    EXPECT_EQ(takane::internal_other::count_directory_entries(path), 2);
+
+    // Ignores . and _ prefixes.
+    std::filesystem::create_directory(path / "_whee");
+    std::filesystem::create_directory(path / ".foo");
     EXPECT_EQ(takane::internal_other::count_directory_entries(path), 2);
 }

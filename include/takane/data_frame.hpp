@@ -3,8 +3,7 @@
 
 #include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
-#include "ritsuko/hdf5/hdf5.hpp"
-#include "ritsuko/hdf5/vls/vls.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include <cstdint>
 #include <cstddef>
@@ -43,11 +42,24 @@ inline hsize_t validate_column(const H5::Group& dhandle, const std::string& dset
     if (dtype == H5O_TYPE_GROUP) {
         auto ghandle = dhandle.openGroup(dset_name);
         auto type = open_and_load_scalar_string_attribute(ghandle, "type");
-n
+
         if (type == "factor") {
             check_factor_ordered_attribute(ghandle);
-            auto num_levels = validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);
-            output = validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ true);
+
+            hsize_t num_levels;
+            auto lhandle = ghandle.openDataSet("levels");
+            try {
+                num_levels = validate_factor_levels(lhandle, options.hdf5_buffer_size);
+            } catch (std::exception& e) {
+                throw std::runtime_error("failed to validate 'levels'; " + std::string(e.what()));
+            }
+
+            auto chandle = ghandle.openDataSet("codes");
+            try {
+                output = validate_factor_codes(chandle, num_levels, options.hdf5_buffer_size, /* allow_missing = */ true);
+            } catch (std::exception& e) {
+                throw std::runtime_error("failed to validate 'codes'; " + std::string(e.what()));
+            }
 
         } else if (type == "vls") {
             if (version.lt(1, 1, 0)) {
@@ -75,7 +87,7 @@ n
                 }()
             );
 
-            check_string_missing_placeholder_attribute(attr, missing_attr_name);
+            check_string_missing_placeholder(phandle, missing_attr_name);
 
         } else {
             throw std::runtime_error("unsupported type '" + type + "'");
@@ -95,7 +107,7 @@ n
                 throw std::runtime_error("expected a datatype that can be represented by a UTF-8 encoded string");
             }
             auto missingness = read_string_missing_placeholder(xhandle, missing_attr_name);
-            std::string format = open_and_load_format_attribute(xhandle);
+            std::string format = open_and_load_string_format(xhandle);
             validate_string_format(xhandle, output, format, missingness, options.hdf5_buffer_size);
 
         } else {
@@ -133,7 +145,7 @@ n
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate_data_frame(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_data_frame(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "data_frame"; // use a separate variable to avoid dangling reference warnings from GCC.
 
     const auto& type_meta = extract_json_type_metadata(metadata.other, type_name);
@@ -157,9 +169,9 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
     std::uint64_t num_rows = 0;
     attr.read(H5::PredType::NATIVE_UINT64, &num_rows);
 
-    // Checking row and column names.
+    // Checking row names, if they exist.
     if (ghandle.exists("row_names")) {
-        auto rnhandle = handle.openDataSet("row_names");
+        auto rnhandle = ghandle.openDataSet("row_names");
         if (!ritsuko::hdf5::is_utf8_string(rnhandle)) {
             throw std::runtime_error("expected a datatype for 'row_names' that can be represented by a UTF-8 encoded string");
         }
@@ -175,11 +187,11 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
         }
 
         try {
-            ritsuko::hdf5::validate_1d_string_dataset(
+            ritsuko::hdf5::validate_1d_strings(
                 rnhandle,
                 num_rows,
                 [&]{
-                    ritsuko::hdf5::Validate1dStringDatasetOptions opt;
+                    ritsuko::hdf5::Validate1dStringsOptions opt;
                     opt.contiguous_chunk_size = options.hdf5_buffer_size;
                     return opt;
                 }()
@@ -189,6 +201,7 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
         }
     }
 
+    // Checking column names.
     hsize_t NC;
     {
         auto cnhandle = ghandle.openDataSet("column_names");
@@ -213,7 +226,7 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
         );
 
         std::unordered_set<std::string> column_names;
-        iterate_stream(
+        iterate_stream<std::string>(
             stream,
             [&](hsize_t, std::string x) -> void {
                 if (x.empty()) {
@@ -250,7 +263,7 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
         } else {
             hsize_t colsize;
             try {
-                colsize = validate_column(dhandle, dset_name, num_rows, options);
+                colsize = validate_column(dhandle, dset_name, version, options);
             } catch (std::exception& e) {
                 throw std::runtime_error("failed to validate column " + dset_name + "'; " + std::string(e.what()));
             }
@@ -262,7 +275,7 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
     }
 
     if (std::filesystem::exists(other_dir)) {
-        if (internal_other::count_directory_entries(other_dir) != NC - num_basic) {
+        if (!sanisizer::is_equal(count_directory_entries(other_dir), NC - num_basic)) {
             throw std::runtime_error("more objects than expected inside the 'other_columns' directory");
         }
     }
@@ -271,8 +284,8 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
         throw std::runtime_error("more objects present in the 'data_frame/data' group than expected");
     }
 
-    validate_mcols(path, "column_annotations", sanisizer::cast<std::size_t>(NC), options);
-    validate_metadata(path, "other_annotations", options);
+    //validate_mcols(path, "column_annotations", sanisizer::cast<std::size_t>(NC), options);
+    //validate_metadata(path, "other_annotations", options);
 }
 
 /**
@@ -286,7 +299,7 @@ inline std::size_t height_of_data_frame(const std::filesystem::path& path, [[may
     auto ghandle = handle.openGroup("data_frame");
     auto ahandle = ghandle.openAttribute("row-count");
     std::uint64_t output;
-    ahandle.read(&output, H5::PredType::NATIVE_UINT64);
+    ahandle.read(H5::PredType::NATIVE_UINT64, &output);
     return sanisizer::cast<std::size_t>(output);
 }
 
@@ -296,16 +309,16 @@ inline std::size_t height_of_data_frame(const std::filesystem::path& path, [[may
  * @param options Validation options.
  * @return A vector of length 2 containing the number of rows and columns in the data frame.
  */
-inline std::vector<size_t> dimensions_of_data_frame(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+inline std::vector<std::size_t> dimensions_of_data_frame(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     std::vector<size_t> output(2);
 
     H5::H5File handle(path / "basic_columns.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup("data_frame");
 
     auto ahandle = ghandle.openAttribute("row-count");
-    std::uint64_t output;
-    ahandle.read(&output, H5::PredType::NATIVE_UINT64);
-    output[0] = sanisizer::cast<std::size_t>(output);
+    std::uint64_t nr;
+    ahandle.read(H5::PredType::NATIVE_UINT64, &nr);
+    output[0] = sanisizer::cast<std::size_t>(nr);
 
     auto chandle = ghandle.openDataSet("column_names");
     hsize_t clen;

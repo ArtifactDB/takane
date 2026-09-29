@@ -1,5 +1,5 @@
-#ifndef SIMPLE_LIST_H
-#define SIMPLE_LIST_H
+#ifndef MOCK_SIMPLE_LIST_H
+#define MOCK_SIMPLE_LIST_H
 
 #include <filesystem>
 #include <string>

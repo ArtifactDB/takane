@@ -26,10 +26,10 @@ namespace takane {
  * @cond
  */
 inline auto default_dimensions_registry() {
-    std::unordered_map<std::string, std::function<std::vector<size_t>(const std::filesystem::path&, const ObjectMetadata&, const Options& os)> > registry;
-    //typedef std::vector<std::size_t> Dims;
+    typedef std::vector<std::size_t> Dims;
+    std::unordered_map<std::string, std::function<Dims(const std::filesystem::path&, const ObjectMetadata&, const Options& os)> > registry;
 
-//    registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return data_frame::dimensions(p, m, o); };
+    registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_data_frame(p, m, o); };
 //    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return dense_array::dimensions(p, m, o); };
 //    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return compressed_sparse_matrix::dimensions(p, m, o); };
 //
