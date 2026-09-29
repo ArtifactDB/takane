@@ -360,39 +360,14 @@ TEST(AtomicVector, NamesError) {
 
 /*****************************************/
 
-static void mock_vls_atomic_vector(const std::filesystem::path& dir) {
-    initialize_directory_simple(dir, "atomic_vector", "1.1");
-    H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
-    auto ghandle = handle.createGroup("atomic_vector");
-    add_hdf5_attribute(ghandle, "type", "vls");
-
-    const std::string heap = "abcdefghijklmno";
-    std::vector<std::uint8_t> buffer(heap.size());
-    std::copy(heap.begin(), heap.end(), reinterpret_cast<char*>(buffer.data()));
-    hsize_t hlen = heap.size();
-    auto hhandle = ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, H5::DataSpace(1, &hlen));
-    hhandle.write(buffer.data(), H5::PredType::NATIVE_UINT8);
-
-    std::vector<ritsuko::cvls::Pointer<uint64_t, std::uint64_t> > pointers(3);
-    pointers[0].offset = 0; pointers[0].length = 5;
-    pointers[1].length = 5; pointers[1].length = 7;
-    pointers[1].length = 12; pointers[1].length = 3;
-
-    hsize_t plen = pointers.size();
-    H5::DataSpace pspace(1, &plen);
-    auto ptype = ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>();
-    auto phandle = ghandle.createDataSet("pointers", ptype, pspace);
-    phandle.write(pointers.data(), ptype);
-}
-
-TEST(AtomicVector, Vls) {
+TEST(AtomicVector, VlsOkay) {
     auto dir = define_test_path("atomic_vector");
 
     {
-        mock_vls_atomic_vector(dir);
+        mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
     }
     test_validate(dir);
-    EXPECT_EQ(test_height(dir), 3);
+    EXPECT_EQ(test_height(dir), 55);
 
     // Injecting a missing value placeholder.
     {
@@ -402,6 +377,7 @@ TEST(AtomicVector, Vls) {
         dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
     }
     test_validate(dir);
+    EXPECT_EQ(test_height(dir), 55);
 }
 
 TEST(AtomicVector, VlsHeapError) {
@@ -409,9 +385,7 @@ TEST(AtomicVector, VlsHeapError) {
 
     // Test that we actually validate the heap dataset.
     {
-        mock_vls_atomic_vector(dir);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
         ghandle.unlink("heap");
         const hsize_t len = 10;
         ghandle.createDataSet("heap", H5::PredType::NATIVE_INT8, H5::DataSpace(1, &len));
@@ -423,9 +397,7 @@ TEST(AtomicVector, VlsPointersShapeError) {
     auto dir = define_test_path("atomic_vector");
 
     {
-        mock_vls_atomic_vector(dir);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
         ghandle.unlink("pointers");
         ghandle.createDataSet("pointers", ritsuko::cvls::define_pointer_datatype<std::uint32_t, std::uint32_t>(), H5S_SCALAR);
     }
@@ -438,13 +410,9 @@ TEST(AtomicVector, VlsPointersContentError) {
     // Test that we actually validate the pointer intervals,
     // by shortening the heap so that everything's out of range.
     {
-        mock_vls_atomic_vector(dir);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
         ghandle.unlink("heap");
-        hsize_t zero = 0;
-        H5::DataSpace hspace(1, &zero);
-        ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
+        add_hdf5_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, 0);
     }
     expect_validation_error(dir, "out of range");
 }
@@ -454,9 +422,7 @@ TEST(AtomicVector, VlsMissingError) {
 
     // Test that the missing value placeholder is validated.
     {
-        mock_vls_atomic_vector(dir);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
         auto dhandle = ghandle.openDataSet("pointers");
         dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, H5T_VARIABLE), H5S_SCALAR);
     }
@@ -467,13 +433,9 @@ TEST(AtomicVector, VlsVersionError) {
     auto dir = define_test_path("atomic_vector");
 
     {
-        mock_vls_atomic_vector(dir);
-        auto opath = dir/"OBJECT";
-        auto parsed = millijson::parse_file(opath.c_str(), {});
-        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->value();
-        auto& av_entries = reinterpret_cast<millijson::Object*>(entries["atomic_vector"].get())->value();
-        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value() = "1.0";
-        dump_json(parsed.get(), opath);
+        mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
+        std::ofstream handle(dir / "OBJECT");
+        handle << "{ \"type\": \"atomic_vector\", \"atomic_vector\": { \"version\": \"1.0\" } }";
     }
     expect_validation_error(dir, "unsupported type");
 }
