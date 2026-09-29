@@ -53,11 +53,11 @@ add_executable(
 #    src/utils_compressed_list.cpp
 #    src/utils_bumpy_array.cpp
     src/utils_factor.cpp
-#    src/utils_other.cpp
 #    src/utils_array.cpp
 #    src/utils_summarized_experiment.cpp
     src/utils_json.cpp
     src/utils_missing.cpp
+    src/utils_other.cpp
     src/utils_public.cpp
     src/utils_string.cpp
 #    src/utils_files.cpp

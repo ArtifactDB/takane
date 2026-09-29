@@ -54,7 +54,7 @@ std::unique_ptr<byteme::BufferedReader<Type_> > wrap_reader_for_bytes(std::uniqu
     }
 }
 
-inline void validate_mcols(const std::filesystem::path& parent, const std::string& name, size_t expected, Options& options) try {
+inline void validate_mcols(const std::filesystem::path& parent, const std::string& name, std::size_t expected, const Options& options) try {
     auto path = parent / name;
     if (!std::filesystem::exists(path)) {
         return;
@@ -73,7 +73,7 @@ inline void validate_mcols(const std::filesystem::path& parent, const std::strin
     throw std::runtime_error("failed to validate '" + name + "'; " + std::string(e.what()));
 }
 
-inline void validate_metadata(const std::filesystem::path& parent, const std::string& name, Options& options) try {
+inline void validate_metadata(const std::filesystem::path& parent, const std::string& name, const Options& options) try {
     auto path = parent / name;
     if (!std::filesystem::exists(path)) {
         return;

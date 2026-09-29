@@ -791,26 +791,78 @@ TEST(DataFrame, OtherError) {
 
 /**************************************/
 
-//TEST_F(Hdf5DataFrameTest, Metadata) {
-//    std::vector<data_frame::ColumnDetails> columns(1);
-//    columns[0].name = "Aaron";
-//    columns[0].type = data_frame::ColumnType::FACTOR;
-//    columns[0].factor_levels = std::vector<std::string>{ "kanon", "chisato", "sumire", "ren", "keke" };
-//
-//    auto cdir = dir / "column_annotations";
-//    auto odir = dir / "other_annotations";
-//
-//    data_frame::mock(dir, 99, columns);
-//    initialize_directory_simple(cdir, "simple_list", "1.0");
-//    expect_error("'DATA_FRAME'"); 
-//
-//    data_frame::mock(cdir, columns.size(), {});
-//    initialize_directory_simple(odir, "data_frame", "1.0");
-//    expect_error("'SIMPLE_LIST'");
-//
-//    simple_list::mock(odir);
-//    test_validate(dir);
-//}
+TEST(DataFrame, McolsOkay) {
+    auto dir = define_test_path("data_frame");
+
+    std::vector<DataFrameColumnDetails> columns(2);
+    columns[0].name = "nagisa";
+    columns[1].name = "tomoya";
+
+    std::vector<DataFrameColumnDetails> metacolumns(3);
+    metacolumns[0].name = "akio";
+    metacolumns[0].type = DataFrameColumnType::NUMBER;
+    metacolumns[1].name = "sanae";
+    metacolumns[1].type = DataFrameColumnType::STRING;
+    metacolumns[2].name = "ushio";
+    metacolumns[2].type = DataFrameColumnType::BOOLEAN;
+
+    {
+        mock_data_frame(dir, 99, columns);
+        mock_data_frame(dir / "column_annotations", 2, metacolumns);
+    }
+
+    test_validate(dir);
+}
+
+TEST(DataFrame, McolsError) {
+    auto dir = define_test_path("data_frame");
+
+    std::vector<DataFrameColumnDetails> columns(2);
+    columns[0].name = "furukawa";
+    columns[1].name = "okazaki";
+
+    // Check that we actually validate the mcols.
+    {
+        mock_data_frame(dir, 99, columns);
+        mock_data_frame(dir / "column_annotations", 4, {});
+    }
+    expect_validation_error(dir, "unexpected number of rows");
+}
+
+TEST(DataFrame, MetadataOkay) {
+    auto dir = define_test_path("data_frame");
+
+    std::vector<DataFrameColumnDetails> columns(4);
+    columns[0].name = "dango daikazoku";
+    columns[0].type = DataFrameColumnType::NUMBER;
+    columns[1].name = "toki wo izuma uta";
+    columns[1].type = DataFrameColumnType::STRING;
+    columns[2].name = "the palm of a tiny hand";
+    columns[2].type = DataFrameColumnType::BOOLEAN;
+    columns[3].name = "over";
+
+    {
+        mock_data_frame(dir, 13, columns);
+        mock_simple_list(dir / "other_annotations");
+    }
+
+    test_validate(dir);
+}
+
+TEST(DataFrame, MetadataError) {
+    auto dir = define_test_path("data_frame");
+
+    std::vector<DataFrameColumnDetails> columns(2);
+    columns[0].name = "cherry blossom petal";
+    columns[1].name = "roaring ocean";
+
+    // Check that we actually validate the metadata.
+    {
+        mock_data_frame(dir, 13, columns);
+        mock_data_frame(dir / "other_annotations", 2, {});
+    }
+    expect_validation_error(dir, "SIMPLE_LIST");
+}
 
 /**************************************/
 
