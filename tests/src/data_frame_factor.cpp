@@ -1,157 +1,210 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/data_frame_factor.hpp"
+#include "H5Cpp.h"
 
 #include "utils.h"
-#include "data_frame.h"
-#include "simple_list.h"
+#include "mock_data_frame.h"
+#include "mock_simple_list.h"
 
 #include <string>
 #include <filesystem>
 #include <fstream>
 
-struct DataFrameFactorTest : public::testing::Test {
-    DataFrameFactorTest() {
-        dir = "TEST_data_frame_factor";
-        name = "data_frame_factor";
-    }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    H5::H5File initialize() {
-        initialize_directory_simple(dir, name, "1.0");
-        return H5::H5File(dir / "contents.h5", H5F_ACC_TRUNC);
-    }
-
-    H5::H5File reopen() {
-        auto path = dir / "contents.h5";
-        return H5::H5File(path, H5F_ACC_RDWR);
-    }
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
-    }
-};
-
-TEST_F(DataFrameFactorTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version string");
-
-    // Success.
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_UINT32);
-
-        auto ldir = dir / "levels";
-        data_frame::mock(ldir, 5, {});
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 100);
+static H5::DataSet inject_codes(H5::Group& ghandle, const std::vector<int>& codes) {
+    auto chandle = add_hdf5_dataset(ghandle, "codes", H5::PredType::NATIVE_UINT64, codes.size());
+    chandle.write(codes.data(), H5::PredType::NATIVE_INT);
+    return chandle;
 }
 
-TEST_F(DataFrameFactorTest, Levels) {
-    initialize();
-    auto ldir = dir / "levels";
-    initialize_directory_simple(ldir, "simple_list", "1.0");
-    expect_error("'DATA_FRAME'");
+TEST(DataFrameFactor, Okay) {
+    auto dir = define_test_path("data_frame_factor");
 
-    initialize_directory_simple(ldir, "data_frame", "1.0");
-    expect_error("failed to validate 'levels'");
+    {
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 0, 4, 4, 2, 3 });
+        std::vector<DataFrameColumnDetails> columns(2);
+        columns[0].name = "foo";
+        columns[1].name = "bar";
+        mock_data_frame(dir / "levels", 5, columns); 
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
 
-    takane::Options opts;
-    opts.data_frame_factor_any_duplicated = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> bool { return true; };
-    data_frame::mock(ldir, 5, {});
-    expect_error("duplicated rows", opts);
+        // Still works when we enable a custom duplicate levels detector.
+        takane::Options opts;
+        opts.data_frame_factor_any_duplicated = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> bool { return false; };
+        test_validate(dir, opts);
+    }
+
+    // Validates with some names.
+    {
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("data_frame_factor");
+        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 5), 10);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+    }
 }
 
-TEST_F(DataFrameFactorTest, Codes) {
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-
-        auto ldir = dir / "levels";
-        data_frame::mock(ldir, 5, {});
-    }
-    expect_error("codes");
+TEST(DataFrameFactor, LevelsError) {
+    auto dir = define_test_path("data_frame_factor");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        std::vector<int> codes { 0, 4, 2, 1, 3, 5, 2 };
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 0, 4, 4, 2, 3 });
+        initialize_directory_simple(dir / "levels", "simple_list", "1.0");
     }
-    expect_error("number of levels");
+    expect_validation_error(dir, "satisfies the 'DATA_FRAME' interface");
 
+    // Check that the underlying data frame is actually validated.
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto dhandle = ghandle.openDataSet("codes");
-        std::vector<int> codes { 0, 1, 2, 1, 3, 4, 2 };
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 0, 4, 4, 2, 3 });
+        std::vector<DataFrameColumnDetails> columns(1);
+        mock_data_frame(dir / "levels", 5, columns);
     }
-    test_validate(dir);
+    expect_validation_error(dir, "empty strings");
+
+    // Check that the custom uniqueness function runs.
+    {
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 0, 4, 4, 2, 3 });
+        std::vector<DataFrameColumnDetails> columns(1);
+        columns[0].name = "foobar";
+        mock_data_frame(dir / "levels", 5, {});
+    }
+    {
+        takane::Options opts;
+        opts.data_frame_factor_any_duplicated = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) -> bool { return true; };
+        expect_error(
+            "should not contain duplicated rows",
+            [&]() -> void {
+                test_validate(dir, opts);
+            }
+        );
+    }
 }
 
-TEST_F(DataFrameFactorTest, Names) {
-    std::vector<int> codes { 0, 1, 2, 1, 0, 1, 2 };
+TEST(DataFrameFactor, CodesError) {
+    auto dir = define_test_path("data_frame_factor");
+
+    // Check that validate_factor_codes() is called.
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
-
-        auto ldir = dir / "levels";
-        data_frame::mock(ldir, 5, {});
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 0, 4, 4, 2, 3 });
+        mock_data_frame(dir / "levels", 4, {});
     }
-    expect_error("represented by a UTF-8 encoded string");
+    expect_validation_error(dir, "less than the number of levels");
 
+    // No missing placeholder is respected this time.
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("names");
-        hdf5_utils::spawn_data(ghandle, "names", 50, H5::StrType(0, 10));
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("data_frame_factor");
+        auto chandle = ghandle.openDataSet("codes");
+        auto ahandle = chandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT64, H5S_SCALAR);
+        const int placeholder = 4; 
+        ahandle.write(H5::PredType::NATIVE_INT, &placeholder);
     }
-    expect_error("same length");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("names");
-        hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::StrType(0, 10));
-    }
-    test_validate(dir);
+    expect_validation_error(dir, "less than the number of levels");
 }
 
-TEST_F(DataFrameFactorTest, Metadata) {
-    auto edir = dir / "element_annotations";
-    auto odir = dir / "other_annotations";
+TEST(DataFrameFactor, VersionError) {
+    auto dir = define_test_path("data_frame_factor");
 
-    std::vector<int> codes { 0, 1, 2, 1, 3, 1, 0, 2 };
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-
-        auto ldir = dir / "levels";
-        data_frame::mock(ldir, 5, {});
-
-        initialize_directory_simple(edir, "simple_list", "1.0");
+        initialize_directory_simple(dir, "data_frame_factor", "2.0");
     }
-    expect_error("'element_annotations'");
+    expect_validation_error(dir, "unsupported version string");
+}
 
-    data_frame::mock(edir, codes.size(), {});
-    initialize_directory_simple(odir, "data_frame", "1.0");
-    expect_error("'other_annotations'");
+TEST(DataFrameFactor, NamesError) {
+    auto dir = define_test_path("data_frame_factor");
 
-    simple_list::mock(odir);
-    test_validate(dir);
+    // Check that the names are actually validated.
+    {
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 0, 4, 4, 2, 3 });
+        mock_data_frame(dir / "levels", 5, {});
+        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 20);
+    }
+
+    expect_validation_error(dir, "same length");
+}
+
+TEST(DataFrameFactor, Mcols) {
+    auto dir = define_test_path("data_frame_factor");
+
+    {
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 5, 0, 4, 4, 2, 3, 1, 5 });
+
+        std::vector<DataFrameColumnDetails> columns(3);
+        columns[0].name = "foo";
+        columns[1].name = "bar";
+        columns[2].name = "whee";
+        mock_data_frame(dir / "levels", 6, columns); 
+
+        std::vector<DataFrameColumnDetails> metacolumns(2);
+        metacolumns[0].name = "stuff";
+        metacolumns[1].name = "boo";
+        mock_data_frame(dir / "element_annotations", 13, metacolumns);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 13);
+    }
+
+    // Check that the mcols are properly validated.
+    {
+        std::filesystem::remove_all(dir / "element_annotations");
+        mock_data_frame(dir / "element_annotations", 10, {});
+    }
+    expect_validation_error(dir, "unexpected number of rows");
+}
+
+TEST(DataFrameFactor, Metadata) {
+    auto dir = define_test_path("data_frame_factor");
+
+    {
+        initialize_directory_simple(dir, "data_frame_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("data_frame_factor");
+        inject_codes(ghandle, { 1, 3, 2, 0, 4, 4, 2, 3, 1, 0 });
+
+        std::vector<DataFrameColumnDetails> columns(2);
+        columns[0].name = "foo";
+        columns[1].name = "bar";
+        mock_data_frame(dir / "levels", 5, columns); 
+
+        mock_simple_list(dir / "other_annotations");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+    }
+
+    // Check that the mcols are properly validated.
+    {
+        std::filesystem::remove_all(dir / "other_annotations");
+        mock_data_frame(dir / "other_annotations", 10, {});
+    }
+    expect_validation_error(dir, "SIMPLE_LIST");
 }

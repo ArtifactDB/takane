@@ -5,7 +5,9 @@
 #include <stdexcept>
 #include <filesystem>
 
-#include "ritsuko/hdf5/hdf5.hpp"
+#include "H5Cpp.h"
+#include "ritsuko/ritsuko.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include "utils_public.hpp"
 #include "utils_string.hpp"
@@ -23,40 +25,35 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, const ObjectMetadata&, Options&);
-size_t height(const std::filesystem::path&, const ObjectMetadata&, Options&);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
+std::size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
 bool satisfies_interface(const std::string&, const std::string&, const Options&);
 /**
  * @endcond
  */
 
 /**
- * @namespace takane::data_frame_factor
- * @brief Definitions for data frame factors.
- */
-namespace data_frame_factor {
-
-/**
- * If `Options::data_frame_factor_any_duplicated` provided, it enables stricter checking of the uniqueness of the data frame levels.
+ * If `Options::data_frame_factor_any_duplicated` is set, it enables stricter checking of the uniqueness of the data frame levels.
  * Currently, we don't provide a default method for `data_frame` objects, as it's kind of tedious and we haven't gotten around to it yet.
  *
  * @param path Path to the directory containing the data frame factor.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_data_frame_factor(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "data_frame_factor"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
+
+    const auto& type_meta = extract_json_type_metadata(metadata.other, type_name);
+    const auto& vstring = extract_json_version_string(type_meta, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    // Validating the levels.
     auto lpath = path / "levels";
     auto lmeta = read_object_metadata(lpath);
     if (!satisfies_interface(lmeta.type, "DATA_FRAME", options)) {
-        throw std::runtime_error("expected 'levels' to be an object that satifies the 'DATA_FRAME' interface");
+        throw std::runtime_error("expected 'levels' to be an object that satisfies the 'DATA_FRAME' interface");
     }
 
     try {
@@ -64,7 +61,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     } catch (std::exception& e) {
         throw std::runtime_error("failed to validate 'levels'; " + std::string(e.what()));
     }
-    size_t num_levels = ::takane::height(lpath, lmeta, options);
+    const auto num_levels = ::takane::height(lpath, lmeta, options);
 
     if (options.data_frame_factor_any_duplicated) {
         if (options.data_frame_factor_any_duplicated(lpath, lmeta, options)) {
@@ -72,14 +69,18 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         }
     }
 
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-    size_t num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
+    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup(type_name);
+    const auto num_codes = validate_factor_codes(
+        ghandle.openDataSet("codes"),
+        sanisizer::cast<hsize_t>(num_levels),
+        options.hdf5_buffer_size,
+        /* allow_missing = */ false
+    );
 
-    internal_other::validate_mcols(path, "element_annotations", num_codes, options);
-    internal_other::validate_metadata(path, "other_annotations", options);
-
-    internal_string::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
+    validate_mcols(path, "element_annotations", sanisizer::cast<std::size_t>(num_codes), options);
+    validate_metadata(path, "other_annotations", options);
+    validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 }
 
 /**
@@ -88,13 +89,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Length of the factor.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
+inline std::size_t height_of_data_frame_factor(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup("data_frame_factor");
     auto dhandle = ghandle.openDataSet("codes");
-    return ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-}
-
+    hsize_t output;
+    dhandle.getSpace().getSimpleExtentDims(&output);
+    return sanisizer::cast<std::size_t>(output);
 }
 
 }

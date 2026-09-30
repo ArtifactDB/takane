@@ -74,10 +74,7 @@ TEST(ValidateFactorLevels, Okay) {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), 5);
         std::vector<std::string> levels { "A", "BB", "CCC", "DDDD", "EEEEE" };
-        std::vector<const char*> lptrs;
-        for (const auto& lev : levels) {
-            lptrs.push_back(lev.c_str());
-        }
+        auto lptrs = pointerize_strings(levels);
         dhandle.write(lptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
@@ -125,10 +122,7 @@ TEST(ValidateFactorLevels, Error) {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), 5);
         std::vector<std::string> levels { "A", "BB", "CCC", "DDDD", "A" };
-        std::vector<const char*> lptrs;
-        for (const auto& lev : levels) {
-            lptrs.push_back(lev.c_str());
-        }
+        auto lptrs = pointerize_strings(levels);
         dhandle.write(lptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
     {

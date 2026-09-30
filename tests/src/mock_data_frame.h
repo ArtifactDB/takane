@@ -79,14 +79,12 @@ inline H5::Group mock_data_frame(H5::Group& handle, hsize_t num_rows, const std:
                 ahandle.write(H5::PredType::NATIVE_INT, &val);
             }
 
-            hsize_t nchoices = curcol.factor_levels.size();
+            const hsize_t nchoices = curcol.factor_levels.size();
             auto lhandle = add_hdf5_dataset(dhandle, "levels", H5::StrType(0, H5T_VARIABLE), nchoices);
-            std::vector<const char*> ptrs;
-            for (const auto& lev : curcol.factor_levels) {
-                ptrs.push_back(lev.c_str());
-            }
+            auto ptrs = pointerize_strings(curcol.factor_levels);
             lhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
 
+            // Just make up whatever here.
             std::vector<int> codes(num_rows);
             for (hsize_t i = 0; i < num_rows; ++i) {
                 codes[i] = i % nchoices;
@@ -136,17 +134,11 @@ inline void attach_row_names_to_data_frame(H5::Group& handle, hsize_t num_rows) 
     H5::DataSpace dspace(1, &num_rows);
     H5::StrType stype(0, H5T_VARIABLE);
     auto dhandle = handle.createDataSet("row_names", stype, dspace);
-
-    std::vector<std::string> row_names;
-    row_names.reserve(num_rows);
-    std::vector<const char*> row_names_ptr;
-    row_names_ptr.reserve(num_rows);
-
+    std::vector<std::string> row_names(num_rows);
     for (hsize_t i = 0; i < num_rows; ++i) {
-        row_names.push_back(std::to_string(i));
-        row_names_ptr.push_back(row_names.back().c_str());
+        row_names[i] = std::to_string(i);
     }
-
+    auto row_names_ptr = pointerize_strings(row_names);
     dhandle.write(row_names_ptr.data(), stype);
 }
 

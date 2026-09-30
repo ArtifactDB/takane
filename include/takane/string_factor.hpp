@@ -5,7 +5,8 @@
 #include <stdexcept>
 #include <filesystem>
 
-#include "ritsuko/hdf5/hdf5.hpp"
+#include "H5Cpp.h"
+#include "ritsuko/ritsuko.hpp"
 
 #include "utils_public.hpp"
 #include "utils_string.hpp"
@@ -19,32 +20,28 @@
 namespace takane {
 
 /**
- * @namespace takane::string_factor
- * @brief Definitions for string factors.
- */
-namespace string_factor {
-
-/**
  * @param path Path to the directory containing the string factor.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_string_factor(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "string_factor"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
+
+    const auto& type_meta = extract_json_type_metadata(metadata.other, type_name);
+    const auto& vstring = extract_json_version_string(type_meta, type_name);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
     if (version.major != 1) {
         throw std::runtime_error("unsupported version string '" + vstring + "'");
     }
 
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-    internal_factor::check_ordered_attribute(ghandle);
+    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup(type_name);
+    check_factor_ordered_attribute(ghandle);
 
-    size_t num_levels = internal_factor::validate_factor_levels(ghandle, "levels", options.hdf5_buffer_size);
-    size_t num_codes = internal_factor::validate_factor_codes(ghandle, "codes", num_levels, options.hdf5_buffer_size);
+    auto num_levels = validate_factor_levels(ghandle.openDataSet("levels"), options.hdf5_buffer_size);
+    auto num_codes = validate_factor_codes(ghandle.openDataSet("codes"), num_levels, options.hdf5_buffer_size, true);
 
-    internal_string::validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
+    validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 }
 
 /**
@@ -53,13 +50,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Length of the factor.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
+inline std::size_t height_of_string_factor(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup("string_factor");
     auto dhandle = ghandle.openDataSet("codes");
-    return ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-}
-
+    hsize_t output;
+    dhandle.getSpace().getSimpleExtentDims(&output);
+    return sanisizer::cast<std::size_t>(output);
 }
 
 }

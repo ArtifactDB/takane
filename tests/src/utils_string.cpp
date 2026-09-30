@@ -138,10 +138,7 @@ TEST(ValidateStringFormat, DateSimple) {
     std::optional<std::string> empty_missing;
 
     std::vector<std::string> payload{ "2023-01-05", "1999-12-05", "2002-05-23", "2010-08-18", "1987-06-15" };
-    std::vector<const char*> ptrs;
-    for (const auto& p : payload) {
-        ptrs.push_back(p.c_str());
-    }
+    auto ptrs = pointerize_strings(payload);
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
@@ -225,21 +222,18 @@ TEST(ValidateStringFormat, DateTimeSimple) {
     for (size_t i = 0; i < 9; ++i) {
         contents.push_back("2023-01-1" + std::to_string(i) + "T00:00:00Z");
     }
-    std::vector<const char*> ptrs;
-    for (const auto& p : contents) {
-        ptrs.push_back(p.c_str());
-    }
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ptrs = pointerize_strings(contents);
         auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), ptrs.size());
         dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
     auto dhandle = handle.openDataSet("foobar");
-    takane::validate_string_format(dhandle, ptrs.size(), "date-time", empty_missing, /* buffer_size = */ 10000);
-    takane::validate_string_format(dhandle, ptrs.size(), "date-time", empty_missing, /* buffer_size = */ 2);
+    takane::validate_string_format(dhandle, contents.size(), "date-time", empty_missing, /* buffer_size = */ 10000);
+    takane::validate_string_format(dhandle, contents.size(), "date-time", empty_missing, /* buffer_size = */ 2);
 }
 
 TEST(ValidateStringFormat, DateTimeError) {

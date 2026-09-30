@@ -11,8 +11,8 @@
 #include "atomic_vector_list.hpp"
 #include "data_frame_list.hpp"
 #include "data_frame.hpp"
-//#include "string_factor.hpp"
 #include "simple_list.hpp"
+#include "string_factor.hpp"
 //#include "data_frame_factor.hpp"
 //#include "genomic_ranges.hpp"
 //#include "genomic_ranges_list.hpp"
@@ -39,10 +39,10 @@ inline auto default_height_registry() {
     registry["atomic_vector"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_atomic_vector(p, m, o); };
     registry["atomic_vector_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_atomic_vector_list(p, m, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_data_frame(p, m, o); };
+    registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> size_t { return height_of_data_frame_factor(p, m, o); };
     registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_data_frame_list(p, m, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_simple_list(p, m, o); };
-//    registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return string_factor::height(p, m, o); };
-//    registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return data_frame_factor::height(p, m, o); };
+    registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_string_factor(p, m, o); };
 //    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return genomic_ranges::height(p, m, o); };
 //    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return genomic_ranges_list::height(p, m, o); };
 //    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return dense_array::height(p, m, o); };

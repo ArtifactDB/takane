@@ -3,155 +3,144 @@
 
 #include "utils.h"
 
+#include "H5Cpp.h"
+
 #include <string>
 #include <filesystem>
 #include <fstream>
 
-struct StringFactorTest : public::testing::Test {
-    StringFactorTest() {
-        dir = "TEST_string_factor";
-        name = "string_factor";
-    }
+static H5::DataSet inject_codes(H5::Group& ghandle, const std::vector<int>& codes) {
+    auto chandle = add_hdf5_dataset(ghandle, "codes", H5::PredType::NATIVE_UINT32, codes.size());
+    chandle.write(codes.data(), H5::PredType::NATIVE_INT);
+    return chandle;
+}
 
-    std::filesystem::path dir;
-    std::string name;
+static H5::DataSet inject_levels(H5::Group& ghandle, const std::vector<std::string>& levels) {
+    auto lhandle = add_hdf5_dataset(ghandle, "levels", H5::StrType(0, H5T_VARIABLE), levels.size());
+    auto ptrs = pointerize_strings(levels);
+    lhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
+    return lhandle;
+}
 
-    H5::H5File initialize() {
+// Most of the heavy lifting is done by the functions in utils_factor.hpp,
+// so correspondingly the bulk of the tests are performed in utils_factor.cpp. 
+
+TEST(StringFactor, Okay) {
+    auto dir = define_test_path("string_factor");
+
+    {
         initialize_directory_simple(dir, "string_factor", "1.0");
-        return H5::H5File(dir / "contents.h5", H5F_ACC_TRUNC);
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("string_factor");
+        inject_codes(ghandle, { 0, 3, 2, 1, 3, 0, 2 });
+        inject_levels(ghandle, { "AB", "CDE", "FGHI", "JKLMNO" });
     }
-
-    H5::H5File reopen() {
-        auto path = dir / "contents.h5";
-        return H5::H5File(path, H5F_ACC_RDWR);
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 7);
     }
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir, std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(StringFactorTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version string");
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("string_factor");
+        ghandle.createAttribute("ordered", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
-    expect_error("'levels'");
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 7);
+    }
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C", "D", "E" });
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("string_factor");
+        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 7);
     }
-    expect_error("'codes'");
-
-    // Success at last.
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        hdf5_utils::spawn_data(ghandle, "codes", 100, H5::PredType::NATIVE_UINT32);
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 7);
     }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 100);
 }
 
-TEST_F(StringFactorTest, Codes) {
-    {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-
-        std::vector<int> codes { 0, 3, 2, 1, 3, 0, 2 };
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
-    }
-    expect_error("number of levels");
+TEST(StringFactor, VersionError) {
+    auto dir = define_test_path("string_factor");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto dhandle = ghandle.openDataSet("codes");
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
-        int val = 3;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
+        initialize_directory_simple(dir, "string_factor", "2.0");
     }
-    test_validate(dir);
+    expect_validation_error(dir, "unsupported version string");
 }
 
-TEST_F(StringFactorTest, Ordered) {
+TEST(StringFactor, OrderedError) {
+    auto dir = define_test_path("string_factor");
+
+    // Check that we call check_factor_ordered_attribute().
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-
-        std::vector<int> codes { 0, 2, 1, 1, 2 };
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
-
-        hdf5_utils::attach_attribute(ghandle, "ordered", "TRUE");
+        initialize_directory_simple(dir, "string_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("string_factor");
+        inject_codes(ghandle, { 0, 3, 2, 1, 3, 0, 2 });
+        inject_levels(ghandle, { "AB", "CDE", "FGHI", "JKLMNO" });
+        add_hdf5_attribute(ghandle, "ordered", "whee");
     }
-    expect_error("32-bit signed integer");
 
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("ordered");
-
-        hsize_t dim = 10;
-        H5::DataSpace dspace(1, &dim);
-        ghandle.createAttribute("ordered", H5::PredType::NATIVE_INT, dspace);
-    }
-    expect_error("scalar");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("ordered");
-        auto ahandle = ghandle.createAttribute("ordered", H5::PredType::NATIVE_INT8, H5S_SCALAR);
-        int val = 1;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
-    }
-    test_validate(dir);
+    expect_validation_error(dir, "32-bit signed integer");
 }
 
-TEST_F(StringFactorTest, Names) {
-    std::vector<int> codes { 0, 1, 2, 1, 0, 1, 2 };
+TEST(StringFactor, LevelsError) {
+    auto dir = define_test_path("string_factor");
+
+    // Check that we call validate_factor_levels().
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "codes", codes.size(), H5::PredType::NATIVE_UINT32);
-        dhandle.write(codes.data(), H5::PredType::NATIVE_INT);
-        hdf5_utils::spawn_string_data(ghandle, "levels", 3, { "A", "B", "C" });
-
-        hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::PredType::NATIVE_INT);
+        initialize_directory_simple(dir, "string_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("string_factor");
+        inject_codes(ghandle, { 0, 3, 2, 1, 3, 0, 2 });
+        inject_levels(ghandle, { "AB", "CDE", "FGHI", "AB" });
     }
-    expect_error("represented by a UTF-8 encoded string");
 
+    expect_validation_error(dir, "duplicated factor level");
+}
+
+TEST(StringFactor, CodesError) {
+    auto dir = define_test_path("string_factor");
+
+    // Check that we call validate_factor_codes().
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("names");
-        hdf5_utils::spawn_data(ghandle, "names", 50, H5::StrType(0, 10));
+        initialize_directory_simple(dir, "string_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("string_factor");
+        inject_codes(ghandle, { 0, 3, 2, 1, 3, 0, 2, 3 });
+        inject_levels(ghandle, { "chiyo", "ayumu", "koyomi" });
     }
-    expect_error("same length");
+    expect_validation_error(dir, "less than the number of levels");
 
+    // Confirm that the missing placeholder is respected, which avoids this error entirely.
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("names");
-        hdf5_utils::spawn_data(ghandle, "names", codes.size(), H5::StrType(0, 10));
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("string_factor");
+        auto chandle = ghandle.openDataSet("codes");
+        auto ahandle = chandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+        const int missing = 3;
+        ahandle.write(H5::PredType::NATIVE_INT, &missing);
     }
-    test_validate(dir);
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 8);
+    }
+}
+
+TEST(StringFactor, NamesError) {
+    auto dir = define_test_path("string_factor");
+
+    // Check that we call validate_factor_levels().
+    {
+        initialize_directory_simple(dir, "string_factor", "1.0");
+        H5::H5File handle(dir / "contents.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("string_factor");
+        inject_codes(ghandle, { 1, 2, 0, 3, 0, 3, 2, 1, 3, 0, 2 });
+        inject_levels(ghandle, { "AB", "CDE", "FGHI", "JKLMNO" });
+        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 7);
+    }
+
+    expect_validation_error(dir, "same length");
 }

@@ -15,7 +15,7 @@
 #include "takane/utils_public.hpp"
 
 void test_validate(const std::filesystem::path&);
-void test_validate(const std::filesystem::path&, takane::Options& opts);
+void test_validate(const std::filesystem::path&, const takane::Options& opts);
 
 std::size_t test_height(const std::filesystem::path&);
 std::size_t test_height(const std::filesystem::path&, const takane::Options& opts);
@@ -99,6 +99,15 @@ void add_hdf5_attribute(Handle_& handle, const std::string& name, const std::str
 inline H5::DataSet add_hdf5_dataset(H5::Group& handle, const std::string& name, const H5::DataType& dtype, const hsize_t len) {
     H5::DataSpace dspace(1, &len);
     return handle.createDataSet(name, dtype, dspace);
+}
+
+inline std::vector<const char*> pointerize_strings(const std::vector<std::string>& x) {
+    std::vector<const char*> ptrs;
+    ptrs.reserve(x.size());
+    for (const auto& s : x) {
+        ptrs.push_back(s.c_str());
+    }
+    return ptrs;
 }
 
 inline void dump_json(const millijson::Base* ptr, std::ostream& output) {
