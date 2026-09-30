@@ -25,7 +25,7 @@ bool satisfies_interface(const std::string&, const std::string&, const Options&)
 bool derived_from(const std::string&, const std::string&, const Options&);
 
 template<bool satisfies_interface_>
-void validate_compressed_list(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const ObjectMetadata& metadata, const Options& options) try {
+void validate_compressed_list(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const ObjectMetadata& metadata, const Options& options) {
     const auto& type_meta = extract_json_type_metadata(metadata.other, object_type);
     const auto& vstring = extract_json_version_string(type_meta, object_type);
     auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
@@ -41,7 +41,7 @@ void validate_compressed_list(const std::filesystem::path& path, const std::stri
         }
     } else {
         if (!derived_from(catmeta.type, concatenated_type, options)) {
-            throw std::runtime_error("'concatenated' should contain an '" + concatenated_type + "' object");
+            throw std::runtime_error("'concatenated' should contain an object of type '" + concatenated_type + "'");
         }
     }
 
@@ -88,11 +88,8 @@ void validate_compressed_list(const std::filesystem::path& path, const std::stri
     }
 
     validate_names(ghandle, "names", len, options.hdf5_buffer_size);
-//    validate_mcols(path, "element_annotations", len, options);
-//    validate_metadata(path, "other_annotations", options);
-
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate an '" + object_type + "' object at '" + path.string() + "'; " + std::string(e.what()));
+    validate_mcols(path, "element_annotations", len, options);
+    validate_metadata(path, "other_annotations", options);
 }
 
 inline std::size_t height_of_compressed_list(const std::filesystem::path& path, const std::string& name, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
