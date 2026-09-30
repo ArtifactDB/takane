@@ -201,7 +201,7 @@ TEST(ValidateCompressedList, Names) {
     {
         auto meta = takane::read_object_metadata(dir);
         expect_error(
-            "same length as",
+            "length of 'names'",
             [&]() -> void {
                 takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
             }

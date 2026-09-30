@@ -355,7 +355,7 @@ TEST(AtomicVector, NamesError) {
         auto ghandle = handle.openGroup("atomic_vector");
         add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 33);
     }
-    expect_validation_error(dir, "same length");
+    expect_validation_error(dir, "length of 'names'");
 }
 
 /*****************************************/

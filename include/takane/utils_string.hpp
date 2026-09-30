@@ -99,7 +99,8 @@ inline void validate_string_format(
     }
 }
 
-inline void validate_names(const H5::Group& handle, const std::string& name, std::size_t len, hsize_t buffer_size) {
+template<typename NumExpected_>
+void validate_names(const H5::Group& handle, const std::string& name, NumExpected_ num_expected, hsize_t buffer_size) {
     if (!handle.exists(name)) {
         return;
     }
@@ -116,8 +117,8 @@ inline void validate_names(const H5::Group& handle, const std::string& name, std
     hsize_t nlen;
     nspace.getSimpleExtentDims(&nlen);
 
-    if (!sanisizer::is_equal(len, nlen)) {
-        throw std::runtime_error("'" + name + "' should have the same length as the parent object (got " + std::to_string(nlen) + ", expected " + std::to_string(len) + ")");
+    if (!sanisizer::is_equal(num_expected, nlen)) {
+        throw std::runtime_error("length of '" + name + "' is not consistent with that of its parent object");
     }
 
     ritsuko::hdf5::validate_1d_strings(

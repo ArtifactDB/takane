@@ -284,7 +284,7 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
         throw std::runtime_error("more objects present in the 'data_frame/data' group than expected");
     }
 
-    validate_mcols(path, "column_annotations", sanisizer::cast<std::size_t>(NC), options);
+    validate_mcols(path, "column_annotations", NC, options);
     validate_metadata(path, "other_annotations", options);
 }
 

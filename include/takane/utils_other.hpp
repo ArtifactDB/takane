@@ -54,7 +54,8 @@ std::unique_ptr<byteme::BufferedReader<Type_> > wrap_reader_for_bytes(std::uniqu
     }
 }
 
-inline void validate_mcols(const std::filesystem::path& parent, const std::string& name, std::size_t expected, const Options& options) try {
+template<typename NumExpected_>
+void validate_mcols(const std::filesystem::path& parent, const std::string& name, NumExpected_ num_expected, const Options& options) try {
     auto path = parent / name;
     if (!std::filesystem::exists(path)) {
         return;
@@ -66,7 +67,7 @@ inline void validate_mcols(const std::filesystem::path& parent, const std::strin
     }
     ::takane::validate(path, xmeta, options);
 
-    if (::takane::height(path, xmeta, options) != expected) {
+    if (!sanisizer::is_equal(::takane::height(path, xmeta, options), num_expected)) {
         throw std::runtime_error("unexpected number of rows");
     }
 } catch (std::exception& e) {

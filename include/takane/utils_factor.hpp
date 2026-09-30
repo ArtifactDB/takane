@@ -76,8 +76,8 @@ hsize_t validate_factor_levels(const H5::DataSet& handle, hsize_t buffer_size) {
     return len;
 }
 
-template<class ErrorMessenger_ = DefaultFactorMessenger>
-hsize_t validate_factor_codes(const H5::DataSet& handle, hsize_t num_levels, hsize_t buffer_size, bool allow_missing) {
+template<class ErrorMessenger_ = DefaultFactorMessenger, typename NumLevels_>
+hsize_t validate_factor_codes(const H5::DataSet& handle, NumLevels_ num_levels, hsize_t buffer_size, bool allow_missing) {
     if (ritsuko::hdf5::exceeds_integer_limit(handle, 64, false)) {
         throw std::runtime_error("expected a datatype that fits in a 64-bit unsigned integer");
     }

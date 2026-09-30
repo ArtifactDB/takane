@@ -71,14 +71,9 @@ inline void validate_data_frame_factor(const std::filesystem::path& path, const 
 
     H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup(type_name);
-    const auto num_codes = validate_factor_codes(
-        ghandle.openDataSet("codes"),
-        sanisizer::cast<hsize_t>(num_levels),
-        options.hdf5_buffer_size,
-        /* allow_missing = */ false
-    );
+    const auto num_codes = validate_factor_codes(ghandle.openDataSet("codes"), num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
 
-    validate_mcols(path, "element_annotations", sanisizer::cast<std::size_t>(num_codes), options);
+    validate_mcols(path, "element_annotations", num_codes, options);
     validate_metadata(path, "other_annotations", options);
     validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 }

@@ -144,7 +144,7 @@ TEST(DataFrameFactor, NamesError) {
         add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 20);
     }
 
-    expect_validation_error(dir, "same length");
+    expect_validation_error(dir, "length of 'names'");
 }
 
 TEST(DataFrameFactor, Mcols) {

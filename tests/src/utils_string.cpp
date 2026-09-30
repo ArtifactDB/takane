@@ -348,7 +348,7 @@ TEST(ValidateNames, Error) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_validate_names_error("same length", handle, "names", 100, 1000);
+        expect_validate_names_error("length of 'names'", handle, "names", 100, 1000);
     }
 
     // Check that we actually validate the strings.
