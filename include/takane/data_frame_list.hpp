@@ -1,11 +1,8 @@
 #ifndef TAKANE_DATA_FRAME_LIST_HPP
 #define TAKANE_DATA_FRAME_LIST_HPP
 
-#include "H5Cpp.h"
-
 #include <filesystem>
-#include <stdexcept>
-#include <string>
+#include <cstddef>
 
 #include "utils_public.hpp"
 #include "utils_compressed_list.hpp"
@@ -17,15 +14,13 @@
 
 namespace takane {
 
-namespace data_frame_list {
-
 /**
  * @param path Path to the directory containing the data frame list.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    internal_compressed_list::validate_directory<true>(path, "data_frame_list", "DATA_FRAME", metadata, options);
+inline void validate_data_frame_list(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+    validate_compressed_list<true>(path, "data_frame_list", "DATA_FRAME", metadata, options);
 }
 
 /**
@@ -34,10 +29,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return The length of the list.
  */
-inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    return internal_compressed_list::height(path, "data_frame_list", metadata, options);
-}
-
+inline std::size_t height_of_data_frame_list(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+    return height_of_compressed_list(path, "data_frame_list", metadata, options);
 }
 
 }

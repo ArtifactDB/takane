@@ -10,12 +10,12 @@
 #include "atomic_vector.hpp"
 #include "atomic_vector_list.hpp"
 #include "data_frame.hpp"
+#include "data_frame_list.hpp"
 //#include "string_factor.hpp"
 #include "simple_list.hpp"
 //#include "data_frame_factor.hpp"
 //#include "sequence_information.hpp"
 //#include "genomic_ranges.hpp"
-//#include "data_frame_list.hpp"
 //#include "genomic_ranges_list.hpp"
 //#include "dense_array.hpp"
 //#include "compressed_sparse_matrix.hpp"
@@ -56,12 +56,12 @@ inline auto default_validate_registry() {
     registry["atomic_vector"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_atomic_vector(p, m, o); };
     registry["atomic_vector_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_atomic_vector_list(p, m, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { validate_data_frame(p, m, o); };
+    registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { validate_data_frame_list(p, m, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_simple_list(p, m, o); };
 //    registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { string_factor::validate(p, m, o); };
 //    registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { data_frame_factor::validate(p, m, o); };
 //    registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { sequence_information::validate(p, m, o); };
 //    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges::validate(p, m, o); };
-//    registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { data_frame_list::validate(p, m, o); };
 //    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges_list::validate(p, m, o); };
 //    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { dense_array::validate(p, m, o); };
 //    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { compressed_sparse_matrix::validate(p, m, o); };

@@ -6,26 +6,19 @@
 #include "utils.h"
 #include "mock_atomic_vector.h"
 #include "mock_data_frame.h"
+#include "mock_compressed_list.h"
 #include "mock_simple_list.h"
 
 #include <string>
 #include <filesystem>
 #include <fstream>
 
-static H5::Group create_partitions(const std::filesystem::path& path, const std::string& name, const std::vector<int>& lengths) {
-    H5::H5File handle(path, H5F_ACC_TRUNC);
-    auto ghandle = handle.createGroup(name);
-    auto dhandle = add_hdf5_dataset(ghandle, "lengths", H5::PredType::NATIVE_UINT32, lengths.size());
-    dhandle.write(lengths.data(), H5::PredType::NATIVE_INT);
-    return ghandle;
-}
-
 TEST(ValidateCompressedList, Okay) {
     auto dir = define_test_path("utils_compressed_list");
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 2, 3, 1 });
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 2, 3, 1 });
         mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
     }
     {
@@ -37,7 +30,7 @@ TEST(ValidateCompressedList, Okay) {
     // Trying with a different set of partitions. 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 0, 0, 2, 0, 1, 1, 0, 3, 2, 0, 1 });
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 0, 0, 2, 0, 1, 1, 0, 3, 2, 0, 1 });
         mock_atomic_vector(dir / "concatenated", 11, AtomicVectorType::INTEGER);
     }
     {
@@ -49,7 +42,7 @@ TEST(ValidateCompressedList, Okay) {
     // Trying with interface satisfaction.
     {
         initialize_directory_simple(dir, "data_frame_list", "1.0");
-        create_partitions(dir / "partitions.h5", "data_frame_list", { 4, 12, 9, 1, 5 });
+        mock_compressed_list_partitions(dir / "partitions.h5", "data_frame_list", { 4, 12, 9, 1, 5 });
         mock_data_frame(dir / "concatenated", 31, {});
     }
     {
@@ -82,7 +75,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
     // Not a derived object.
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
         mock_data_frame(dir / "concatenated", 10, {});
     }
     {
@@ -98,7 +91,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
     // Fails to satsify the interface.
     {
         initialize_directory_simple(dir, "data_frame_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
         mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
     }
     {
@@ -114,7 +107,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
     // Validation fails.
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
         auto ghandle2 = mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
         ghandle2.removeAttr("type");
         add_hdf5_attribute(ghandle2, "type", "string");
@@ -169,7 +162,7 @@ TEST(ValidateCompressedList, PartitionsError) {
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 2, 3, 1 });
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 2, 3, 1 });
         mock_atomic_vector(dir / "concatenated", 20, AtomicVectorType::INTEGER);
     }
     {
@@ -188,7 +181,7 @@ TEST(ValidateCompressedList, Names) {
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        auto ghandle = create_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 2, 3, 4, 5, 6 });
+        auto ghandle = mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 2, 3, 4, 5, 6 });
         add_hdf5_dataset(ghandle, "names", H5::StrType(0, 5), 6);
         mock_atomic_vector(dir / "concatenated", 21, AtomicVectorType::INTEGER);
     }
@@ -221,7 +214,7 @@ TEST(ValidateCompressedList, Metadata) {
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
         mock_atomic_vector(dir / "concatenated", 12, AtomicVectorType::INTEGER);
         mock_simple_list(dir / "other_annotations");
     }
@@ -252,7 +245,7 @@ TEST(ValidateCompressedList, Mcols) {
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
-        create_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
         mock_atomic_vector(dir / "concatenated", 12, AtomicVectorType::INTEGER);
         mock_data_frame(dir / "element_annotations", 8, {});
     }
