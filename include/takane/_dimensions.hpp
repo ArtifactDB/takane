@@ -7,9 +7,9 @@
 #include <filesystem>
 #include <vector>
 
+#include "compressed_sparse_matrix.hpp"
 #include "data_frame.hpp"
 #include "dense_array.hpp"
-//#include "compressed_sparse_matrix.hpp"
 //#include "summarized_experiment.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
@@ -29,10 +29,10 @@ inline auto default_dimensions_registry() {
     typedef std::vector<std::size_t> Dims;
     std::unordered_map<std::string, std::function<Dims(const std::filesystem::path&, const ObjectMetadata&, const Options& os)> > registry;
 
+    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_compressed_sparse_matrix(p, m, o); };
     registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_data_frame(p, m, o); };
     registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_dense_array(p, m, o); };
-//    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return compressed_sparse_matrix::dimensions(p, m, o); };
-//
+
 //    // Subclasses of SE, so we just re-use the SE methods here.
 //    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
 //    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
