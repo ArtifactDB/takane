@@ -10,7 +10,7 @@
 
 namespace takane {
 
-inline void check_string_missing_placeholder(const H5::DataSet& handle, const char* missing_name) {
+inline void validate_string_missing_placeholder(const H5::DataSet& handle, const char* missing_name) {
     if (!handle.attrExists(missing_name)) {
         return;
     }
@@ -38,7 +38,7 @@ inline std::optional<std::string> read_string_missing_placeholder(const H5::Data
     return ritsuko::hdf5::read_scalar_string(ahandle);
 }
 
-inline void check_numeric_missing_placeholder(const H5::DataSet& handle, const char* missing_name) {
+inline void validate_numeric_missing_placeholder(const H5::DataSet& handle, const char* missing_name) {
     if (!handle.attrExists(missing_name)) {
         return;
     }

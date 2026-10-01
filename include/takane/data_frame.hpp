@@ -44,7 +44,7 @@ inline hsize_t validate_column(const H5::Group& dhandle, const std::string& dset
         auto type = open_and_load_scalar_string_attribute(ghandle, "type");
 
         if (type == "factor") {
-            check_factor_ordered_attribute(ghandle);
+            validate_factor_ordered_attribute(ghandle);
 
             hsize_t num_levels;
             auto lhandle = ghandle.openDataSet("levels");
@@ -87,7 +87,7 @@ inline hsize_t validate_column(const H5::Group& dhandle, const std::string& dset
                 }()
             );
 
-            check_string_missing_placeholder(phandle, missing_attr_name);
+            validate_string_missing_placeholder(phandle, missing_attr_name);
 
         } else {
             throw std::runtime_error("unknown column type '" + type + "'");
@@ -127,7 +127,7 @@ inline hsize_t validate_column(const H5::Group& dhandle, const std::string& dset
                 throw std::runtime_error("unknown column type '" + type + "'");
             }
 
-            check_numeric_missing_placeholder(xhandle, missing_attr_name);
+            validate_numeric_missing_placeholder(xhandle, missing_attr_name);
         }
 
     } else {

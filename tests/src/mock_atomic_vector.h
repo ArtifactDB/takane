@@ -53,7 +53,7 @@ inline H5::Group mock_atomic_vector(const std::filesystem::path& path, hsize_t l
         auto hhandle = add_hdf5_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, heap.size());
         hhandle.write(buffer.data(), H5::PredType::NATIVE_UINT8);
 
-        std::vector<ritsuko::cvls::Pointer<uint64_t, std::uint64_t> > pointers(length);
+        std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > pointers(length);
         for (hsize_t i = 0; i < length; ++i) {
             pointers[i].offset = i % heap.size();
             pointers[i].length = sanisizer::min((i + 7) % heap.size(), heap.size() - pointers[i].offset);

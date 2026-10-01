@@ -24,11 +24,11 @@ add_executable(
     src/data_frame.cpp
     src/data_frame_factor.cpp
     src/data_frame_list.cpp
+    src/dense_array.cpp
     src/simple_list.cpp
     src/string_factor.cpp
 #    src/genomic_ranges_list.cpp
 #    src/compressed_sparse_matrix.cpp
-#    src/dense_array.cpp
 #    src/summarized_experiment.cpp
 #    src/ranged_summarized_experiment.cpp
 #    src/single_cell_experiment.cpp
@@ -50,7 +50,7 @@ add_executable(
 #    src/vcf_experiment.cpp
 #    src/delayed_array.cpp
 #    src/image_file.cpp
-#    src/utils_array.cpp
+    src/utils_array.cpp
 #    src/utils_bumpy_array.cpp
     src/utils_compressed_list.cpp
     src/utils_factor.cpp

@@ -7,8 +7,8 @@
 #include <filesystem>
 #include <vector>
 
-//#include "data_frame.hpp"
-//#include "dense_array.hpp"
+#include "data_frame.hpp"
+#include "dense_array.hpp"
 //#include "compressed_sparse_matrix.hpp"
 //#include "summarized_experiment.hpp"
 //#include "bumpy_atomic_array.hpp"
@@ -30,7 +30,7 @@ inline auto default_dimensions_registry() {
     std::unordered_map<std::string, std::function<Dims(const std::filesystem::path&, const ObjectMetadata&, const Options& os)> > registry;
 
     registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_data_frame(p, m, o); };
-//    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return dense_array::dimensions(p, m, o); };
+    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_dense_array(p, m, o); };
 //    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return compressed_sparse_matrix::dimensions(p, m, o); };
 //
 //    // Subclasses of SE, so we just re-use the SE methods here.

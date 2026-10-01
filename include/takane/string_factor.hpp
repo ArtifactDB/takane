@@ -36,7 +36,7 @@ inline void validate_string_factor(const std::filesystem::path& path, const Obje
 
     H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup(type_name);
-    check_factor_ordered_attribute(ghandle);
+    validate_factor_ordered_attribute(ghandle);
 
     auto num_levels = validate_factor_levels(ghandle.openDataSet("levels"), options.hdf5_buffer_size);
     auto num_codes = validate_factor_codes(ghandle.openDataSet("codes"), num_levels, options.hdf5_buffer_size, true);

@@ -16,7 +16,7 @@ TEST(CheckStringMissingPlaceholder, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
-        takane::check_string_missing_placeholder(dhandle, "missing-value-placeholder");
+        takane::validate_string_missing_placeholder(dhandle, "missing-value-placeholder");
         auto val = takane::read_string_missing_placeholder(dhandle, "missing-value-placeholder");
         EXPECT_FALSE(val.has_value());
     }
@@ -30,7 +30,7 @@ TEST(CheckStringMissingPlaceholder, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
-        takane::check_string_missing_placeholder(dhandle, "missing-value-placeholder");
+        takane::validate_string_missing_placeholder(dhandle, "missing-value-placeholder");
         auto val = takane::read_string_missing_placeholder(dhandle, "missing-value-placeholder");
         ASSERT_TRUE(val.has_value());
         EXPECT_EQ(*val, "foobar");
@@ -53,7 +53,7 @@ TEST(CheckStringMissingPlaceholder, Error) {
         expect_error(
             "scalar",
             [&]() -> void {
-                takane::check_string_missing_placeholder(dhandle, "missing-value-placeholder");
+                takane::validate_string_missing_placeholder(dhandle, "missing-value-placeholder");
             }
         );
         expect_error(
@@ -75,7 +75,7 @@ TEST(CheckStringMissingPlaceholder, Error) {
         expect_error(
             "UTF-8 string",
             [&]() -> void {
-                takane::check_string_missing_placeholder(dhandle, "missing-value-placeholder");
+                takane::validate_string_missing_placeholder(dhandle, "missing-value-placeholder");
             }
         );
         expect_error(
@@ -99,7 +99,7 @@ TEST(CheckNumericMissingPlaceholder, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
-        takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+        takane::validate_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
         EXPECT_FALSE(takane::read_numeric_missing_placeholder<int>(dhandle, "missing-value-placeholder").has_value());
     }
 
@@ -114,7 +114,7 @@ TEST(CheckNumericMissingPlaceholder, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
-        takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+        takane::validate_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
 
         auto val = takane::read_numeric_missing_placeholder<int>(dhandle, "missing-value-placeholder");
         ASSERT_TRUE(val.has_value());
@@ -132,7 +132,7 @@ TEST(CheckNumericMissingPlaceholder, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet("foo");
-        takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+        takane::validate_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
 
         auto val = takane::read_numeric_missing_placeholder<double>(dhandle, "missing-value-placeholder");
         ASSERT_TRUE(val.has_value());
@@ -156,7 +156,7 @@ TEST(CheckNumericMissingPlaceholder, Error) {
         expect_error(
             "scalar",
             [&]() -> void {
-                takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+                takane::validate_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
             }
         );
         expect_error(
@@ -178,7 +178,7 @@ TEST(CheckNumericMissingPlaceholder, Error) {
         expect_error(
             "same datatype",
             [&]() -> void {
-                takane::check_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+                takane::validate_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
             }
         );
         expect_error(

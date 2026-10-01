@@ -5,85 +5,128 @@
 
 #include "utils.h"
 
-struct ArrayUtilsTest : public::testing::Test {
-    template<typename ... Args_>
-    void expect_error_names(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::internal_array::check_dimnames(std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(ArrayUtilsTest, Names) {
-    std::filesystem::path path = "TEST_array_names.h5";
-    std::vector<hsize_t> dims{ 10, 20 };
-    // Filled is okay.
+TEST(CastArrayDimensions, Basic) {
     {
-        H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("names");
-        hdf5_utils::spawn_data(ghandle, "0", 10, H5::StrType(0, 2));
-        hdf5_utils::spawn_data(ghandle, "1", 20, H5::StrType(0, 2));
-    }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        takane::internal_array::check_dimnames(handle, "names", dims, takane::Options());
-        expect_error_names("same length as the extent", handle, "names", std::vector<hsize_t>{ 20, 10 }, takane::Options());
+        std::vector<int> input{ 0, 10, 20 };
+        auto output = takane::cast_array_dimensions<std::size_t>(input);
+        EXPECT_EQ(output.size(), input.size());
+        EXPECT_EQ(output[0], 0);
+        EXPECT_EQ(output[1], 10);
+        EXPECT_EQ(output[2], 20);
     }
 
-    // Empty is okay.
+    // Same type is a no-op.
     {
-        H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("names");
+        std::vector<std::size_t> input{ 0, 10, 20 };
+        auto output = takane::cast_array_dimensions<std::size_t>(input);
+        EXPECT_EQ(input, output);
     }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        takane::internal_array::check_dimnames(handle, "names", dims, takane::Options());
-    }
-
-    // Various failures.
-    {
-        H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("names");
-        hdf5_utils::spawn_data(ghandle, "0", 10, H5::PredType::NATIVE_INT32);
-    }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_names("represented by a UTF-8 encoded string", handle, "names", dims, takane::Options());
-    }
-
-    {
-        H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("names");
-        ghandle.createGroup("1");
-    }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_names("to be a dataset", handle, "names", dims, takane::Options());
-    }
-
-    {
-        H5::H5File handle(path, H5F_ACC_TRUNC);
-        hdf5_utils::spawn_data(handle, "names", 10, H5::PredType::NATIVE_INT32);
-    }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_names("to be a group", handle, "names", dims, takane::Options());
-    }
-
-    {
-        H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("names");
-        hdf5_utils::spawn_data(ghandle, "asdasd", 10, H5::PredType::NATIVE_INT32);
-    }
-    {
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_error_names("more objects", handle, "names", dims, takane::Options());
-    }
-
 }
 
+TEST(ValidateArrayDimnames, Okay) {
+    auto dir = define_test_path("utils_array");
+    initialize_directory(dir);
+    auto path = dir / "payload.h5";
+    std::vector<std::size_t> extents{ 10, 4, 30 };
+
+    // No dimnames at all.
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        takane::validate_array_dimnames(handle, "dimnames", extents, {});
+    }
+
+    // Empty dimnames. 
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto dhandle = handle.createGroup("dimnames");
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        takane::validate_array_dimnames(handle, "dimnames", extents, {});
+    }
+
+    // Partial dimnames. 
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto dhandle = handle.createGroup("dimnames");
+        add_hdf5_dataset(dhandle, "1", H5::StrType(0, 10), 4);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        takane::validate_array_dimnames(handle, "dimnames", extents, {});
+    }
+
+    // Full dimnames. 
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto dhandle = handle.createGroup("dimnames");
+        add_hdf5_dataset(dhandle, "0", H5::StrType(0, 10), 10);
+        add_hdf5_dataset(dhandle, "1", H5::StrType(0, 10), 4);
+        add_hdf5_dataset(dhandle, "2", H5::StrType(0, 10), 30);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        takane::validate_array_dimnames(handle, "dimnames", extents, {});
+    }
+}
+
+static void expect_error_names(const std::string& msg, const H5::Group& handle, const std::string& name, const std::vector<std::size_t>& dimensions) {
+    expect_error(
+        msg,
+        [&]() -> void {
+            takane::validate_array_dimnames(handle, name, dimensions, {});
+        }
+    );
+}
+
+TEST(ValidateArrayDimnames, Error) {
+    auto dir = define_test_path("utils_array");
+    initialize_directory(dir);
+    auto path = dir / "payload.h5";
+    std::vector<std::size_t> extents{ 10, 4, 30 };
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dimnames");
+        std::vector<hsize_t> dims{ 5, 2 };
+        ghandle.createDataSet("0", H5::StrType(0, 2), H5::DataSpace(2, dims.data()));
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        expect_error_names("1-dimensional", handle, "dimnames", extents);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dimnames");
+        add_hdf5_dataset(ghandle, "1", H5::PredType::NATIVE_INT, 4);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        expect_error_names("UTF-8 encoded strings", handle, "dimnames", extents);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dimnames");
+        add_hdf5_dataset(ghandle, "2", H5::StrType(0, 2), 20);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        expect_error_names("same length", handle, "dimnames", extents);
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dimnames");
+        add_hdf5_dataset(ghandle, "0", H5::StrType(0, 20), 10);
+        add_hdf5_dataset(ghandle, "foobar", H5::PredType::NATIVE_INT, 30);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        expect_error_names("more objects", handle, "dimnames", extents);
+    }
+}

@@ -69,7 +69,7 @@ inline void validate_atomic_vector(const std::filesystem::path& path, const Obje
             }()
         );
 
-        check_string_missing_placeholder(phandle, missing_attr_name);
+        validate_string_missing_placeholder(phandle, missing_attr_name);
 
     } else {
         auto dhandle = ghandle.openDataSet("values");
@@ -104,7 +104,7 @@ inline void validate_atomic_vector(const std::filesystem::path& path, const Obje
                 throw std::runtime_error("unsupported type '" + type + "'");
             }
 
-            check_numeric_missing_placeholder(dhandle, missing_attr_name);
+            validate_numeric_missing_placeholder(dhandle, missing_attr_name);
         }
     }
 

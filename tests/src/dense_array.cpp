@@ -2,401 +2,398 @@
 #include <gmock/gmock.h>
 
 #include "takane/dense_array.hpp"
+
 #include "utils.h"
-#include "dense_array.h"
+#include "mock_dense_array.h"
 
 #include <string>
 #include <vector>
 #include <filesystem>
 #include <stdexcept>
 
-struct DenseArrayTest : public ::testing::Test {
-    DenseArrayTest() {
-        dir = "TEST_dense_array";
-        name = "dense_array";
-    }
+TEST(DenseArray, IntegerOkay) {
+    auto dir = define_test_path("dense_array");
 
-    std::filesystem::path dir;
-    std::string name;
-
-    H5::H5File reopen() {
-        return H5::H5File(dir / "array.h5", H5F_ACC_RDWR);
-    }
-
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(DenseArrayTest, Basics) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
-
-    // Success!
     {
-        dense_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
+        mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
     }
+
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 10);
-
-    std::vector<size_t> expected_dims { 10, 20 };
+    std::vector<std::size_t> expected_dims { 10, 20 };
     EXPECT_EQ(test_dimensions(dir), expected_dims);
 }
 
-TEST_F(DenseArrayTest, TypeChecks) {
+TEST(DenseArray, IntegerError) {
+    auto dir = define_test_path("dense_array");
+
     {
-        dense_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 30, 10, 20 });
         ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "string");
+        add_hdf5_attribute(ghandle, "type", "integer");
     }
-    expect_error("represented by a UTF-8 encoded string");
 
-    {
-        dense_array::mock(dir, dense_array::Type::NUMBER, { 10, 20 });
-    }
-    test_validate(dir);
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "integer");
-    }
-    expect_error("32-bit signed integer");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "boolean");
-    }
-    expect_error("32-bit signed integer");
-
-    {
-        dense_array::mock(dir, dense_array::Type::STRING, { 10, 20 });
-    }
-    test_validate(dir);
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "number");
-    }
-    expect_error("64-bit float");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "YAYYA");
-    }
-    expect_error("unknown array type");
+    expect_validation_error(dir, "32-bit signed integer");
 }
 
-TEST_F(DenseArrayTest, NullStrings) {
-    // Check for NULL pointers.
+TEST(DenseArray, BooleanOkay) {
+    auto dir = define_test_path("dense_array");
+
     {
-        initialize_directory_simple(dir, name, "1.0");
+        mock_dense_array(dir, DenseArrayType::BOOLEAN, { 5, 10, 20 });
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 5);
+    std::vector<std::size_t> expected_dims { 5, 10, 20 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST(DenseArray, BooleanError) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 8 });
+        ghandle.removeAttr("type");
+        add_hdf5_attribute(ghandle, "type", "boolean");
+    }
+
+    expect_validation_error(dir, "32-bit signed integer");
+}
+
+TEST(DenseArray, NumberOkay) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        mock_dense_array(dir, DenseArrayType::BOOLEAN, { 300 });
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 300);
+    std::vector<std::size_t> expected_dims { 300 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST(DenseArray, NumberError) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        initialize_directory_simple(dir, "dense_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup(name);
-
-        std::vector<hsize_t> dims { 10, 20 };
-        H5::DataSpace dspace(dims.size(), dims.data());
-        ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
-        hdf5_utils::attach_attribute(ghandle, "type", "string");
+        auto ghandle = handle.createGroup("dense_array");
+        constexpr hsize_t len = 100;
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT64, H5::DataSpace(1, &len));
+        add_hdf5_attribute(ghandle, "type", "number");
     }
-    expect_error("NULL pointer");
 
-    // Doesn't throw if it's empty.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("data");
-        ghandle.removeAttr("type");
-
-        std::vector<hsize_t> dims { 10, 0 };
-        H5::DataSpace dspace(dims.size(), dims.data());
-        ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
-        hdf5_utils::attach_attribute(ghandle, "type", "string");
-    }
-    test_validate(dir);
-
-    // Works if it's compressed.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("data");
-        ghandle.removeAttr("type");
-
-        std::vector<hsize_t> chunks { 10, 20 };
-        H5::DSetCreatPropList cplist;
-        cplist.setChunk(2, chunks.data());
-        cplist.setDeflate(6);
-
-        std::vector<hsize_t> dims { 33, 45 };
-        H5::DataSpace dspace(dims.size(), dims.data());
-        ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace, cplist);
-        hdf5_utils::attach_attribute(ghandle, "type", "string");
-    }
-    expect_error("NULL pointer");
+    expect_validation_error(dir, "64-bit float");
 }
 
-TEST_F(DenseArrayTest, MissingPlaceholder) {
+TEST(DenseArray, NumericMissingOkay) {
+    auto dir = define_test_path("dense_array");
+
     {
-        dense_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 20, 10 });
         auto dhandle = ghandle.openDataSet("data");
-        hdf5_utils::attach_attribute(dhandle, "missing-value-placeholder", "NA");
+        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
+        const int val = 100;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
     }
-    expect_error("same type as its dataset");
 
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 20);
+    std::vector<std::size_t> expected_dims { 20, 10 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST(DenseArray, NumericMissingError) {
+    auto dir = define_test_path("dense_array");
+
+    // Test that the missing placeholder is actually validated.
     {
-        dense_array::mock(dir, dense_array::Type::STRING, { 10, 20 });
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 20, 10 });
         auto dhandle = ghandle.openDataSet("data");
-        hdf5_utils::attach_attribute(dhandle, "missing-value-placeholder", "NA");
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
-    test_validate(dir);
+
+    expect_validation_error(dir, "same datatype");
 }
 
-TEST_F(DenseArrayTest, Names) {
-    {
-        dense_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto nhandle = ghandle.createGroup("names");
-        hdf5_utils::spawn_data(nhandle, "0", 20, H5::StrType(0, 5));
-    }
-    expect_error("same length as the extent");
+/*****************************************/
+
+TEST(DenseArray, StringOkay) {
+    auto dir = define_test_path("dense_array");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto nhandle = ghandle.openGroup("names");
-        nhandle.unlink("0");
-        hdf5_utils::spawn_data(nhandle, "1", 20, H5::StrType(0, 5));
+        mock_dense_array(dir, DenseArrayType::STRING, { 13, 17, 11 });
     }
+
     test_validate(dir);
+    EXPECT_EQ(test_height(dir), 13);
+    std::vector<std::size_t> expected_dims { 13, 17, 11 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
 }
 
-TEST_F(DenseArrayTest, Transposed) {
-    {
-        dense_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        hdf5_utils::attach_attribute(ghandle, "transposed", "123123");
-    }
-    expect_error("32-bit signed integer");
+TEST(DenseArray, StringError) {
+    auto dir = define_test_path("dense_array");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("transposed");
+        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 121 });
+        ghandle.removeAttr("type");
+        add_hdf5_attribute(ghandle, "type", "string");
+    }
+    expect_validation_error(dir, "UTF-8 encoded string");
+
+    {
+        initialize_directory_simple(dir, "dense_array", "1.0");
+        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dense_array");
+        add_hdf5_dataset(ghandle, "data", H5::StrType(0, H5T_VARIABLE), 20);
+        add_hdf5_attribute(ghandle, "type", "string");
+    }
+    expect_validation_error(dir, "NULL");
+}
+
+TEST(DenseArray, StringMissingOkay) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::STRING, { 5, 6, 2 });
+        auto dhandle = ghandle.openDataSet("data");
+        add_hdf5_attribute(dhandle, "missing-value-placeholder", "asdasd");
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 5);
+    std::vector<std::size_t> expected_dims { 5, 6, 2 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST(DenseArray, StringMissingError) {
+    auto dir = define_test_path("dense_array");
+
+    // Test that the missing placeholder is actually validated.
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::STRING, { 20, 10 });
+        auto dhandle = ghandle.openDataSet("data");
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "UTF-8 string");
+}
+
+/*****************************************/
+
+TEST(DenseArray, VlsOkay) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        mock_dense_array(dir, DenseArrayType::VLS, { 33, 22, 11 });
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 33);
+    std::vector<std::size_t> expected_dims { 33, 22, 11 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST(DenseArray, VlsError) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        initialize_directory_simple(dir, "dense_array", "1.0");
+        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dense_array");
+        add_hdf5_attribute(ghandle, "type", "vls");
+    }
+    expect_validation_error(dir, "unsupported type");
+
+    // Check that the heap validator is called.
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 33, 22, 11 });
+        ghandle.unlink("heap");
+        add_hdf5_dataset(ghandle, "heap", H5::PredType::NATIVE_INT32, 100);
+    }
+    expect_validation_error(dir, "8-bit unsigned integer");
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 33, 22, 11 });
+        ghandle.unlink("pointers");
+        ghandle.createDataSet("pointers", ritsuko::cvls::define_pointer_datatype<std::uint32_t, std::uint32_t>(), H5S_SCALAR);
+    }
+    expect_validation_error(dir, "at least one dimension");
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 50, 20 });
+        std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > pointers(1000);
+        for (auto& pp : pointers) {
+            pp.offset = 10000;
+            pp.length = 10000;
+        }
+        auto phandle = ghandle.openDataSet("pointers");
+        phandle.write(pointers.data(), ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>()); 
+    }
+    expect_validation_error(dir, "out of range");
+}
+
+TEST(DenseArray, VlsMissingOkay) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 212 });
+        auto phandle = ghandle.openDataSet("pointers");
+        add_hdf5_attribute(phandle, "missing-value-placeholder", "asdasd");
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 212);
+    std::vector<std::size_t> expected_dims { 212 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST(DenseArray, VlsMissingError) {
+    auto dir = define_test_path("dense_array");
+
+    // Test that the missing placeholder is actually validated.
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 99 });
+        auto phandle = ghandle.openDataSet("pointers");
+        phandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "UTF-8 string");
+}
+
+/*****************************************/
+
+TEST(DenseArray, TransposedOkay) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
+        auto ahandle = ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+        constexpr int val = 0;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+        std::vector<std::size_t> expected_dims { 10, 5, 20 };
+        EXPECT_EQ(test_dimensions(dir), expected_dims);
+    }
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
+        auto ahandle = ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+        constexpr int val = 1;
+        ahandle.write(H5::PredType::NATIVE_INT, &val);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 20);
+        std::vector<std::size_t> expected_dims { 20, 5, 10 };
+        EXPECT_EQ(test_dimensions(dir), expected_dims);
+    }
+}
+
+TEST(DenseArray, TransposedError) {
+    auto dir = define_test_path("dense_array");
+
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
         hsize_t foo = 10;
         H5::DataSpace dspace(1, &foo);
         ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT32, dspace);
     }
-    expect_error("scalar");
+    expect_validation_error(dir, "scalar");
 
     {
-        dense_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT32, H5S_SCALAR);
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        add_hdf5_attribute(ghandle, "transposed", "123123");
     }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 10);
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto ahandle = ghandle.openAttribute("transposed");
-        int val = 1;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 20);
-
-    std::vector<size_t> expected_dims { 20, 10 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    expect_validation_error(dir, "32-bit signed integer");
 }
 
-struct DenseArrayStringCheckTest : public ::testing::TestWithParam<int> {};
+/*****************************************/
 
-TEST_P(DenseArrayStringCheckTest, NullCheck) {
-    std::filesystem::path dir = "TEST_dense_array";
-    std::string name = "dense_array";
+TEST(DenseArray, NamesOkay) {
+    auto dir = define_test_path("dense_array");
 
-    // To check correct iteration, our strategy is to add a NULL pointer at every corner,
-    // turn the buffer size down, and verify that everything is touched.
-    std::vector<hsize_t> dims { 10, 20, 5 };
-    const char* dummy = "Aaron";
-    takane::Options options;
-    options.hdf5_buffer_size = GetParam();
+    // No names.
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 5, 12, 7 });
+        auto nhandle = ghandle.createGroup("names");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 5);
+        std::vector<std::size_t> expected_dims { 5, 12, 7 };
+        EXPECT_EQ(test_dimensions(dir), expected_dims);
+    }
 
-    H5::DataSpace dspace(dims.size(), dims.data());
-    for (size_t i = 0; i < 2; ++i) {
-        for (size_t j = 0; j < 2; ++j) {
-            for (size_t k = 0; k < 2; ++k) {
-                std::vector<const char*> ptrs(1000, dummy);
-
-                // Note that we go in reverse order of dimensions as HDF5 stores the fastest-changing dimension last.
-                size_t multiplier = 1;
-                size_t offset = k * (dims[2] - 1) * multiplier;
-                multiplier *= dims[2];
-                offset += j * (dims[1] - 1) * multiplier;
-                multiplier *= dims[1];
-                offset += i * (dims[0] - 1) * multiplier;
-
-                ptrs[offset] = NULL;
-
-                {
-                    initialize_directory_simple(dir, name, "1.0");
-                    H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
-                    auto ghandle = handle.createGroup(name);
-                    hdf5_utils::attach_attribute(ghandle, "type", "string");
-                    auto dhandle = ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), dspace);
-                    dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
-                }
-
-                auto meta = takane::read_object_metadata(dir);
-                EXPECT_ANY_THROW({
-                    try {
-                        takane::dense_array::validate(dir, meta, options);
-                    } catch (std::exception& e) {
-                        EXPECT_THAT(e.what(), ::testing::HasSubstr("NULL pointer"));
-                        throw;
-                    }
-                });
-            }
-        }
+    // Full names.
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 12, 5, 7 });
+        auto nhandle = ghandle.createGroup("names");
+        add_hdf5_dataset(nhandle, "0", H5::StrType(0, 10), 12);
+        add_hdf5_dataset(nhandle, "1", H5::StrType(0, 11), 5);
+        add_hdf5_dataset(nhandle, "2", H5::StrType(0, 12), 7);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 12);
+        std::vector<std::size_t> expected_dims { 12, 5, 7 };
+        EXPECT_EQ(test_dimensions(dir), expected_dims);
     }
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    DenseArray,
-    DenseArrayStringCheckTest,
-    ::testing::Values(2, 5, 10, 20, 100) // buffer size.
-);
+TEST(DenseArray, NamesError) {
+    auto dir = define_test_path("dense_array");
 
-TEST_F(DenseArrayTest, Vls) {
-    std::string heap = "abcdefghijklmno";
-    std::vector<size_t> expected_dimensions { 3, 4 };
+    // Test that the names are actually validated.
+    {
+        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        auto nhandle = ghandle.createGroup("names");
+        add_hdf5_dataset(nhandle, "0", H5::StrType(0, 5), 20);
+    }
+    expect_validation_error(dir, "same length as the extent");
+}
+
+/*****************************************/
+
+TEST(DenseArray, PreambleError) {
+    auto dir = define_test_path("dense_array");
 
     {
-        initialize_directory_simple(dir, "dense_array", "1.1");
+        initialize_directory_simple(dir, "dense_array", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+
+    {
+        initialize_directory_simple(dir, "dense_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dense_array");
-        hdf5_utils::attach_attribute(ghandle, "type", "vls");
-
-        const unsigned char* hptr = reinterpret_cast<const unsigned char*>(heap.c_str());
-        hsize_t hlen = heap.size();
-        H5::DataSpace hspace(1, &hlen);
-        auto hhandle = ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
-        hhandle.write(hptr, H5::PredType::NATIVE_UCHAR);
-
-        std::vector<ritsuko::hdf5::vls::Pointer<uint64_t, uint64_t> > pointers(expected_dimensions[0] * expected_dimensions[1]);
-        for (size_t i = 0; i < pointers.size(); ++i) {
-            pointers[i].offset = i; 
-            pointers[i].length = 1;
-        }
-        std::vector<hsize_t> pdims(expected_dimensions.begin(), expected_dimensions.end());
-        H5::DataSpace pspace(2, pdims.data());
-        auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<uint64_t, uint64_t>();
-        auto phandle = ghandle.createDataSet("pointers", ptype, pspace);
-        phandle.write(pointers.data(), ptype);
+        ghandle.createAttribute("type", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
+    expect_validation_error(dir, "UTF-8 encoded string");
+}
 
-    test_validate(dir);
-    EXPECT_EQ(test_dimensions(dir), expected_dimensions);
+TEST(DenseArray, DataError) {
+    auto dir = define_test_path("dense_array");
 
-    // Adding a missing value placeholder.
     {
-        {
-            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup("dense_array");
-            auto dhandle = ghandle.openDataSet("pointers");
-            dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
-        }
-        test_validate(dir);
-
-        // Adding the wrong missing value placeholder.
-        {
-            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup("dense_array");
-            auto dhandle = ghandle.openDataSet("pointers");
-            dhandle.removeAttr("missing-value-placeholder");
-            dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT, H5S_SCALAR);
-        }
-        expect_error("string datatype");
-
-        // Removing for the next checks.
-        {
-            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup("dense_array");
-            auto dhandle = ghandle.openDataSet("pointers");
-            dhandle.removeAttr("missing-value-placeholder");
-        }
+        initialize_directory_simple(dir, "dense_array", "1.0");
+        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dense_array");
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, H5S_SCALAR);
+        add_hdf5_attribute(ghandle, "type", "integer");
     }
+    expect_validation_error(dir, "at least one dimension");
 
-    // Checking that this only works in the latest version.
     {
-        auto opath = dir/"OBJECT";
-        auto parsed = millijson::parse_file(opath.c_str(), {});
-        auto& entries = reinterpret_cast<millijson::Object*>(parsed.get())->value();
-        auto& av_entries = reinterpret_cast<millijson::Object*>(entries["dense_array"].get())->value();
-        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value() = "1.0";
-        json_utils::dump(parsed.get(), opath);
-
-        expect_error("unsupported type");
-
-        reinterpret_cast<millijson::String*>(av_entries["version"].get())->value() = "1.1";
-        json_utils::dump(parsed.get(), opath);
+        initialize_directory_simple(dir, "dense_array", "1.0");
+        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("dense_array");
+        add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT8, 20);
+        add_hdf5_attribute(ghandle, "type", "foobar");
     }
-
-    // Shortening the heap to check that we perform bounds checks on the pointers.
-    {
-        {
-            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup("dense_array");
-            ghandle.unlink("heap");
-            hsize_t zero = 0;
-            H5::DataSpace hspace(1, &zero);
-            ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, hspace);
-        }
-        expect_error("out of range");
-    }
-
-    // Checking that we check for 64-bit unsigned integer types. 
-    {
-        {
-            H5::H5File handle(dir / "array.h5", H5F_ACC_RDWR);
-            auto ghandle = handle.openGroup("dense_array");
-            ghandle.unlink("pointers");
-
-            std::vector<ritsuko::hdf5::vls::Pointer<int, int> > pointers(expected_dimensions[0] * expected_dimensions[1]);
-            for (auto& p : pointers) {
-                p.offset = 0;
-                p.length = 0;
-            }
-            std::vector<hsize_t> pdims(expected_dimensions.begin(), expected_dimensions.end());
-            H5::DataSpace pspace(2, pdims.data());
-            auto ptype = ritsuko::hdf5::vls::define_pointer_datatype<int, int>();
-            auto phandle = ghandle.createDataSet("pointers", ptype, pspace);
-            phandle.write(pointers.data(), ptype);
-        }
-        expect_error("64-bit unsigned integer");
-    }
+    expect_validation_error(dir, "unknown array type");
 }

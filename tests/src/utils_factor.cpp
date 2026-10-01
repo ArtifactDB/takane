@@ -15,7 +15,7 @@ TEST(CheckFactorOrderedAttribute, Okay) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        takane::check_factor_ordered_attribute(handle.openGroup("foo"));
+        takane::validate_factor_ordered_attribute(handle.openGroup("foo"));
     }
 
     // Passes fine if it exists. 
@@ -26,7 +26,7 @@ TEST(CheckFactorOrderedAttribute, Okay) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        takane::check_factor_ordered_attribute(handle.openGroup("foo"));
+        takane::validate_factor_ordered_attribute(handle.openGroup("foo"));
     }
 }
 
@@ -44,7 +44,7 @@ TEST(CheckFactorOrderedAttribute, Error) {
         expect_error(
             "scalar",
             [&]() -> void {
-                takane::check_factor_ordered_attribute(handle.openGroup("foo"));
+                takane::validate_factor_ordered_attribute(handle.openGroup("foo"));
             }
         );
     }
@@ -59,7 +59,7 @@ TEST(CheckFactorOrderedAttribute, Error) {
         expect_error(
             "32-bit signed integer",
             [&]() -> void {
-                takane::check_factor_ordered_attribute(handle.openGroup("foo"));
+                takane::validate_factor_ordered_attribute(handle.openGroup("foo"));
             }
         );
     }

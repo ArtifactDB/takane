@@ -200,13 +200,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Number of rows in the matrix.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+inline std::size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
     auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
     auto ghandle = ritsuko::hdf5::open_group(handle, "compressed_sparse_matrix");
     auto shandle = ritsuko::hdf5::open_dataset(ghandle, "shape");
-    std::array<uint64_t, 2> output;
+    std::array<std::uint64_t, 2> output;
     shandle.read(output.data(), H5::PredType::NATIVE_UINT64);
-    return output.front();
+    return sanisizer::cast<std::size_t>(output.front());
 }
 
 /**

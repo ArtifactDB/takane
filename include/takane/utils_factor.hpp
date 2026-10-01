@@ -18,7 +18,7 @@
 namespace takane {
 
 template<class H5Object_>
-void check_factor_ordered_attribute(const H5Object_& handle) {
+void validate_factor_ordered_attribute(const H5Object_& handle) {
     if (!handle.attrExists("ordered")) {
         return;
     }
