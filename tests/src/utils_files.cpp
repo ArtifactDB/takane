@@ -5,39 +5,8 @@
 
 #include "utils.h"
 
-struct FileSignatureTest : public::testing::Test {
-    FileSignatureTest() {
-        dir = "TEST_files";
-    }
-
-    std::filesystem::path dir;
-
-    template<typename ... Args_>
-    static void expect_error_check(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::internal_files::check_raw_signature(std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-
-    template<typename ... Args_>
-    static void expect_error_extract(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::internal_files::extract_signature(std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(FileSignatureTest, Character) {
+TEST(CheckRawFileSignature, Character) {
+    auto dir = define_test_path("utils_files");
     initialize_directory(dir);
     auto path = dir / "foo.png";
 
@@ -45,29 +14,41 @@ TEST_F(FileSignatureTest, Character) {
         std::ofstream handle(path);
         handle << "";
     }
-    expect_error_check("incomplete ASD file signature", path, "FOOBAR", 6, "ASD");
+    expect_error(
+        "file is too small",
+        [&]() -> void {
+            takane::check_raw_file_signature(path, "FOOBAR", 6, "an ASD file");
+        }
+    );
 
     {
         std::ofstream handle(path);
         handle << "FOObar";
     }
-    expect_error_check("incorrect ASD file signature", path, "FOOBAR", 6, "ASD");
+    expect_error(
+        "incorrect file signature",
+        [&]() -> void {
+            takane::check_raw_file_signature(path, "FOOBAR", 6, "an ASD file");
+        }
+    );
 
     {
         std::ofstream handle(path);
         handle << "FOOBAR";
     }
-    takane::internal_files::check_raw_signature(path, "FOOBAR", 6, "ASD");
+    takane::check_raw_file_signature(path, "FOOBAR", 6, "an ASD file");
+
 
     // Works with non-ASCII characters.
     {
         std::ofstream handle(path);
         handle << "FOO\1BAR\2asdasd\3asd\n";
     }
-    takane::internal_files::check_raw_signature(path, "FOO\1BAR\2", 8, "ASD");
+    takane::check_raw_file_signature(path, "FOO\1BAR\2", 8, "an ASD file");
 }
 
-TEST_F(FileSignatureTest, Unsigned) {
+TEST(CheckRawFileSignature, Unsigned) {
+    auto dir = define_test_path("utils_files");
     initialize_directory(dir);
     auto path = (dir / "foo.bam").string();
     const unsigned char foo[4] = { 0x4a, 0x55, 0xf2, 0x90 };
@@ -76,37 +57,144 @@ TEST_F(FileSignatureTest, Unsigned) {
         std::ofstream handle(path);
         handle << "";
     }
-    expect_error_check("incomplete ASD file signature", path, foo, 4, "ASD");
+    expect_error(
+        "file is too small",
+        [&]() -> void {
+            takane::check_raw_file_signature(path, foo, 4, "an ASD file");
+        }
+    );
 
     {
         std::ofstream handle(path);
         handle << "FOObar";
     }
-    expect_error_check("incorrect ASD file signature", path, foo, 4, "ASD");
+    expect_error(
+        "incorrect file signature",
+        [&]() -> void {
+            takane::check_raw_file_signature(path, foo, 4, "an ASD file");
+        }
+    );
 
     {
         byteme::RawFileWriter writer(path.c_str(), {});
         writer.write(foo, 4);
     }
-    takane::internal_files::check_raw_signature(path, foo, 4, "ASD");
+    takane::check_raw_file_signature(path, foo, 4, "an ASD file");
 }
 
-TEST_F(FileSignatureTest, Extraction) {
+TEST(CheckGunzippedFileSignature, Character) {
+    auto dir = define_test_path("utils_files");
+    initialize_directory(dir);
+    auto path = dir / "whee.png";
+
+    {
+        byteme::GzipFileWriter writer(path.c_str(), {});
+    }
+    expect_error(
+        "file is too small",
+        [&]() -> void {
+            takane::check_gunzipped_file_signature(path, "FOOBAR", 6, "an ASD file");
+        }
+    );
+
+    {
+        byteme::GzipFileWriter writer(path.c_str(), {});
+        std::string msg = "asdaasdasd";
+        writer.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
+    }
+    expect_error(
+        "incorrect file signature",
+        [&]() -> void {
+            takane::check_gunzipped_file_signature(path, "FOOBAR", 6, "an ASD file");
+        }
+    );
+
+    {
+        byteme::GzipFileWriter writer(path.c_str(), {});
+        std::string msg = "FOOBAR123";
+        writer.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
+    }
+    takane::check_gunzipped_file_signature(path, "FOOBAR", 6, "an ASD file");
+}
+
+TEST(CheckGunzippedFileSignature, Unsigned) {
+    auto dir = define_test_path("utils_files");
+    initialize_directory(dir);
+    auto path = dir / "whee.txt.gz";
+    const unsigned char foo[4] = { 0x4a, 0x55, 0xf2, 0x90 };
+
+    {
+        byteme::GzipFileWriter writer(path.c_str(), {});
+    }
+    expect_error(
+        "file is too small",
+        [&]() -> void {
+            takane::check_gunzipped_file_signature(path, foo, 4, "an ASD file");
+        }
+    );
+
+    {
+        byteme::GzipFileWriter writer(path.c_str(), {});
+        std::string msg = "asdaasdasd";
+        writer.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
+    }
+    expect_error(
+        "incorrect file signature",
+        [&]() -> void {
+            takane::check_gunzipped_file_signature(path, foo, 4, "an ASD file");
+        }
+    );
+
+    {
+        byteme::GzipFileWriter writer(path.c_str(), {});
+        writer.write(foo, 4);
+    }
+    takane::check_gunzipped_file_signature(path, foo, 4, "an ASD file");
+}
+
+TEST(CheckGzipFileSignature, Basic) {
+    auto dir = define_test_path("utils_files");
+    initialize_directory(dir);
+    auto path = dir / "whee.txt.gz";
+
+    {
+        byteme::RawFileWriter writer(path.c_str(), {});
+    }
+    expect_error(
+        "file is too small",
+        [&]() -> void {
+            takane::check_gzip_file_signature(path);
+        }
+    );
+
+    {
+        byteme::GzipFileWriter writer(path.c_str(), {});
+    }
+    takane::check_gzip_file_signature(path);
+}
+
+TEST(ExtractFileSignature, Basic) {
+    auto dir = define_test_path("utils_files");
     initialize_directory(dir);
     auto path = dir / "foo.bam";
-    unsigned char buffer[4];
 
+    unsigned char buffer[4];
     {
         std::ofstream handle(path);
         handle << "";
     }
-    expect_error_extract("too small", path, buffer, 4);
+    expect_error(
+        "too small",
+        [&]() -> void {
+            takane::extract_file_signature(path, buffer, 4);
+        }
+    );
 
     {
         std::ofstream handle(path);
         handle << "FOObar";
     }
-    takane::internal_files::extract_signature(path, buffer, 4);
+    takane::extract_file_signature(path, buffer, 4);
     auto cbuffer = reinterpret_cast<char*>(buffer);
     EXPECT_EQ(cbuffer[0], 'F');
     EXPECT_EQ(cbuffer[1], 'O');
@@ -114,55 +202,50 @@ TEST_F(FileSignatureTest, Extraction) {
     EXPECT_EQ(cbuffer[3], 'b');
 }
 
-TEST(IsIndexed, Basic) {
-    takane::internal_json::JsonObjectMap obj;
-    EXPECT_FALSE(takane::internal_files::is_indexed(obj));
+TEST(IsFileIndexed, Basic) {
+    takane::JsonObjectMap obj;
+    EXPECT_FALSE(takane::is_file_indexed(obj));
 
     obj["indexed"] = std::shared_ptr<millijson::Base>(new millijson::Number(100));
-    EXPECT_ANY_THROW({
-        try {
-            takane::internal_files::is_indexed(obj);
-        } catch (std::exception& e) {
-            EXPECT_THAT(e.what(), ::testing::HasSubstr("JSON boolean"));
-            throw;
+    expect_error(
+        "JSON boolean",
+        [&]() -> void {
+            takane::is_file_indexed(obj);
         }
-    });
+    );
+
+    obj["indexed"] = std::shared_ptr<millijson::Base>(new millijson::Boolean(false));
+    EXPECT_FALSE(takane::is_file_indexed(obj));
 
     obj["indexed"] = std::shared_ptr<millijson::Base>(new millijson::Boolean(true));
-    EXPECT_TRUE(takane::internal_files::is_indexed(obj));
+    EXPECT_TRUE(takane::is_file_indexed(obj));
 }
 
-TEST(CheckSequenceType, Basic) {
-    takane::internal_json::JsonObjectMap obj;
-    EXPECT_ANY_THROW({
-        try {
-            takane::internal_files::check_sequence_type(obj, "foobar");
-        } catch (std::exception& e) {
-            EXPECT_THAT(e.what(), ::testing::HasSubstr("expected a 'foobar.sequence_type' property"));
-            throw;
+TEST(ValdiateSequenceType, Basic) {
+    takane::JsonObjectMap obj;
+    expect_error(
+        "expected a 'sequence_type' property",
+        [&]() -> void {
+            takane::validate_sequence_type(obj);
         }
-    });
+    );
 
     obj["sequence_type"] = std::shared_ptr<millijson::Base>(new millijson::Number(100));
-    EXPECT_ANY_THROW({
-        try {
-            takane::internal_files::check_sequence_type(obj, "foobar");
-        } catch (std::exception& e) {
-            EXPECT_THAT(e.what(), ::testing::HasSubstr("should be a JSON string"));
-            throw;
+    expect_error(
+        "should be a JSON string",
+        [&]() -> void {
+            takane::validate_sequence_type(obj);
         }
-    });
+    );
 
     obj["sequence_type"] = std::shared_ptr<millijson::Base>(new millijson::String("whee"));
-    EXPECT_ANY_THROW({
-        try {
-            takane::internal_files::check_sequence_type(obj, "foobar");
-        } catch (std::exception& e) {
-            EXPECT_THAT(e.what(), ::testing::HasSubstr("unsupported value"));
-            throw;
+    expect_error(
+        "unsupported value",
+        [&]() -> void {
+            takane::validate_sequence_type(obj);
         }
-    });
+    );
 
     obj["sequence_type"] = std::shared_ptr<millijson::Base>(new millijson::String("custom"));
-    takane::internal_files::check_sequence_type(obj, "foobar");
+    takane::validate_sequence_type(obj);
 }

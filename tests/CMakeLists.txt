@@ -54,7 +54,7 @@ add_executable(
 #    src/utils_bumpy_array.cpp
     src/utils_compressed_list.cpp
     src/utils_factor.cpp
-#    src/utils_files.cpp
+    src/utils_files.cpp
     src/utils_json.cpp
     src/utils_missing.cpp
     src/utils_other.cpp
