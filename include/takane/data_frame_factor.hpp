@@ -43,39 +43,58 @@ bool satisfies_interface(const std::string&, const std::string&, const Options&)
 inline void validate_data_frame_factor(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "data_frame_factor"; // use a separate variable to avoid dangling reference warnings from GCC.
 
-    const auto& type_meta = extract_json_type_metadata(metadata.other, type_name);
-    const auto& vstring = extract_json_version_string(type_meta, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
-
-    auto lpath = path / "levels";
-    auto lmeta = read_object_metadata(lpath);
-    if (!satisfies_interface(lmeta.type, "DATA_FRAME", options)) {
-        throw std::runtime_error("expected 'levels' to be an object that satisfies the 'DATA_FRAME' interface");
-    }
-
+    ritsuko::Version version;
     try {
-        ::takane::validate(lpath, lmeta, options);
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to validate 'levels'; " + std::string(e.what()));
-    }
-    const auto num_levels = ::takane::height(lpath, lmeta, options);
-
-    if (options.data_frame_factor_any_duplicated) {
-        if (options.data_frame_factor_any_duplicated(lpath, lmeta, options)) {
-            throw std::runtime_error("'levels' should not contain duplicated rows");
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const auto& vstring = extract_json_version_string(type_meta);
+            version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
         }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
-    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
-    auto ghandle = handle.openGroup(type_name);
-    const auto num_codes = validate_factor_codes(ghandle.openDataSet("codes"), num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
+    std::size_t num_levels;
+    try {
+        auto lpath = path / "levels";
+        auto lmeta = read_object_metadata(lpath);
+        if (!satisfies_interface(lmeta.type, "DATA_FRAME", options)) {
+            throw std::runtime_error("expected 'levels' to be an object that satisfies the 'DATA_FRAME' interface");
+        }
+        ::takane::validate(lpath, lmeta, options);
+
+        if (options.data_frame_factor_any_duplicated) {
+            if (options.data_frame_factor_any_duplicated(lpath, lmeta, options)) {
+                throw std::runtime_error("'levels' should not contain duplicated rows");
+            }
+        }
+
+        num_levels = ::takane::height(lpath, lmeta, options);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate 'levels'"));
+    }
+
+    hsize_t num_codes;
+    try {
+        H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(type_name);
+        try {
+            num_codes = validate_factor_codes(ghandle.openDataSet("codes"), num_levels, options.hdf5_buffer_size, /* allow_missing = */ false);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'codes'"));
+        }
+        validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in 'contents.h5'"));
+    }
 
     validate_mcols(path, "element_annotations", num_codes, options);
     validate_metadata(path, "other_annotations", options);
-    validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
 }
 
 /**

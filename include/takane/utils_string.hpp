@@ -14,24 +14,25 @@
 
 namespace takane {
 
-template<class H5Object_>
-std::string open_and_load_scalar_string_attribute(const H5Object_& handle, const std::string& name) {
-    auto attr = handle.openAttribute(name);
+inline std::string open_and_load_scalar_string_attribute(const H5::Attribute& attr) {
     if (attr.getSpace().getSimpleExtentNdims() != 0) {
-        throw std::runtime_error("expected '" + name + "' attribute to be a scalar");
+        throw std::runtime_error("expected a scalar attribute");
     }
     if (!ritsuko::hdf5::is_utf8_string(attr)) {
-        throw std::runtime_error("expected '" + name + "' to have a datatype that can be represented by a UTF-8 encoded string");
+        throw std::runtime_error("expected a datatype that can be represented by a UTF-8 encoded string");
     }
     return ritsuko::hdf5::read_scalar_string(attr);
 }
 
-template<class H5Object_>
-std::string open_and_load_string_format(const H5Object_& handle) {
+inline std::string open_and_load_string_format(const H5::H5Object& handle) {
     if (!handle.attrExists("format")) {
         return "none";
-    } else {
-        return open_and_load_scalar_string_attribute(handle, "format");        
+    } 
+    try {
+        auto fhandle = handle.openAttribute("format");
+        return open_and_load_scalar_string_attribute(fhandle);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate the 'format' attribute"));
     }
 }
 
@@ -105,31 +106,35 @@ void validate_names(const H5::Group& handle, const std::string& name, NumExpecte
         return;
     }
 
-    auto nhandle = handle.openDataSet(name);
-    if (!ritsuko::hdf5::is_utf8_string(nhandle)) {
-        throw std::runtime_error("expected '" + name + "' to have a datatype that can be represented by a UTF-8 encoded string");
-    }
+    try {
+        auto nhandle = handle.openDataSet(name);
+        if (!ritsuko::hdf5::is_utf8_string(nhandle)) {
+            throw std::runtime_error("expected a datatype that can be represented by a UTF-8 encoded string");
+        }
 
-    auto nspace = nhandle.getSpace();
-    if (nspace.getSimpleExtentNdims() != 1) {
-        throw std::runtime_error("expected '" + name + "' to be a 1-dimensional dataset");
-    }
-    hsize_t nlen;
-    nspace.getSimpleExtentDims(&nlen);
+        auto nspace = nhandle.getSpace();
+        if (nspace.getSimpleExtentNdims() != 1) {
+            throw std::runtime_error("expected a 1-dimensional dataset");
+        }
+        hsize_t nlen;
+        nspace.getSimpleExtentDims(&nlen);
 
-    if (!sanisizer::is_equal(num_expected, nlen)) {
-        throw std::runtime_error("length of '" + name + "' is not consistent with that of its parent object");
-    }
+        if (!sanisizer::is_equal(num_expected, nlen)) {
+            throw std::runtime_error("number of names is not consistent with the height of its parent object");
+        }
 
-    ritsuko::hdf5::validate_1d_strings(
-        nhandle,
-        nlen,
-        [&]{
-            ritsuko::hdf5::Validate1dStringsOptions opt;
-            opt.contiguous_chunk_size = buffer_size;
-            return opt;
-        }()
-    );
+        ritsuko::hdf5::validate_1d_strings(
+            nhandle,
+            nlen,
+            [&]{
+                ritsuko::hdf5::Validate1dStringsOptions opt;
+                opt.contiguous_chunk_size = buffer_size;
+                return opt;
+            }()
+        );
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + name + "'"));
+    }
 }
 
 }

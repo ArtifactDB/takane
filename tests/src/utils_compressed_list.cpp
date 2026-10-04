@@ -81,7 +81,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
     {
         auto meta = takane::read_object_metadata(dir);
         expect_error(
-            "contain an object of type 'atomic_vector'",
+            "derived from the 'atomic_vector'",
             [&]() -> void {
                 takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
             }
@@ -168,7 +168,7 @@ TEST(ValidateCompressedList, PartitionsError) {
     {
         auto meta = takane::read_object_metadata(dir);
         expect_error(
-            "sum of 'lengths'",
+            "sum of lengths",
             [&]() -> void {
                 takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
             }
@@ -201,7 +201,7 @@ TEST(ValidateCompressedList, Names) {
     {
         auto meta = takane::read_object_metadata(dir);
         expect_error(
-            "length of 'names'",
+            "number of names",
             [&]() -> void {
                 takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
             }

@@ -27,21 +27,46 @@ namespace takane {
 inline void validate_string_factor(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "string_factor"; // use a separate variable to avoid dangling reference warnings from GCC.
 
-    const auto& type_meta = extract_json_type_metadata(metadata.other, type_name);
-    const auto& vstring = extract_json_version_string(type_meta, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
+    try {
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const auto& vstring = extract_json_version_string(type_meta);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
-    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
-    auto ghandle = handle.openGroup(type_name);
-    validate_factor_ordered_attribute(ghandle);
+    try {
+        H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(type_name);
+        validate_factor_ordered_attribute(ghandle);
 
-    auto num_levels = validate_factor_levels(ghandle.openDataSet("levels"), options.hdf5_buffer_size);
-    auto num_codes = validate_factor_codes(ghandle.openDataSet("codes"), num_levels, options.hdf5_buffer_size, true);
+        hsize_t num_levels;
+        try {
+            auto lhandle = ghandle.openDataSet("levels");
+            num_levels = validate_factor_levels(lhandle, options.hdf5_buffer_size);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'levels'"));
+        }
 
-    validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
+        hsize_t num_codes;
+        try {
+            auto chandle = ghandle.openDataSet("codes");
+            num_codes = validate_factor_codes(chandle, num_levels, options.hdf5_buffer_size, true);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'codes'"));
+        }
+
+        validate_names(ghandle, "names", num_codes, options.hdf5_buffer_size);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in 'contents.h5'"));
+    }
 }
 
 /**

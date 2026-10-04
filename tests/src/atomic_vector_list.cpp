@@ -35,5 +35,5 @@ TEST(AtomicVectorList, Error) {
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 3, 2, 1 });
         initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
     }
-    expect_validation_error(dir, "should contain an object of type 'atomic_vector'");
+    expect_validation_error(dir, "should be derived from the 'atomic_vector'");
 }

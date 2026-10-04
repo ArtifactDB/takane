@@ -269,7 +269,7 @@ TEST(SimpleList, GeneralError) {
         std::ofstream output(dir / "OBJECT");
         output << "{ \"type\": \"simple_list\", \"simple_list\": { \"version\": \"1.0\", \"format\": null } }";
     }
-    expect_validation_error(dir, "should be a JSON string");
+    expect_validation_error(dir, "expected a JSON string");
 }
 
 TEST(SimpleList, ExternalError) {

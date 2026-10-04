@@ -25,11 +25,11 @@ std::shared_ptr<millijson::Base> parse_json_file(const Path_& path) {
 inline const JsonObjectMap& extract_json_object(const JsonObjectMap& x, const std::string& name) {
     auto xIt = x.find(name);
     if (xIt == x.end()) {
-        throw std::runtime_error("'" + name + "' property is not present");
+        throw std::runtime_error("property is not present");
     }
     const auto& val = xIt->second;
     if (val->type() != millijson::OBJECT) {
-        throw std::runtime_error("'" + name + "' property should be a JSON object");
+        throw std::runtime_error("property should be a JSON object");
     }
     return reinterpret_cast<millijson::Object*>(val.get())->value();
 }
@@ -37,34 +37,18 @@ inline const JsonObjectMap& extract_json_object(const JsonObjectMap& x, const st
 inline const std::string& extract_json_string(const JsonObjectMap& x, const std::string& name) {
     auto xIt = x.find(name);
     if (xIt == x.end()) {
-        throw std::runtime_error("'" + name + "' property is not present");
+        throw std::runtime_error("property is not present");
     }
     const auto& val = xIt->second;
     if (val->type() != millijson::STRING) {
-        throw std::runtime_error("'" + name + "' property should be a JSON string");
+        throw std::runtime_error("property should be a JSON string");
     }
     return reinterpret_cast<millijson::String*>(val.get())->value();
 }
 
-inline const JsonObjectMap& extract_json_type_metadata(const JsonObjectMap& x, const std::string& type) {
-    const JsonObjectMap* output = NULL;
-    try {
-        output = &(extract_json_object(x, type));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract '" + type + "' from the object metadata; " + std::string(e.what())); 
-    }
-    return *output;
-}
-
-inline const std::string& extract_json_version_string(const JsonObjectMap& x, const std::string& type) {
-    const std::string* output = NULL;
+inline const std::string& extract_json_version_string(const JsonObjectMap& x) {
     const std::string version = "version";
-    try {
-        output = &(extract_json_string(x, version));
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to extract '/" + type + "/version' from the object metadata; " + std::string(e.what())); 
-    }
-    return *output;
+    return extract_json_string(x, version);
 }
 
 }

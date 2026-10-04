@@ -48,13 +48,25 @@ inline void initialize_directory_simple(const std::filesystem::path& dir, const 
     dump_object_metadata_simple(dir, name, version);
 }
 
+inline std::string get_message(const std::exception& e) {
+    std::string output = e.what();
+    try {
+        std::rethrow_if_nested(e);
+    } catch (std::exception& e) {
+        output += "; " + get_message(e);
+    } catch (H5::Exception& e) {
+        output += "; " + e.getDetailMsg();
+    }
+    return output;
+}
+
 template<class Function_>
 void expect_error(const std::string& msg, Function_ fun) {
     std::string err;
     try {
         fun();
     } catch (std::exception& e) {
-        err = e.what();
+        err = get_message(e);
     }
     EXPECT_THAT(err, ::testing::HasSubstr(msg));
 }

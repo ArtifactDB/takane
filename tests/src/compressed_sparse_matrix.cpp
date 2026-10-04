@@ -134,7 +134,7 @@ TEST(CompressedSparseMatrix, LayoutError) {
         ghandle.removeAttr("layout");
         add_hdf5_attribute(ghandle, "layout", "fooobar");
     }
-    expect_validation_error(dir, "'layout' attribute must be");
+    expect_validation_error(dir, "'layout' should be either");
 }
 
 TEST(CompressedSparseMatrix, ShapeError) {

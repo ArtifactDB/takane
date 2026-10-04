@@ -16,7 +16,7 @@ TEST(OpenAndLoadStringScalarAttribute, Okay) {
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup("foo");
-    EXPECT_EQ(takane::open_and_load_scalar_string_attribute(ghandle, "bar"), "stuff");
+    EXPECT_EQ(takane::open_and_load_scalar_string_attribute(ghandle.openAttribute("bar")), "stuff");
 }
 
 TEST(OpenAndLoadStringScalarAttribute, Error) {
@@ -33,7 +33,7 @@ TEST(OpenAndLoadStringScalarAttribute, Error) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto ghandle = handle.openGroup("foo");
         expect_error("scalar", [&]() -> void {
-            takane::open_and_load_scalar_string_attribute(ghandle, "bar");
+            takane::open_and_load_scalar_string_attribute(ghandle.openAttribute("bar"));
         });
     }
 
@@ -47,7 +47,7 @@ TEST(OpenAndLoadStringScalarAttribute, Error) {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         auto ghandle = handle.openGroup("foo");
         expect_error("UTF-8 encoded string", [&]() -> void {
-            takane::open_and_load_scalar_string_attribute(ghandle, "bar");
+            takane::open_and_load_scalar_string_attribute(ghandle.openAttribute("bar"));
         });
     }
 }
@@ -348,7 +348,7 @@ TEST(ValidateNames, Error) {
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        expect_validate_names_error("length of 'names'", handle, "names", 100, 1000);
+        expect_validate_names_error("number of names", handle, "names", 100, 1000);
     }
 
     // Check that we actually validate the strings.

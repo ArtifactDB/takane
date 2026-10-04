@@ -78,38 +78,6 @@ TEST(ExtractJsonString, Basic) {
     );
 }
 
-TEST(ExtractJsonTypeMetadata, Basic) {
-    auto dir = define_test_path("utils_json");
-    initialize_directory(dir);
-    auto path = dir / "OBJECT";
-
-    {
-        std::ofstream output(path);
-        output << "{ \"type\": \"foobar\", \"foobar\": { \"version\": 2 } }";
-    }
-    {
-        auto parsed = takane::read_object_metadata(dir);
-        auto extracted = takane::extract_json_type_metadata(parsed.other, "foobar");
-        EXPECT_EQ(extracted.size(), 1);
-        EXPECT_TRUE(extracted.find("version") != extracted.end());
-    }
-
-    // Rethrows an error correctly.
-    {
-        std::ofstream output(path);
-        output << "{ \"type\": \"foobar\", \"foobar\": 2 }";
-    }
-    {
-        auto parsed = takane::read_object_metadata(dir);
-        expect_error(
-            "failed to extract 'foobar'",
-            [&]() -> void {
-                takane::extract_json_type_metadata(parsed.other, "foobar");
-            }
-        );
-    }
-}
-
 TEST(ExtractJsonVersionString, Basic) {
     auto dir = define_test_path("utils_json");
     initialize_directory(dir);
@@ -121,8 +89,8 @@ TEST(ExtractJsonVersionString, Basic) {
     }
     {
         auto parsed = takane::read_object_metadata(dir);
-        auto extracted = takane::extract_json_type_metadata(parsed.other, "foobar");
-        EXPECT_EQ(takane::extract_json_version_string(extracted, "foobar"), "2.1.0");
+        auto extracted = takane::extract_json_object(parsed.other, "foobar");
+        EXPECT_EQ(takane::extract_json_version_string(extracted), "2.1.0");
     }
 
     // Rethrows an error correctly.
@@ -132,11 +100,11 @@ TEST(ExtractJsonVersionString, Basic) {
     }
     {
         auto parsed = takane::read_object_metadata(dir);
-        auto extracted = takane::extract_json_type_metadata(parsed.other, "foobar");
+        auto extracted = takane::extract_json_object(parsed.other, "foobar");
         expect_error(
-            "failed to extract '/foobar/version'",
+            "JSON string",
             [&]() -> void {
-                takane::extract_json_version_string(extracted, "foobar");
+                takane::extract_json_version_string(extracted);
             }
         );
     }

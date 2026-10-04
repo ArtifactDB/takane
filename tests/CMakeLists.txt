@@ -20,8 +20,8 @@ add_executable(
 #    src/genomic_ranges.cpp
 #    src/sequence_information.cpp
     src/atomic_vector.cpp
-    src/compressed_sparse_matrix.cpp
     src/atomic_vector_list.cpp
+    src/compressed_sparse_matrix.cpp
     src/data_frame.cpp
     src/data_frame_factor.cpp
     src/data_frame_list.cpp

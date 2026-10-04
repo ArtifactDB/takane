@@ -26,68 +26,87 @@ bool derived_from(const std::string&, const std::string&, const Options&);
 
 template<bool satisfies_interface_>
 void validate_compressed_list(const std::filesystem::path& path, const std::string& object_type, const std::string& concatenated_type, const ObjectMetadata& metadata, const Options& options) {
-    const auto& type_meta = extract_json_type_metadata(metadata.other, object_type);
-    const auto& vstring = extract_json_version_string(type_meta, object_type);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
-
-    auto catdir = path / "concatenated";
-    auto catmeta = read_object_metadata(catdir);
-    if constexpr(satisfies_interface_) {
-        if (!satisfies_interface(catmeta.type, concatenated_type, options)) {
-            throw std::runtime_error("'concatenated' should satisfy the '" + concatenated_type + "' interface");
-        }
-    } else {
-        if (!derived_from(catmeta.type, concatenated_type, options)) {
-            throw std::runtime_error("'concatenated' should contain an object of type '" + concatenated_type + "'");
-        }
-    }
-
     try {
-        ::takane::validate(catdir, catmeta, options);
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to validate the 'concatenated' object; " + std::string(e.what()));
-    }
-    const auto catheight = ::takane::height(catdir, catmeta, options);
-
-    H5::H5File handle(path / "partitions.h5", H5F_ACC_RDONLY);
-    auto ghandle = handle.openGroup(object_type);
-    auto lhandle = ghandle.openDataSet("lengths");
-    if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
-        throw std::runtime_error("expected 'lengths' to have a datatype that fits in a 64-bit unsigned integer");
-    }
-
-    auto lspace = lhandle.getSpace();
-    if (lspace.getSimpleExtentNdims() != 1) {
-        throw std::runtime_error("expected 'lengths' to be a 1-dimensional dataset");
-    }
-    hsize_t len;
-    lspace.getSimpleExtentDims(&len);
-
-    ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t> stream(
-        &lhandle,
-        len,
-        [&]{
-            ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
-            opt.contiguous_chunk_size = options.hdf5_buffer_size;
-            return opt;
-        }()
-    );
-    hsize_t total = 0;
-    iterate_stream<std::uint64_t>(
-        stream, 
-        [&](hsize_t, std::uint64_t val) -> void {
-            total = sanisizer::sum<hsize_t>(total, val); 
+        const auto& type_meta = extract_json_object(metadata.other, object_type);
+        try {
+            const auto& vstring = extract_json_version_string(type_meta);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
         }
-    );
-
-    if (!sanisizer::is_equal(total, catheight)) {
-        throw std::runtime_error("sum of 'lengths' does not equal the height of the concatenated object (got " + std::to_string(total) + ", expected " + std::to_string(catheight) + ")");
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + object_type + "' in the object metadata"));
     }
 
-    validate_names(ghandle, "names", len, options.hdf5_buffer_size);
+    std::size_t catheight;
+    try {
+        auto catdir = path / "concatenated";
+        auto catmeta = read_object_metadata(catdir);
+        if constexpr(satisfies_interface_) {
+            if (!satisfies_interface(catmeta.type, concatenated_type, options)) {
+                throw std::runtime_error("object should satisfy the '" + concatenated_type + "' interface");
+            }
+        } else {
+            if (!derived_from(catmeta.type, concatenated_type, options)) {
+                throw std::runtime_error("object should be derived from the '" + concatenated_type + "' type");
+            }
+        }
+        ::takane::validate(catdir, catmeta, options);
+        catheight = ::takane::height(catdir, catmeta, options);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate 'concatenated'"));
+    }
+
+    hsize_t len;
+    try {
+        H5::H5File handle(path / "partitions.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(object_type);
+
+        try {
+            auto lhandle = ghandle.openDataSet("lengths");
+            if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
+                throw std::runtime_error("expected a datatype that fits in a 64-bit unsigned integer");
+            }
+
+            auto lspace = lhandle.getSpace();
+            if (lspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            lspace.getSimpleExtentDims(&len);
+
+            ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t> stream(
+                &lhandle,
+                len,
+                [&]{
+                    ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+                    opt.contiguous_chunk_size = options.hdf5_buffer_size;
+                    return opt;
+                }()
+            );
+
+            hsize_t total = 0;
+            iterate_stream<std::uint64_t>(
+                stream, 
+                [&](hsize_t, std::uint64_t val) -> void {
+                    total = sanisizer::sum<hsize_t>(total, val); 
+                }
+            );
+
+            if (!sanisizer::is_equal(total, catheight)) {
+                throw std::runtime_error("sum of lengths should be equal to the height of the concatenated object");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'lengths'"));
+        }
+
+        validate_names(ghandle, "names", len, options.hdf5_buffer_size);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + object_type + "' in 'partitions.h5'"));
+    }
+
     validate_mcols(path, "element_annotations", len, options);
     validate_metadata(path, "other_annotations", options);
 }

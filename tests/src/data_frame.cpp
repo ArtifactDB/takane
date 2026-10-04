@@ -53,7 +53,7 @@ TEST(DataFrame, RownamesError) {
         auto ghandle = mock_data_frame(dir, 29, columns);
         add_hdf5_dataset(ghandle, "row_names", H5::StrType(0, 10), 30);
     }
-    expect_validation_error(dir, "expected 'row_names' to have length");
+    expect_validation_error(dir, "number of row names");
 
     {
         auto ghandle = mock_data_frame(dir, 29, columns);
@@ -769,7 +769,7 @@ TEST(DataFrame, OtherError) {
         mock_data_frame(dir / "other_columns" / "0", 32, subcolumns);
         mock_atomic_vector(dir / "other_columns" / "1", 51, AtomicVectorType::STRING);
     }
-    expect_validation_error(dir, "height of column 0 of class 'data_frame'");
+    expect_validation_error(dir, "height of column 0");
 
     {
         mock_data_frame(dir, 51, columns);
@@ -777,7 +777,7 @@ TEST(DataFrame, OtherError) {
         initialize_directory_simple(dir / "other_columns" / "0", "superfoobar", "1.0");
         mock_atomic_vector(dir / "other_columns" / "1", 51, AtomicVectorType::STRING);
     }
-    expect_validation_error(dir, "failed to validate 'other' column 0");
+    expect_validation_error(dir, "failed to validate column 0");
 
     {
         mock_data_frame(dir, 51, columns);

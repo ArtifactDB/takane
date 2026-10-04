@@ -109,21 +109,21 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         try {
             (cIt->second)(path, metadata, options);
         } catch (std::exception& e) {
-            throw std::runtime_error("failed to validate '" + metadata.type + "' object at '" + path.string() + "'; " + std::string(e.what()));
+            std::throw_with_nested(std::runtime_error("failed to validate '" + metadata.type + "' object at '" + path.string() + "'"));
         }
 
     } else {
         static const auto validate_registry = default_validate_registry();
         auto vrIt = validate_registry.find(metadata.type);
         if (vrIt == validate_registry.end()) {
-            throw std::runtime_error("no registered 'validate' function for object type '" + metadata.type + "' at '" + path.string() + "'");
+            throw std::runtime_error("no registered validation function for object type '" + metadata.type + "' at '" + path.string() + "'");
         }
 
         // Can't easily roll this out, as this is const and the above is not.
         try {
             (vrIt->second)(path, metadata, options);
         } catch (std::exception& e) {
-            throw std::runtime_error("failed to validate '" + metadata.type + "' object at '" + path.string() + "'; " + std::string(e.what()));
+            std::throw_with_nested(std::runtime_error("failed to validate '" + metadata.type + "' object at '" + path.string() + "'"));
         }
     }
 
@@ -131,7 +131,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         try {
             options.custom_global_validate(path, metadata, options);
         } catch (std::exception& e) {
-            throw std::runtime_error("failed additional validation for '" + metadata.type + "' at '" + path.string() + "'; " + std::string(e.what()));
+            std::throw_with_nested(std::runtime_error("failed additional validation for '" + metadata.type + "' at '" + path.string() + "'"));
         }
     }
 }

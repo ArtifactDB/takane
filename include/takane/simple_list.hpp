@@ -34,7 +34,7 @@ inline std::string extract_simple_list_format(const JsonObjectMap& map) {
     }
     const auto& val = fIt->second;
     if (val->type() != millijson::STRING) {
-        throw std::runtime_error("'simple_list.format' in the object metadata should be a JSON string");
+        throw std::runtime_error("expected a JSON string");
     }
     return reinterpret_cast<millijson::String*>(val.get())->value();
 }
@@ -45,11 +45,11 @@ inline std::optional<std::size_t> extract_simple_list_length(const JsonObjectMap
     if (lIt != map.end()) {
         const auto& val = lIt->second;
         if (val->type() != millijson::NUMBER) {
-            throw std::runtime_error("'simple_list.length' in the object metadata should be a JSON number");
+            throw std::runtime_error("expected a JSON number");
         }
         const auto num = reinterpret_cast<millijson::Number*>(val.get())->value();
         if (num != std::trunc(num)) {
-            throw std::runtime_error("'simple_list.length' in the object metadata should be an integer");
+            throw std::runtime_error("expected an integer");
         }
         output = sanisizer::from_float<std::size_t>(num);
     }
@@ -67,14 +67,38 @@ inline std::optional<std::size_t> extract_simple_list_length(const JsonObjectMap
 inline void validate_simple_list(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "simple_list"; // use a separate variable to avoid dangling reference warnings from GCC.
 
-    const auto& metamap = extract_json_type_metadata(metadata.other, type_name);
-    const std::string& vstring = extract_json_version_string(metamap, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
+    ritsuko::Version version;
+    std::string format;
+    std::optional<std::size_t> expected_length;
+    try {
+        const auto& metamap = extract_json_object(metadata.other, type_name);
+        try {
+            const std::string& vstring = extract_json_version_string(metamap);
+            version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+        
+        try {
+            format = extract_simple_list_format(metamap);
+            if (format != "json.gz" && format != "hdf5") {
+                throw std::runtime_error("unknown format '" + format + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'format'"));
+        }
 
-    std::string format = extract_simple_list_format(metamap);
+        try {
+            expected_length = extract_simple_list_length(metamap);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'length'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
+    }
 
     auto other_dir = path / "other_contents";
     std::size_t num_external = 0;
@@ -90,37 +114,39 @@ inline void validate_simple_list(const std::filesystem::path& path, const Object
             if (!std::filesystem::exists(epath)) {
                 throw std::runtime_error("expected an external list object at '" + std::filesystem::relative(epath, path).string() + "'");
             }
-
             try {
                 ::takane::validate(epath, options);
             } catch (std::exception& e) {
-                throw std::runtime_error("failed to validate external list object at '" + std::filesystem::relative(epath, path).string() + "'; " + std::string(e.what()));
+                std::throw_with_nested(std::runtime_error("failed to validate external list object at '" + std::filesystem::relative(epath, path).string() + "'"));
             }
         }
     }
 
-    std::size_t len;
+    I<decltype(std::declval<uzuki2::List>().size())> len;
     if (format == "json.gz") {
-        uzuki2::json::Options opt;
-        opt.parallel = options.parallel_reads;
-        auto gzreader = open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
-        auto loaded = uzuki2::json::parse<uzuki2::DummyProvisioner>(*gzreader, uzuki2::DummyExternals(num_external), opt);
-        len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
-
-    } else if (format == "hdf5") {
-        H5::H5File handle(path / "list_contents.h5", H5F_ACC_RDONLY);
-        auto ghandle = handle.openGroup(type_name);
-        auto loaded = uzuki2::hdf5::parse<uzuki2::DummyProvisioner>(ghandle, uzuki2::DummyExternals(num_external), {});
-        len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
-
+        try {
+            uzuki2::json::Options opt;
+            opt.parallel = options.parallel_reads;
+            auto gzreader = open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
+            auto loaded = uzuki2::json::parse<uzuki2::DummyProvisioner>(*gzreader, uzuki2::DummyExternals(num_external), opt);
+            len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'list_contents.json.gz'"));
+        }
     } else {
-        throw std::runtime_error("unknown format '" + format + "'");
+        try {
+            H5::H5File handle(path / "list_contents.h5", H5F_ACC_RDONLY);
+            auto ghandle = handle.openGroup(type_name);
+            auto loaded = uzuki2::hdf5::parse<uzuki2::DummyProvisioner>(ghandle, uzuki2::DummyExternals(num_external), {});
+            len = reinterpret_cast<const uzuki2::List*>(loaded.get())->size();
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in 'list_contents.h5'"));
+        }
     }
 
     if (version.ge(1, 1, 0)) {
-        auto len_info = extract_simple_list_length(metamap);
-        if (len_info.has_value() && *len_info != len) {
-            throw std::runtime_error("'simple_list.length' differs from the length of the list");
+        if (expected_length.has_value() && *expected_length != len) {
+            throw std::runtime_error("'/simple_list/length' differs from the length of the list");
         }
     }
 }
@@ -133,8 +159,8 @@ inline void validate_simple_list(const std::filesystem::path& path, const Object
  */
 inline std::size_t height_of_simple_list(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "simple_list"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& metamap = extract_json_type_metadata(metadata.other, type_name);
 
+    const auto& metamap = extract_json_object(metadata.other, type_name);
     auto len_info = extract_simple_list_length(metamap);
     if (len_info.has_value()) {
         return *len_info;

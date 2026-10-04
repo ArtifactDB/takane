@@ -55,38 +55,42 @@ std::unique_ptr<byteme::BufferedReader<Type_> > wrap_reader_for_bytes(std::uniqu
 }
 
 template<typename NumExpected_>
-void validate_mcols(const std::filesystem::path& parent, const std::string& name, NumExpected_ num_expected, const Options& options) try {
+void validate_mcols(const std::filesystem::path& parent, const std::string& name, NumExpected_ num_expected, const Options& options) {
     auto path = parent / name;
     if (!std::filesystem::exists(path)) {
         return;
     }
 
-    auto xmeta = read_object_metadata(path);
-    if (!satisfies_interface(xmeta.type, "DATA_FRAME", options)) {
-        throw std::runtime_error("expected an object that satisfies the 'DATA_FRAME' interface");
-    }
-    ::takane::validate(path, xmeta, options);
+    try {
+        auto xmeta = read_object_metadata(path);
+        if (!satisfies_interface(xmeta.type, "DATA_FRAME", options)) {
+            throw std::runtime_error("expected an object that satisfies the 'DATA_FRAME' interface");
+        }
+        ::takane::validate(path, xmeta, options);
 
-    if (!sanisizer::is_equal(::takane::height(path, xmeta, options), num_expected)) {
-        throw std::runtime_error("unexpected number of rows");
+        if (!sanisizer::is_equal(::takane::height(path, xmeta, options), num_expected)) {
+            throw std::runtime_error("unexpected number of rows");
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate the '" + name + "' object"));
     }
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate '" + name + "'; " + std::string(e.what()));
 }
 
-inline void validate_metadata(const std::filesystem::path& parent, const std::string& name, const Options& options) try {
+inline void validate_metadata(const std::filesystem::path& parent, const std::string& name, const Options& options) {
     auto path = parent / name;
     if (!std::filesystem::exists(path)) {
         return;
     }
 
-    auto xmeta = read_object_metadata(path);
-    if (!satisfies_interface(xmeta.type, "SIMPLE_LIST", options)) {
-        throw std::runtime_error("expected an object that satisfies the 'SIMPLE_LIST' interface'");
+    try {
+        auto xmeta = read_object_metadata(path);
+        if (!satisfies_interface(xmeta.type, "SIMPLE_LIST", options)) {
+            throw std::runtime_error("expected an object that satisfies the 'SIMPLE_LIST' interface'");
+        }
+        ::takane::validate(path, xmeta, options);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate the '" + name + "' object"));
     }
-    ::takane::validate(path, xmeta, options);
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate '" + name + "'; " + std::string(e.what()));
 }
 
 inline std::size_t count_directory_entries(const std::filesystem::path& path) {

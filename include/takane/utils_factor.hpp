@@ -22,12 +22,17 @@ void validate_factor_ordered_attribute(const H5Object_& handle) {
     if (!handle.attrExists("ordered")) {
         return;
     }
-    auto attr = handle.openAttribute("ordered");
-    if (attr.getSpace().getSimpleExtentNdims() != 0) {
-        throw std::runtime_error("expected 'ordered' attribute to be a scalar");
-    }
-    if (ritsuko::hdf5::exceeds_integer_limit(attr, 32, true)) {
-        throw std::runtime_error("expected 'ordered' attribute to have a datatype that fits in a 32-bit signed integer");
+
+    try {
+        auto attr = handle.openAttribute("ordered");
+        if (attr.getSpace().getSimpleExtentNdims() != 0) {
+            throw std::runtime_error("expected a scalar attribute");
+        }
+        if (ritsuko::hdf5::exceeds_integer_limit(attr, 32, true)) {
+            throw std::runtime_error("expected a datatype that fits in a 32-bit signed integer");
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate the 'ordered' attribute"));
     }
 }
 
