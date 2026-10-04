@@ -2,6 +2,7 @@
 #define TAKANE_FASTA_FILE_HPP
 
 #include "utils_files.hpp"
+
 #include "ritsuko/ritsuko.hpp"
 #include "byteme/byteme.hpp"
 
@@ -17,12 +18,6 @@
 namespace takane {
 
 /**
- * @namespace takane::fasta_file
- * @brief Definitions for FASTA files.
- */
-namespace fasta_file {
-
-/**
  * If `Options::fasta_file_strict_check` is provided, this enables stricter checking of the FASTA file contents and indices.
  * By default, we just look at the first few bytes to verify the files. 
  *
@@ -30,55 +25,62 @@ namespace fasta_file {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_fasta_file(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "fasta_file"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& famap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string version_name = "version"; // again, avoid dangling reference warnings.
-    const std::string& vstring = internal_json::extract_string_from_typed_object(famap, version_name, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
+    bool indexed;
+    try {
+        const auto& famap = extract_json_object(metadata.other, type_name);
+        try {
+            const std::string& vstring = extract_json_version_string(famap);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+
+        indexed = is_file_indexed(famap);
+        validate_sequence_type(famap);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
-    internal_files::check_sequence_type(famap, type_name.c_str());
-
     // Check if it's indexed.
-    bool indexed = internal_files::is_indexed(famap);
     auto fpath = path / "file.fasta.";
     if (indexed) {
         fpath += "bgz";
     } else {
         fpath += "gz";
     }
-
-    internal_files::check_gzip_signature(fpath);
-    {
-        auto reader = internal_other::open_reader<byteme::GzipFileReader>(fpath, byteme::GzipFileReaderOptions());
+    try {
+        check_gzip_file_signature(fpath);
+        auto reader = open_reader<byteme::GzipFileReader>(fpath, byteme::GzipFileReaderOptions());
         char first_char;
         if (reader->read(reinterpret_cast<unsigned char*>(&first_char), 1) == 0 || first_char != '>') {
             throw std::runtime_error("FASTA file does not start with '>'");
         }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + fpath.filename().string() + "'"));
     }
 
     if (indexed) {
         auto fixpath = path / "file.fasta.fai";
         if (!std::filesystem::exists(fixpath)) {
-            throw std::runtime_error("missing FASTA index file");
+            throw std::runtime_error("missing FASTA index file '" + fixpath.filename().string() + "'");
         }
 
-        auto ixpath = fpath;
-        ixpath += ".gzi";
-        if (!std::filesystem::exists(ixpath)) {
-            throw std::runtime_error("missing BGZF index file");
+        auto gixpath = fpath;
+        gixpath += ".gzi";
+        if (!std::filesystem::exists(gixpath)) {
+            throw std::runtime_error("missing BGZF index file '" + gixpath.filename().string() + "'");
         }
     }
 
     if (options.fasta_file_strict_check) {
         options.fasta_file_strict_check(path, metadata, options, indexed);
     }
-}
-
 }
 
 }

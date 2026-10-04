@@ -2,6 +2,7 @@
 #define TAKANE_BAM_FILE_HPP
 
 #include "utils_files.hpp"
+#include "utils_json.hpp"
 
 #include "ritsuko/ritsuko.hpp"
 
@@ -17,12 +18,6 @@
 namespace takane {
 
 /**
- * @namespace takane::bam_file
- * @brief Definitions for BAM files.
- */
-namespace bam_file {
-
-/**
  * If `Options::bam_file_strict_check` is provided, it is used to perform stricter checking of the BAM file contents and indices.
  * By default, we don't look past the magic number to verify the files as this requires a dependency on heavy-duty libraries like, e.g., HTSlib.
  *
@@ -30,38 +25,58 @@ namespace bam_file {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_bam_file(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "bam_file"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const std::string& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
+
+    try {
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const std::string& vstring = extract_json_version_string(type_meta);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
     // Magic numbers taken from https://samtools.github.io/hts-specs/SAMv1.pdf
     auto ipath = path / "file.bam";
-    internal_files::check_gzip_signature(ipath);
-    internal_files::check_gunzipped_signature(ipath, "BAM\1", 4, "BAM");
+    try {
+        check_gzip_file_signature(ipath);
+        check_gunzipped_file_signature(ipath, "BAM\1", 4, "a BAM file");
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + ipath.filename().string() + "'"));
+    }
 
-    auto ixpath = ipath;
-    ixpath += ".bai";
-    if (std::filesystem::exists(ixpath)) {
-        internal_files::check_raw_signature(ixpath, "BAI\1", 4, "BAM index");
+    auto baixpath = ipath;
+    baixpath += ".bai";
+    if (std::filesystem::exists(baixpath)) {
+        try {
+            check_raw_file_signature(baixpath, "BAI\1", 4, "a BAM index");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate '" + baixpath.filename().string() + "'"));
+        }
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
-    ixpath = ipath;
-    ixpath += ".csi";
-    if (std::filesystem::exists(ixpath)) {
-        internal_files::check_gzip_signature(ixpath);
-        internal_files::check_gunzipped_signature(ixpath, "CSI\1", 4, "CSI index");
+    auto csixpath = ipath;
+    csixpath += ".csi";
+    if (std::filesystem::exists(csixpath)) {
+        try {
+            check_gzip_file_signature(csixpath);
+            check_gunzipped_file_signature(csixpath, "CSI\1", 4, "a CSI index");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate '" + csixpath.filename().string() + "'"));
+        }
     }
 
     if (options.bam_file_strict_check) {
         options.bam_file_strict_check(path, metadata, options);
     }
-}
-
 }
 
 }

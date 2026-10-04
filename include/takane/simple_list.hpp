@@ -146,7 +146,7 @@ inline void validate_simple_list(const std::filesystem::path& path, const Object
 
     if (version.ge(1, 1, 0)) {
         if (expected_length.has_value() && *expected_length != len) {
-            throw std::runtime_error("'/simple_list/length' differs from the length of the list");
+            throw std::runtime_error("value of '/" + type_name + "/length' from the object metadata differs from the length of the list");
         }
     }
 }

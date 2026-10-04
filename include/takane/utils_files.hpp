@@ -41,7 +41,7 @@ void check_gunzipped_file_signature(const std::filesystem::path& path, const Typ
 
 inline void check_gzip_file_signature(const std::filesystem::path& path) {
     std::array<unsigned char, 2> gzmagic { 0x1f, 0x8b };
-    check_raw_file_signature(path, gzmagic.data(), gzmagic.size(), "GZIP");
+    check_raw_file_signature(path, gzmagic.data(), gzmagic.size(), "a GZIP file");
 }
 
 inline void extract_file_signature(const std::filesystem::path& path, unsigned char* store, std::size_t len) {
