@@ -68,7 +68,7 @@ inline void validate_bam_file(const std::filesystem::path& path, const ObjectMet
     if (std::filesystem::exists(csixpath)) {
         try {
             check_gzip_file_signature(csixpath);
-            check_gunzipped_file_signature(csixpath, "CSI\1", 4, "a CSI index");
+            check_gunzipped_file_signature(csixpath, "CSI\1", 4, "a CSI file");
         } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate '" + csixpath.filename().string() + "'"));
         }

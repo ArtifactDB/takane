@@ -27,7 +27,7 @@ inline void validate_png_image(const std::filesystem::path& path) {
 
 inline void validate_tiff_image(const std::filesystem::path& path) {
     std::array<unsigned char, 4> observed{};
-    extract_file_signature(path, observed.data(), observed.size());
+    extract_raw_file_signature(path, observed.data(), observed.size(), /* must_work = */ true);
     // Magic numbers from https://en.wikipedia.org/wiki/Magic_number_(programming)
     constexpr std::array<unsigned char, 4> iisig { 0x49, 0x49, 0x2A, 0x00 };
     constexpr std::array<unsigned char, 4> mmsig { 0x4D, 0x4D, 0x00, 0x2A };
@@ -113,7 +113,7 @@ inline void validate_image_file(const std::filesystem::path& path, const ObjectM
         const auto ipath = path / "file.webp";
         try {
             std::array<unsigned char, 12> observed;
-            extract_file_signature(ipath, observed.data(), observed.size());
+            extract_raw_file_signature(ipath, observed.data(), observed.size(), /* must_work = */ true);
             constexpr std::array<unsigned char, 4> first4 { 0x52, 0x49, 0x46, 0x46 };
             constexpr std::array<unsigned char, 4> last4 { 0x57, 0x45, 0x42, 0x50 };
             std::array<unsigned char, 4> observed_first, observed_last;

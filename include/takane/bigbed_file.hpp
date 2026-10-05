@@ -49,7 +49,7 @@ inline void validate_bigbed_file(const std::filesystem::path& path, const Object
     auto ipath = path / "file.bb";
     try {
         std::array<unsigned char, 4> store;
-        extract_file_signature(ipath, store.data(), store.size());
+        extract_raw_file_signature(ipath, store.data(), store.size(), /* must_work = */ true);
 
         std::array<unsigned char, 4> be_magic { 0xEB, 0xF2, 0x89, 0x87 };
         std::array<unsigned char, 4> le_magic { 0x87, 0x89, 0xF2, 0xEB };

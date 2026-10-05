@@ -9,62 +9,128 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct BcfFileTest : public ::testing::Test {
-    BcfFileTest() {
-        dir = "TEST_bcf_file";
-        name = "bcf_file";
+TEST(BcfFile, Okay) {
+    auto dir = define_test_path("bcf_file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
     }
+    test_validate(dir);
 
-    std::filesystem::path dir;
-    std::string name;
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
+    // Works with the older format.
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\4");
     }
-};
-
-TEST_F(BcfFileTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
-
-    initialize_directory_simple(dir, name, "1.0");
-    auto bcfpath = (dir / "file.bcf").string();
-
-    quick_text_write(bcfpath, "foo\1");
-    expect_error("incorrect GZIP file signature");
-
-    quick_gzip_write(bcfpath, "foobar\2\1");
-    expect_error("incorrect BCF file signature");
-
-    quick_gzip_write(bcfpath, "BCF\2\1");
     test_validate(dir);
 
-    auto tbipath = (dir / "file.bcf.tbi").string();
-    quick_gzip_write(tbipath, "foobar\1");
-    expect_error("incorrect tabix file signature");
-
-    quick_gzip_write(tbipath, "TBI\1");
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\4asdasdasd"); // throwing in some trailing junk.
+    }
     test_validate(dir);
 
-    auto csipath = (dir / "file.bcf.csi").string();
-    quick_gzip_write(csipath, "foobar\1");
-    expect_error("incorrect CSI index file signature");
-
-    quick_gzip_write(csipath, "CSI\1");
+    // With one or both indices.
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+        quick_gzip_write(dir / "file.bcf.tbi", "TBI\1");
+    }
     test_validate(dir);
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+        quick_gzip_write(dir / "file.bcf.tbi", "TBI\1");
+        quick_gzip_write(dir / "file.bcf.csi", "CSI\1");
+    }
+    test_validate(dir);
+
+    // Checking that the strict function is run.
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+    }
+    {
+        takane::Options opts;
+        opts.bcf_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
+        test_validate(dir, opts);
+    }
 }
 
-TEST_F(BcfFileTest, Strict) {
-    initialize_directory_simple(dir, name, "1.0");
+TEST(BcfFile, VersionError) {
+    auto dir = define_test_path("bcf_file");
 
-    auto bcfpath = (dir / "file.bcf").string();
-    quick_gzip_write(bcfpath, "BCF\2\1");
+    {
+        initialize_directory_simple(dir, "bcf_file", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(BcfFile, BcfError) {
+    auto dir = define_test_path("bcf_file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_text_write(dir / "file.bcf", "foo\1");
+    }
+    expect_validation_error(dir, "incorrect signature for a GZIP file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "foo");
+    }
+    expect_validation_error(dir, "file is too short");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "foobar\2\1");
+    }
+    expect_validation_error(dir, "incorrect signature for a BCF file");
+}
+
+TEST(BcfFile, IndexError) {
+    auto dir = define_test_path("bcf_file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+        quick_text_write(dir / "file.bcf.tbi", "foobar\1");
+    }
+    expect_validation_error(dir, "incorrect signature for a GZIP file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+        quick_gzip_write(dir / "file.bcf.tbi", "foobar\1");
+    }
+    expect_validation_error(dir, "incorrect signature for a tabix file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+        quick_text_write(dir / "file.bcf.csi", "foobar\1");
+    }
+    expect_validation_error(dir, "incorrect signature for a GZIP file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+        quick_gzip_write(dir / "file.bcf.csi", "foobar\1");
+    }
+    expect_validation_error(dir, "incorrect signature for a CSI file");
+}
+
+TEST(BcfFile, Strict) {
+    auto dir = define_test_path("bcf_file");
+
+    {
+        initialize_directory_simple(dir, "bcf_file", "1.0");
+        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
+    }
 
     takane::Options opts;
-    opts.bcf_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};
-    test_validate(dir);
-
-    opts.bcf_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) { throw std::runtime_error("ARGH"); };
-    expect_error("ARGH", opts);
+    opts.bcf_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
+    expect_validation_error(dir, "ARGH", opts);
 }

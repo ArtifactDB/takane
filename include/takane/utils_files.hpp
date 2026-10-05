@@ -22,7 +22,7 @@ void check_file_signature(Reader_& reader, const Type_* expected, std::size_t le
     }
     for (std::size_t i = 0; i < len; ++i) {
         if (buffer[i] != expected[i]) {
-            throw std::runtime_error("incorrect file signature for " + std::string(msg));
+            throw std::runtime_error("incorrect signature for " + std::string(msg));
         }
     }
 }
@@ -44,11 +44,22 @@ inline void check_gzip_file_signature(const std::filesystem::path& path) {
     check_raw_file_signature(path, gzmagic.data(), gzmagic.size(), "a GZIP file");
 }
 
-inline void extract_file_signature(const std::filesystem::path& path, unsigned char* store, std::size_t len) {
+inline std::size_t extract_raw_file_signature(const std::filesystem::path& path, unsigned char* store, std::size_t len, bool must_work) {
     auto reader = open_reader<byteme::RawFileReader>(path, byteme::RawFileReaderOptions());
-    if (reader->read(store, len) != len) {
+    auto retrieved = reader->read(store, len);
+    if (must_work && retrieved != len) {
         throw std::runtime_error("file is too small to extract a signature of length " + std::to_string(len));
     }
+    return retrieved;
+}
+
+inline std::size_t extract_gunzipped_file_signature(const std::filesystem::path& path, unsigned char* store, std::size_t len, bool must_work) {
+    auto reader = open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
+    auto retrieved = reader->read(store, len);
+    if (must_work && retrieved != len) {
+        throw std::runtime_error("file is too small to extract a signature of length " + std::to_string(len));
+    }
+    return retrieved;
 }
 
 inline bool is_file_indexed(const JsonObjectMap& objmap) {

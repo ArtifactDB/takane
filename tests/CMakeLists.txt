@@ -21,6 +21,8 @@ add_executable(
 #    src/sequence_information.cpp
     src/atomic_vector.cpp
     src/atomic_vector_list.cpp
+    src/bam_file.cpp
+    src/bcf_file.cpp
     src/compressed_sparse_matrix.cpp
     src/data_frame.cpp
     src/data_frame_factor.cpp
@@ -35,8 +37,6 @@ add_executable(
 #    src/spatial_experiment.cpp
 #    src/multi_sample_dataset.cpp
 #    src/sequence_string_set.cpp
-#    src/bam_file.cpp
-#    src/bcf_file.cpp
 #    src/bigwig_file.cpp
 #    src/bigbed_file.cpp
 #    src/fasta_file.cpp

@@ -26,7 +26,7 @@ TEST(CheckRawFileSignature, Character) {
         handle << "FOObar";
     }
     expect_error(
-        "incorrect file signature",
+        "incorrect signature",
         [&]() -> void {
             takane::check_raw_file_signature(path, "FOOBAR", 6, "an ASD file");
         }
@@ -69,7 +69,7 @@ TEST(CheckRawFileSignature, Unsigned) {
         handle << "FOObar";
     }
     expect_error(
-        "incorrect file signature",
+        "incorrect signature",
         [&]() -> void {
             takane::check_raw_file_signature(path, foo, 4, "an ASD file");
         }
@@ -88,7 +88,7 @@ TEST(CheckGunzippedFileSignature, Character) {
     auto path = dir / "whee.png";
 
     {
-        byteme::GzipFileWriter writer(path.c_str(), {});
+        quick_gzip_write(path, "");
     }
     expect_error(
         "file is too small",
@@ -98,21 +98,17 @@ TEST(CheckGunzippedFileSignature, Character) {
     );
 
     {
-        byteme::GzipFileWriter writer(path.c_str(), {});
-        std::string msg = "asdaasdasd";
-        writer.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
+        quick_gzip_write(path, "asdaasdasd");
     }
     expect_error(
-        "incorrect file signature",
+        "incorrect signature",
         [&]() -> void {
             takane::check_gunzipped_file_signature(path, "FOOBAR", 6, "an ASD file");
         }
     );
 
     {
-        byteme::GzipFileWriter writer(path.c_str(), {});
-        std::string msg = "FOOBAR123";
-        writer.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
+        quick_gzip_write(path, "FOOBAR123");
     }
     takane::check_gunzipped_file_signature(path, "FOOBAR", 6, "an ASD file");
 }
@@ -139,7 +135,7 @@ TEST(CheckGunzippedFileSignature, Unsigned) {
         writer.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
     }
     expect_error(
-        "incorrect file signature",
+        "incorrect signature",
         [&]() -> void {
             takane::check_gunzipped_file_signature(path, foo, 4, "an ASD file");
         }
@@ -173,7 +169,7 @@ TEST(CheckGzipFileSignature, Basic) {
     takane::check_gzip_file_signature(path);
 }
 
-TEST(ExtractFileSignature, Basic) {
+TEST(ExtractRawFileSignature, Basic) {
     auto dir = define_test_path("utils_files");
     initialize_directory(dir);
     auto path = dir / "foo.bam";
@@ -186,7 +182,7 @@ TEST(ExtractFileSignature, Basic) {
     expect_error(
         "too small",
         [&]() -> void {
-            takane::extract_file_signature(path, buffer, 4);
+            takane::extract_raw_file_signature(path, buffer, 4, /* must_work = */ true);
         }
     );
 
@@ -194,13 +190,68 @@ TEST(ExtractFileSignature, Basic) {
         std::ofstream handle(path);
         handle << "FOObar";
     }
-    takane::extract_file_signature(path, buffer, 4);
-    auto cbuffer = reinterpret_cast<char*>(buffer);
-    EXPECT_EQ(cbuffer[0], 'F');
-    EXPECT_EQ(cbuffer[1], 'O');
-    EXPECT_EQ(cbuffer[2], 'O');
-    EXPECT_EQ(cbuffer[3], 'b');
+    {
+        EXPECT_EQ(takane::extract_raw_file_signature(path, buffer, 4, /* must_work = */ true), 4);
+        auto cbuffer = reinterpret_cast<char*>(buffer);
+        EXPECT_EQ(cbuffer[0], 'F');
+        EXPECT_EQ(cbuffer[1], 'O');
+        EXPECT_EQ(cbuffer[2], 'O');
+        EXPECT_EQ(cbuffer[3], 'b');
+    }
+
+    {
+        std::ofstream handle(path);
+        handle << "bar";
+    }
+    {
+        EXPECT_EQ(takane::extract_raw_file_signature(path, buffer, 4, /* must_work = */ false), 3);
+        auto cbuffer = reinterpret_cast<char*>(buffer);
+        EXPECT_EQ(cbuffer[0], 'b');
+        EXPECT_EQ(cbuffer[1], 'a');
+        EXPECT_EQ(cbuffer[2], 'r');
+    }
 }
+
+TEST(ExtractGunzippedFileSignature, Basic) {
+    auto dir = define_test_path("utils_files");
+    initialize_directory(dir);
+    auto path = dir / "foo.bam";
+
+    unsigned char buffer[4];
+    {
+        quick_gzip_write(path, "");
+    }
+    expect_error(
+        "too small",
+        [&]() -> void {
+            takane::extract_gunzipped_file_signature(path, buffer, 4, /* must_work = */ true);
+        }
+    );
+
+    {
+        quick_gzip_write(path, "FOObar");
+    }
+    {
+        EXPECT_EQ(takane::extract_gunzipped_file_signature(path, buffer, 4, /* must_work = */ true), 4);
+        auto cbuffer = reinterpret_cast<char*>(buffer);
+        EXPECT_EQ(cbuffer[0], 'F');
+        EXPECT_EQ(cbuffer[1], 'O');
+        EXPECT_EQ(cbuffer[2], 'O');
+        EXPECT_EQ(cbuffer[3], 'b');
+    }
+
+    {
+        quick_gzip_write(path, "bar");
+    }
+    {
+        EXPECT_EQ(takane::extract_gunzipped_file_signature(path, buffer, 4, /* must_work = */ false), 3);
+        auto cbuffer = reinterpret_cast<char*>(buffer);
+        EXPECT_EQ(cbuffer[0], 'b');
+        EXPECT_EQ(cbuffer[1], 'a');
+        EXPECT_EQ(cbuffer[2], 'r');
+    }
+}
+
 
 TEST(IsFileIndexed, Basic) {
     takane::JsonObjectMap obj;

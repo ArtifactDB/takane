@@ -48,7 +48,24 @@ inline void validate_bcf_file(const std::filesystem::path& path, const ObjectMet
     auto ipath = path / "file.bcf";
     try {
         check_gzip_file_signature(ipath);
-        check_gunzipped_file_signature(ipath, "BCF", 3, "a BCF file");
+        std::array<char, 5> payload;
+        auto extracted = extract_gunzipped_file_signature(
+            ipath,
+            reinterpret_cast<unsigned char*>(payload.data()),
+            payload.size(),
+            /* must_work = */ false
+        );
+        if (extracted < 4) {
+            throw std::runtime_error("file is too short to contain any BCF signature");
+        } else {
+            if (std::strncmp(payload.data(), "BCF\4", 4) == 0) {
+                // okay for the (obsolete) BCFv1.
+            } else if (extracted == 5 && std::strncmp(payload.data(), "BCF\2\1", 5) == 0) {
+                // okay for the widely-used BCFv2.
+            } else {
+                throw std::runtime_error("incorrect signature for a BCF file");
+            }
+        }
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate '" + ipath.filename().string() + "'"));
     }
@@ -71,7 +88,7 @@ inline void validate_bcf_file(const std::filesystem::path& path, const ObjectMet
     if (std::filesystem::exists(csixpath)) {
         try {
             check_gzip_file_signature(csixpath);
-            check_gunzipped_file_signature(csixpath, "CSI\1", 4, "a CSI index");
+            check_gunzipped_file_signature(csixpath, "CSI\1", 4, "a CSI file");
         } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate '" + csixpath.filename().string() + "'"));
         }
