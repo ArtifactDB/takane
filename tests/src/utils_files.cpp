@@ -252,7 +252,6 @@ TEST(ExtractGunzippedFileSignature, Basic) {
     }
 }
 
-
 TEST(IsFileIndexed, Basic) {
     takane::JsonObjectMap obj;
     EXPECT_FALSE(takane::is_file_indexed(obj));

@@ -54,7 +54,7 @@ inline void validate_bigbed_file(const std::filesystem::path& path, const Object
         std::array<unsigned char, 4> be_magic { 0xEB, 0xF2, 0x89, 0x87 };
         std::array<unsigned char, 4> le_magic { 0x87, 0x89, 0xF2, 0xEB };
         if (store != be_magic && store != le_magic) {
-            throw std::runtime_error("incorrect bigBed file signature");
+            throw std::runtime_error("incorrect signature for a bigBed file");
         }
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate '" + ipath.filename().string() + "'"));

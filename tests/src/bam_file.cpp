@@ -18,6 +18,13 @@ TEST(BamFile, Okay) {
     }
     test_validate(dir);
 
+    // Handles strict validation.
+    {
+        takane::Options opts;
+        opts.bam_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
+        test_validate(dir, opts);
+    }
+
     // With one or both indices.
     {
         initialize_directory_simple(dir, "bam_file", "1.0");
@@ -33,17 +40,6 @@ TEST(BamFile, Okay) {
         quick_gzip_write(dir / "file.bam.csi", "CSI\1");
     }
     test_validate(dir);
-
-    // Checking that the strict function is run.
-    {
-        initialize_directory_simple(dir, "bam_file", "1.0");
-        quick_gzip_write(dir / "file.bam", "BAM\1");
-    }
-    {
-        takane::Options opts;
-        opts.bam_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
-        test_validate(dir, opts);
-    }
 }
 
 TEST(BamFile, VersionError) {

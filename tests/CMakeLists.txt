@@ -23,11 +23,16 @@ add_executable(
     src/atomic_vector_list.cpp
     src/bam_file.cpp
     src/bcf_file.cpp
+    src/bed_file.cpp
+    src/bigbed_file.cpp
+    src/bigwig_file.cpp
     src/compressed_sparse_matrix.cpp
     src/data_frame.cpp
     src/data_frame_factor.cpp
     src/data_frame_list.cpp
     src/dense_array.cpp
+    src/fasta_file.cpp
+    src/fastq_file.cpp
     src/simple_list.cpp
     src/string_factor.cpp
 #    src/genomic_ranges_list.cpp
@@ -37,19 +42,14 @@ add_executable(
 #    src/spatial_experiment.cpp
 #    src/multi_sample_dataset.cpp
 #    src/sequence_string_set.cpp
-#    src/bigwig_file.cpp
-#    src/bigbed_file.cpp
-#    src/fasta_file.cpp
-#    src/fastq_file.cpp
-#    src/bed_file.cpp
 #    src/gmt_file.cpp
 #    src/gff_file.cpp
+#    src/image_file.cpp
 #    src/rds_file.cpp
 #    src/bumpy_atomic_array.cpp
 #    src/bumpy_data_frame_array.cpp
 #    src/vcf_experiment.cpp
 #    src/delayed_array.cpp
-#    src/image_file.cpp
     src/utils_array.cpp
 #    src/utils_bumpy_array.cpp
     src/utils_compressed_list.cpp

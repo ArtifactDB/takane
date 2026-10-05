@@ -18,6 +18,13 @@ TEST(BcfFile, Okay) {
     }
     test_validate(dir);
 
+    // Handles strict validation.
+    {
+        takane::Options opts;
+        opts.bcf_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
+        test_validate(dir, opts);
+    }
+
     // Works with the older format.
     {
         initialize_directory_simple(dir, "bcf_file", "1.0");
@@ -46,17 +53,6 @@ TEST(BcfFile, Okay) {
         quick_gzip_write(dir / "file.bcf.csi", "CSI\1");
     }
     test_validate(dir);
-
-    // Checking that the strict function is run.
-    {
-        initialize_directory_simple(dir, "bcf_file", "1.0");
-        quick_gzip_write(dir / "file.bcf", "BCF\2\1");
-    }
-    {
-        takane::Options opts;
-        opts.bcf_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
-        test_validate(dir, opts);
-    }
 }
 
 TEST(BcfFile, VersionError) {

@@ -9,94 +9,160 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct FastaFileTest : public ::testing::Test {
-    FastaFileTest() {
-        dir = "TEST_fasta_file";
-        name = "fasta_file";
+TEST(FastaFile, Okay) {
+    auto dir = define_test_path("fasta_file");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", ">asdasd\nACGT\n");
     }
+    test_validate(dir);
 
-    std::filesystem::path dir;
-    std::string name;
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.bgz", ">asdasd\nACGT\n");
+        quick_text_write(dir / "file.fasta.fai", "");
+        quick_text_write(dir / "file.fasta.bgz.gzi", "");
     }
-};
-
-TEST_F(FastaFileTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
-
-    initialize_directory(dir);
-
-    auto objpath = (dir / "OBJECT").string();
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
-    );
-
-    auto fapath = (dir / "file.fasta.gz").string();
-    quick_gzip_write(fapath, "asdasd\nACGT\n");
-    expect_error("start with '>'");
-
-    quick_gzip_write(fapath, ">asdasd\nACGT\n");
     test_validate(dir);
 
     // Works with different sequence types.
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"RNA\" } }"
-    );
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"RNA\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", ">asdasd\nACGT\n");
+    }
     test_validate(dir);
 
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"AA\" } }"
-    );
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"AA\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", ">asdasd\nACGT\n");
+    }
     test_validate(dir);
 
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"custom\" } }"
-    );
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"custom\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", ">asdasd\nACGT\n");
+    }
     test_validate(dir);
 
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"foo\" } }"
-    );
-    expect_error("foo");
+    // Works with the strict validator.
+    {
+        takane::Options opts;
+        opts.fasta_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&, bool) {};
+        test_validate(dir, opts);
+    }
 }
 
-TEST_F(FastaFileTest, Indexed) {
-    initialize_directory(dir);
+TEST(FastaFile, VersionError) {
+    auto dir = define_test_path("fasta_file");
 
-    quick_text_write((dir / "OBJECT").string(),
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\" } }"
-    );
-
-    auto fbpath = (dir / "file.fasta.bgz").string();
-    quick_gzip_write(fbpath, "asdasd\nACGT\n");
-    expect_error("start with '>'");
-
-    quick_gzip_write(fbpath, ">asdasd\nACGT\n");
-    expect_error("missing FASTA index file");
-
-    quick_text_write((dir / "file.fasta.fai").string(), "");
-    expect_error("missing BGZF index file");
-
-    quick_text_write((dir / "file.fasta.bgz.gzi").string(), "");
-    test_validate(dir);
+    {
+        initialize_directory_simple(dir, "fasta_file", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
 }
 
-TEST_F(FastaFileTest, Strict) {
-    initialize_directory(dir);
+TEST(FastaFile, SequenceTypeError) {
+    auto dir = define_test_path("fasta_file");
 
-    quick_text_write((dir / "OBJECT").string(),
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
-    );
-    quick_gzip_write((dir / "file.fasta.gz").string(), ">asdasd\nACGT\n");
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"foo\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", "asdasd\nACGT\n");
+    }
+    expect_validation_error(dir, "unsupported value 'foo'");
+}
+
+TEST(FastaFile, FastaError) {
+    auto dir = define_test_path("fasta_file");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"RNA\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", "asdasd\nACGT\n");
+    }
+    expect_validation_error(dir, "start with '>'");
+
+    // Also validate the indexed version.
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"AA\", \"indexed\": true } }"
+        );
+        quick_gzip_write(dir / "file.fasta.bgz", "asdasd\nACGT\n");
+    }
+    expect_validation_error(dir, "start with '>'");
+}
+
+TEST(FastaFile, IndexedError) {
+    auto dir = define_test_path("fasta_file");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"indexed\": null } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", "asdasd\nACGT\n");
+    }
+    expect_validation_error(dir, "should be a JSON boolean");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.bgz", ">asdasd\nACGT\n");
+    }
+    expect_validation_error(dir, "missing FASTA index file");
+
+    {
+        quick_text_write(dir / "file.fasta.fai", "");
+    }
+    expect_validation_error(dir, "missing BGZF index file");
+}
+
+TEST(FastaFile, Strict) {
+    auto dir = define_test_path("fasta_file");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fasta_file\", \"fasta_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
+        );
+        quick_gzip_write(dir / "file.fasta.gz", ">asdasd\nACGT\n");
+    }
 
     takane::Options opts;
-    opts.fasta_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) {};
-    test_validate(dir);
-
-    opts.fasta_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) { throw std::runtime_error("ARGH"); };
-    expect_error("ARGH", opts);
+    opts.fasta_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&, bool) { throw std::runtime_error("ARGH"); };
+    expect_validation_error(dir, "ARGH", opts);
 }

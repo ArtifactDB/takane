@@ -52,7 +52,7 @@ inline void validate_bigwig_file(const std::filesystem::path& path, const Object
         std::array<unsigned char, 4> be_magic { 0x26, 0xFC, 0x8F, 0x88 };
         std::array<unsigned char, 4> le_magic { 0x88, 0x8F, 0xFC, 0x26 };
         if (store != be_magic && store != le_magic) {
-            throw std::runtime_error("incorrect bigWig file signature");
+            throw std::runtime_error("incorrect signature for a bigWig file");
         }
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate '" + path.filename().string() + "'"));
