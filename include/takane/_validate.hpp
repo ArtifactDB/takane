@@ -27,9 +27,9 @@
 #include "gmt_file.hpp"
 #include "image_file.hpp"
 #include "rds_file.hpp"
+#include "sequence_information.hpp"
 #include "simple_list.hpp"
 #include "string_factor.hpp"
-//#include "sequence_information.hpp"
 //#include "genomic_ranges.hpp"
 //#include "genomic_ranges_list.hpp"
 //#include "summarized_experiment.hpp"
@@ -73,9 +73,9 @@ inline auto default_validate_registry() {
     registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_gmt_file(p, m, o); };
     registry["image_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_image_file(p, m, o); };
     registry["rds_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_rds_file(p, m, o); };
+    registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { validate_sequence_information(p, m, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_simple_list(p, m, o); };
     registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_string_factor(p, m, o); };
-//    registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { sequence_information::validate(p, m, o); };
 //    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges::validate(p, m, o); };
 //    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges_list::validate(p, m, o); };
 //    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { summarized_experiment::validate(p, m, o); };

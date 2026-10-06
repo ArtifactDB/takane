@@ -1,8 +1,8 @@
 #ifndef TAKANE_SEQUENCE_INFORMATION_HPP
 #define TAKANE_SEQUENCE_INFORMATION_HPP
 
+#include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
-#include "ritsuko/hdf5/hdf5.hpp"
 
 #include <filesystem>
 #include <stdexcept>
@@ -11,6 +11,8 @@
 
 #include "utils_public.hpp"
 #include "utils_json.hpp"
+#include "utils_missing.hpp"
+#include "utils_other.hpp"
 
 /**
  * @file sequence_information.hpp
@@ -20,91 +22,134 @@
 namespace takane {
 
 /**
- * @namespace takane::sequence_information
- * @brief Definitions for sequence information objects.
- */
-namespace sequence_information {
-
-/**
  * @param path Path to the directory containing the data frame.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_sequence_information(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "sequence_information"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
 
-    auto handle = ritsuko::hdf5::open_file(path / "info.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-
-    size_t nseq = 0;
-    {
-        auto nhandle = ritsuko::hdf5::open_dataset(ghandle, "name");
-        if (!ritsuko::hdf5::is_utf8_string(nhandle)) {
-            throw std::runtime_error("expected 'name' to have a datatype that can be represented by a UTF-8 encoded string");
-        }
-
-        nseq = ritsuko::hdf5::get_1d_length(nhandle.getSpace(), false);
-        std::unordered_set<std::string> collected;
-        ritsuko::hdf5::Stream1dStringDataset stream(&nhandle, nseq, options.hdf5_buffer_size);
-        for (size_t s = 0; s < nseq; ++s, stream.next()) {
-            auto x = stream.steal();
-            if (collected.find(x) != collected.end()) {
-                throw std::runtime_error("detected duplicated sequence name '" + x + "'");
+    try {
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const auto& vstring = extract_json_version_string(type_meta);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
             }
-            collected.insert(std::move(x));
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to read 'version'"));
         }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate 'sequence_information' in the object metadata"));
     }
 
-    const char* missing_attr_name = "missing-value-placeholder";
+    try {
+        H5::H5File handle(path / "info.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(type_name);
 
-    {
-        auto lhandle = ritsuko::hdf5::open_dataset(ghandle, "length");
-        if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
-            throw std::runtime_error("expected a datatype for 'length' that fits in a 64-bit unsigned integer");
+        hsize_t nseq = 0;
+        try {
+            auto nhandle = ghandle.openDataSet("name");
+            if (!ritsuko::hdf5::is_utf8_string(nhandle)) {
+                throw std::runtime_error("expected a datatype that can be represented by a UTF-8 encoded string");
+            }
+
+            auto nspace = nhandle.getSpace();
+            if (nspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            nspace.getSimpleExtentDims(&nseq);
+
+            ritsuko::hdf5::Stream1dStringDataset stream(
+                &nhandle,
+                nseq, 
+                [&]{
+                    ritsuko::hdf5::Stream1dStringDatasetOptions opt;
+                    opt.contiguous_chunk_size = options.hdf5_buffer_size;
+                    return opt;
+                }()
+            );
+
+            std::unordered_set<std::string> collected;
+            iterate_stream<std::string>(
+                stream,
+                [&](hsize_t, std::string x) -> void {
+                    if (collected.find(x) != collected.end()) {
+                        throw std::runtime_error("detected duplicated sequence name '" + x + "'");
+                    }
+                    collected.insert(std::move(x));
+                }
+            );
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'name'"));
         }
-        if (ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false) != nseq) {
-            throw std::runtime_error("expected lengths of 'length' and 'name' to be equal");
+
+        try {
+            auto lhandle = ghandle.openDataSet("length");
+            if (ritsuko::hdf5::exceeds_integer_limit(lhandle, 64, false)) {
+                throw std::runtime_error("expected a datatype that fits in a 64-bit unsigned integer");
+            }
+
+            auto lspace = lhandle.getSpace();
+            if (lspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t nlen;
+            lspace.getSimpleExtentDims(&nlen);
+            if (nlen != nseq) {
+                throw std::runtime_error("dataset extent should the same as that of 'name'");
+            }
+
+            validate_numeric_missing_placeholder(lhandle, "missing-value-placeholder");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'length'"));
         }
-        if (lhandle.attrExists(missing_attr_name)) {
-            auto ahandle = lhandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_numeric_missing_placeholder_attribute(lhandle, ahandle);
+
+        try {
+            auto chandle = ghandle.openDataSet("circular");
+            if (ritsuko::hdf5::exceeds_integer_limit(chandle, 32, true)) {
+                throw std::runtime_error("expected a datatype that fits in a 32-bit signed integer");
+            }
+
+            auto cspace = chandle.getSpace();
+            if (cspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t ncirc;
+            cspace.getSimpleExtentDims(&ncirc);
+            if (ncirc != nseq) {
+                throw std::runtime_error("dataset extent should the same as that of 'name'");
+            }
+
+            validate_numeric_missing_placeholder(chandle, "missing-value-placeholder");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'circular'"));
         }
+
+        try {
+            auto gnhandle = ghandle.openDataSet("genome");
+            if (!ritsuko::hdf5::is_utf8_string(gnhandle)) {
+                throw std::runtime_error("expected a datatype that can be represented by a UTF-8 encoded string");
+            }
+
+            auto gnspace = gnhandle.getSpace();
+            if (gnspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t ngen;
+            gnspace.getSimpleExtentDims(&ngen);
+            if (ngen != nseq) {
+                throw std::runtime_error("dataset extent should the same as that of 'name'");
+            }
+
+            validate_string_missing_placeholder(gnhandle, "missing-value-placeholder");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'circular'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate 'sequence_information' in 'info.h5'"));
     }
-
-    {
-        auto chandle = ritsuko::hdf5::open_dataset(ghandle, "circular");
-        if (ritsuko::hdf5::exceeds_integer_limit(chandle, 32, true)) {
-            throw std::runtime_error("expected a datatype for 'circular' that fits in a 32-bit signed integer");
-        }
-        if (ritsuko::hdf5::get_1d_length(chandle.getSpace(), false) != nseq) {
-            throw std::runtime_error("expected lengths of 'length' and 'circular' to be equal");
-        }
-        if (chandle.attrExists(missing_attr_name)) {
-            auto ahandle = chandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_numeric_missing_placeholder_attribute(chandle, ahandle);
-        }
-    }
-
-    {
-        auto gnhandle = ritsuko::hdf5::open_dataset(ghandle, "genome");
-        if (!ritsuko::hdf5::is_utf8_string(gnhandle)) {
-            throw std::runtime_error("expected 'genome' to have a datatype that can be represented by a UTF-8 encoded string");
-        }
-        if (ritsuko::hdf5::get_1d_length(gnhandle.getSpace(), false) != nseq) {
-            throw std::runtime_error("expected lengths of 'length' and 'genome' to be equal");
-        }
-        if (gnhandle.attrExists(missing_attr_name)) {
-            auto ahandle = gnhandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_string_missing_placeholder_attribute(ahandle);
-        }
-    }
-}
-
 }
 
 }

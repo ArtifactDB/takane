@@ -18,7 +18,6 @@ enable_testing()
 add_executable(
     libtest 
 #    src/genomic_ranges.cpp
-#    src/sequence_information.cpp
     src/atomic_vector.cpp
     src/atomic_vector_list.cpp
     src/bam_file.cpp
@@ -38,6 +37,7 @@ add_executable(
     src/gmt_file.cpp
     src/image_file.cpp
     src/rds_file.cpp
+    src/sequence_information.cpp
     src/simple_list.cpp
     src/string_factor.cpp
 #    src/genomic_ranges_list.cpp
