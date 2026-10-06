@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "takane/delayed_array.hpp"
-#include "delayed_array.h"
+#include "mock_delayed_array.h"
 #include "utils.h"
 
 #include <string>
@@ -10,121 +10,58 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct DelayedArrayTest : public ::testing::Test {
-    DelayedArrayTest() {
-        dir = "TEST_delayed_array";
-        name = "delayed_array";
-    }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    H5::H5File reopen() {
-        return H5::H5File(dir / "array.h5", H5F_ACC_RDWR);
-    }
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
-    }
-};
-
-TEST_F(DelayedArrayTest, Basics) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
-
-    // Success!
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-    }
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 10);
-
-    std::vector<size_t> expected_dims { 10, 20 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
-
-    // Fails if the version is too old.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("delayed_version");
-    }
-    expect_error("no less than 1.1");
-
-    // Support the other types...
-    delayed_array::mock(dir, dense_array::Type::BOOLEAN, { 10, 20 });
-    test_validate(dir);
-
-    delayed_array::mock(dir, dense_array::Type::NUMBER, { 10, 20 });
-    test_validate(dir);
-
-    delayed_array::mock(dir, dense_array::Type::STRING, { 10, 20 });
-    test_validate(dir);
-}
-
-TEST_F(DelayedArrayTest, IndexChecks) {
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("index");
-        ghandle.createDataSet("index", H5::PredType::NATIVE_INT, H5S_SCALAR);
-    }
-    expect_error("64-bit unsigned integer");
-
-    auto seed_path = dir / "seeds";
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        dense_array::mock(seed_path / "3", dense_array::Type::INTEGER, { 10, 20 });
-    }
-    expect_error("number of objects in 'seeds' is not consistent");
+TEST(DelayedArray, Okay) {
+    auto dir = define_test_path("delayed_array");
 
     {
-        std::filesystem::remove_all(seed_path / "0");
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("index");
-        auto dhandle = ghandle.createDataSet("index", H5::PredType::NATIVE_UINT64, H5S_SCALAR);
-        int val = 3;
-        dhandle.write(&val, H5::PredType::NATIVE_INT);
+        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
     }
-    EXPECT_EQ(takane::internal_other::count_directory_entries(seed_path), 1);
-    expect_error("number of objects in 'seeds' is not consistent");
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+        std::vector<std::size_t> expected_dims { 10, 20 };
+        EXPECT_EQ(test_dimensions(dir), expected_dims);
+    }
 
-    // Creating a delayed array with no external references.
+    // No external references at all.
     {
         initialize_directory_simple(dir, "delayed_array", "1.0");
+
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("delayed_array");
-        hdf5_utils::attach_attribute(ghandle, "delayed_type", "array");
-        hdf5_utils::attach_attribute(ghandle, "delayed_array", "constant array");
-        hdf5_utils::attach_attribute(ghandle, "delayed_version", "1.1");
+        add_hdf5_attribute(ghandle, "delayed_type", "array");
+        add_hdf5_attribute(ghandle, "delayed_array", "constant array");
+        add_hdf5_attribute(ghandle, "delayed_version", "1.1");
 
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "dimensions", 2, H5::PredType::NATIVE_UINT32);
-        std::vector<int> dims { 20, 30 };
-        dhandle.write(dims.data(), H5::PredType::NATIVE_INT);
+        std::vector<hsize_t> dimensions{ 15, 3, 14 };
+        auto dhandle = add_hdf5_dataset(ghandle, "dimensions", H5::PredType::NATIVE_UINT32, dimensions.size());
+        dhandle.write(dimensions.data(), H5::PredType::NATIVE_HSIZE);
 
-        auto vhandle = ghandle.createDataSet("value", H5::PredType::NATIVE_INT32, H5S_SCALAR);
-        hdf5_utils::attach_attribute(vhandle, "type", "INTEGER");
+        auto thandle = ghandle.createDataSet("value", H5::PredType::NATIVE_INT8, H5S_SCALAR);
+        add_hdf5_attribute(thandle, "type", "BOOLEAN");
     }
-    test_validate(dir);
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 15);
+        std::vector<std::size_t> expected_dims { 15, 3, 14 };
+        EXPECT_EQ(test_dimensions(dir), expected_dims);
+    }
 
-    // Forcibly creating a more interesting delayed array.
+    // Multiple external references.
     {
         initialize_directory_simple(dir, "delayed_array", "1.0");
+
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("delayed_array");
-        hdf5_utils::attach_attribute(ghandle, "delayed_type", "operation");
-        hdf5_utils::attach_attribute(ghandle, "delayed_operation", "combine");
-        hdf5_utils::attach_attribute(ghandle, "delayed_version", "1.1");
+        add_hdf5_attribute(ghandle, "delayed_type", "operation");
+        add_hdf5_attribute(ghandle, "delayed_operation", "combine");
+        add_hdf5_attribute(ghandle, "delayed_version", "1.1");
 
         auto ahandle = ghandle.createDataSet("along", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
         int along = 1;
         ahandle.write(&along, H5::PredType::NATIVE_INT);
 
-        auto seed_path = dir / "seeds";
-        std::filesystem::create_directory(seed_path);
-
+        std::filesystem::create_directory(dir / "seeds");
         auto shandle = ghandle.createGroup("seeds");
         int len = 3;
         auto attr = shandle.createAttribute("length", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
@@ -133,8 +70,8 @@ TEST_F(DelayedArrayTest, IndexChecks) {
         for (int i = 0; i < len; ++i) {
             auto nm = std::to_string(i);
             auto xhandle = shandle.createGroup(nm);
-            hdf5_utils::attach_attribute(xhandle, "delayed_type", "array");
-            hdf5_utils::attach_attribute(xhandle, "delayed_array", "custom takane seed array");
+            add_hdf5_attribute(xhandle, "delayed_type", "array");
+            add_hdf5_attribute(xhandle, "delayed_array", "custom takane seed array");
 
             H5::StrType stype(0, H5T_VARIABLE);
             auto thandle = xhandle.createDataSet("type", stype, H5S_SCALAR);
@@ -143,49 +80,128 @@ TEST_F(DelayedArrayTest, IndexChecks) {
             std::vector<hsize_t> dims(2);
             dims[0] = 10;
             dims[1] = i * 20;
-            auto dhandle = hdf5_utils::spawn_data(xhandle, "dimensions", dims.size(), H5::PredType::NATIVE_UINT32);
+            auto dhandle = add_hdf5_dataset(xhandle, "dimensions", H5::PredType::NATIVE_UINT32, dims.size());
             dhandle.write(dims.data(), H5::PredType::NATIVE_HSIZE);
 
             auto ihandle = xhandle.createDataSet("index", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
             ihandle.write(&i, H5::PredType::NATIVE_INT);
-            dense_array::mock(seed_path / nm, dense_array::Type::INTEGER, std::move(dims));
+            mock_dense_array(dir / "seeds" / nm, DenseArrayType::INTEGER, std::move(dims));
         }
     }
-    test_validate(dir);
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+        std::vector<std::size_t> expected_dims { 10, 60 };
+        EXPECT_EQ(test_dimensions(dir), expected_dims);
+    }
 }
 
-TEST_F(DelayedArrayTest, OverrideChecks) {
+TEST(DelayedArray, VersionError) {
+    auto dir = define_test_path("delayed_array");
+
+    // Check the version of the object.
     {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
+        initialize_directory_simple(dir, "delayed_array", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+
+    // Fails if the version is too old.
+    {
+        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        ghandle.removeAttr("delayed_version");
+    }
+    expect_validation_error(dir, "no less than 1.1");
+}
+
+TEST(DelayedArray, ChihayaError) {
+    auto dir = define_test_path("delayed_array");
+
+    {
+        initialize_directory_simple(dir, "delayed_array", "1.0");
+        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("delayed_array");
+        add_hdf5_attribute(ghandle, "delayed_type", "array");
+        add_hdf5_attribute(ghandle, "delayed_array", "unknown array");
+        add_hdf5_attribute(ghandle, "delayed_version", "1.1");
+    }
+    expect_validation_error(dir, "failed to validate 'delayed_array' in 'array.h5'");
+}
+
+TEST(DelayedArray, IndexError) {
+    auto dir = define_test_path("delayed_array");
+
+    {
+        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        ghandle.unlink("index");
+        add_hdf5_dataset(ghandle, "index", H5::PredType::NATIVE_UINT8, 20);
+    }
+    expect_validation_error(dir, "scalar");
+
+    {
+        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        ghandle.unlink("index");
+        ghandle.createDataSet("index", H5::PredType::NATIVE_INT, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "64-bit unsigned integer");
+
+    {
+        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        mock_dense_array(dir / "seeds" / "3", DenseArrayType::INTEGER, { 10, 20 });
+    }
+    expect_validation_error(dir, "number of objects in 'seeds' is not consistent");
+
+    // Trying with a single valid index that doesn't start at zero.
+    {
+        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        ghandle.unlink("index");
+        auto dhandle = ghandle.createDataSet("index", H5::PredType::NATIVE_UINT64, H5S_SCALAR);
+        int val = 3;
+        dhandle.write(&val, H5::PredType::NATIVE_INT);
+
+        std::filesystem::remove_all(dir / "seeds" / "0");
+        mock_dense_array(dir / "seeds" / "3", DenseArrayType::INTEGER, { 10, 20 });
+        EXPECT_EQ(takane::count_directory_entries(dir / "seeds"), 1);
+    }
+    expect_validation_error(dir, "number of objects in 'seeds' is not consistent");
+}
+
+TEST(DelayedArray, DimensionsError) {
+    auto dir = define_test_path("delayed_array");
+
+    {
+        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        std::filesystem::remove_all(dir / "seeds" / "0");
+        mock_dense_array(dir / "seeds" / "0", DenseArrayType::INTEGER, { 10, 20, 5 });
+    }
+    expect_validation_error(dir, "dimensionality is not consistent");
+
+    {
+        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        std::filesystem::remove_all(dir / "seeds" / "0");
+        mock_dense_array(dir / "seeds" / "0", DenseArrayType::INTEGER, { 10, 5 });
+    }
+    expect_validation_error(dir, "dimension extents");
+
+    {
+        mock_delayed_array(dir, DenseArrayType::INTEGER, { 20, 5 });
+        std::filesystem::remove_all(dir / "seeds" / "0");
+        mock_dense_array(dir / "seeds" / "0", DenseArrayType::INTEGER, { 10, 5 });
+    }
+    expect_validation_error(dir, "dimension extents");
+}
+
+TEST(DelayedArray, OverrideError) {
+    auto dir = define_test_path("delayed_array");
+
+    {
+        mock_delayed_array(dir, DenseArrayType::INTEGER, { 1, 2, 3 });
     }
 
-    // Check that validation doesn't mutate the options on exit.
-    takane::Options opts;
-    auto& chopts = opts.delayed_array_options;
-    auto& areg = chopts.array_validate_registry;
-    EXPECT_TRUE(areg.find("custom takane seed array") == areg.end());
-    test_validate(dir, opts);
-    EXPECT_TRUE(areg.find("custom takane seed array") == areg.end());
-
-    // Check that we respect any overrides.
-    areg["custom takane seed array"] = [&](const H5::Group&, const ritsuko::Version&, chihaya::Options&) -> chihaya::ArrayDetails {
+    // Check that we respect any custom overrides for the takane seed.
+    takane::Options opt;
+    opt.delayed_array_options.array_validate_registry["custom takane seed array"] = [&](const H5::Group&, const ritsuko::Version&, const chihaya::Options&) -> chihaya::ArrayDetails {
         throw std::runtime_error("WHOOOOO");
     };
-    expect_error("WHOOOOO", opts);
-    EXPECT_TRUE(areg.find("custom takane seed array") != areg.end());
+    expect_validation_error(dir, "WHOOOOO", opt);
 }
 
-TEST_F(DelayedArrayTest, DimensionalityChecks) {
-    auto seed_path = dir / "seeds";
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        dense_array::mock(seed_path / "0", dense_array::Type::INTEGER, { 10, 20, 5 });
-    }
-    expect_error("dimensionality");
-
-    {
-        delayed_array::mock(dir, dense_array::Type::INTEGER, { 10, 20 });
-        dense_array::mock(seed_path / "0", dense_array::Type::INTEGER, { 10, 5 });
-    }
-    expect_error("dimension extents");
-}

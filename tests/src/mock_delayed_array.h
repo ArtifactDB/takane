@@ -1,38 +1,37 @@
-#ifndef DELAYED_ARRAY_H
-#define DELAYED_ARRAY_H
+#ifndef MOCK_DELAYED_ARRAY_H
+#define MOCK_DELAYED_ARRAY_H
 
 #include <vector>
 #include <string>
 #include <numeric>
+#include <cstddef>
 
 #include "H5Cpp.h"
 #include "utils.h"
-#include "dense_array.h"
+#include "mock_dense_array.h"
 
-namespace delayed_array {
-
-inline void mock(const std::filesystem::path& dir, dense_array::Type type, std::vector<hsize_t> dims) {
+inline H5::Group mock_delayed_array(const std::filesystem::path& dir, DenseArrayType type, std::vector<hsize_t> dims) {
     initialize_directory_simple(dir, "delayed_array", "1.0");
+
     H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("delayed_array");
-    hdf5_utils::attach_attribute(ghandle, "delayed_type", "array");
-    hdf5_utils::attach_attribute(ghandle, "delayed_array", "custom takane seed array");
-    hdf5_utils::attach_attribute(ghandle, "delayed_version", "1.1");
+    add_hdf5_attribute(ghandle, "delayed_type", "array");
+    add_hdf5_attribute(ghandle, "delayed_array", "custom takane seed array");
+    add_hdf5_attribute(ghandle, "delayed_version", "1.1");
 
-    auto dhandle = hdf5_utils::spawn_data(ghandle, "dimensions", dims.size(), H5::PredType::NATIVE_UINT32);
+    auto dhandle = add_hdf5_dataset(ghandle, "dimensions", H5::PredType::NATIVE_UINT32, dims.size());
     dhandle.write(dims.data(), H5::PredType::NATIVE_HSIZE);
 
     H5::StrType stype(0, H5T_VARIABLE);
     auto thandle = ghandle.createDataSet("type", stype, H5S_SCALAR);
-
     std::string etype;
-    if (type == dense_array::Type::INTEGER) {
+    if (type == DenseArrayType::INTEGER) {
         etype = "INTEGER";
-    } else if (type == dense_array::Type::NUMBER) {
+    } else if (type == DenseArrayType::NUMBER) {
         etype = "FLOAT";
-    } else if (type == dense_array::Type::BOOLEAN) {
+    } else if (type == DenseArrayType::BOOLEAN) {
         etype = "BOOLEAN";
-    } else if (type == dense_array::Type::STRING) {
+    } else if (type == DenseArrayType::STRING) {
         etype = "STRING";
     }
     thandle.write(etype, stype);
@@ -43,9 +42,9 @@ inline void mock(const std::filesystem::path& dir, dense_array::Type type, std::
 
     auto seed_path = dir / "seeds";
     std::filesystem::create_directory(seed_path);
-    dense_array::mock(seed_path / "0", type, std::move(dims));
-}
+    mock_dense_array(seed_path / "0", type, std::move(dims));
 
+    return ghandle;
 }
 
 #endif

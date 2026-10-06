@@ -19,6 +19,7 @@
 #include "data_frame.hpp"
 #include "data_frame_factor.hpp"
 #include "data_frame_list.hpp"
+#include "delayed_array.hpp"
 #include "dense_array.hpp"
 #include "fasta_file.hpp"
 #include "fastq_file.hpp"
@@ -40,7 +41,6 @@
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
 //#include "vcf_experiment.hpp"
-//#include "delayed_array.hpp"
 
 /**
  * @file _validate.hpp
@@ -65,6 +65,7 @@ inline auto default_validate_registry() {
     registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_data_frame(p, m, o); };
     registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_data_frame_factor(p, m, o); };
     registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_data_frame_list(p, m, o); };
+    registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_delayed_array(p, m, o); };
     registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_dense_array(p, m, o); };
     registry["fasta_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_fasta_file(p, m, o); };
     registry["fastq_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_fastq_file(p, m, o); };
@@ -86,7 +87,6 @@ inline auto default_validate_registry() {
 //    registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { bumpy_atomic_array::validate(p, m, o); };
 //    registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { bumpy_data_frame_array::validate(p, m, o); };
 //    registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { vcf_experiment::validate(p, m, o); };
-//    registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { delayed_array::validate(p, m, o); };
     return registry;
 } 
 /**

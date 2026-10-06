@@ -30,6 +30,7 @@ add_executable(
     src/data_frame.cpp
     src/data_frame_factor.cpp
     src/data_frame_list.cpp
+    src/delayed_array.cpp
     src/dense_array.cpp
     src/fasta_file.cpp
     src/fastq_file.cpp
@@ -49,7 +50,6 @@ add_executable(
 #    src/bumpy_atomic_array.cpp
 #    src/bumpy_data_frame_array.cpp
 #    src/vcf_experiment.cpp
-#    src/delayed_array.cpp
     src/utils_array.cpp
 #    src/utils_bumpy_array.cpp
     src/utils_compressed_list.cpp

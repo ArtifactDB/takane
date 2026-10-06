@@ -14,7 +14,7 @@
 namespace takane {
 
 void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
-size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
+std::size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
 bool satisfies_interface(const std::string&, const std::string&, const Options&);
 
 template<typename Input_>
