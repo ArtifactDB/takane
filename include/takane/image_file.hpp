@@ -120,7 +120,7 @@ inline void validate_image_file(const std::filesystem::path& path, const ObjectM
             std::copy_n(observed.begin(), 4, observed_first.begin());
             std::copy_n(observed.begin() + 8, 4, observed_last.begin());
             if (observed_first != first4 || observed_last != last4) {
-                throw std::runtime_error("incorrect WEBP file signature");
+                throw std::runtime_error("incorrect signature for a WEBP file");
             }
         } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate '" + ipath.filename().string() + "'"));

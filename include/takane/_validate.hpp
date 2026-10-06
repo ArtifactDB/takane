@@ -70,6 +70,8 @@ inline auto default_validate_registry() {
     registry["fastq_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_fastq_file(p, m, o); };
     registry["gff_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_gff_file(p, m, o); };
     registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_gmt_file(p, m, o); };
+    registry["image_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_image_file(p, m, o); };
+    registry["rds_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_rds_file(p, m, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_simple_list(p, m, o); };
     registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_string_factor(p, m, o); };
 //    registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { sequence_information::validate(p, m, o); };
@@ -81,12 +83,10 @@ inline auto default_validate_registry() {
 //    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { spatial_experiment::validate(p, m, o); };
 //    registry["multi_sample_dataset"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { multi_sample_dataset::validate(p, m, o); };
 //    registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { sequence_string_set::validate(p, m, o); };
-//    registry["rds_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { rds_file::validate(p, m, o); };
 //    registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { bumpy_atomic_array::validate(p, m, o); };
 //    registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { bumpy_data_frame_array::validate(p, m, o); };
 //    registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { vcf_experiment::validate(p, m, o); };
 //    registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { delayed_array::validate(p, m, o); };
-//    registry["image_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { image_file::validate(p, m, o); };
     return registry;
 } 
 /**

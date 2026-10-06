@@ -33,6 +33,10 @@ add_executable(
     src/dense_array.cpp
     src/fasta_file.cpp
     src/fastq_file.cpp
+    src/gff_file.cpp
+    src/gmt_file.cpp
+    src/image_file.cpp
+    src/rds_file.cpp
     src/simple_list.cpp
     src/string_factor.cpp
 #    src/genomic_ranges_list.cpp
@@ -42,10 +46,6 @@ add_executable(
 #    src/spatial_experiment.cpp
 #    src/multi_sample_dataset.cpp
 #    src/sequence_string_set.cpp
-#    src/gmt_file.cpp
-#    src/gff_file.cpp
-#    src/image_file.cpp
-#    src/rds_file.cpp
 #    src/bumpy_atomic_array.cpp
 #    src/bumpy_data_frame_array.cpp
 #    src/vcf_experiment.cpp

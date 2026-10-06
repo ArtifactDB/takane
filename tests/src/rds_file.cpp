@@ -9,48 +9,57 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct RdsFileTest : public ::testing::Test {
-    RdsFileTest() {
-        dir = "TEST_rds_file";
-        name = "rds_file";
+TEST(RdsFile, Okay) {
+    auto dir = define_test_path("rds_file");
+
+    {
+        initialize_directory_simple(dir, "rds_file", "1.0");
+        quick_gzip_write(dir / "file.rds", "X\n");
     }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
-    }
-};
-
-TEST_F(RdsFileTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
-
-    initialize_directory_simple(dir, name, "1.0");
-    auto rpath = (dir / "file.rds").string();
-
-    quick_gzip_write(rpath, "X");
-    expect_error("incomplete");
-
-    quick_gzip_write(rpath, "B\n");
-    expect_error("incorrect");
-
-    quick_gzip_write(rpath, "X\n");
     test_validate(dir);
+
+    // Works with strict validation.
+    {
+        takane::Options opts;
+        opts.rds_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
+        test_validate(dir);
+    }
 }
 
-TEST_F(RdsFileTest, Strict) {
-    initialize_directory_simple(dir, name, "1.0");
-    auto rpath = (dir / "file.rds").string();
+TEST(RdsFile, VersionError) {
+    auto dir = define_test_path("rds_file");
 
-    quick_gzip_write(rpath, "X\n");
+    {
+        initialize_directory_simple(dir, "rds_file", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(RdsFile, RdsError) {
+    auto dir = define_test_path("rds_file");
+
+    {
+        initialize_directory_simple(dir, "rds_file", "1.0");
+        quick_text_write(dir / "file.rds", "X\n");
+    }
+    expect_validation_error(dir, "GZIP file");
+
+    {
+        initialize_directory_simple(dir, "rds_file", "1.0");
+        quick_gzip_write(dir / "file.rds", "B\n");
+    }
+    expect_validation_error(dir, "RDS file");
+}
+
+TEST(RdsFile, StrictError) {
+    auto dir = define_test_path("rds_file");
+
+    {
+        initialize_directory_simple(dir, "rds_file", "1.0");
+        quick_gzip_write(dir / "file.rds", "X\n");
+    }
 
     takane::Options opts;
-    opts.rds_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
-    test_validate(dir);
-
     opts.rds_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
-    expect_error("ARGH", opts);
+    expect_validation_error(dir, "ARGH", opts);
 }

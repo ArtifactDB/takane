@@ -23,7 +23,7 @@ namespace takane {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate_rds_file(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_rds_file(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "rds_file"; // use a separate variable to avoid dangling reference warnings from GCC.
 
     try {
