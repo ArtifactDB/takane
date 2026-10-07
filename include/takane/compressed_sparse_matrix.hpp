@@ -180,25 +180,17 @@ inline void validate_compressed_sparse_matrix(const std::filesystem::path& path,
                 throw std::runtime_error("length of dataset should be equal to the number of non-zero elements");
             }
 
-            ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t> stream(
-                &ihandle,
-                len,
-                [&]{
-                    ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
-                    opt.contiguous_chunk_size = options.hdf5_buffer_size;
-                    return opt;
-                }()
+            NumericStreamIterator<std::uint64_t> indstream(
+                ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(
+                    &ihandle,
+                    len,
+                    [&]{
+                        ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+                        opt.contiguous_chunk_size = options.hdf5_buffer_size;
+                        return opt;
+                    }()
+                )
             );
-
-            auto buffer = sanisizer::create<std::vector<std::uint64_t> >(stream.chunk_size());
-            hsize_t available = 0, at = 0;
-            auto next = [&]() -> std::uint64_t {
-                if (at == available) {
-                    at = 0;
-                    available = stream.load(buffer.data());
-                }
-                return buffer[at++];
-            };
 
             const auto secondary_dim = (is_csr ? shape[1] : shape[0]);
             for (I<decltype(primary_dim)> i = 0; i < primary_dim; ++i) {
@@ -208,9 +200,9 @@ inline void validate_compressed_sparse_matrix(const std::filesystem::path& path,
                     continue;
                 }
 
-                auto previous = next();
+                auto previous = indstream.next();
                 for (I<decltype(start)> j = start + 1; j < end; ++j) {
-                    auto i = next();
+                    auto i = indstream.next();
                     if (previous >= i) {
                         auto dimname = (is_csr ? std::string("rows") : std::string("columns"));
                         throw std::runtime_error("entries should be strictly increasing within each " + dimname);

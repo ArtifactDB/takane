@@ -138,11 +138,11 @@ TEST(ValidateStringFormat, DateSimple) {
     std::optional<std::string> empty_missing;
 
     std::vector<std::string> payload{ "2023-01-05", "1999-12-05", "2002-05-23", "2010-08-18", "1987-06-15" };
-    auto ptrs = pointerize_strings(payload);
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), payload.size());
+        auto ptrs = pointerize_strings(payload);
         dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
 

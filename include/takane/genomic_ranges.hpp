@@ -222,13 +222,13 @@ inline void validate_genomic_ranges(const std::filesystem::path& path, const Obj
             const auto width = width_stream.next();
 
             // If it's definitely non-circular, the start position should be positive.
-            const auto& circular = limits->circular[i];
+            const auto& circular = limits->circular[id];
             if (circular.has_value() && !(*circular)) {
                 if (start < 1) {
                     throw std::runtime_error("non-positive 'start' position for a non-circular sequence");
                 }
 
-                const auto& length = limits->length[i];
+                const auto& length = limits->length[id];
                 if (length.has_value()) {
                     if (sanisizer::is_greater_than(start, *length)) {
                         throw std::runtime_error("'start' position exceeds sequence length for a non-circular sequence");
@@ -266,7 +266,7 @@ inline void validate_genomic_ranges(const std::filesystem::path& path, const Obj
             ritsuko::hdf5::Stream1dNumericDataset<std::int32_t> strand_stream(&strand_handle, num_ranges, opt);
             iterate_stream<std::int32_t>(
                 strand_stream,
-                [&](hsize_t, std::int32_t x) {
+                [&](hsize_t, std::int32_t x) -> void {
                     if (x < -1 || x > 1) {
                         throw std::runtime_error("entries should be one of 0, -1, or 1");
                     }

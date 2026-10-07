@@ -108,6 +108,13 @@ void add_hdf5_attribute(Handle_& handle, const std::string& name, const std::str
     attr.write(stype, value);
 }
 
+template<class Type_, class Handle_>
+void add_hdf5_numeric_attribute(Handle_& handle, const std::string& name, Type_ value) {
+    auto dtype = ritsuko::hdf5::as_numeric_datatype<Type_>();
+    auto attr = handle.createAttribute(name, dtype, H5S_SCALAR);
+    attr.write(dtype, &value);
+}
+
 inline H5::DataSet add_hdf5_dataset(H5::Group& handle, const std::string& name, const H5::DataType& dtype, const hsize_t len) {
     H5::DataSpace dspace(1, &len);
     return handle.createDataSet(name, dtype, dspace);

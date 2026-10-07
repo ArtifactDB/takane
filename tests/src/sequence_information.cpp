@@ -10,10 +10,11 @@
 static H5::Group mock_sequence_information(const std::filesystem::path& dir) {
     return mock_sequence_information(
         dir,
-        { "chrA", "chrB", "chrC" },
-        { 4, 9, 19 },
-        { 1, 0, 1 },
-        { "mm10", "hg19", "rn10" }
+        {
+            SequenceInfo("chrA", 4, true, "mm10"),
+            SequenceInfo("chrB", 9, false, "hg19"),
+            SequenceInfo("chrC", 19, true, "rn10")
+        }
     );
 }
 
@@ -55,10 +56,11 @@ TEST(SequenceInformation, NameError) {
     {
         mock_sequence_information(
             dir,
-            { "chrA", "chrB", "chrA" },
-            { 4, 9, 19 },
-            { 1, 0, 1 },
-            { "mm10", "hg19", "rn10" }
+            {
+                SequenceInfo("chrA", 4, true, "mm10"),
+                SequenceInfo("chrB", 9, false, "hg19"),
+                SequenceInfo("chrA", 19, true, "rn10")
+            }
         );
     }
     expect_validation_error(dir, "duplicated sequence name");
