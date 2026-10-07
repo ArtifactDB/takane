@@ -23,6 +23,7 @@
 #include "dense_array.hpp"
 #include "fasta_file.hpp"
 #include "fastq_file.hpp"
+#include "genomic_ranges.hpp"
 #include "gff_file.hpp"
 #include "gmt_file.hpp"
 #include "image_file.hpp"
@@ -30,7 +31,6 @@
 #include "sequence_information.hpp"
 #include "simple_list.hpp"
 #include "string_factor.hpp"
-//#include "genomic_ranges.hpp"
 //#include "genomic_ranges_list.hpp"
 //#include "summarized_experiment.hpp"
 //#include "ranged_summarized_experiment.hpp"
@@ -69,6 +69,7 @@ inline auto default_validate_registry() {
     registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_dense_array(p, m, o); };
     registry["fasta_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_fasta_file(p, m, o); };
     registry["fastq_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_fastq_file(p, m, o); };
+    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_genomic_ranges(p, m, o); };
     registry["gff_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_gff_file(p, m, o); };
     registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_gmt_file(p, m, o); };
     registry["image_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_image_file(p, m, o); };
@@ -76,7 +77,6 @@ inline auto default_validate_registry() {
     registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { validate_sequence_information(p, m, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_simple_list(p, m, o); };
     registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_string_factor(p, m, o); };
-//    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges::validate(p, m, o); };
 //    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { genomic_ranges_list::validate(p, m, o); };
 //    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { summarized_experiment::validate(p, m, o); };
 //    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { ranged_summarized_experiment::validate(p, m, o); };

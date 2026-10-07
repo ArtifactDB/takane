@@ -20,6 +20,7 @@ bool satisfies_interface(const std::string&, const std::string&, const Options&)
 template<typename Input_>
 using I = std::remove_cv_t<std::remove_reference_t<Input_> >;
 
+// Simple function for quickly iterating through one stream and applying an action to each element.
 template<typename Type_, class Stream_, class Action_>
 void iterate_stream(Stream_& stream, Action_ action) {
     auto buffer = sanisizer::create<std::vector<Type_> >(stream.chunk_size());
@@ -33,6 +34,30 @@ void iterate_stream(Stream_& stream, Action_ action) {
         }
     }
 }
+
+// A more complicated class for returning each value of the stream.
+// This requires more boilerplate but allows simultaneous iteration through multiple streams.
+template<typename Type_>
+class NumericStreamIterator {
+private:
+    hsize_t my_pos = 0, my_available = 0;
+    ritsuko::hdf5::Stream1dNumericDataset<Type_> my_stream;
+    std::vector<Type_> my_buffer;
+
+public:
+    NumericStreamIterator(ritsuko::hdf5::Stream1dNumericDataset<Type_> stream) : 
+        my_stream(std::move(stream)),
+        my_buffer(sanisizer::cast<I<decltype(my_buffer.size())> >(my_stream.chunk_size()))
+    {}
+
+    Type_& next() {
+        if (my_pos == my_available) {
+            my_available = my_stream.load(my_buffer.data());
+            my_pos = 0;
+        }
+        return my_buffer[my_pos++];
+    }
+};
 
 template<class Reader_, typename Path_, typename ... Args_>
 std::unique_ptr<byteme::Reader> open_reader(const Path_& path, Args_&& ... args) {

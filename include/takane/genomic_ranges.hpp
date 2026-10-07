@@ -3,7 +3,7 @@
 
 #include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
-#include "ritsuko/hdf5/hdf5.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include <string>
 #include <filesystem>
@@ -11,11 +11,13 @@
 #include <cstdint>
 #include <type_traits>
 #include <limits>
+#include <optional>
 
 #include "utils_string.hpp"
 #include "utils_public.hpp"
 #include "utils_other.hpp"
 #include "utils_json.hpp"
+#include "utils_missing.hpp"
 
 /**
  * @file genomic_ranges.hpp
@@ -27,64 +29,83 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, const ObjectMetadata&, Options& options);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options& options);
 bool derived_from(const std::string&, const std::string&, const Options& options);
-/**
- * @endcond
- */
-
-/**
- * @namespace takane::genomic_ranges
- * @brief Definitions for genomic ranges.
- */
-namespace genomic_ranges {
-
-/**
- * @cond
- */
-namespace internal {
 
 struct SequenceLimits {
-    SequenceLimits(size_t n) : has_circular(n), circular(n), has_seqlen(n), seqlen(n) {}
-    std::vector<unsigned char> has_circular, circular, has_seqlen;
-    std::vector<uint64_t> seqlen;
+    SequenceLimits(std::size_t n) : 
+        circular(sanisizer::cast<I<decltype(circular.size())> >(n)),
+        length(sanisizer::cast<I<decltype(length.size())> >(n))
+    {}
+
+    std::vector<std::optional<bool> > circular;
+    std::vector<std::optional<std::uint64_t> > length;
 };
 
-inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, Options& options) {
+inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, const Options& options) {
     const std::string type_name = "sequence_information";
+
     auto smeta = read_object_metadata(path);
     if (!derived_from(smeta.type, type_name, options)) {
-        throw std::runtime_error("'sequence_information' directory should contain a 'sequence_information' object");
+        throw std::runtime_error("expected a 'sequence_information' object or one of its subclasses");
     }
     ::takane::validate(path, smeta, options);
 
-    auto handle = ritsuko::hdf5::open_file(path / "info.h5");
-    auto ghandle = handle.openGroup(type_name.c_str());
-
-    const char* missing_attr_name = "missing-value-placeholder";
+    // No need for checks here, we assume everything is now valid.
+    H5::H5File handle(path / "info.h5", H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup(type_name);
 
     auto lhandle = ghandle.openDataSet("length");
-    auto num_seq = ritsuko::hdf5::get_1d_length(lhandle.getSpace(), false);
-    ritsuko::hdf5::Stream1dNumericDataset<uint64_t> lstream(&lhandle, num_seq, options.hdf5_buffer_size);
-    auto lmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<uint64_t>(lhandle, missing_attr_name);
-
-    auto chandle = ghandle.openDataSet("circular");
-    ritsuko::hdf5::Stream1dNumericDataset<int32_t> cstream(&chandle, num_seq, options.hdf5_buffer_size);
-    auto cmissing = ritsuko::hdf5::open_and_load_optional_numeric_missing_placeholder<int32_t>(chandle, missing_attr_name);
+    auto lspace = lhandle.getSpace();
+    hsize_t num_seq;
+    lspace.getSimpleExtentDims(&num_seq);
 
     SequenceLimits output(num_seq);
-    for (size_t i = 0; i < num_seq; ++i, lstream.next(), cstream.next()) {
-        auto slen = lstream.get();
-        auto circ = cstream.get();
-        output.has_seqlen[i] = !(lmissing.has_value() && *lmissing == slen);
-        output.seqlen[i] = slen;
-        output.has_circular[i] = !(cmissing.has_value() && *cmissing == circ);
-        output.circular[i] = circ;
-    }
+    ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+    opt.contiguous_chunk_size = options.hdf5_buffer_size;
+
+    ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t> lstream(&lhandle, num_seq, opt);
+    auto lmissing = read_numeric_missing_placeholder<std::uint64_t>(lhandle, "missing-value-placeholder");
+    iterate_stream<std::uint64_t>(
+        lstream,
+        [&](hsize_t i, std::uint64_t l) -> void {
+            if (!lmissing.has_value() || l != *lmissing) {
+                output.length[i] = l;
+            }
+        }
+    );
+
+    auto chandle = ghandle.openDataSet("circular");
+    ritsuko::hdf5::Stream1dNumericDataset<std::int32_t> cstream(&chandle, num_seq, opt);
+    auto cmissing = read_numeric_missing_placeholder<std::int32_t>(chandle, "missing-value-placeholder");
+    iterate_stream<std::int32_t>(
+        cstream,
+        [&](hsize_t i, std::int32_t c) -> void {
+            if (!cmissing.has_value() || c != *cmissing) {
+                output.circular[i] = c;
+            }
+        }
+    );
 
     return output;
 }
 
+inline bool end_position_exceeds_int64(std::int64_t start, std::uint64_t width) {
+    constexpr std::uint64_t end_limit = std::numeric_limits<std::int64_t>::max();
+    if (start > 0) {
+        // That is, does 'start + width - 1 > end_limit'?
+        // No underflow as 'start - 1 < end_limit', so 'end_limit - (start - 1) > 0'.
+        return sanisizer::is_less_than(end_limit - (start - 1), width);
+    }
+
+    const std::uint64_t abs_start = static_cast<std::uint64_t>(-(1 + start)) + 1; // effectively '-start' but avoid overflow of the signed type.
+    if (abs_start >= width) {
+        // end position is 'start + width - 1 == width - abs_start - 1', which would be negative in this case.
+        // So it can't possibly exceed end_limit.
+        return false;
+    }
+
+    return sanisizer::is_less_than(end_limit, width - abs_start - 1);
 }
 /**
  * @endcond
@@ -95,114 +116,173 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, Op
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_genomic_ranges(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "genomic_ranges"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
+
+    try {
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const auto& vstring = extract_json_version_string(type_meta);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to read '" + type_name + "' in the object metadata"));
+    } 
 
     // Figuring out the sequence length constraints.
-    auto limits = internal::find_sequence_limits(path / "sequence_information", options);
-    size_t num_sequences = limits.seqlen.size();
+    std::optional<SequenceLimits> limits;
+    try {
+        limits = find_sequence_limits(path / "sequence_information", options);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to read the 'sequence_information' object"));
+    }
+
+    const auto num_sequences = limits->length.size();
 
     // Now loading all three components.
-    auto handle = ritsuko::hdf5::open_file(path / "ranges.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-    auto id_handle = ritsuko::hdf5::open_dataset(ghandle, "sequence");
-    auto num_ranges = ritsuko::hdf5::get_1d_length(id_handle, false);
-    if (ritsuko::hdf5::exceeds_integer_limit(id_handle, 64, false)) {
-        throw std::runtime_error("expected 'sequence' to have a datatype that fits into a 64-bit unsigned integer");
-    }
-    ritsuko::hdf5::Stream1dNumericDataset<uint64_t> id_stream(&id_handle, num_ranges, options.hdf5_buffer_size);
+    hsize_t num_ranges;
+    try {
+        H5::H5File handle(path / "ranges.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(type_name);
 
-    auto start_handle = ritsuko::hdf5::open_dataset(ghandle, "start");
-    if (num_ranges != ritsuko::hdf5::get_1d_length(start_handle, false)) {
-        throw std::runtime_error("'start' and 'sequence' should have the same length");
-    }
-    if (ritsuko::hdf5::exceeds_integer_limit(start_handle, 64, true)) {
-        throw std::runtime_error("expected 'start' to have a datatype that fits into a 64-bit signed integer");
-    }
-    ritsuko::hdf5::Stream1dNumericDataset<int64_t> start_stream(&start_handle, num_ranges, options.hdf5_buffer_size);
-
-    auto width_handle = ritsuko::hdf5::open_dataset(ghandle, "width");
-    if (num_ranges != ritsuko::hdf5::get_1d_length(width_handle, false)) {
-        throw std::runtime_error("'width' and 'sequence' should have the same length");
-    }
-    if (ritsuko::hdf5::exceeds_integer_limit(width_handle, 64, false)) {
-        throw std::runtime_error("expected 'width' to have a datatype that fits into a 64-bit unsigned integer");
-    }
-    ritsuko::hdf5::Stream1dNumericDataset<uint64_t> width_stream(&width_handle, num_ranges, options.hdf5_buffer_size);
-
-    constexpr uint64_t end_limit = std::numeric_limits<int64_t>::max();
-    for (size_t i = 0; i < num_ranges; ++i, id_stream.next(), start_stream.next(), width_stream.next()) {
-        auto id = id_stream.get();
-        if (id >= num_sequences) {
-            throw std::runtime_error("'sequence' must be less than the number of sequences (got " + std::to_string(id) + ")");
-        }
-
-        auto start = start_stream.get();
-        auto width = width_stream.get();
-
-        // If it's definitely non-circular, the start position should be positive.
-        if (limits.has_circular[id] && !limits.circular[id]) {
-            if (start < 1) {
-                throw std::runtime_error("non-positive start position (" + std::to_string(start) + ") for non-circular sequence");
+        H5::DataSet id_handle;
+        try {
+            id_handle = ghandle.openDataSet("sequence");
+            if (ritsuko::hdf5::exceeds_integer_limit(id_handle, 64, false)) {
+                throw std::runtime_error("expected a datatype that fits into a 64-bit unsigned integer");
             }
 
-            if (limits.has_seqlen[id]) {
-                // If the sequence length is provided, the end position shouldn't overflow.
-                auto spos = static_cast<uint64_t>(start);
-                auto limit = limits.seqlen[id];
-                if (spos > limit) {
-                    throw std::runtime_error("start position beyond sequence length (" + std::to_string(start) + " > " + std::to_string(limit) + ") for non-circular sequence");
+            auto id_space = id_handle.getSpace();
+            if (id_space.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            id_space.getSimpleExtentDims(&num_ranges);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'sequence'"));
+        }
+
+        H5::DataSet start_handle;
+        try {
+            start_handle = ghandle.openDataSet("start");
+            if (ritsuko::hdf5::exceeds_integer_limit(start_handle, 64, true)) {
+                throw std::runtime_error("expected a datatype that fits into a 64-bit signed integer");
+            }
+
+            auto start_space = start_handle.getSpace();
+            if (start_space.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t num_start;
+            start_space.getSimpleExtentDims(&num_start);
+            if (num_start != num_ranges) {
+                throw std::runtime_error("dataset extent should be the same as that of 'sequence'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'start'"));
+        }
+
+        H5::DataSet width_handle;
+        try {
+            width_handle = ghandle.openDataSet("width");
+            if (ritsuko::hdf5::exceeds_integer_limit(width_handle, 64, false)) {
+                throw std::runtime_error("expected 'width' to have a datatype that fits into a 64-bit unsigned integer");
+            }
+
+            auto width_space = width_handle.getSpace();
+            if (width_space.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t num_width;
+            width_space.getSimpleExtentDims(&num_width);
+            if (num_width != num_ranges) {
+                throw std::runtime_error("dataset extent should be the same as that of 'sequence'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'width'"));
+        }
+
+        ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+        opt.contiguous_chunk_size = options.hdf5_buffer_size;
+        NumericStreamIterator<std::uint64_t> id_stream(ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(&id_handle, num_ranges, opt));
+        NumericStreamIterator<std::int64_t> start_stream(ritsuko::hdf5::Stream1dNumericDataset<std::int64_t>(&start_handle, num_ranges, opt));
+        NumericStreamIterator<std::uint64_t> width_stream(ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(&width_handle, num_ranges, opt));
+
+        for (I<decltype(num_ranges)> i = 0; i < num_ranges; ++i) {
+            const auto id = id_stream.next();
+            if (sanisizer::is_greater_than_or_equal(id, num_sequences)) {
+                throw std::runtime_error("'sequence' must be less than the number of sequences in 'sequence_information'");
+            }
+
+            const auto start = start_stream.next();
+            const auto width = width_stream.next();
+
+            // If it's definitely non-circular, the start position should be positive.
+            const auto& circular = limits->circular[i];
+            if (circular.has_value() && !(*circular)) {
+                if (start < 1) {
+                    throw std::runtime_error("non-positive 'start' position for a non-circular sequence");
                 }
 
-                // The LHS should not overflow as 'spos >= 1' so 'limit - spos + 1' should still be no greater than 'limit'.
-                if (limit - spos + 1 < width) {
-                    throw std::runtime_error("end position beyond sequence length (" + 
-                        std::to_string(start) + " + " + std::to_string(width) + " > " + std::to_string(limit) + 
-                        ") for non-circular sequence");
+                const auto& length = limits->length[i];
+                if (length.has_value()) {
+                    if (sanisizer::is_greater_than(start, *length)) {
+                        throw std::runtime_error("'start' position exceeds sequence length for a non-circular sequence");
+                    }
+
+                    // End position is computed as 'start + width - 1', which should be <= length. 
+                    // The LHS should not overflow as 'start >= 1' and 'start <= length' so '0 <= length - start + 1 <= length'.
+                    if (sanisizer::is_less_than(*length - (start - 1), width)) {
+                        throw std::runtime_error("end position ('start + width - 1') exceeds sequence length for a non-circular sequence");
+                    }
                 }
             }
-        }
 
-        bool exceeded = false;
-        if (start > 0) {
-            // 'end_limit - start' is always non-negative as 'end_limit' is the largest value of an int64_t and 'start' is also int64_t.
-            exceeded = (end_limit - static_cast<uint64_t>(start) < width);
-        } else {
-            // 'end_limit - start' will not overflow a uint64_t, because 'end_limit' is the largest value of an int64_t and 'start' as also 'int64_t'.
-            exceeded = (end_limit + static_cast<uint64_t>(-start) < width);
-        }
-        if (exceeded) {
-            throw std::runtime_error("end position beyond the range of a 64-bit integer (" + std::to_string(start) + " + " + std::to_string(width) + ")");
-        }
-    }
-
-    {       
-        auto strand_handle = ritsuko::hdf5::open_dataset(ghandle, "strand");
-        if (num_ranges != ritsuko::hdf5::get_1d_length(strand_handle, false)) {
-            throw std::runtime_error("'strand' and 'sequence' should have the same length");
-        }
-        if (ritsuko::hdf5::exceeds_integer_limit(strand_handle, 32, true)) {
-            throw std::runtime_error("expected 'strand' to have a datatype that fits into a 32-bit signed integer");
-        }
-
-        ritsuko::hdf5::Stream1dNumericDataset<int32_t> strand_stream(&strand_handle, num_ranges, options.hdf5_buffer_size);
-        for (hsize_t i = 0; i < num_ranges; ++i, strand_stream.next()) {
-            auto x = strand_stream.get();
-            if (x < -1 || x > 1) {
-                throw std::runtime_error("values of 'strand' should be one of 0, -1, or 1 (got " + std::to_string(x) + ")");
+            if (end_position_exceeds_int64(start, width)) {
+                throw std::runtime_error("end position ('start + width - 1') is beyond the range of a 64-bit signed integer");
             }
         }
+
+        try {       
+            auto strand_handle = ghandle.openDataSet("strand");
+            if (ritsuko::hdf5::exceeds_integer_limit(strand_handle, 32, true)) {
+                throw std::runtime_error("expected a datatype that fits into a 32-bit signed integer");
+            }
+
+            auto strand_space = strand_handle.getSpace();
+            if (strand_space.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t nstrand;
+            strand_space.getSimpleExtentDims(&nstrand);
+            if (nstrand != num_ranges) {
+                throw std::runtime_error("dataset extent should be the same as that of 'sequence'");
+            }
+
+            ritsuko::hdf5::Stream1dNumericDataset<std::int32_t> strand_stream(&strand_handle, num_ranges, opt);
+            iterate_stream<std::int32_t>(
+                strand_stream,
+                [&](hsize_t, std::int32_t x) {
+                    if (x < -1 || x > 1) {
+                        throw std::runtime_error("entries should be one of 0, -1, or 1");
+                    }
+                }
+            );
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'strand'"));
+        }
+
+        validate_names(ghandle, "name", num_ranges, options.hdf5_buffer_size);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in 'ranges.h5'"));
     }
 
-    internal_other::validate_mcols(path, "range_annotations", num_ranges, options);
-    internal_other::validate_metadata(path, "other_annotations", options);
-
-    internal_string::validate_names(ghandle, "name", num_ranges, options.hdf5_buffer_size);
+    validate_mcols(path, "range_annotations", num_ranges, options);
+    validate_metadata(path, "other_annotations", options);
 }
 
 /**
@@ -211,13 +291,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return The number of ranges.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    auto handle = ritsuko::hdf5::open_file(path / "ranges.h5");
+inline std::size_t height_of_genomic_ranges(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+    H5::H5File handle(path / "ranges.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup("genomic_ranges");
     auto dhandle = ghandle.openDataSet("sequence");
-    return ritsuko::hdf5::get_1d_length(dhandle, false);
-}
-
+    hsize_t output;
+    dhandle.getSpace().getSimpleExtentDims(&output);
+    return sanisizer::cast<std::size_t>(output);
 }
 
 }

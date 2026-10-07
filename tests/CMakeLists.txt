@@ -17,7 +17,6 @@ enable_testing()
 # Main test executable.
 add_executable(
     libtest 
-#    src/genomic_ranges.cpp
     src/atomic_vector.cpp
     src/atomic_vector_list.cpp
     src/bam_file.cpp
@@ -33,6 +32,7 @@ add_executable(
     src/dense_array.cpp
     src/fasta_file.cpp
     src/fastq_file.cpp
+    src/genomic_ranges.cpp
     src/gff_file.cpp
     src/gmt_file.cpp
     src/image_file.cpp

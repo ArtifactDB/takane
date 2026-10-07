@@ -7,6 +7,76 @@
 #include "mock_simple_list.h"
 #include "utils.h"
 
+class IterateStreamTest : public ::testing::TestWithParam<int> {};
+
+TEST_P(IterateStreamTest, IterateStream) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    std::vector<std::int32_t> values(100);
+    std::iota(values.begin(), values.end(), -50);
+
+    {
+        H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
+        auto dhandle = add_hdf5_dataset(handle, "bar", H5::PredType::NATIVE_INT32, values.size());
+        dhandle.write(values.data(), H5::PredType::NATIVE_INT32);
+    }
+
+    H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
+    auto dhandle = handle.openDataSet("bar");
+
+    ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+    opt.contiguous_chunk_size = GetParam();
+    ritsuko::hdf5::Stream1dNumericDataset<std::int32_t> stream(&dhandle, values.size(), opt);
+
+    std::vector<std::int32_t> output(values.size());
+    takane::iterate_stream<std::int32_t>(
+        stream,
+        [&](hsize_t i, std::int32_t payload) -> void {
+            output[i] = payload;
+        }
+    );
+
+    EXPECT_EQ(output, values);
+}
+
+TEST_P(IterateStreamTest, NumericStreamIterator) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    std::size_t num = 100;
+    std::vector<std::int32_t> values(num);
+    std::iota(values.begin(), values.end(), -50);
+
+    {
+        H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
+        auto dhandle = add_hdf5_dataset(handle, "bar", H5::PredType::NATIVE_INT32, num);
+        dhandle.write(values.data(), H5::PredType::NATIVE_INT32);
+    }
+
+    H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
+    auto dhandle = handle.openDataSet("bar");
+
+    ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+    opt.contiguous_chunk_size = GetParam();
+    takane::NumericStreamIterator<std::int32_t> it(ritsuko::hdf5::Stream1dNumericDataset<std::int32_t>(&dhandle, values.size(), opt));
+
+    std::vector<std::int32_t> output(values.size());
+    for (std::size_t i = 0; i < num; ++i) {
+        output[i] = it.next();
+    }
+
+    EXPECT_EQ(output, values);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    IterateStream,
+    IterateStreamTest,
+    ::testing::Values(3, 30, 300) // chunk sizes
+); 
+
+/********************************************/
+
 TEST(ValidateMcols, Okay) {
     auto dir = define_test_path("utils_other");
     initialize_directory(dir);
