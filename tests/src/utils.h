@@ -23,6 +23,8 @@ std::size_t test_height(const std::filesystem::path&, const takane::Options& opt
 std::vector<std::size_t> test_dimensions(const std::filesystem::path&);
 std::vector<std::size_t> test_dimensions(const std::filesystem::path&, const takane::Options& opts);
 
+/**************************************************/
+
 inline std::filesystem::path define_test_path(const std::filesystem::path& stub) {
     const std::filesystem::path dir = "TEST_OBJECTS";
     if (!std::filesystem::exists(dir)) {
@@ -47,6 +49,30 @@ inline void initialize_directory_simple(const std::filesystem::path& dir, const 
     initialize_directory(dir);
     dump_object_metadata_simple(dir, name, version);
 }
+
+/**************************************************/
+
+inline void quick_text_write(const std::string& path, const char* msg) {
+    std::ofstream handle(path);
+    handle << msg;
+}
+
+inline void quick_text_write(const std::string& path, const std::string& msg) {
+    std::ofstream handle(path);
+    handle << msg;
+}
+
+inline void quick_gzip_write(const std::string& path, const char* msg) {
+    byteme::GzipFileWriter handle(path.c_str(), {});
+    handle.write(reinterpret_cast<const unsigned char*>(msg), std::strlen(msg));
+}
+
+inline void quick_gzip_write(const std::string& path, const std::string& msg) {
+    byteme::GzipFileWriter handle(path.c_str(), {});
+    handle.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
+}
+
+/**************************************************/
 
 inline std::string get_message(const std::exception& e) {
     std::string output = e.what();
@@ -81,43 +107,23 @@ void expect_validation_error(const std::filesystem::path& dir, const std::string
     );
 }
 
-inline void quick_text_write(const std::string& path, const char* msg) {
-    std::ofstream handle(path);
-    handle << msg;
-}
-
-inline void quick_text_write(const std::string& path, const std::string& msg) {
-    std::ofstream handle(path);
-    handle << msg;
-}
-
-inline void quick_gzip_write(const std::string& path, const char* msg) {
-    byteme::GzipFileWriter handle(path.c_str(), {});
-    handle.write(reinterpret_cast<const unsigned char*>(msg), std::strlen(msg));
-}
-
-inline void quick_gzip_write(const std::string& path, const std::string& msg) {
-    byteme::GzipFileWriter handle(path.c_str(), {});
-    handle.write(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size());
-}
+/**************************************************/
 
 template<class Handle_>
-void add_hdf5_attribute(Handle_& handle, const std::string& name, const std::string& value) {
+void add_hdf5_string_attribute(Handle_& handle, const std::string& name, const std::string& value) {
     H5::StrType stype(0, value.size());
     auto attr = handle.createAttribute(name, stype, H5S_SCALAR);
     attr.write(stype, value);
 }
 
-template<class Type_, class Handle_>
-void add_hdf5_numeric_attribute(Handle_& handle, const std::string& name, Type_ value) {
-    auto dtype = ritsuko::hdf5::as_numeric_datatype<Type_>();
+template<class Handle_, class Type_>
+void add_hdf5_numeric_attribute(Handle_& handle, const std::string& name, const H5::DataType& dtype, Type_ value) {
     auto attr = handle.createAttribute(name, dtype, H5S_SCALAR);
-    attr.write(dtype, &value);
+    attr.write(ritsuko::hdf5::as_numeric_datatype<Type_>(), &value);
 }
 
-inline H5::DataSet add_hdf5_dataset(H5::Group& handle, const std::string& name, const H5::DataType& dtype, const hsize_t len) {
-    H5::DataSpace dspace(1, &len);
-    return handle.createDataSet(name, dtype, dspace);
+inline H5::DataSpace create_hdf5_dataspace(const hsize_t len) {
+    return H5::DataSpace(1, &len);
 }
 
 inline std::vector<const char*> pointerize_strings(const std::vector<std::string>& x) {
@@ -128,6 +134,23 @@ inline std::vector<const char*> pointerize_strings(const std::vector<std::string
     }
     return ptrs;
 }
+
+inline H5::DataSet add_hdf5_string_dataset(H5::Group& handle, const std::string& name, const std::vector<std::string>& data) {
+    H5::StrType stype(0, H5T_VARIABLE);
+    auto dhandle = handle.createDataSet(name, stype, create_hdf5_dataspace(data.size()));
+    auto ptrs = pointerize_strings(data);
+    dhandle.write(ptrs.data(), stype);
+    return dhandle;
+}
+
+template<typename Type_>
+H5::DataSet add_hdf5_numeric_dataset(H5::Group& handle, const std::string& name, const H5::DataType& dtype, const std::vector<Type_>& data) {
+    auto dhandle = handle.createDataSet(name, dtype, create_hdf5_dataspace(data.size()));
+    dhandle.write(data.data(), ritsuko::hdf5::as_numeric_datatype<Type_>()); 
+    return dhandle;
+}
+
+/**************************************************/
 
 inline void dump_json(const millijson::Base* ptr, std::ostream& output) {
     if (ptr->type() == millijson::ARRAY) {

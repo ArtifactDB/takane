@@ -159,9 +159,9 @@ TEST(GenomicRanges, MixedOkay) {
         H5::H5File handle(dir / "sequence_information" / "info.h5", H5F_ACC_RDWR);
         auto ghandle = handle.openGroup("sequence_information");
         auto lhandle = ghandle.openDataSet("length");
-        add_hdf5_numeric_attribute<std::uint32_t>(lhandle, "missing-value-placeholder", 0);
+        add_hdf5_numeric_attribute(lhandle, "missing-value-placeholder", H5::PredType::NATIVE_UINT32, 0);
         auto chandle = ghandle.openDataSet("circular");
-        add_hdf5_numeric_attribute<std::int8_t>(chandle, "missing-value-placeholder", -1);
+        add_hdf5_numeric_attribute(chandle, "missing-value-placeholder", H5::PredType::NATIVE_INT8, -1);
     }
 
     test_validate(dir);
@@ -185,7 +185,7 @@ TEST(GenomicRanges, SequenceError) {
     {
         auto ghandle = mock_genomic_ranges(dir, {}, {});
         ghandle.unlink("sequence");
-        add_hdf5_dataset(ghandle, "sequence", H5::PredType::NATIVE_INT32, 0);
+        ghandle.createDataSet("sequence", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(0));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
@@ -203,7 +203,7 @@ TEST(GenomicRanges, StartError) {
     {
         auto ghandle = mock_genomic_ranges(dir, { GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
         ghandle.unlink("start");
-        add_hdf5_dataset(ghandle, "start", H5::PredType::NATIVE_UINT64, 1);
+        ghandle.createDataSet("start", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(1));
     }
     expect_validation_error(dir, "64-bit signed integer");
 
@@ -217,7 +217,7 @@ TEST(GenomicRanges, StartError) {
     {
         auto ghandle = mock_genomic_ranges(dir, { GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
         ghandle.unlink("start");
-        add_hdf5_dataset(ghandle, "start", H5::PredType::NATIVE_INT64, 2);
+        ghandle.createDataSet("start", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(2));
     }
     expect_validation_error(dir, "same as that of 'sequence'");
 }
@@ -228,7 +228,7 @@ TEST(GenomicRanges, WidthError) {
     {
         auto ghandle = mock_genomic_ranges(dir, { GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
         ghandle.unlink("width");
-        add_hdf5_dataset(ghandle, "width", H5::PredType::NATIVE_INT32, 1);
+        ghandle.createDataSet("width", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(1));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
@@ -242,7 +242,7 @@ TEST(GenomicRanges, WidthError) {
     {
         auto ghandle = mock_genomic_ranges(dir, { GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
         ghandle.unlink("width");
-        add_hdf5_dataset(ghandle, "width", H5::PredType::NATIVE_UINT64, 0);
+        ghandle.createDataSet("width", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(0));
     }
     expect_validation_error(dir, "same as that of 'sequence'");
 }
@@ -253,7 +253,7 @@ TEST(GenomicRanges, StrandError) {
     {
         auto ghandle = mock_genomic_ranges(dir, { GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
         ghandle.unlink("strand");
-        add_hdf5_dataset(ghandle, "strand", H5::PredType::NATIVE_UINT32, 1);
+        ghandle.createDataSet("strand", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(1));
     }
     expect_validation_error(dir, "32-bit signed integer");
 
@@ -267,7 +267,7 @@ TEST(GenomicRanges, StrandError) {
     {
         auto ghandle = mock_genomic_ranges(dir, { GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
         ghandle.unlink("strand");
-        add_hdf5_dataset(ghandle, "strand", H5::PredType::NATIVE_INT32, 3);
+        ghandle.createDataSet("strand", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "same as that of 'sequence'");
 
@@ -390,7 +390,7 @@ TEST(GenomicRanges, IntervalEndError) {
                 }
             );
             ghandle.unlink("start");
-            auto dhandle = add_hdf5_dataset(ghandle, "start", H5::PredType::NATIVE_INT64, 3);
+            auto dhandle = ghandle.createDataSet("start", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(3));
             std::vector<std::int64_t> content { std::numeric_limits<std::int64_t>::max(), std::int64_t(5), std::int64_t(8) };
             dhandle.write(content.data(), H5::PredType::NATIVE_INT64);
         }
@@ -398,7 +398,7 @@ TEST(GenomicRanges, IntervalEndError) {
             H5::H5File s_handle(dir / "sequence_information" / "info.h5", H5F_ACC_RDWR);
             auto s_ghandle = s_handle.openGroup("sequence_information");
             s_ghandle.unlink("length");
-            auto s_lhandle = add_hdf5_dataset(s_ghandle, "length", H5::PredType::NATIVE_UINT64, 2);
+            auto s_lhandle = s_ghandle.createDataSet("length", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(2));
             std::vector<std::uint64_t> content { std::numeric_limits<std::uint64_t>::max(), std::numeric_limits<std::uint64_t>::max() };
             s_lhandle.write(content.data(), H5::PredType::NATIVE_UINT64);
         }
@@ -413,7 +413,7 @@ TEST(GenomicRanges, NamesOkay) {
 
     {
         auto ghandle = mock_genomic_ranges(dir, 8, 3);
-        add_hdf5_dataset(ghandle, "name", H5::StrType(0, 5), 8);
+        ghandle.createDataSet("name", H5::StrType(0, 5), create_hdf5_dataspace(8));
     }
 
     test_validate(dir);
@@ -425,7 +425,7 @@ TEST(GenomicRanges, NamesError) {
 
     {
         auto ghandle = mock_genomic_ranges(dir, 4, 2);
-        add_hdf5_dataset(ghandle, "name", H5::StrType(0, 5), 3);
+        ghandle.createDataSet("name", H5::StrType(0, 5), create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "number of names");
 }

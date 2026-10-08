@@ -42,7 +42,7 @@ TEST(SequenceInformation, NameError) {
     {
         auto ghandle = mock_sequence_information(dir);
         ghandle.unlink("name");
-        add_hdf5_dataset(ghandle, "name", H5::PredType::NATIVE_INT, 3);
+        ghandle.createDataSet("name", H5::PredType::NATIVE_INT, create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
@@ -74,7 +74,7 @@ TEST(SequenceInformation, LengthError) {
     {
         auto ghandle = mock_sequence_information(dir);
         ghandle.unlink("length");
-        add_hdf5_dataset(ghandle, "length", H5::PredType::NATIVE_FLOAT, 3);
+        ghandle.createDataSet("length", H5::PredType::NATIVE_FLOAT, create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
@@ -88,7 +88,7 @@ TEST(SequenceInformation, LengthError) {
     {
         auto ghandle = mock_sequence_information(dir);
         ghandle.unlink("length");
-        add_hdf5_dataset(ghandle, "length", H5::PredType::NATIVE_UINT8, 4);
+        ghandle.createDataSet("length", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(4));
     }
     expect_validation_error(dir, "same as that of 'name'");
 }
@@ -123,7 +123,7 @@ TEST(SequenceInformation, CircularError) {
     {
         auto ghandle = mock_sequence_information(dir);
         ghandle.unlink("circular");
-        add_hdf5_dataset(ghandle, "circular", H5::PredType::NATIVE_FLOAT, 3);
+        ghandle.createDataSet("circular", H5::PredType::NATIVE_FLOAT, create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "32-bit signed integer");
 
@@ -137,7 +137,7 @@ TEST(SequenceInformation, CircularError) {
     {
         auto ghandle = mock_sequence_information(dir);
         ghandle.unlink("circular");
-        add_hdf5_dataset(ghandle, "circular", H5::PredType::NATIVE_INT8, 2);
+        ghandle.createDataSet("circular", H5::PredType::NATIVE_INT8, create_hdf5_dataspace(2));
     }
     expect_validation_error(dir, "same as that of 'name'");
 }
@@ -172,7 +172,7 @@ TEST(SequenceInformation, GenomeError) {
     {
         auto ghandle = mock_sequence_information(dir);
         ghandle.unlink("genome");
-        add_hdf5_dataset(ghandle, "genome", H5::PredType::NATIVE_INT, 3);
+        ghandle.createDataSet("genome", H5::PredType::NATIVE_INT, create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
@@ -186,7 +186,7 @@ TEST(SequenceInformation, GenomeError) {
     {
         auto ghandle = mock_sequence_information(dir);
         ghandle.unlink("genome");
-        add_hdf5_dataset(ghandle, "genome", H5::StrType(0, 10), 5);
+        ghandle.createDataSet("genome", H5::StrType(0, 10), create_hdf5_dataspace(5));
     }
     expect_validation_error(dir, "same as that of 'name'");
 }

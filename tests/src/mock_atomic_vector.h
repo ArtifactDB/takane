@@ -27,31 +27,30 @@ inline H5::Group mock_atomic_vector(const std::filesystem::path& path, hsize_t l
     auto ghandle = handle.createGroup("atomic_vector");
 
     if (type == AtomicVectorType::INTEGER) {
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT32, length);
-        add_hdf5_attribute(ghandle, "type", "integer");
+        ghandle.createDataSet("values", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(length));
+        add_hdf5_string_attribute(ghandle, "type", "integer");
 
     } else if (type == AtomicVectorType::NUMBER) {
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_DOUBLE, length);
-        add_hdf5_attribute(ghandle, "type", "number");
+        ghandle.createDataSet("values", H5::PredType::NATIVE_DOUBLE, create_hdf5_dataspace(length));
+        add_hdf5_string_attribute(ghandle, "type", "number");
 
     } else if (type == AtomicVectorType::BOOLEAN) {
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT8, length);
-        add_hdf5_attribute(ghandle, "type", "boolean");
+        ghandle.createDataSet("values", H5::PredType::NATIVE_INT8, create_hdf5_dataspace(length));
+        add_hdf5_string_attribute(ghandle, "type", "boolean");
 
     } else if (type == AtomicVectorType::STRING) {
         // use a fixed length string, otherwise we actually have to set the pointers.
-        add_hdf5_dataset(ghandle, "values", H5::StrType(0, 5), length); 
-        add_hdf5_attribute(ghandle, "type", "string");
+        ghandle.createDataSet("values", H5::StrType(0, 5), create_hdf5_dataspace(length)); 
+        add_hdf5_string_attribute(ghandle, "type", "string");
 
     } else if (type == AtomicVectorType::VLS) {
-        add_hdf5_attribute(ghandle, "type", "vls");
+        add_hdf5_string_attribute(ghandle, "type", "vls");
 
         // Just make up whatever for the heap and pointers here.
         const std::string heap = "abcdefghijklmno";
         std::vector<std::uint8_t> buffer(heap.size());
         std::copy(heap.begin(), heap.end(), reinterpret_cast<char*>(buffer.data()));
-        auto hhandle = add_hdf5_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, heap.size());
-        hhandle.write(buffer.data(), H5::PredType::NATIVE_UINT8);
+        add_hdf5_numeric_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, buffer);
 
         std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > pointers(length);
         for (hsize_t i = 0; i < length; ++i) {
@@ -60,7 +59,7 @@ inline H5::Group mock_atomic_vector(const std::filesystem::path& path, hsize_t l
         }
 
         auto ptype = ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>();
-        auto phandle = add_hdf5_dataset(ghandle, "pointers", ptype, length);
+        auto phandle = ghandle.createDataSet("pointers", ptype, create_hdf5_dataspace(length));
         phandle.write(pointers.data(), ptype);
     }
 

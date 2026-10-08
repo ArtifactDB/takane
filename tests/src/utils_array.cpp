@@ -52,7 +52,7 @@ TEST(ValidateArrayDimnames, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto dhandle = handle.createGroup("dimnames");
-        add_hdf5_dataset(dhandle, "1", H5::StrType(0, 10), 4);
+        dhandle.createDataSet("1", H5::StrType(0, 10), create_hdf5_dataspace(4));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -63,9 +63,9 @@ TEST(ValidateArrayDimnames, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto dhandle = handle.createGroup("dimnames");
-        add_hdf5_dataset(dhandle, "0", H5::StrType(0, 10), 10);
-        add_hdf5_dataset(dhandle, "1", H5::StrType(0, 10), 4);
-        add_hdf5_dataset(dhandle, "2", H5::StrType(0, 10), 30);
+        dhandle.createDataSet("0", H5::StrType(0, 10), create_hdf5_dataspace(10));
+        dhandle.createDataSet("1", H5::StrType(0, 10), create_hdf5_dataspace(4));
+        dhandle.createDataSet("2", H5::StrType(0, 10), create_hdf5_dataspace(30));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -102,7 +102,7 @@ TEST(ValidateArrayDimnames, Error) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dimnames");
-        add_hdf5_dataset(ghandle, "1", H5::PredType::NATIVE_INT, 4);
+        ghandle.createDataSet("1", H5::PredType::NATIVE_INT, create_hdf5_dataspace(4));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -112,7 +112,7 @@ TEST(ValidateArrayDimnames, Error) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dimnames");
-        add_hdf5_dataset(ghandle, "2", H5::StrType(0, 2), 20);
+        ghandle.createDataSet("2", H5::StrType(0, 2), create_hdf5_dataspace(20));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -122,8 +122,8 @@ TEST(ValidateArrayDimnames, Error) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dimnames");
-        add_hdf5_dataset(ghandle, "0", H5::StrType(0, 20), 10);
-        add_hdf5_dataset(ghandle, "foobar", H5::PredType::NATIVE_INT, 30);
+        ghandle.createDataSet("0", H5::StrType(0, 20), create_hdf5_dataspace(10));
+        ghandle.createDataSet("foobar", H5::PredType::NATIVE_INT, create_hdf5_dataspace(30));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);

@@ -11,7 +11,7 @@ TEST(CheckStringMissingPlaceholder, Okay) {
     // No-op if it's missing.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "foo", H5::StrType(0, 10), 20);
+        handle.createDataSet("foo", H5::StrType(0, 10), create_hdf5_dataspace(20));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -23,9 +23,9 @@ TEST(CheckStringMissingPlaceholder, Okay) {
 
     // Actually get the placeholder.
     {
-        H5::H5File handle(path, H5F_ACC_RDWR);
-        auto dhandle = handle.openDataSet("foo");
-        add_hdf5_attribute(dhandle, "missing-value-placeholder", "foobar");
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto dhandle = handle.createDataSet("foo", H5::StrType(0, 10), create_hdf5_dataspace(20));
+        add_hdf5_string_attribute(dhandle, "missing-value-placeholder", "foobar");
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -43,7 +43,7 @@ TEST(CheckStringMissingPlaceholder, Error) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foo", H5::StrType(0, 10), 20);
+        auto dhandle = handle.createDataSet("foo", H5::StrType(0, 10), create_hdf5_dataspace(20));
         constexpr hsize_t one = 1;
         dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 4), H5::DataSpace(1, &one));
     }
@@ -64,9 +64,32 @@ TEST(CheckStringMissingPlaceholder, Error) {
         );
     }
 
+    // Actually validates the string.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foo", H5::StrType(0, 10), 20);
+        auto dhandle = handle.createDataSet("foo", H5::StrType(0, 10), create_hdf5_dataspace(20));
+        dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, H5T_VARIABLE), H5S_SCALAR);
+    }
+    {
+        H5::H5File handle(path, H5F_ACC_RDONLY);
+        auto dhandle = handle.openDataSet("foo");
+        expect_error(
+            "NULL",
+            [&]() -> void {
+                takane::validate_string_missing_placeholder(dhandle, "missing-value-placeholder");
+            }
+        );
+        expect_error(
+            "NULL",
+            [&]() -> void {
+                takane::read_string_missing_placeholder(dhandle, "missing-value-placeholder");
+            }
+        );
+    }
+
+    {
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto dhandle = handle.createDataSet("foo", H5::StrType(0, 10), create_hdf5_dataspace(20));
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
     {
@@ -94,7 +117,7 @@ TEST(CheckNumericMissingPlaceholder, Okay) {
     // No-op if it's missing.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_INT32, 20);
+        handle.createDataSet("foo", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(20));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -105,11 +128,9 @@ TEST(CheckNumericMissingPlaceholder, Okay) {
 
     // Actually check the placeholder.
     {
-        H5::H5File handle(path, H5F_ACC_RDWR);
-        auto dhandle = handle.openDataSet("foo");
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR); 
-        const int val = 99;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
+        H5::H5File handle(path, H5F_ACC_TRUNC);
+        auto dhandle = handle.createDataSet("foo", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(20));
+        add_hdf5_numeric_attribute(dhandle, "missing-value-placeholder", H5::PredType::NATIVE_INT32, 99); 
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -124,10 +145,8 @@ TEST(CheckNumericMissingPlaceholder, Okay) {
     // Try a floating-point dataset. 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_DOUBLE, 20);
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR); 
-        const double val = 0.5;
-        ahandle.write(H5::PredType::NATIVE_DOUBLE, &val);
+        auto dhandle = handle.createDataSet("foo", H5::PredType::NATIVE_DOUBLE, create_hdf5_dataspace(20));
+        add_hdf5_numeric_attribute(dhandle, "missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, 0.5); 
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -146,7 +165,7 @@ TEST(CheckNumericMissingPlaceholder, Error) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_INT32, 20);
+        auto dhandle = handle.createDataSet("foo", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(20));
         constexpr hsize_t one = 1;
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5::DataSpace(1, &one));
     }
@@ -169,7 +188,7 @@ TEST(CheckNumericMissingPlaceholder, Error) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_INT32, 20);
+        auto dhandle = handle.createDataSet("foo", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(20));
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
     {

@@ -27,27 +27,22 @@ struct DataFrameColumnDetails {
 };
 
 inline H5::Group mock_data_frame(H5::Group& handle, hsize_t num_rows, const std::vector<DataFrameColumnDetails>& columns) {
-    {
-        hsize_t ncol = columns.size();
-        H5::DataSpace dspace(1, &ncol);
-        H5::StrType stype(0, H5T_VARIABLE);
-        auto dhandle = handle.createDataSet("column_names", stype, dspace);
+    const hsize_t NC = columns.size();
+    add_hdf5_numeric_attribute(handle, "row-count", H5::PredType::NATIVE_UINT32, num_rows);
 
+    {
         std::vector<const char*> column_names;
-        column_names.reserve(ncol);
+        column_names.reserve(NC);
         for (const auto& col : columns) {
             column_names.push_back(col.name.c_str());
         }
-
+        H5::StrType stype(0, H5T_VARIABLE);
+        auto dhandle = handle.createDataSet("column_names", stype, H5::DataSpace(1, &NC));
         dhandle.write(column_names.data(), stype);
     }
 
-    auto attr = handle.createAttribute("row-count", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
-    attr.write(H5::PredType::NATIVE_HSIZE, &num_rows);
-
     auto ghandle = handle.createGroup("data");
-    const std::size_t NC = columns.size();
-    for (std::size_t c = 0; c < NC; ++c) {
+    for (hsize_t c = 0; c < NC; ++c) {
         const auto& curcol = columns[c];
         if (curcol.type == DataFrameColumnType::OTHER) {
             continue;
@@ -55,46 +50,41 @@ inline H5::Group mock_data_frame(H5::Group& handle, hsize_t num_rows, const std:
 
         std::string colname = std::to_string(c);
         if (curcol.type == DataFrameColumnType::INTEGER) {
-            auto dhandle = add_hdf5_dataset(ghandle, colname, H5::PredType::NATIVE_INT32, num_rows);
-            add_hdf5_attribute(dhandle, "type", "integer");
+            auto dhandle = ghandle.createDataSet(colname, H5::PredType::NATIVE_INT32, create_hdf5_dataspace(num_rows));
+            add_hdf5_string_attribute(dhandle, "type", "integer");
 
         } else if (curcol.type == DataFrameColumnType::NUMBER) {
-            auto dhandle = add_hdf5_dataset(ghandle, colname, H5::PredType::NATIVE_DOUBLE, num_rows);
-            add_hdf5_attribute(dhandle, "type", "number");
+            auto dhandle = ghandle.createDataSet(colname, H5::PredType::NATIVE_DOUBLE, create_hdf5_dataspace(num_rows));
+            add_hdf5_string_attribute(dhandle, "type", "number");
 
         } else if (curcol.type == DataFrameColumnType::BOOLEAN) {
-            auto dhandle = add_hdf5_dataset(ghandle, colname, H5::PredType::NATIVE_INT8, num_rows);
-            add_hdf5_attribute(dhandle, "type", "boolean");
+            auto dhandle = ghandle.createDataSet(colname, H5::PredType::NATIVE_INT8, create_hdf5_dataspace(num_rows));
+            add_hdf5_string_attribute(dhandle, "type", "boolean");
 
         } else if (curcol.type == DataFrameColumnType::STRING) {
-            auto dhandle = add_hdf5_dataset(ghandle, colname, H5::StrType(0, curcol.string_length), num_rows);
-            add_hdf5_attribute(dhandle, "type", "string");
+            auto dhandle = ghandle.createDataSet(colname, H5::StrType(0, curcol.string_length), create_hdf5_dataspace(num_rows));
+            add_hdf5_string_attribute(dhandle, "type", "string");
 
         } else if (curcol.type == DataFrameColumnType::FACTOR) {
             auto dhandle = ghandle.createGroup(colname);
-            add_hdf5_attribute(dhandle, "type", "factor");
+            add_hdf5_string_attribute(dhandle, "type", "factor");
             if (curcol.factor_ordered) {
-                auto ahandle = dhandle.createAttribute("ordered", H5::PredType::NATIVE_INT8, H5S_SCALAR);
-                constexpr int val = 1;
-                ahandle.write(H5::PredType::NATIVE_INT, &val);
+                add_hdf5_numeric_attribute(dhandle, "ordered", H5::PredType::NATIVE_INT8, 1);
             }
 
             const hsize_t nchoices = curcol.factor_levels.size();
-            auto lhandle = add_hdf5_dataset(dhandle, "levels", H5::StrType(0, H5T_VARIABLE), nchoices);
-            auto ptrs = pointerize_strings(curcol.factor_levels);
-            lhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
+            add_hdf5_string_dataset(dhandle, "levels", curcol.factor_levels);
 
             // Just make up whatever here.
             std::vector<int> codes(num_rows);
             for (hsize_t i = 0; i < num_rows; ++i) {
                 codes[i] = i % nchoices;
             }
-            auto chandle = add_hdf5_dataset(dhandle, "codes", H5::PredType::NATIVE_UINT16, num_rows);
-            chandle.write(codes.data(), H5::PredType::NATIVE_INT);
+            add_hdf5_numeric_dataset(dhandle, "codes", H5::PredType::NATIVE_UINT16, codes);
 
         } else if (curcol.type == DataFrameColumnType::VLS) {
             auto vhandle = ghandle.createGroup(colname);
-            add_hdf5_attribute(vhandle, "type", "vls");
+            add_hdf5_string_attribute(vhandle, "type", "vls");
             auto vtype = ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>();
             auto phandle = vhandle.createDataSet("pointers", vtype, H5::DataSpace(1, &num_rows));
 
@@ -108,7 +98,7 @@ inline H5::Group mock_data_frame(H5::Group& handle, hsize_t num_rows, const std:
             }
             phandle.write(buffer.data(), vtype);
 
-            add_hdf5_dataset(vhandle, "heap", H5::PredType::NATIVE_UINT8, previous);
+            vhandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(previous));
         }
     }
 

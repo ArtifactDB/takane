@@ -30,7 +30,7 @@ TEST(DenseArray, IntegerError) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 30, 10, 20 });
         ghandle.removeAttr("type");
-        add_hdf5_attribute(ghandle, "type", "integer");
+        add_hdf5_string_attribute(ghandle, "type", "integer");
     }
 
     expect_validation_error(dir, "32-bit signed integer");
@@ -55,7 +55,7 @@ TEST(DenseArray, BooleanError) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 8 });
         ghandle.removeAttr("type");
-        add_hdf5_attribute(ghandle, "type", "boolean");
+        add_hdf5_string_attribute(ghandle, "type", "boolean");
     }
 
     expect_validation_error(dir, "32-bit signed integer");
@@ -81,9 +81,8 @@ TEST(DenseArray, NumberError) {
         initialize_directory_simple(dir, "dense_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dense_array");
-        constexpr hsize_t len = 100;
-        ghandle.createDataSet("data", H5::PredType::NATIVE_INT64, H5::DataSpace(1, &len));
-        add_hdf5_attribute(ghandle, "type", "number");
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(100));
+        add_hdf5_string_attribute(ghandle, "type", "number");
     }
 
     expect_validation_error(dir, "64-bit float");
@@ -95,9 +94,7 @@ TEST(DenseArray, NumericMissingOkay) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 20, 10 });
         auto dhandle = ghandle.openDataSet("data");
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
-        const int val = 100;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
 
     test_validate(dir);
@@ -140,7 +137,7 @@ TEST(DenseArray, StringError) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 121 });
         ghandle.removeAttr("type");
-        add_hdf5_attribute(ghandle, "type", "string");
+        add_hdf5_string_attribute(ghandle, "type", "string");
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
@@ -148,8 +145,8 @@ TEST(DenseArray, StringError) {
         initialize_directory_simple(dir, "dense_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dense_array");
-        add_hdf5_dataset(ghandle, "data", H5::StrType(0, H5T_VARIABLE), 20);
-        add_hdf5_attribute(ghandle, "type", "string");
+        ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(20));
+        add_hdf5_string_attribute(ghandle, "type", "string");
     }
     expect_validation_error(dir, "NULL");
 }
@@ -160,7 +157,7 @@ TEST(DenseArray, StringMissingOkay) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::STRING, { 5, 6, 2 });
         auto dhandle = ghandle.openDataSet("data");
-        add_hdf5_attribute(dhandle, "missing-value-placeholder", "asdasd");
+        add_hdf5_string_attribute(dhandle, "missing-value-placeholder", "asdasd");
     }
 
     test_validate(dir);
@@ -203,7 +200,7 @@ TEST(DenseArray, VlsError) {
         initialize_directory_simple(dir, "dense_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dense_array");
-        add_hdf5_attribute(ghandle, "type", "vls");
+        add_hdf5_string_attribute(ghandle, "type", "vls");
     }
     expect_validation_error(dir, "unsupported type");
 
@@ -211,7 +208,7 @@ TEST(DenseArray, VlsError) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 33, 22, 11 });
         ghandle.unlink("heap");
-        add_hdf5_dataset(ghandle, "heap", H5::PredType::NATIVE_INT32, 100);
+        ghandle.createDataSet("heap", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "8-bit unsigned integer");
 
@@ -241,7 +238,7 @@ TEST(DenseArray, VlsMissingOkay) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 212 });
         auto phandle = ghandle.openDataSet("pointers");
-        add_hdf5_attribute(phandle, "missing-value-placeholder", "asdasd");
+        add_hdf5_string_attribute(phandle, "missing-value-placeholder", "asdasd");
     }
 
     test_validate(dir);
@@ -269,9 +266,7 @@ TEST(DenseArray, TransposedOkay) {
 
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
-        auto ahandle = ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT8, H5S_SCALAR);
-        constexpr int val = 0;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
+        add_hdf5_numeric_attribute(ghandle, "transposed", H5::PredType::NATIVE_INT8, 0);
     }
     {
         test_validate(dir);
@@ -282,9 +277,7 @@ TEST(DenseArray, TransposedOkay) {
 
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
-        auto ahandle = ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT8, H5S_SCALAR);
-        constexpr int val = 1;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
+        add_hdf5_numeric_attribute(ghandle, "transposed", H5::PredType::NATIVE_INT8, 1);
     }
     {
         test_validate(dir);
@@ -307,7 +300,7 @@ TEST(DenseArray, TransposedError) {
 
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
-        add_hdf5_attribute(ghandle, "transposed", "123123");
+        add_hdf5_string_attribute(ghandle, "transposed", "123123");
     }
     expect_validation_error(dir, "32-bit signed integer");
 }
@@ -333,9 +326,9 @@ TEST(DenseArray, NamesOkay) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 12, 5, 7 });
         auto nhandle = ghandle.createGroup("names");
-        add_hdf5_dataset(nhandle, "0", H5::StrType(0, 10), 12);
-        add_hdf5_dataset(nhandle, "1", H5::StrType(0, 11), 5);
-        add_hdf5_dataset(nhandle, "2", H5::StrType(0, 12), 7);
+        nhandle.createDataSet("0", H5::StrType(0, 10), create_hdf5_dataspace(12));
+        nhandle.createDataSet("1", H5::StrType(0, 11), create_hdf5_dataspace(5));
+        nhandle.createDataSet("2", H5::StrType(0, 12), create_hdf5_dataspace(7));
     }
     {
         test_validate(dir);
@@ -352,7 +345,7 @@ TEST(DenseArray, NamesError) {
     {
         auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
         auto nhandle = ghandle.createGroup("names");
-        add_hdf5_dataset(nhandle, "0", H5::StrType(0, 5), 20);
+        nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(20));
     }
     expect_validation_error(dir, "same length as the extent");
 }
@@ -384,7 +377,7 @@ TEST(DenseArray, DataError) {
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dense_array");
         ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, H5S_SCALAR);
-        add_hdf5_attribute(ghandle, "type", "integer");
+        add_hdf5_string_attribute(ghandle, "type", "integer");
     }
     expect_validation_error(dir, "at least one dimension");
 
@@ -392,8 +385,8 @@ TEST(DenseArray, DataError) {
         initialize_directory_simple(dir, "dense_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("dense_array");
-        add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT8, 20);
-        add_hdf5_attribute(ghandle, "type", "foobar");
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT8, create_hdf5_dataspace(20));
+        add_hdf5_string_attribute(ghandle, "type", "foobar");
     }
     expect_validation_error(dir, "unknown array type");
 }

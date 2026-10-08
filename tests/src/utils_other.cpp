@@ -18,8 +18,7 @@ TEST_P(IterateStreamTest, IterateStream) {
 
     {
         H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "bar", H5::PredType::NATIVE_INT32, values.size());
-        dhandle.write(values.data(), H5::PredType::NATIVE_INT32);
+        add_hdf5_numeric_dataset(handle, "bar", H5::PredType::NATIVE_INT32, values);
     }
 
     H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
@@ -50,8 +49,7 @@ TEST_P(IterateStreamTest, NumericStreamIterator) {
 
     {
         H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "bar", H5::PredType::NATIVE_INT32, num);
-        dhandle.write(values.data(), H5::PredType::NATIVE_INT32);
+        add_hdf5_numeric_dataset(handle, "bar", H5::PredType::NATIVE_INT32, values);
     }
 
     H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
@@ -95,12 +93,14 @@ TEST(ValidateMcols, Okay) {
 
 TEST(ValidateMcols, Error) {
     auto dir = define_test_path("utils_other");
-    initialize_directory(dir);
+    std::string name = "mcols";
 
     takane::Options opts;
-    std::string name = "mcols";
-    mock_data_frame(dir / name, 10, {});
 
+    {
+        initialize_directory(dir);
+        mock_data_frame(dir / name, 10, {});
+    }
     expect_error(
         "unexpected number of rows",
         [&]() -> void {
@@ -110,8 +110,8 @@ TEST(ValidateMcols, Error) {
 
     // Check that we actually validate the data_frame.
     {
-        H5::H5File handle(dir / name / "basic_columns.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("data_frame");
+        initialize_directory(dir);
+        auto ghandle = mock_data_frame(dir / name, 10, {});
         auto dhandle = ghandle.openGroup("data");
         dhandle.createGroup("0");
     }
@@ -122,7 +122,9 @@ TEST(ValidateMcols, Error) {
         }
     );
 
-    initialize_directory_simple(dir / name, "simple_list", "1.0");
+    {
+        initialize_directory_simple(dir / name, "simple_list", "1.0");
+    }
     expect_error(
         "DATA_FRAME",
         [&]() -> void {

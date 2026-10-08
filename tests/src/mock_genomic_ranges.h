@@ -33,8 +33,7 @@ inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const std
         for (const auto& rg : ranges) {
             vals.push_back(rg.sequence);
         }
-        auto qhandle = add_hdf5_dataset(ghandle, "sequence", H5::PredType::NATIVE_UINT32, ranges.size());
-        qhandle.write(vals.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(ghandle, "sequence", H5::PredType::NATIVE_UINT32, vals);
     }
 
     {
@@ -42,8 +41,7 @@ inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const std
         for (const auto& rg : ranges) {
             vals.push_back(rg.start);
         }
-        auto shandle = add_hdf5_dataset(ghandle, "start", H5::PredType::NATIVE_INT32, ranges.size());
-        shandle.write(vals.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(ghandle, "start", H5::PredType::NATIVE_INT32, vals);
     }
 
     {
@@ -51,8 +49,7 @@ inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const std
         for (const auto& rg : ranges) {
             vals.push_back(rg.width);
         }
-        auto whandle = add_hdf5_dataset(ghandle, "width", H5::PredType::NATIVE_UINT64, ranges.size());
-        whandle.write(vals.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(ghandle, "width", H5::PredType::NATIVE_UINT64, vals);
     }
 
     {
@@ -60,8 +57,7 @@ inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const std
         for (const auto& rg : ranges) {
             vals.push_back(rg.strand);
         }
-        auto thandle = add_hdf5_dataset(ghandle, "strand", H5::PredType::NATIVE_INT8, ranges.size());
-        thandle.write(vals.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(ghandle, "strand", H5::PredType::NATIVE_INT8, vals);
     }
 
     mock_sequence_information(dir / "sequence_information", sequences);

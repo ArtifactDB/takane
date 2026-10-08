@@ -33,7 +33,7 @@ inline H5::Group mock_sequence_information(const std::filesystem::path& dir, con
         for (const auto& seq : info) {
             ptrs.push_back(seq.name.c_str());
         }
-        auto nhandle = add_hdf5_dataset(ghandle, "name", H5::StrType(0, H5T_VARIABLE), info.size());
+        auto nhandle = ghandle.createDataSet("name", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(info.size()));
         nhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
@@ -43,8 +43,7 @@ inline H5::Group mock_sequence_information(const std::filesystem::path& dir, con
         for (const auto& seq : info) {
             vals.push_back(seq.length);
         }
-        auto lhandle = add_hdf5_dataset(ghandle, "length", H5::PredType::NATIVE_UINT32, info.size());
-        lhandle.write(vals.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(ghandle, "length", H5::PredType::NATIVE_UINT32, vals);
     }
 
     {
@@ -52,8 +51,7 @@ inline H5::Group mock_sequence_information(const std::filesystem::path& dir, con
         for (const auto& seq : info) {
             vals.push_back(seq.circular);
         }
-        auto chandle = add_hdf5_dataset(ghandle, "circular", H5::PredType::NATIVE_INT8, info.size());
-        chandle.write(vals.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(ghandle, "circular", H5::PredType::NATIVE_INT8, vals);
     }
 
     {
@@ -61,7 +59,7 @@ inline H5::Group mock_sequence_information(const std::filesystem::path& dir, con
         for (const auto& seq : info) {
             ptrs.push_back(seq.genome.c_str());
         }
-        auto gnhandle = add_hdf5_dataset(ghandle, "genome", H5::StrType(0, H5T_VARIABLE), info.size());
+        auto gnhandle = ghandle.createDataSet("genome", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(info.size()));
         gnhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
 

@@ -28,29 +28,28 @@ inline H5::Group mock_dense_array(const std::filesystem::path& dir, DenseArrayTy
     H5::DataSpace dspace(dims.size(), dims.data());
     if (type == DenseArrayType::INTEGER) {
         ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, dspace);
-        add_hdf5_attribute(ghandle, "type", "integer");
+        add_hdf5_string_attribute(ghandle, "type", "integer");
 
     } else if (type == DenseArrayType::NUMBER) {
         ghandle.createDataSet("data", H5::PredType::NATIVE_DOUBLE, dspace);
-        add_hdf5_attribute(ghandle, "type", "number");
+        add_hdf5_string_attribute(ghandle, "type", "number");
 
     } else if (type == DenseArrayType::BOOLEAN) {
         ghandle.createDataSet("data", H5::PredType::NATIVE_INT8, dspace);
-        add_hdf5_attribute(ghandle, "type", "boolean");
+        add_hdf5_string_attribute(ghandle, "type", "boolean");
 
     } else if (type == DenseArrayType::STRING) {
         ghandle.createDataSet("data", H5::StrType(0, 10), dspace);
-        add_hdf5_attribute(ghandle, "type", "string");
+        add_hdf5_string_attribute(ghandle, "type", "string");
 
     } else if (type == DenseArrayType::VLS) {
-        add_hdf5_attribute(ghandle, "type", "vls");
+        add_hdf5_string_attribute(ghandle, "type", "vls");
 
         // Just make up whatever for the heap and pointers here.
         std::string heap = "supercagifragilisticexpialadocious";
         std::vector<std::uint8_t> buffer(heap.size());
         std::copy(heap.begin(), heap.end(), reinterpret_cast<char*>(buffer.data()));
-        auto hhandle = add_hdf5_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, heap.size());
-        hhandle.write(buffer.data(), H5::PredType::NATIVE_UINT8);
+        add_hdf5_numeric_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, buffer);
 
         hsize_t length = 1;
         for (auto dm : dims) {

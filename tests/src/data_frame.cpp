@@ -39,7 +39,7 @@ TEST(DataFrame, RownamesError) {
 
     {
         auto ghandle = mock_data_frame(dir, 29, columns);
-        add_hdf5_dataset(ghandle, "row_names", H5::PredType::NATIVE_INT32, 29);
+        ghandle.createDataSet("row_names", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(29));
     }
     expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
@@ -51,13 +51,13 @@ TEST(DataFrame, RownamesError) {
 
     {
         auto ghandle = mock_data_frame(dir, 29, columns);
-        add_hdf5_dataset(ghandle, "row_names", H5::StrType(0, 10), 30);
+        ghandle.createDataSet("row_names", H5::StrType(0, 10), create_hdf5_dataspace(30));
     }
     expect_validation_error(dir, "number of row names");
 
     {
         auto ghandle = mock_data_frame(dir, 29, columns);
-        add_hdf5_dataset(ghandle, "row_names", H5::StrType(0, H5T_VARIABLE), 29);
+        ghandle.createDataSet("row_names", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(29));
     }
     expect_validation_error(dir, "failed to validate");
 }
@@ -92,7 +92,7 @@ TEST(DataFrame, ColnamesError) {
     {
         auto ghandle = mock_data_frame(dir, 29, columns);
         ghandle.unlink("column_names");
-        add_hdf5_dataset(ghandle, "column_names", H5::PredType::NATIVE_INT, columns.size());
+        ghandle.createDataSet("column_names", H5::PredType::NATIVE_INT, create_hdf5_dataspace(columns.size()));
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
@@ -181,7 +181,7 @@ TEST(DataFrame, ColumnDatasetError) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("1");
         xhandle.removeAttr("type");
-        add_hdf5_attribute(xhandle, "type", "something");
+        add_hdf5_string_attribute(xhandle, "type", "something");
     }
     expect_validation_error(dir, "unknown column type");
 
@@ -197,8 +197,8 @@ TEST(DataFrame, ColumnDatasetError) {
         auto ghandle = mock_data_frame(dir, 33, columns);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = add_hdf5_dataset(dhandle, "0", H5::PredType::NATIVE_INT32, 32);
-        add_hdf5_attribute(xhandle, "type", "integer");
+        auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(32));
+        add_hdf5_string_attribute(xhandle, "type", "integer");
     }
     expect_validation_error(dir, "not equal to the number of rows");
 }
@@ -216,7 +216,7 @@ TEST(DataFrame, ColumnGroupError) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         xhandle.removeAttr("type");
-        add_hdf5_attribute(xhandle, "type", "something");
+        add_hdf5_string_attribute(xhandle, "type", "something");
     }
     expect_validation_error(dir, "unknown column type");
 }
@@ -235,7 +235,7 @@ TEST(DataFrame, BooleanError) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.removeAttr("type");
-        add_hdf5_attribute(xhandle, "type", "boolean");
+        add_hdf5_string_attribute(xhandle, "type", "boolean");
     }
     expect_validation_error(dir, "32-bit signed integer");
 }
@@ -252,7 +252,7 @@ TEST(DataFrame, IntegerError) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.removeAttr("type");
-        add_hdf5_attribute(xhandle, "type", "integer");
+        add_hdf5_string_attribute(xhandle, "type", "integer");
     }
     expect_validation_error(dir, "32-bit signed integer");
 }
@@ -268,8 +268,8 @@ TEST(DataFrame, NumberError) {
         auto ghandle = mock_data_frame(dir, 55, columns);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
-        auto xhandle = add_hdf5_dataset(dhandle, "0", H5::PredType::NATIVE_INT64, 55);
-        add_hdf5_attribute(xhandle, "type", "number");
+        auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(55));
+        add_hdf5_string_attribute(xhandle, "type", "number");
     }
     expect_validation_error(dir, "64-bit float");
 }
@@ -340,7 +340,7 @@ TEST(DataFrame, StringOkay) {
         auto ghandle = mock_data_frame(dir, 32, columns);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        add_hdf5_attribute(xhandle, "format", "none");
+        add_hdf5_string_attribute(xhandle, "format", "none");
     }
 
     test_validate(dir);
@@ -361,7 +361,7 @@ TEST(DataFrame, StringError) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.removeAttr("type");
-        add_hdf5_attribute(xhandle, "type", "string");
+        add_hdf5_string_attribute(xhandle, "type", "string");
     }
     expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
@@ -380,7 +380,7 @@ TEST(DataFrame, StringError) {
         auto ghandle = mock_data_frame(dir, 23, columns); 
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        add_hdf5_attribute(xhandle, "format", "foobar"); 
+        add_hdf5_string_attribute(xhandle, "format", "foobar"); 
     }
     expect_validation_error(dir, "foobar");
 
@@ -403,7 +403,7 @@ TEST(DataFrame, StringMissingOkay) {
         auto ghandle = mock_data_frame(dir, 14, columns); 
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        add_hdf5_attribute(xhandle, "missing-value-placeholder", "asdasd");
+        add_hdf5_string_attribute(xhandle, "missing-value-placeholder", "asdasd");
     }
 
     test_validate(dir);
@@ -442,7 +442,7 @@ TEST(DataFrame, StringFormatOkay) {
         auto ghandle = mock_data_frame(dir, len, columns);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        add_hdf5_attribute(xhandle, "format", "date");
+        add_hdf5_string_attribute(xhandle, "format", "date");
         const char* placeholder = "2026-09-29";
         std::vector<const char*> pointers(len, placeholder);
         xhandle.write(pointers.data(), H5::StrType(0, H5T_VARIABLE));
@@ -469,7 +469,7 @@ TEST(DataFrame, StringFormatError) {
         auto ghandle = mock_data_frame(dir, len, columns);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        add_hdf5_attribute(xhandle, "format", "date");
+        add_hdf5_string_attribute(xhandle, "format", "date");
         const char* placeholder = "2026-09-29";
         const char* dummy = "mitochondria";
         std::vector<const char*> pointers(len, placeholder);
@@ -494,13 +494,13 @@ TEST(DataFrame, StringFormatMissingOkay) {
         auto ghandle = mock_data_frame(dir, len, columns);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        add_hdf5_attribute(xhandle, "format", "date");
+        add_hdf5_string_attribute(xhandle, "format", "date");
         const char* placeholder = "2026-09-29";
         const char* dummy = "mitochondria";
         std::vector<const char*> pointers(len, placeholder);
         pointers[len / 2] = dummy;
         xhandle.write(pointers.data(), H5::StrType(0, H5T_VARIABLE));
-        add_hdf5_attribute(xhandle, "missing-value-placeholder", dummy);
+        add_hdf5_string_attribute(xhandle, "missing-value-placeholder", dummy);
     }
 
     test_validate(dir);
@@ -531,10 +531,9 @@ TEST(DataFrame, FactorOkay) {
         EXPECT_EQ(test_dimensions(dir), expected_dim);
     }
 
-    // Plus ordered.
+    // Plus the ordered attribute.
     {
-        H5::H5File handle(dir / "basic_columns.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("data_frame");
+        auto ghandle = mock_data_frame(dir, 99, columns);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         xhandle.createAttribute("ordered", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
@@ -570,7 +569,7 @@ TEST(DataFrame, FactorError) {
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.unlink("levels");
-        add_hdf5_dataset(fhandle, "levels", H5::StrType(0, 10), 5);
+        fhandle.createDataSet("levels", H5::StrType(0, 10), create_hdf5_dataspace(5));
     }
     expect_validation_error(dir, "duplicated factor level");
 
@@ -580,7 +579,7 @@ TEST(DataFrame, FactorError) {
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.unlink("levels");
-        add_hdf5_dataset(fhandle, "levels", H5::StrType(0, 10), 1);
+        fhandle.createDataSet("levels", H5::StrType(0, 10), create_hdf5_dataspace(1));
     }
     expect_validation_error(dir, "less than the number of levels");
 
@@ -590,7 +589,7 @@ TEST(DataFrame, FactorError) {
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.unlink("codes");
-        auto xhandle = add_hdf5_dataset(fhandle, "codes", H5::PredType::NATIVE_UINT8, 80);
+        auto xhandle = fhandle.createDataSet("codes", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(80));
         std::vector<int> data(80);
         xhandle.write(data.data(), H5::PredType::NATIVE_INT);
     }
@@ -627,7 +626,7 @@ TEST(DataFrame, VlsHeapError) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         xhandle.unlink("heap");
-        add_hdf5_dataset(xhandle, "heap", H5::PredType::NATIVE_INT32, 100);
+        xhandle.createDataSet("heap", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "8-bit unsigned integer");
 }
@@ -673,7 +672,7 @@ TEST(DataFrame, VlsPointersError) {
         xhandle.unlink("pointers");
 
         const hsize_t new_num_rows = 100;
-        auto phandle = add_hdf5_dataset(xhandle, "pointers", ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>(), new_num_rows);
+        auto phandle = xhandle.createDataSet("pointers", ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>(), create_hdf5_dataspace(new_num_rows));
         std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > buffer(new_num_rows);
         for (hsize_t i = 0; i < new_num_rows; ++i) {
             buffer[i].offset = 0; 
@@ -696,7 +695,7 @@ TEST(DataFrame, VlsMissingOkay) {
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         auto phandle = xhandle.openDataSet("pointers");
-        add_hdf5_attribute(phandle, "missing-value-placeholder", "foobar");
+        add_hdf5_string_attribute(phandle, "missing-value-placeholder", "foobar");
     }
 
     test_validate(dir);

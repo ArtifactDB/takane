@@ -15,12 +15,11 @@ inline H5::Group mock_delayed_array(const std::filesystem::path& dir, DenseArray
 
     H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("delayed_array");
-    add_hdf5_attribute(ghandle, "delayed_type", "array");
-    add_hdf5_attribute(ghandle, "delayed_array", "custom takane seed array");
-    add_hdf5_attribute(ghandle, "delayed_version", "1.1");
+    add_hdf5_string_attribute(ghandle, "delayed_type", "array");
+    add_hdf5_string_attribute(ghandle, "delayed_array", "custom takane seed array");
+    add_hdf5_string_attribute(ghandle, "delayed_version", "1.1");
 
-    auto dhandle = add_hdf5_dataset(ghandle, "dimensions", H5::PredType::NATIVE_UINT32, dims.size());
-    dhandle.write(dims.data(), H5::PredType::NATIVE_HSIZE);
+    add_hdf5_numeric_dataset(ghandle, "dimensions", H5::PredType::NATIVE_UINT32, dims);
 
     H5::StrType stype(0, H5T_VARIABLE);
     auto thandle = ghandle.createDataSet("type", stype, H5S_SCALAR);

@@ -20,9 +20,7 @@ TEST(AtomicVector, PreambleError) {
 
     // Check that the type is correctly extracted.
     {
-        mock_atomic_vector(dir, 100, AtomicVectorType::INTEGER);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::INTEGER);
         ghandle.removeAttr("type");
         ghandle.createAttribute("type", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
@@ -34,20 +32,16 @@ TEST(AtomicVector, ValuesError) {
     std::string name = "atomic_vector";
 
     {
-        mock_atomic_vector(dir, 50, AtomicVectorType::INTEGER);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 50, AtomicVectorType::INTEGER);
         ghandle.unlink("values");
         ghandle.createDataSet("values", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
     expect_validation_error(dir, "1-dimensional dataset");
 
     {
-        mock_atomic_vector(dir, 50, AtomicVectorType::INTEGER);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 50, AtomicVectorType::INTEGER);
         ghandle.removeAttr("type");
-        add_hdf5_attribute(ghandle, "type", "foobar");
+        add_hdf5_string_attribute(ghandle, "type", "foobar");
     }
     expect_validation_error(dir, "unsupported type");
 }
@@ -65,10 +59,9 @@ TEST(AtomicVector, IntegerOkay) {
 
     // Works with a smaller type.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::INTEGER);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_UINT16, 99);
+        ghandle.createDataSet("values", H5::PredType::NATIVE_UINT16, create_hdf5_dataspace(99));
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 99);
@@ -76,13 +69,11 @@ TEST(AtomicVector, IntegerOkay) {
 
 TEST(AtomicVector, IntegerError) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 212, AtomicVectorType::INTEGER);
 
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 212, AtomicVectorType::INTEGER);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_FLOAT, 99);
+        ghandle.createDataSet("values", H5::PredType::NATIVE_FLOAT, create_hdf5_dataspace(99));
     }
     expect_validation_error(dir, "32-bit signed integer");
 }
@@ -100,10 +91,9 @@ TEST(AtomicVector, BooleanOkay) {
 
     // Works with a smaller type.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 33, AtomicVectorType::BOOLEAN);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT8, 66);
+        ghandle.createDataSet("values", H5::PredType::NATIVE_INT8, create_hdf5_dataspace(66));
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 66);
@@ -111,13 +101,11 @@ TEST(AtomicVector, BooleanOkay) {
 
 TEST(AtomicVector, BooleanError) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 100, AtomicVectorType::BOOLEAN);
 
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::BOOLEAN);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT64, 100);
+        ghandle.createDataSet("values", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "32-bit signed integer");
 }
@@ -135,10 +123,9 @@ TEST(AtomicVector, NumberOkay) {
 
     // Works with a smaller type.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 121, AtomicVectorType::NUMBER);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_FLOAT, 123);
+        ghandle.createDataSet("values", H5::PredType::NATIVE_FLOAT, create_hdf5_dataspace(123));
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 123);
@@ -149,10 +136,9 @@ TEST(AtomicVector, NumberError) {
     mock_atomic_vector(dir, 100, AtomicVectorType::NUMBER);
 
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 81, AtomicVectorType::NUMBER);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT64, 82);
+        ghandle.createDataSet("values", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(82));
     }
     expect_validation_error(dir, "64-bit float");
 }
@@ -170,10 +156,9 @@ TEST(AtomicVector, StringOkay) {
 
     // Works with variable-length strings.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 189, AtomicVectorType::STRING);
         ghandle.unlink("values");
-        auto dhandle = add_hdf5_dataset(ghandle, "values", H5::StrType(0, H5T_VARIABLE), 82);
+        auto dhandle = ghandle.createDataSet("values", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(82));
         const char* placeholder = "takane shijou";
         std::vector<const char*> payload(82, placeholder);
         dhandle.write(payload.data(), H5::StrType(0, H5T_VARIABLE));
@@ -183,9 +168,8 @@ TEST(AtomicVector, StringOkay) {
 
     // Works with format == none.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
-        add_hdf5_attribute(ghandle, "format", "none");
+        auto ghandle = mock_atomic_vector(dir, 189, AtomicVectorType::STRING);
+        add_hdf5_string_attribute(ghandle, "format", "none");
     }
     test_validate(dir);
 }
@@ -195,13 +179,10 @@ TEST(AtomicVector, StringFormatOkay) {
 
     // Checking date only, given that the same validation function is used for date-time.
     {
-        mock_atomic_vector(dir, 189, AtomicVectorType::STRING);
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
-        add_hdf5_attribute(ghandle, "format", "date");
-
+        auto ghandle = mock_atomic_vector(dir, 189, AtomicVectorType::STRING);
+        add_hdf5_string_attribute(ghandle, "format", "date");
         ghandle.unlink("values");
-        auto dhandle = add_hdf5_dataset(ghandle, "values", H5::StrType(0, H5T_VARIABLE), 86);
+        auto dhandle = ghandle.createDataSet("values", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(86));
         const char* placeholder = "2023-02-24";
         std::vector<const char*> payload(86, placeholder);
         dhandle.write(payload.data(), H5::StrType(0, H5T_VARIABLE));
@@ -212,44 +193,37 @@ TEST(AtomicVector, StringFormatOkay) {
 
 TEST(AtomicVector, StringValuesError) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
 
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::PredType::NATIVE_INT, 100);
+        ghandle.createDataSet("values", H5::PredType::NATIVE_INT, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
     // Check that NULL pointers are validated.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
         ghandle.unlink("values");
-        add_hdf5_dataset(ghandle, "values", H5::StrType(0, H5T_VARIABLE), 100);
+        ghandle.createDataSet("values", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "NULL");
 }
 
 TEST(AtomicVector, StringFormatError) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
 
     // Test that the format attribute is parsed.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
         ghandle.createAttribute("format", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
     expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
     // Test that the format is validated.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
-        ghandle.removeAttr("format");
-        add_hdf5_attribute(ghandle, "format", "date");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
+        add_hdf5_string_attribute(ghandle, "format", "date");
     }
     expect_validation_error(dir, "date-formatted string");
 }
@@ -258,11 +232,9 @@ TEST(AtomicVector, StringFormatError) {
 
 TEST(AtomicVector, NumericMissingOkay) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 100, AtomicVectorType::INTEGER);
 
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::INTEGER);
         auto dhandle = ghandle.openDataSet("values");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
@@ -271,44 +243,40 @@ TEST(AtomicVector, NumericMissingOkay) {
 
 TEST(AtomicVector, NumericMissingError) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 100, AtomicVectorType::INTEGER);
 
     // Test that the missing placeholder is actualy validated.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::INTEGER);
         auto dhandle = ghandle.openDataSet("values");
-        auto attr = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
     expect_validation_error(dir, "missing-value-placeholder");
 }
 
 TEST(AtomicVector, StringMissingOkay) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
 
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
         auto dhandle = ghandle.openDataSet("values");
-        add_hdf5_attribute(dhandle, "missing-value-placeholder", "foobar");
+        add_hdf5_string_attribute(dhandle, "missing-value-placeholder", "foobar");
     }
     test_validate(dir);
 
     // Works correctly with a format.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
         ghandle.unlink("values");
 
         H5::StrType stype(0, H5T_VARIABLE);
         constexpr hsize_t len = 30;
         auto dhandle = ghandle.createDataSet("values", stype, H5::DataSpace(1, &len));
+        const char* placeholder = "foobar";
+        add_hdf5_string_attribute(dhandle, "missing-value-placeholder", placeholder);
+
         const char* fill = "2022-02-02T22:22:22+12:00";
         std::vector<const char*> payload(len, fill);
-
-        add_hdf5_attribute(dhandle, "format", "date-time");
-        const char* placeholder = "foobar";
+        add_hdf5_string_attribute(dhandle, "format", "date-time");
         payload[5] = placeholder;
         payload[10] = placeholder;
         payload[20] = placeholder;
@@ -319,14 +287,12 @@ TEST(AtomicVector, StringMissingOkay) {
 
 TEST(AtomicVector, StringMissingError) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
 
     // Test that the missing placeholder is actualy validated.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 100, AtomicVectorType::STRING);
         auto dhandle = ghandle.openDataSet("values");
-        auto attr = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
     }
     expect_validation_error(dir, "missing-value-placeholder");
 }
@@ -335,25 +301,21 @@ TEST(AtomicVector, StringMissingError) {
 
 TEST(AtomicVector, NamesOkay) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 23, AtomicVectorType::INTEGER);
 
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
-        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 23);
+        auto ghandle = mock_atomic_vector(dir, 23, AtomicVectorType::INTEGER);
+        ghandle.createDataSet("names", H5::StrType(0, 10), create_hdf5_dataspace(23));
     }
     test_validate(dir);
 }
 
 TEST(AtomicVector, NamesError) {
     auto dir = define_test_path("atomic_vector");
-    mock_atomic_vector(dir, 23, AtomicVectorType::INTEGER);
 
     // Check that the validation function is called.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
-        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 10), 33);
+        auto ghandle = mock_atomic_vector(dir, 23, AtomicVectorType::INTEGER);
+        ghandle.createDataSet("names", H5::StrType(0, 10), create_hdf5_dataspace(33));
     }
     expect_validation_error(dir, "number of names");
 }
@@ -371,8 +333,7 @@ TEST(AtomicVector, VlsOkay) {
 
     // Injecting a missing value placeholder.
     {
-        H5::H5File handle(dir / "contents.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector");
+        auto ghandle = mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
         auto dhandle = ghandle.openDataSet("pointers");
         dhandle.createAttribute("missing-value-placeholder", H5::StrType(0, 10), H5S_SCALAR);
     }
@@ -412,7 +373,7 @@ TEST(AtomicVector, VlsPointersContentError) {
     {
         auto ghandle = mock_atomic_vector(dir, 55, AtomicVectorType::VLS);
         ghandle.unlink("heap");
-        add_hdf5_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, 0);
+        ghandle.createDataSet("heap", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(0));
     }
     expect_validation_error(dir, "out of range");
 }

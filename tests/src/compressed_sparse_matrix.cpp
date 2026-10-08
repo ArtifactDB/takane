@@ -113,7 +113,7 @@ TEST(CompressedSparseMatrix, TypeError) {
     {
         auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 1, {});
         ghandle.removeAttr("type");
-        add_hdf5_attribute(ghandle, "type", "foobar");
+        add_hdf5_string_attribute(ghandle, "type", "foobar");
     }
     expect_validation_error(dir, "unknown matrix type");
 }
@@ -132,7 +132,7 @@ TEST(CompressedSparseMatrix, LayoutError) {
     {
         auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 1, {});
         ghandle.removeAttr("layout");
-        add_hdf5_attribute(ghandle, "layout", "fooobar");
+        add_hdf5_string_attribute(ghandle, "layout", "fooobar");
     }
     expect_validation_error(dir, "'layout' should be either");
 }
@@ -143,7 +143,7 @@ TEST(CompressedSparseMatrix, ShapeError) {
     {
         auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
         ghandle.unlink("shape");
-        add_hdf5_dataset(ghandle, "shape", H5::PredType::NATIVE_INT32, 2);
+        ghandle.createDataSet("shape", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(2));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
@@ -158,7 +158,7 @@ TEST(CompressedSparseMatrix, ShapeError) {
     {
         auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
         ghandle.unlink("shape");
-        add_hdf5_dataset(ghandle, "shape", H5::PredType::NATIVE_UINT64, 3);
+        ghandle.createDataSet("shape", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "length 2");
 }
@@ -184,7 +184,7 @@ TEST(CompressedSparseMatrix, IntegerError) {
         config.type = CompressedSparseMatrixType::NUMBER;
         auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, config);
         ghandle.removeAttr("type");
-        add_hdf5_attribute(ghandle, "type", "integer");
+        add_hdf5_string_attribute(ghandle, "type", "integer");
     }
     expect_validation_error(dir, "32-bit signed integer");
 }
@@ -197,7 +197,7 @@ TEST(CompressedSparseMatrix, BooleanError) {
         config.type = CompressedSparseMatrixType::NUMBER;
         auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, config);
         ghandle.removeAttr("type");
-        add_hdf5_attribute(ghandle, "type", "boolean");
+        add_hdf5_string_attribute(ghandle, "type", "boolean");
     }
     expect_validation_error(dir, "32-bit signed integer");
 }
@@ -216,7 +216,7 @@ TEST(CompressedSparseMatrix, NumberError) {
             dhandle.getSpace().getSimpleExtentDims(&len);
         }
         ghandle.unlink("data");
-        add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT64, len);
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(len));
     }
     expect_validation_error(dir, "64-bit float");
 }
@@ -257,7 +257,7 @@ TEST(CompressedSparseMatrix, IndptrSimpleError) {
         int NC = 35;
         auto ghandle = mock_compressed_sparse_matrix(dir, 51, NC, 0.2, {});
         ghandle.unlink("indptr");
-        add_hdf5_dataset(ghandle, "indptr", H5::PredType::NATIVE_INT32, NC + 1);
+        ghandle.createDataSet("indptr", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(NC + 1));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
@@ -272,7 +272,7 @@ TEST(CompressedSparseMatrix, IndptrSimpleError) {
         int NC = 14;
         auto ghandle = mock_compressed_sparse_matrix(dir, 121, NC, 0.2, {});
         ghandle.unlink("indptr");
-        add_hdf5_dataset(ghandle, "indptr", H5::PredType::NATIVE_UINT32, NC);
+        ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(NC));
     }
     expect_validation_error(dir, "number of columns plus 1");
 
@@ -282,7 +282,7 @@ TEST(CompressedSparseMatrix, IndptrSimpleError) {
         config.csc = false;
         auto ghandle = mock_compressed_sparse_matrix(dir, NR, 23, 0.2, config);
         ghandle.unlink("indptr");
-        add_hdf5_dataset(ghandle, "indptr", H5::PredType::NATIVE_UINT32, 100);
+        ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "number of rows plus 1");
 }
@@ -348,7 +348,7 @@ TEST(CompressedSparseMatrix, IndicesSimpleError) {
     {
         auto ghandle = mock_compressed_sparse_matrix(dir, 51, 74, 0.2, {});
         ghandle.unlink("indices");
-        add_hdf5_dataset(ghandle, "indices", H5::PredType::NATIVE_INT32, 100);
+        ghandle.createDataSet("indices", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
@@ -367,7 +367,7 @@ TEST(CompressedSparseMatrix, IndicesSimpleError) {
             ihandle.getSpace().getSimpleExtentDims(&len);
         }
         ghandle.unlink("indices");
-        add_hdf5_dataset(ghandle, "indices", H5::PredType::NATIVE_UINT32, len + 1); 
+        ghandle.createDataSet("indices", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(len + 1));
     }
     expect_validation_error(dir, "equal to the number of non-zero");
 }
@@ -454,8 +454,8 @@ TEST(CompressedSparseMatrix, NamesOkay) {
     {
         auto ghandle = mock_compressed_sparse_matrix(dir, 55, 33, 0.25, {});
         auto nhandle = ghandle.createGroup("names");
-        add_hdf5_dataset(nhandle, "0", H5::StrType(0, 5), 55);
-        add_hdf5_dataset(nhandle, "1", H5::StrType(0, 5), 33);
+        nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(55));
+        nhandle.createDataSet("1", H5::StrType(0, 5), create_hdf5_dataspace(33));
     }
 
     test_validate(dir);
@@ -470,8 +470,8 @@ TEST(CompressedSparseMatrix, NamesError) {
     {
         auto ghandle = mock_compressed_sparse_matrix(dir, 55, 33, 0.25, {});
         auto nhandle = ghandle.createGroup("names");
-        add_hdf5_dataset(nhandle, "0", H5::StrType(0, 5), 33);
-        add_hdf5_dataset(nhandle, "1", H5::StrType(0, 5), 55);
+        nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(33));
+        nhandle.createDataSet("1", H5::StrType(0, 5), create_hdf5_dataspace(55));
     }
 
     expect_validation_error(dir, "same length as the extent");

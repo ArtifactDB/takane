@@ -72,10 +72,7 @@ TEST(ValidateFactorLevels, Okay) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), 5);
-        std::vector<std::string> levels { "A", "BB", "CCC", "DDDD", "EEEEE" };
-        auto lptrs = pointerize_strings(levels);
-        dhandle.write(lptrs.data(), H5::StrType(0, H5T_VARIABLE));
+        add_hdf5_string_dataset(handle, "foobar", { "A", "BB", "CCC", "DDDD", "EEEEE" });
     }
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -89,7 +86,7 @@ TEST(ValidateFactorLevels, Error) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "foobar", H5::PredType::NATIVE_INT32, 5);
+        handle.createDataSet("foobar", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(5));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -104,7 +101,7 @@ TEST(ValidateFactorLevels, Error) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "foobar", H5::StrType(0, 10), 5);
+        handle.createDataSet("foobar", H5::StrType(0, 10), create_hdf5_dataspace(5));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -120,10 +117,7 @@ TEST(ValidateFactorLevels, Error) {
     // Less trivial example.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), 5);
-        std::vector<std::string> levels { "A", "BB", "CCC", "DDDD", "A" };
-        auto lptrs = pointerize_strings(levels);
-        dhandle.write(lptrs.data(), H5::StrType(0, H5T_VARIABLE));
+        add_hdf5_string_dataset(handle, "foobar", { "A", "BB", "CCC", "DDDD", "A" });
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -145,9 +139,7 @@ TEST(ValidateFactorCodes, Okay) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        std::vector<int> vals { 3, 2, 0, 1, 2, 1, 1, 2, 3, 0 };
-        auto dhandle = add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_UINT32, vals.size());
-        dhandle.write(vals.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset<int>(handle, "foo", H5::PredType::NATIVE_UINT32, { 3, 2, 0, 1, 2, 1, 1, 2, 3, 0 });
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -160,12 +152,8 @@ TEST(ValidateFactorCodes, Okay) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        std::vector<int> vals { 3, 2, 0, 100, 2, 1, 1, 100, 3, 0 };
-        auto dhandle = add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_UINT32, vals.size());
-        dhandle.write(vals.data(), H5::PredType::NATIVE_INT);
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
-        int val = 100;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
+        auto dhandle = add_hdf5_numeric_dataset<int>(handle, "foo", H5::PredType::NATIVE_UINT32, { 3, 2, 0, 100, 2, 1, 1, 100, 3, 0 });
+        add_hdf5_numeric_attribute(dhandle, "missing-value-placeholder", H5::PredType::NATIVE_UINT32, 100);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -180,7 +168,7 @@ TEST(ValidateFactorCodes, GeneralError) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "foo", H5::PredType::NATIVE_DOUBLE, 10);
+        handle.createDataSet("foo", H5::PredType::NATIVE_DOUBLE, create_hdf5_dataspace(10));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -215,8 +203,7 @@ TEST(ValidateFactorCodes, GeneralError) {
         for (std::size_t i = 0; i < num; ++i) {
             stuff[i] = i % 10;
         }
-        auto dhandle = add_hdf5_dataset(handle, "blah", H5::PredType::NATIVE_UINT16, stuff.size());
-        dhandle.write(stuff.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(handle, "blah", H5::PredType::NATIVE_UINT16, stuff);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -237,7 +224,7 @@ TEST(ValidateFactorCodes, MissingError) {
     // Check that we actually validate the missing placeholder.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "blah", H5::PredType::NATIVE_UINT16, 10);
+        auto dhandle = handle.createDataSet("blah", H5::PredType::NATIVE_UINT16, create_hdf5_dataspace(10));
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
     {
@@ -251,6 +238,7 @@ TEST(ValidateFactorCodes, MissingError) {
         );
     }
 
+    // Still can get out-of-range errors if the placeholder doesn't match. 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         const std::size_t num = 99;
@@ -258,9 +246,8 @@ TEST(ValidateFactorCodes, MissingError) {
         for (std::size_t i = 0; i < num; ++i) {
             stuff[i] = i % 10;
         }
-        auto dhandle = add_hdf5_dataset(handle, "blah", H5::PredType::NATIVE_UINT16, stuff.size());
-        dhandle.write(stuff.data(), H5::PredType::NATIVE_INT);
-        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT16, H5S_SCALAR);
+        auto dhandle = add_hdf5_numeric_dataset(handle, "blah", H5::PredType::NATIVE_UINT16, stuff);
+        add_hdf5_numeric_attribute(dhandle, "missing-value-placeholder", H5::PredType::NATIVE_UINT16, 4);
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);

@@ -28,40 +28,27 @@ void mock_compressed_sparse_matrix(
     const std::vector<Pointer_>& indptr,
     const CompressedSparseMatrixConfig& config
 ) {
-    {
-        auto dhandle = add_hdf5_dataset(handle, "shape", H5::PredType::NATIVE_UINT32, dimensions.size());
-        dhandle.write(dimensions.data(), ritsuko::hdf5::as_numeric_datatype<Dimension_>());
-    }
+    add_hdf5_numeric_dataset(handle, "shape", H5::PredType::NATIVE_UINT32, dimensions);
 
     if (config.csc) {
-        add_hdf5_attribute(handle, "layout", "CSC");
+        add_hdf5_string_attribute(handle, "layout", "CSC");
     } else {
-        add_hdf5_attribute(handle, "layout", "CSR");
+        add_hdf5_string_attribute(handle, "layout", "CSR");
     }
 
     if (config.type == CompressedSparseMatrixType::NUMBER) {
-        auto dhandle = add_hdf5_dataset(handle, "data", H5::PredType::NATIVE_DOUBLE, data.size());
-        dhandle.write(data.data(), ritsuko::hdf5::as_numeric_datatype<Data_>());
-        add_hdf5_attribute(handle, "type", "number");
+        add_hdf5_numeric_dataset(handle, "data", H5::PredType::NATIVE_DOUBLE, data);
+        add_hdf5_string_attribute(handle, "type", "number");
     } else if (config.type == CompressedSparseMatrixType::INTEGER) {
-        auto dhandle = add_hdf5_dataset(handle, "data", H5::PredType::NATIVE_INT32, data.size());
-        dhandle.write(data.data(), ritsuko::hdf5::as_numeric_datatype<Data_>());
-        add_hdf5_attribute(handle, "type", "integer");
+        add_hdf5_numeric_dataset(handle, "data", H5::PredType::NATIVE_INT32, data);
+        add_hdf5_string_attribute(handle, "type", "integer");
     } else {
-        auto dhandle = add_hdf5_dataset(handle, "data", H5::PredType::NATIVE_INT8, data.size());
-        dhandle.write(data.data(), ritsuko::hdf5::as_numeric_datatype<Data_>());
-        add_hdf5_attribute(handle, "type", "boolean");
+        add_hdf5_numeric_dataset(handle, "data", H5::PredType::NATIVE_INT8, data);
+        add_hdf5_string_attribute(handle, "type", "boolean");
     }
 
-    {
-        auto dhandle = add_hdf5_dataset(handle, "indices", H5::PredType::NATIVE_UINT32, indices.size());
-        dhandle.write(indices.data(), ritsuko::hdf5::as_numeric_datatype<Index_>());
-    }
-
-    {
-        auto dhandle = add_hdf5_dataset(handle, "indptr", H5::PredType::NATIVE_UINT64, indptr.size());
-        dhandle.write(indptr.data(), ritsuko::hdf5::as_numeric_datatype<Pointer_>());
-    }
+    add_hdf5_numeric_dataset(handle, "indices", H5::PredType::NATIVE_UINT32, indices);
+    add_hdf5_numeric_dataset(handle, "indptr", H5::PredType::NATIVE_UINT64, indptr);
 }
 
 inline H5::Group mock_compressed_sparse_matrix(const std::filesystem::path& path, int nr, int nc, double density, const CompressedSparseMatrixConfig& config) {

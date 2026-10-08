@@ -11,7 +11,7 @@ TEST(OpenAndLoadStringScalarAttribute, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("foo");
-        add_hdf5_attribute(ghandle, "bar", "stuff");
+        add_hdf5_string_attribute(ghandle, "bar", "stuff");
     }
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -72,7 +72,7 @@ TEST(OpenAndLoadStringFormat, Okay) {
     {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto ghandle = handle.openGroup("foo");
-        add_hdf5_attribute(ghandle, "format", "whee");
+        add_hdf5_string_attribute(ghandle, "format", "whee");
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -99,7 +99,7 @@ TEST(ValidateStringFormat, NoneOkay) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "foobar", H5::StrType(0, 10), 10);
+        handle.createDataSet("foobar", H5::StrType(0, 10), create_hdf5_dataspace(10));
     }
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -113,7 +113,7 @@ TEST(ValidateStringFormat, NoneError) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "foobar", H5::StrType(0, 10), 10);
+        handle.createDataSet("foobar", H5::StrType(0, 10), create_hdf5_dataspace(10));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -124,7 +124,7 @@ TEST(ValidateStringFormat, NoneError) {
     // Check that we actually validate the VLS pointers.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "stuff", H5::StrType(0, H5T_VARIABLE), 10);
+        handle.createDataSet("stuff", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(10));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -141,9 +141,7 @@ TEST(ValidateStringFormat, DateSimple) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), payload.size());
-        auto ptrs = pointerize_strings(payload);
-        dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
+        add_hdf5_string_dataset(handle, "foobar", payload);
     }
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -176,7 +174,7 @@ TEST(ValidateStringFormat, DateError) {
 
         {
             H5::H5File handle(path, H5F_ACC_TRUNC);
-            auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), ptrs.size());
+            auto dhandle = handle.createDataSet("foobar", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(ptrs.size()));
             dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
         }
 
@@ -202,7 +200,7 @@ TEST(ValidateStringFormat, DateMissing) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), ptrs.size());
+        auto dhandle = handle.createDataSet("foobar", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(ptrs.size()));
         dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
@@ -225,9 +223,7 @@ TEST(ValidateStringFormat, DateTimeSimple) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto ptrs = pointerize_strings(contents);
-        auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), ptrs.size());
-        dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
+        add_hdf5_string_dataset(handle, "foobar", contents);
     }
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -259,7 +255,7 @@ TEST(ValidateStringFormat, DateTimeError) {
 
         {
             H5::H5File handle(path, H5F_ACC_TRUNC);
-            auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), ptrs.size());
+            auto dhandle = handle.createDataSet("foobar", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(ptrs.size()));
             dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
         }
 
@@ -283,7 +279,7 @@ TEST(ValidateStringFormat, DateTimeMissing) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        auto dhandle = add_hdf5_dataset(handle, "foobar", H5::StrType(0, H5T_VARIABLE), ptrs.size());
+        auto dhandle = handle.createDataSet("foobar", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(ptrs.size()));
         dhandle.write(ptrs.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
@@ -313,7 +309,7 @@ TEST(ValidateNames, Okay) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "names", H5::StrType(0, 10), 5);
+        handle.createDataSet("names", H5::StrType(0, 10), create_hdf5_dataspace(5));
     }
 
     H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -325,7 +321,7 @@ TEST(ValidateNames, Error) {
 
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "names", H5::PredType::NATIVE_INT32, 5);
+        handle.createDataSet("names", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(5));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -344,7 +340,7 @@ TEST(ValidateNames, Error) {
     // Check that the length is consistent with the height of the object it's naming.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "names", H5::StrType(0, 10), 5);
+        handle.createDataSet("names", H5::StrType(0, 10), create_hdf5_dataspace(5));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -354,7 +350,7 @@ TEST(ValidateNames, Error) {
     // Check that we actually validate the strings.
     {
         H5::H5File handle(path, H5F_ACC_TRUNC);
-        add_hdf5_dataset(handle, "names", H5::StrType(0, H5T_VARIABLE), 5);
+        handle.createDataSet("names", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(5));
     }
     {
         H5::H5File handle(path, H5F_ACC_RDONLY);

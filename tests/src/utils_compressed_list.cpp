@@ -110,7 +110,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
         auto ghandle2 = mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
         ghandle2.removeAttr("type");
-        add_hdf5_attribute(ghandle2, "type", "string");
+        add_hdf5_string_attribute(ghandle2, "type", "string");
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -130,7 +130,7 @@ TEST(ValidateCompressedList, PartitionsError) {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         H5::H5File handle(dir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("atomic_vector_list");
-        add_hdf5_dataset(ghandle, "lengths", H5::PredType::NATIVE_INT32, 20);
+        ghandle.createDataSet("lengths", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(20));
         mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
     }
     {
@@ -182,7 +182,7 @@ TEST(ValidateCompressedList, Names) {
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         auto ghandle = mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 2, 3, 4, 5, 6 });
-        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 5), 6);
+        ghandle.createDataSet("names", H5::StrType(0, 5), create_hdf5_dataspace(6));
         mock_atomic_vector(dir / "concatenated", 21, AtomicVectorType::INTEGER);
     }
     {
@@ -193,10 +193,10 @@ TEST(ValidateCompressedList, Names) {
 
     // Test that some kind of validation is performed.
     {
-        H5::H5File handle(dir / "partitions.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("atomic_vector_list");
-        ghandle.unlink("names");
-        add_hdf5_dataset(ghandle, "names", H5::StrType(0, 5), 10);
+        initialize_directory_simple(dir, "atomic_vector_list", "1.0");
+        auto ghandle = mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 2, 3, 4, 5, 6 });
+        ghandle.createDataSet("names", H5::StrType(0, 5), create_hdf5_dataspace(10));
+        mock_atomic_vector(dir / "concatenated", 21, AtomicVectorType::INTEGER);
     }
     {
         auto meta = takane::read_object_metadata(dir);

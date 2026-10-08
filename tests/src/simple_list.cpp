@@ -130,7 +130,7 @@ TEST(SimpleList, Hdf5Okay) {
         initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
         H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
-        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        add_hdf5_string_attribute(ghandle, "uzuki_object", "list");
         ghandle.createGroup("data");
     }
     test_validate(dir);
@@ -140,17 +140,17 @@ TEST(SimpleList, Hdf5Okay) {
         initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
         H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
-        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        add_hdf5_string_attribute(ghandle, "uzuki_object", "list");
         auto dhandle = ghandle.createGroup("data");
         {
             auto ghandle = dhandle.createGroup("0");
-            add_hdf5_attribute(ghandle, "uzuki_object", "vector");
-            add_hdf5_attribute(ghandle, "uzuki_type", "integer");
-            add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT32, 10);
+            add_hdf5_string_attribute(ghandle, "uzuki_object", "vector");
+            add_hdf5_string_attribute(ghandle, "uzuki_type", "integer");
+            ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(10));
         }
         {
             auto ghandle = dhandle.createGroup("1");
-            add_hdf5_attribute(ghandle, "uzuki_object", "nothing");
+            add_hdf5_string_attribute(ghandle, "uzuki_object", "nothing");
         }
     }
     test_validate(dir);
@@ -161,11 +161,11 @@ TEST(SimpleList, Hdf5Okay) {
         initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
         H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
-        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        add_hdf5_string_attribute(ghandle, "uzuki_object", "list");
         auto dhandle = ghandle.createGroup("data");
         {
             auto ghandle = dhandle.createGroup("0");
-            add_hdf5_attribute(ghandle, "uzuki_object", "external");
+            add_hdf5_string_attribute(ghandle, "uzuki_object", "external");
             auto xhandle = ghandle.createDataSet("index", H5::PredType::NATIVE_INT8, H5S_SCALAR);
             const int val = 0;
             xhandle.write(&val, H5::PredType::NATIVE_INT);
@@ -191,7 +191,7 @@ TEST(SimpleList, Hdf5Default) {
         }
         H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
-        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        add_hdf5_string_attribute(ghandle, "uzuki_object", "list");
         ghandle.createGroup("data");
     }
     test_validate(dir);
@@ -209,21 +209,21 @@ TEST(SimpleList, Hdf5Length) {
         initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
         H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
-        add_hdf5_attribute(ghandle, "uzuki_object", "list");
+        add_hdf5_string_attribute(ghandle, "uzuki_object", "list");
         auto dhandle = ghandle.createGroup("data");
         {
             auto ghandle = dhandle.createGroup("0");
-            add_hdf5_attribute(ghandle, "uzuki_object", "nothing");
+            add_hdf5_string_attribute(ghandle, "uzuki_object", "nothing");
         }
         {
             auto ghandle = dhandle.createGroup("1");
-            add_hdf5_attribute(ghandle, "uzuki_object", "vector");
-            add_hdf5_attribute(ghandle, "uzuki_type", "integer");
-            add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT32, 10);
+            add_hdf5_string_attribute(ghandle, "uzuki_object", "vector");
+            add_hdf5_string_attribute(ghandle, "uzuki_type", "integer");
+            ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(10));
         }
         {
             auto ghandle = dhandle.createGroup("2");
-            add_hdf5_attribute(ghandle, "uzuki_object", "nothing");
+            add_hdf5_string_attribute(ghandle, "uzuki_object", "nothing");
         }
     }
     test_validate(dir);
@@ -246,9 +246,9 @@ TEST(SimpleList, Hdf5Error) {
         initialize_simple_list_with_metadata(dir, "1.0", "hdf5");
         H5::H5File handle(dir / "list_contents.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("simple_list");
-        add_hdf5_attribute(ghandle, "uzuki_object", "vector");
-        add_hdf5_attribute(ghandle, "uzuki_type", "integer");
-        add_hdf5_dataset(ghandle, "data", H5::PredType::NATIVE_INT32, 10);
+        add_hdf5_string_attribute(ghandle, "uzuki_object", "vector");
+        add_hdf5_string_attribute(ghandle, "uzuki_type", "integer");
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(10));
     }
     expect_validation_error(dir, "top-level");
 }

@@ -19,8 +19,7 @@ TEST(DelayedArray, Okay) {
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 10);
-        std::vector<std::size_t> expected_dims { 10, 20 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 10, 20 }));
     }
 
     // No external references at all.
@@ -29,22 +28,17 @@ TEST(DelayedArray, Okay) {
 
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("delayed_array");
-        add_hdf5_attribute(ghandle, "delayed_type", "array");
-        add_hdf5_attribute(ghandle, "delayed_array", "constant array");
-        add_hdf5_attribute(ghandle, "delayed_version", "1.1");
-
-        std::vector<hsize_t> dimensions{ 15, 3, 14 };
-        auto dhandle = add_hdf5_dataset(ghandle, "dimensions", H5::PredType::NATIVE_UINT32, dimensions.size());
-        dhandle.write(dimensions.data(), H5::PredType::NATIVE_HSIZE);
-
+        add_hdf5_string_attribute(ghandle, "delayed_type", "array");
+        add_hdf5_string_attribute(ghandle, "delayed_array", "constant array");
+        add_hdf5_string_attribute(ghandle, "delayed_version", "1.1");
+        add_hdf5_numeric_dataset<int>(ghandle, "dimensions", H5::PredType::NATIVE_UINT32, { 15, 3, 14 });
         auto thandle = ghandle.createDataSet("value", H5::PredType::NATIVE_INT8, H5S_SCALAR);
-        add_hdf5_attribute(thandle, "type", "BOOLEAN");
+        add_hdf5_string_attribute(thandle, "type", "BOOLEAN");
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 15);
-        std::vector<std::size_t> expected_dims { 15, 3, 14 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 15, 3, 14 }));
     }
 
     // Multiple external references.
@@ -53,9 +47,9 @@ TEST(DelayedArray, Okay) {
 
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("delayed_array");
-        add_hdf5_attribute(ghandle, "delayed_type", "operation");
-        add_hdf5_attribute(ghandle, "delayed_operation", "combine");
-        add_hdf5_attribute(ghandle, "delayed_version", "1.1");
+        add_hdf5_string_attribute(ghandle, "delayed_type", "operation");
+        add_hdf5_string_attribute(ghandle, "delayed_operation", "combine");
+        add_hdf5_string_attribute(ghandle, "delayed_version", "1.1");
 
         auto ahandle = ghandle.createDataSet("along", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
         int along = 1;
@@ -63,15 +57,14 @@ TEST(DelayedArray, Okay) {
 
         std::filesystem::create_directory(dir / "seeds");
         auto shandle = ghandle.createGroup("seeds");
-        int len = 3;
-        auto attr = shandle.createAttribute("length", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
-        attr.write(H5::PredType::NATIVE_INT, &len);
+        const int len = 3;
+        add_hdf5_numeric_attribute(shandle, "length", H5::PredType::NATIVE_UINT32, len);
 
         for (int i = 0; i < len; ++i) {
             auto nm = std::to_string(i);
             auto xhandle = shandle.createGroup(nm);
-            add_hdf5_attribute(xhandle, "delayed_type", "array");
-            add_hdf5_attribute(xhandle, "delayed_array", "custom takane seed array");
+            add_hdf5_string_attribute(xhandle, "delayed_type", "array");
+            add_hdf5_string_attribute(xhandle, "delayed_array", "custom takane seed array");
 
             H5::StrType stype(0, H5T_VARIABLE);
             auto thandle = xhandle.createDataSet("type", stype, H5S_SCALAR);
@@ -80,8 +73,7 @@ TEST(DelayedArray, Okay) {
             std::vector<hsize_t> dims(2);
             dims[0] = 10;
             dims[1] = i * 20;
-            auto dhandle = add_hdf5_dataset(xhandle, "dimensions", H5::PredType::NATIVE_UINT32, dims.size());
-            dhandle.write(dims.data(), H5::PredType::NATIVE_HSIZE);
+            add_hdf5_numeric_dataset(xhandle, "dimensions", H5::PredType::NATIVE_UINT32, dims);
 
             auto ihandle = xhandle.createDataSet("index", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
             ihandle.write(&i, H5::PredType::NATIVE_INT);
@@ -120,9 +112,9 @@ TEST(DelayedArray, ChihayaError) {
         initialize_directory_simple(dir, "delayed_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("delayed_array");
-        add_hdf5_attribute(ghandle, "delayed_type", "array");
-        add_hdf5_attribute(ghandle, "delayed_array", "unknown array");
-        add_hdf5_attribute(ghandle, "delayed_version", "1.1");
+        add_hdf5_string_attribute(ghandle, "delayed_type", "array");
+        add_hdf5_string_attribute(ghandle, "delayed_array", "unknown array");
+        add_hdf5_string_attribute(ghandle, "delayed_version", "1.1");
     }
     expect_validation_error(dir, "failed to validate 'delayed_array' in 'array.h5'");
 }
@@ -133,7 +125,7 @@ TEST(DelayedArray, IndexError) {
     {
         auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
         ghandle.unlink("index");
-        add_hdf5_dataset(ghandle, "index", H5::PredType::NATIVE_UINT8, 20);
+        ghandle.createDataSet("index", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(20));
     }
     expect_validation_error(dir, "scalar");
 
