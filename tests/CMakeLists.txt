@@ -33,6 +33,7 @@ add_executable(
     src/fasta_file.cpp
     src/fastq_file.cpp
     src/genomic_ranges.cpp
+    src/genomic_ranges_list.cpp
     src/gff_file.cpp
     src/gmt_file.cpp
     src/image_file.cpp
@@ -40,7 +41,6 @@ add_executable(
     src/sequence_information.cpp
     src/simple_list.cpp
     src/string_factor.cpp
-#    src/genomic_ranges_list.cpp
 #    src/summarized_experiment.cpp
 #    src/ranged_summarized_experiment.cpp
 #    src/single_cell_experiment.cpp

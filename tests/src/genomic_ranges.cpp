@@ -408,32 +408,11 @@ TEST(GenomicRanges, IntervalEndError) {
 
 /********************************/
 
-static H5::Group quick_mock(const std::filesystem::path& dir) {
-    return mock_genomic_ranges(
-        dir,
-        {  
-            GenomicRange(0, 10, 500, 1),
-            GenomicRange(2, 1, 99, 0),
-            GenomicRange(1, 1, 900, -1),
-            GenomicRange(0, 52, 47, 0),
-            GenomicRange(1, 10, 800, -1),
-            GenomicRange(1, 1, 99, 1),
-            GenomicRange(2, 330, 100, 0),
-            GenomicRange(2, 1, 500, 1)
-        },
-        {
-            SequenceInfo("kanon", 1000, false, "liella"),
-            SequenceInfo("chisato", 900, false, "liella"),
-            SequenceInfo("keke", 500, false, "liella")
-        }
-    );
-}
-
 TEST(GenomicRanges, NamesOkay) {
     auto dir = define_test_path("genomic_ranges");
 
     {
-        auto ghandle = quick_mock(dir);
+        auto ghandle = mock_genomic_ranges(dir, 8, 3);
         add_hdf5_dataset(ghandle, "name", H5::StrType(0, 5), 8);
     }
 
@@ -445,7 +424,7 @@ TEST(GenomicRanges, NamesError) {
     auto dir = define_test_path("genomic_ranges");
 
     {
-        auto ghandle = quick_mock(dir);
+        auto ghandle = mock_genomic_ranges(dir, 4, 2);
         add_hdf5_dataset(ghandle, "name", H5::StrType(0, 5), 3);
     }
     expect_validation_error(dir, "number of names");
@@ -455,7 +434,7 @@ TEST(GenomicRanges, McolsOkay) {
     auto dir = define_test_path("genomic_ranges");
 
     {
-        quick_mock(dir);
+        mock_genomic_ranges(dir, 8, 4);
         std::vector<DataFrameColumnDetails> cols(2);
         cols[0].name = "year";
         cols[1].name = "height";
@@ -466,11 +445,11 @@ TEST(GenomicRanges, McolsOkay) {
     EXPECT_EQ(test_height(dir), 8);
 }
 
-TEST(GenomicRanges, McolsOError) {
+TEST(GenomicRanges, McolsError) {
     auto dir = define_test_path("genomic_ranges");
 
     {
-        quick_mock(dir);
+        mock_genomic_ranges(dir, 10, 2);
         std::vector<DataFrameColumnDetails> cols(2);
         cols[0].name = "age";
         cols[1].name = "blood_type";
@@ -484,19 +463,19 @@ TEST(GenomicRanges, MetadataOkay) {
     auto dir = define_test_path("genomic_ranges");
 
     {
-        quick_mock(dir);
+        mock_genomic_ranges(dir, 9, 1);
         mock_simple_list(dir / "other_annotations");
     }
 
     test_validate(dir);
-    EXPECT_EQ(test_height(dir), 8);
+    EXPECT_EQ(test_height(dir), 9);
 }
 
 TEST(GenomicRanges, MetadataError) {
     auto dir = define_test_path("genomic_ranges");
 
     {
-        quick_mock(dir);
+        mock_genomic_ranges(dir, 8, 3);
         mock_data_frame(dir / "other_annotations", 8, {});
     }
 

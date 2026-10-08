@@ -2,69 +2,33 @@
 #include <gmock/gmock.h>
 
 #include "utils.h"
-#include "genomic_ranges.h"
-#include "data_frame.h"
-#include "simple_list.h"
+#include "mock_genomic_ranges.h"
+#include "mock_compressed_list.h"
 
 #include <string>
 #include <filesystem>
 #include <fstream>
 
-struct GenomicRangesListTest : public::testing::Test {
-    GenomicRangesListTest() {
-        dir = "TEST_genomic_ranges_list";
-        name = "genomic_ranges_list";
-    }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    H5::H5File initialize() {
-        initialize_directory_simple(dir, name, "1.0");
-        return H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
-    }
-
-    H5::H5File reopen() {
-        return H5::H5File(dir / "partitions.h5", H5F_ACC_RDWR);
-    }
-
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(GenomicRangesListTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version string");
+TEST(GenomicRangesList, Okay) {
+    auto dir = define_test_path("genomic_ranges_list");
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 1, 2, 1, 3 });
-        initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
+        initialize_directory_simple(dir, "genomic_ranges_list", "1.0");
+        mock_compressed_list_partitions(dir / "partitions.h5", "genomic_ranges_list", { 1, 2, 1, 3 });
+        mock_genomic_ranges(dir / "concatenated", 7, 3);
     }
-    expect_error("'genomic_ranges'");
 
-    {
-        initialize_directory_simple(dir / "concatenated", "genomic_ranges", "1.0");
-    }
-    expect_error("failed to validate the 'concatenated'");
-
-    {
-        genomic_ranges::mock(dir / "concatenated", 8, 5);
-    }
-    expect_error("sum of 'lengths'");
-
-    {
-        genomic_ranges::mock(dir / "concatenated", 7, 3);
-    }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 4);
+}
+
+TEST(GenomicRangesList, Error) {
+    auto dir = define_test_path("genomic_ranges_list");
+
+    {
+        initialize_directory_simple(dir, "genomic_ranges_list", "1.0");
+        mock_compressed_list_partitions(dir / "partitions.h5", "genomic_ranges_list", { 1, 2, 1, 3 });
+        initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
+    }
+    expect_validation_error(dir, "'genomic_ranges' type");
 }
