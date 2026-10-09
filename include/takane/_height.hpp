@@ -38,29 +38,29 @@ namespace takane {
  */
 inline auto default_height_registry() {
     std::unordered_map<std::string, std::function<std::size_t(const std::filesystem::path&, const ObjectMetadata& m, const Options& os)> > registry;
-    registry["atomic_vector"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_atomic_vector(p, m, o); };
-    registry["atomic_vector_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_atomic_vector_list(p, m, o); };
-    registry["compressed_sparse_matrix"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_compressed_sparse_matrix(p, m, o); };
-    registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_data_frame(p, m, o); };
-    registry["data_frame_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_data_frame_factor(p, m, o); };
-    registry["data_frame_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_data_frame_list(p, m, o); };
-    registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_delayed_array(p, m, o); };
-    registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_dense_array(p, m, o); };
-    registry["genomic_ranges"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_genomic_ranges(p, m, o); };
-    registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_genomic_ranges_list(p, m, o); };
-    registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_simple_list(p, m, o); };
-    registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_string_factor(p, m, o); };
-    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_summarized_experiment(p, m, o); };
+    registry["atomic_vector"] = height_of_atomic_vector;
+    registry["atomic_vector_list"] = height_of_atomic_vector_list;
+    registry["compressed_sparse_matrix"] = height_of_compressed_sparse_matrix;
+    registry["data_frame"] = height_of_data_frame;
+    registry["data_frame_factor"] = height_of_data_frame_factor;
+    registry["data_frame_list"] = height_of_data_frame_list;
+    registry["delayed_array"] = height_of_delayed_array;
+    registry["dense_array"] = height_of_dense_array;
+    registry["genomic_ranges"] = height_of_genomic_ranges;
+    registry["genomic_ranges_list"] = height_of_genomic_ranges_list;
+    registry["simple_list"] = height_of_simple_list;
+    registry["string_factor"] = height_of_string_factor;
+    registry["summarized_experiment"] = height_of_summarized_experiment;
 
     // Subclasses of the SE, so we just re-use its methods here.
     registry["ranged_summarized_experiment"] = height_of_summarized_experiment;
     registry["single_cell_experiment"] = height_of_summarized_experiment;
     registry["spatial_experiment"] = height_of_summarized_experiment;
 
-//    registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return sequence_string_set::height(p, m, o); };
-//    registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return bumpy_atomic_array::height(p, m, o); };
-//    registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return bumpy_data_frame_array::height(p, m, o); };
-//    registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return vcf_experiment::height(p, m, o); };
+//    registry["sequence_string_set"] = sequence_string_set::height;
+//    registry["bumpy_atomic_array"] = bumpy_atomic_array::height;
+//    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::height;
+//    registry["vcf_experiment"] = vcf_experiment::height;
     return registry;
 } 
 /**
