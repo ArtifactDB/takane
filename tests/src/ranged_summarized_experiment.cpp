@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "ranged_summarized_experiment.h"
+#include "mock_ranged_summarized_experiment.h"
 #include "utils.h"
 
 #include <string>
@@ -9,79 +9,83 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct RangedSummarizedExperimentTest : public ::testing::Test {
-    RangedSummarizedExperimentTest() {
-        dir = "TEST_ranged_summarized_experiment";
-        name = "ranged_summarized_experiment";
-    }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(RangedSummarizedExperimentTest, BaseChecks) {
-    // Hits the base SE checks.
-    initialize_directory_simple(dir, name, "1.0");
-    expect_error("failed to extract 'summarized_experiment'");
-
-    // Check the RSE's metadata.
-    auto opath = dir / "OBJECT";
-    auto parsed = millijson::parse_file(opath.c_str(), {});
-    {
-        ::summarized_experiment::add_object_metadata(parsed.get(), "1.0", 99, 23);
-        ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "2.0");
-        json_utils::dump(parsed.get(), opath);
-    }
-    expect_error("unsupported version");
-
-    // Works without anything at all.
-    {
-        ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "1.0");
-        json_utils::dump(parsed.get(), opath);
-    }
-    test_validate(dir); 
-    EXPECT_EQ(test_height(dir), 99);
-
-    // With a GRL:
-    ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(20, 15, true));
-    test_validate(dir); 
-    EXPECT_EQ(test_height(dir), 20);
-
-    // With a GRanges:
-    ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(30, 9, false));
-    test_validate(dir); 
-    std::vector<size_t> expected_dim{ 30, 9 };
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
-}
-
-TEST_F(RangedSummarizedExperimentTest, RowRanges) {
-    ranged_summarized_experiment::mock(dir, ranged_summarized_experiment::Options(10, 15, true));
+TEST(RangedSummarizedExperiment, Okay) {
+    auto dir = define_test_path("ranged_summarized_experiment");
 
     {
-        data_frame::mock(dir / "row_ranges", 10, {});
+        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(39, 23, false));
     }
-    expect_error("must be a 'genomic_ranges' or 'genomic_ranges_list'");
-
     {
-        genomic_ranges::mock(dir / "row_ranges", 20, 10);
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 99);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 39, 23 }));
     }
-    expect_error("length equal to the number of rows");
 
-    // Absence of row ranges is allowed, in which case we are assumed
-    // to have non-informative ranges for the RangedSummarizedExperiment.
+    // With a GRL.
     {
+        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(55, 14, true));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 55);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 55, 14 }));
+    }
+
+    // With nothing.
+    {
+        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(6, 61, false));
         std::filesystem::remove_all(dir / "row_ranges");
     }
-    test_validate(dir); 
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 6);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 6, 61 }));
+    }
+}
+
+TEST(RangedSummarizedExperiment, BaseError) {
+    auto dir = define_test_path("ranged_summarized_experiment");
+
+    // Check that the base SE is actually validated.
+    {
+        RangedSummarizedExperimentOptions opt(17, 40, false);
+        opt.has_row_data = false;
+        mock_ranged_summarized_experiment(dir, opt);
+        mock_data_frame(dir / "row_data", 15, {});
+    }
+    expect_validation_error(dir, "number of rows");
+}
+
+TEST(RangedSummarizedExperiment, VersionError) {
+    auto dir = define_test_path("ranged_summarized_experiment");
+
+    {
+        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(12, 40, false));
+
+        auto optr = new millijson::Object({});
+        std::shared_ptr<millijson::Base> contents(optr);
+        optr->value()["type"] = std::shared_ptr<millijson::Base>(new millijson::String("ranged_summarized_experiment"));
+        add_summarized_experiment_metadata(contents.get(), "1.0", 12, 40);
+        add_ranged_summarized_experiment_metadata(contents.get(), "2.0");
+        dump_json(contents.get(), dir / "OBJECT");
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(RangedSummarizedExperiment, RowRangesError) {
+    auto dir = define_test_path("ranged_summarized_experiment");
+
+    {
+        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(16, 41, false));
+        std::filesystem::remove_all(dir / "row_ranges");
+        mock_data_frame(dir / "row_ranges", 16, {});
+    }
+    expect_validation_error(dir, "'genomic_ranges', 'genomic_ranges_list'");
+
+    {
+        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(16, 41, false));
+        std::filesystem::remove_all(dir / "row_ranges");
+        mock_genomic_ranges(dir / "row_ranges", 17, 4);
+    }
+    expect_validation_error(dir, "number of rows");
 }

@@ -37,12 +37,12 @@ add_executable(
     src/gff_file.cpp
     src/gmt_file.cpp
     src/image_file.cpp
+    src/ranged_summarized_experiment.cpp
     src/rds_file.cpp
     src/sequence_information.cpp
     src/simple_list.cpp
     src/string_factor.cpp
     src/summarized_experiment.cpp
-#    src/ranged_summarized_experiment.cpp
 #    src/single_cell_experiment.cpp
 #    src/spatial_experiment.cpp
 #    src/multi_sample_dataset.cpp

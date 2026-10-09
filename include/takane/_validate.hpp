@@ -28,12 +28,12 @@
 #include "gff_file.hpp"
 #include "gmt_file.hpp"
 #include "image_file.hpp"
+#include "ranged_summarized_experiment.hpp"
 #include "rds_file.hpp"
 #include "sequence_information.hpp"
 #include "simple_list.hpp"
 #include "string_factor.hpp"
 #include "summarized_experiment.hpp"
-//#include "ranged_summarized_experiment.hpp"
 //#include "single_cell_experiment.hpp"
 //#include "spatial_experiment.hpp"
 //#include "multi_sample_dataset.hpp"
@@ -74,12 +74,12 @@ inline auto default_validate_registry() {
     registry["gff_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_gff_file(p, m, o); };
     registry["gmt_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_gmt_file(p, m, o); };
     registry["image_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_image_file(p, m, o); };
+    registry["ranged_summarized_experiment"] = validate_ranged_summarized_experiment;
     registry["rds_file"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_rds_file(p, m, o); };
     registry["sequence_information"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) { validate_sequence_information(p, m, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_simple_list(p, m, o); };
     registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_string_factor(p, m, o); };
-    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> void { validate_summarized_experiment(p, m, o); };
-//    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { ranged_summarized_experiment::validate(p, m, o); };
+    registry["summarized_experiment"] = validate_summarized_experiment;
 //    registry["single_cell_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { single_cell_experiment::validate(p, m, o); };
 //    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { spatial_experiment::validate(p, m, o); };
 //    registry["multi_sample_dataset"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) { multi_sample_dataset::validate(p, m, o); };

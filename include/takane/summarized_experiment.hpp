@@ -1,7 +1,8 @@
 #ifndef TAKANE_SUMMARIZED_EXPERIMENT_HPP
 #define TAKANE_SUMMARIZED_EXPERIMENT_HPP
 
-#include "millijson/millijson.hpp"
+#include "ritsuko/ritsuko.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include "utils_public.hpp"
 #include "utils_other.hpp"

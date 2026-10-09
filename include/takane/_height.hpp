@@ -52,11 +52,11 @@ inline auto default_height_registry() {
     registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_string_factor(p, m, o); };
     registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_summarized_experiment(p, m, o); };
 
-//    // Subclasses of the SE, so we just re-use its methods here.
-//    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return summarized_experiment::height(p, m, o); };
-//    registry["single_cell_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return summarized_experiment::height(p, m, o); };
-//    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return summarized_experiment::height(p, m, o); };
-//
+    // Subclasses of the SE, so we just re-use its methods here.
+    registry["ranged_summarized_experiment"] = height_of_summarized_experiment;
+    registry["single_cell_experiment"] = height_of_summarized_experiment;
+    registry["spatial_experiment"] = height_of_summarized_experiment;
+
 //    registry["sequence_string_set"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return sequence_string_set::height(p, m, o); };
 //    registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return bumpy_atomic_array::height(p, m, o); };
 //    registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return bumpy_data_frame_array::height(p, m, o); };

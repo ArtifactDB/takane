@@ -34,13 +34,13 @@ inline auto default_dimensions_registry() {
     registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_data_frame(p, m, o); };
     registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_delayed_array(p, m, o); };
     registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_dense_array(p, m, o); };
-    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_summarized_experiment(p, m, o); };
+    registry["summarized_experiment"] = dimensions_of_summarized_experiment;
 
-//    // Subclasses of SE, so we just re-use the SE methods here.
-//    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
-//    registry["single_cell_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
-//    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
-//
+    // Subclasses of SE, so we just re-use the SE methods here.
+    registry["ranged_summarized_experiment"] = dimensions_of_summarized_experiment;
+    registry["single_cell_experiment"] = dimensions_of_summarized_experiment;
+    registry["spatial_experiment"] = dimensions_of_summarized_experiment;
+
 //    registry["bumpy_atomic_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return bumpy_atomic_array::dimensions(p, m, o); };
 //    registry["bumpy_data_frame_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return bumpy_data_frame_array::dimensions(p, m, o); };
 //    registry["vcf_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return vcf_experiment::dimensions(p, m, o); };
