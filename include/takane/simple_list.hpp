@@ -116,7 +116,7 @@ inline void validate_simple_list(const std::filesystem::path& path, const Object
             }
             try {
                 validate(epath, options);
-            } catch (std::exception& e) {
+            } catch (...) {
                 std::throw_with_nested(std::runtime_error("failed to validate external list object at '" + std::filesystem::relative(epath, path).string() + "'"));
             }
         }

@@ -8,13 +8,12 @@
 #include <filesystem>
 
 static void expect_read_object_error(const std::filesystem::path& dir, const std::string& msg) {
-    std::string err;
-    try {
-        takane::read_object_metadata(dir);
-    } catch (std::exception& e) {
-        err = e.what();
-    }
-    EXPECT_THAT(err, ::testing::HasSubstr(msg));
+    expect_error(
+        msg,
+        [&]() -> void {
+            takane::read_object_metadata(dir);
+        }
+    );
 }
 
 TEST(ReadObjectMetadata, Basic) {

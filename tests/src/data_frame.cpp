@@ -768,7 +768,7 @@ TEST(DataFrame, OtherError) {
         mock_data_frame(dir / "other_columns" / "0", 32, subcolumns);
         mock_atomic_vector(dir / "other_columns" / "1", 51, AtomicVectorType::STRING);
     }
-    expect_validation_error(dir, "height of column 0");
+    expect_validation_error(dir, "height is not equal");
 
     {
         mock_data_frame(dir, 51, columns);

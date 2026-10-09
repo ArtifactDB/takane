@@ -62,7 +62,7 @@ inline hsize_t validate_column(const H5::Group& dhandle, const std::string& dset
                 who_failed = CODES;
                 auto chandle = ghandle.openDataSet("codes");
                 output = validate_factor_codes(chandle, num_levels, options.hdf5_buffer_size, /* allow_missing = */ true);
-            } catch (std::exception& e) {
+            } catch (...) {
                 std::string desc;
                 switch (who_failed) {
                     case LEVELS: desc = "levels"; break;
@@ -238,7 +238,7 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
                         return opt;
                     }()
                 );
-            } catch (std::exception& e) {
+            } catch (...) {
                 std::throw_with_nested(std::runtime_error("failed to validate 'row_names'"));
             }
         }

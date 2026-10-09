@@ -109,7 +109,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     if (cIt != options.custom_validate.end()) {
         try {
             (cIt->second)(path, metadata, options);
-        } catch (std::exception& e) {
+        } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate '" + metadata.type + "' object"));
         }
 
@@ -123,7 +123,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
         // Can't easily roll this out, as this is const and the above is not.
         try {
             (vrIt->second)(path, metadata, options);
-        } catch (std::exception& e) {
+        } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate '" + metadata.type + "' object"));
         }
     }
@@ -131,7 +131,7 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
     if (options.custom_global_validate) {
         try {
             options.custom_global_validate(path, metadata, options);
-        } catch (std::exception& e) {
+        } catch (...) {
             std::throw_with_nested(std::runtime_error("failed additional validation for '" + metadata.type + "'"));
         }
     }

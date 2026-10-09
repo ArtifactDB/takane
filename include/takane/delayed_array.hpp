@@ -84,7 +84,7 @@ inline void validate_delayed_array(const std::filesystem::path& path, const Obje
             auto seed_path = path / "seeds" / std::to_string(index);
             try {
                 auto seed_meta = read_object_metadata(seed_path);
-                ::validate(seed_path, seed_meta, options);
+                validate(seed_path, seed_meta, options);
 
                 auto seed_dims = dimensions(seed_path, seed_meta, options);
                 if (seed_dims.size() != details.dimensions.size()) {

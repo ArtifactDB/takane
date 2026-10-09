@@ -17,7 +17,7 @@ TEST(RangedSummarizedExperiment, Okay) {
     }
     {
         test_validate(dir);
-        EXPECT_EQ(test_height(dir), 99);
+        EXPECT_EQ(test_height(dir), 39);
         EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 39, 23 }));
     }
 

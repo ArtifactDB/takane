@@ -77,7 +77,7 @@ void validate_array_dimnames(const H5::Group& handle, const std::string& name, c
         if (!sanisizer::is_equal(found, nhandle.getNumObjs())) {
             throw std::runtime_error("more objects present in the group than expected");
         }
-    } catch (std::exception& e) {
+    } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate '" + name + "'"));
     }
 }
