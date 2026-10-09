@@ -91,9 +91,9 @@ void validate_mcols(const std::filesystem::path& parent, const std::string& name
         if (!satisfies_interface(xmeta.type, "DATA_FRAME", options)) {
             throw std::runtime_error("expected an object that satisfies the 'DATA_FRAME' interface");
         }
-        ::takane::validate(path, xmeta, options);
+        validate(path, xmeta, options);
 
-        if (!sanisizer::is_equal(::takane::height(path, xmeta, options), num_expected)) {
+        if (!sanisizer::is_equal(height(path, xmeta, options), num_expected)) {
             throw std::runtime_error("unexpected number of rows");
         }
     } catch (...) {
@@ -112,7 +112,7 @@ inline void validate_metadata(const std::filesystem::path& parent, const std::st
         if (!satisfies_interface(xmeta.type, "SIMPLE_LIST", options)) {
             throw std::runtime_error("expected an object that satisfies the 'SIMPLE_LIST' interface'");
         }
-        ::takane::validate(path, xmeta, options);
+        validate(path, xmeta, options);
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate the '" + name + "' object"));
     }

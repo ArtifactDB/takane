@@ -54,8 +54,9 @@ void validate_compressed_list(const std::filesystem::path& path, const std::stri
                 throw std::runtime_error("object should be derived from the '" + concatenated_type + "' type");
             }
         }
-        ::takane::validate(catdir, catmeta, options);
-        catheight = ::takane::height(catdir, catmeta, options);
+
+        validate(catdir, catmeta, options);
+        catheight = height(catdir, catmeta, options);
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate 'concatenated'"));
     }

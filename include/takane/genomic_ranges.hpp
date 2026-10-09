@@ -49,7 +49,7 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, co
     if (!derived_from(smeta.type, type_name, options)) {
         throw std::runtime_error("expected a 'sequence_information' object or one of its subclasses");
     }
-    ::takane::validate(path, smeta, options);
+    validate(path, smeta, options);
 
     // No need for checks here, we assume everything is now valid.
     H5::H5File handle(path / "info.h5", H5F_ACC_RDONLY);

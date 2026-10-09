@@ -81,9 +81,9 @@ inline void validate_summarized_experiment(const std::filesystem::path& path, co
                 auto apath = adir / aname;
                 try {
                     auto ameta = read_object_metadata(apath);
-                    ::takane::validate(apath, ameta, options);
+                    validate(apath, ameta, options);
 
-                    auto dims = ::takane::dimensions(apath, ameta, options);
+                    auto dims = dimensions(apath, ameta, options);
                     if (dims.size() < 2) {
                         throw std::runtime_error("object should have two or more dimensions");
                     }
@@ -114,8 +114,9 @@ inline void validate_summarized_experiment(const std::filesystem::path& path, co
             if (!satisfies_interface(rdmeta.type, "DATA_FRAME", options)) {
                 throw std::runtime_error("object should satisfy the 'DATA_FRAME' interface");
             }
-            ::takane::validate(rd_path, rdmeta, options);
-            if (::takane::height(rd_path, rdmeta, options) != num_rows) {
+
+            validate(rd_path, rdmeta, options);
+            if (height(rd_path, rdmeta, options) != num_rows) {
                 throw std::runtime_error("data frame should have number of rows equal to that of the '" + metadata.type + "'");
             }
         } catch (...) {
@@ -130,8 +131,9 @@ inline void validate_summarized_experiment(const std::filesystem::path& path, co
             if (!satisfies_interface(cdmeta.type, "DATA_FRAME", options)) {
                 throw std::runtime_error("object should satisfy the 'DATA_FRAME' interface");
             }
-            ::takane::validate(cd_path, cdmeta, options);
-            if (::takane::height(cd_path, cdmeta, options) != num_cols) {
+
+            validate(cd_path, cdmeta, options);
+            if (height(cd_path, cdmeta, options) != num_cols) {
                 throw std::runtime_error("data frame should have number of rows equal to the number of columns of its parent '" + metadata.type + "'");
             }
         } catch (...) {

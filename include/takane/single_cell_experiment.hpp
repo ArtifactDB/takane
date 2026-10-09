@@ -88,7 +88,7 @@ inline void validate_single_cell_experiment(const std::filesystem::path& path, c
                     auto rdmeta = read_object_metadata(rdpath);
                     validate(rdpath, rdmeta, options);
 
-                    auto dims = ::takane::dimensions(rdpath, rdmeta, options);
+                    auto dims = dimensions(rdpath, rdmeta, options);
                     if (dims.size() < 1) {
                         throw std::runtime_error("object should have at least one dimension");
                     }
@@ -139,8 +139,8 @@ inline void validate_single_cell_experiment(const std::filesystem::path& path, c
                         throw std::runtime_error("object should satisfy the 'SUMMARIZED_EXPERIMENT' interface");
                     }
 
-                    ::takane::validate(aepath, aemeta, options);
-                    auto dims = ::takane::dimensions(aepath, aemeta, options);
+                    validate(aepath, aemeta, options);
+                    auto dims = dimensions(aepath, aemeta, options);
                     if (dims[1] != num_cols) {
                         throw std::runtime_error("object should have the same number of columns as its parent '" + metadata.type + "'");
                     }

@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <unordered_map>
 #include <functional>
+#include <exception>
+#include <stdexcept>
 
 #include "H5Cpp.h"
 #include "millijson/millijson.hpp"
@@ -76,9 +78,8 @@ inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) {
         std::shared_ptr<millijson::Base> obj = parse_json_file(path / "OBJECT");
         return reformat_object_metadata(obj.get());
     } catch (std::exception& e) {
-        throw std::runtime_error("failed to read the OBJECT file at '" + path.string() + "'; " + std::string(e.what()));
+        std::throw_with_nested(std::runtime_error("failed to read the OBJECT file"));
     }
-    return {};
 }
 
 /**

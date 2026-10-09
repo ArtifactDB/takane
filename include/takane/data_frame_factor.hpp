@@ -66,7 +66,7 @@ inline void validate_data_frame_factor(const std::filesystem::path& path, const 
         if (!satisfies_interface(lmeta.type, "DATA_FRAME", options)) {
             throw std::runtime_error("expected 'levels' to be an object that satisfies the 'DATA_FRAME' interface");
         }
-        ::takane::validate(lpath, lmeta, options);
+        validate(lpath, lmeta, options);
 
         if (options.data_frame_factor_any_duplicated) {
             if (options.data_frame_factor_any_duplicated(lpath, lmeta, options)) {
@@ -74,7 +74,7 @@ inline void validate_data_frame_factor(const std::filesystem::path& path, const 
             }
         }
 
-        num_levels = ::takane::height(lpath, lmeta, options);
+        num_levels = height(lpath, lmeta, options);
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate 'levels'"));
     }
