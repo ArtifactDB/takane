@@ -50,12 +50,10 @@ inline auto default_height_registry() {
     registry["genomic_ranges_list"] = height_of_genomic_ranges_list;
     registry["simple_list"] = height_of_simple_list;
     registry["string_factor"] = height_of_string_factor;
+    registry["single_cell_experiment"] = height_of_summarized_experiment; // subclass of an SE.
     registry["summarized_experiment"] = height_of_summarized_experiment;
-
-    // Subclasses of the SE, so we just re-use its methods here.
-    registry["ranged_summarized_experiment"] = height_of_summarized_experiment;
-    registry["single_cell_experiment"] = height_of_summarized_experiment;
-    registry["spatial_experiment"] = height_of_summarized_experiment;
+    registry["spatial_experiment"] = height_of_summarized_experiment; // subclass of an SE.
+    registry["ranged_summarized_experiment"] = height_of_summarized_experiment; // subclass of an SE.
 
 //    registry["sequence_string_set"] = sequence_string_set::height;
 //    registry["bumpy_atomic_array"] = bumpy_atomic_array::height;

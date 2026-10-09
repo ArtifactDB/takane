@@ -34,12 +34,10 @@ inline auto default_dimensions_registry() {
     registry["data_frame"] = dimensions_of_data_frame;
     registry["delayed_array"] = dimensions_of_delayed_array;
     registry["dense_array"] = dimensions_of_dense_array;
+    registry["ranged_summarized_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
+    registry["single_cell_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
     registry["summarized_experiment"] = dimensions_of_summarized_experiment;
-
-    // Subclasses of SE, so we just re-use the SE methods here.
-    registry["ranged_summarized_experiment"] = dimensions_of_summarized_experiment;
-    registry["single_cell_experiment"] = dimensions_of_summarized_experiment;
-    registry["spatial_experiment"] = dimensions_of_summarized_experiment;
+    registry["spatial_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
 
 //    registry["bumpy_atomic_array"] = bumpy_atomic_array::dimensions;
 //    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::dimensions;

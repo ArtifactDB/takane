@@ -70,8 +70,7 @@ inline void validate_summarized_experiment(const std::filesystem::path& path, co
         try {
             auto num_assays = [&]{
                 try {
-                    auto assays = extract_summarized_experiment_names(adir / "names.json");
-                    return assays.size();
+                    return extract_summarized_experiment_names(adir / "names.json").size();
                 } catch (...) {
                     std::throw_with_nested(std::runtime_error("failed to read 'names.json'"));
                 }
