@@ -11,7 +11,7 @@
 #include "data_frame.hpp"
 #include "delayed_array.hpp"
 #include "dense_array.hpp"
-//#include "summarized_experiment.hpp"
+#include "summarized_experiment.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
 //#include "vcf_experiment.hpp"
@@ -34,9 +34,9 @@ inline auto default_dimensions_registry() {
     registry["data_frame"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_data_frame(p, m, o); };
     registry["delayed_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_delayed_array(p, m, o); };
     registry["dense_array"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_dense_array(p, m, o); };
+    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> Dims { return dimensions_of_summarized_experiment(p, m, o); };
 
 //    // Subclasses of SE, so we just re-use the SE methods here.
-//    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
 //    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
 //    registry["single_cell_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };
 //    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> Dims { return summarized_experiment::dimensions(p, m, o); };

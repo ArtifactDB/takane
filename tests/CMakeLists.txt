@@ -41,7 +41,7 @@ add_executable(
     src/sequence_information.cpp
     src/simple_list.cpp
     src/string_factor.cpp
-#    src/summarized_experiment.cpp
+    src/summarized_experiment.cpp
 #    src/ranged_summarized_experiment.cpp
 #    src/single_cell_experiment.cpp
 #    src/spatial_experiment.cpp
@@ -60,7 +60,7 @@ add_executable(
     src/utils_other.cpp
     src/utils_public.cpp
     src/utils_string.cpp
-#    src/utils_summarized_experiment.cpp
+    src/utils_summarized_experiment.cpp
     src/utils.cpp
 #    src/dispatch.cpp
 )

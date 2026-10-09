@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "summarized_experiment.h"
-#include "dense_array.h"
+#include "mock_summarized_experiment.h"
+#include "mock_dense_array.h"
 #include "utils.h"
 
 #include <string>
@@ -10,144 +10,273 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct SummarizedExperimentTest : public ::testing::Test {
-    SummarizedExperimentTest() {
-        dir = "TEST_summarized_experiment";
-        name = "summarized_experiment";
+TEST(SummarizedExperiment, AssaysOkay) {
+    auto dir = define_test_path("summarized_experiment");
+
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(10, 20));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{10, 20}));
     }
 
-    std::filesystem::path dir;
-    std::string name;
-
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
+    // Multiple assays.
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(30, 15, 3));
     }
-};
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 30);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{30, 15}));
+    }
 
-TEST_F(SummarizedExperimentTest, Metadata) {
-    initialize_directory(dir);
-    auto dump = [&](const std::string& contents) {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"" + name + "\", \"" + name + "\": " + contents + " }";
-    };
+    // No assays.
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(50, 1, 0));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 50);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{50, 1}));
+    }
 
-    dump("[]");
-    expect_error("should be a JSON object");
-
-    dump("{}");
-    expect_error("'summarized_experiment.version'");
-
-    dump("{ \"version\": 1.0 }");
-    expect_error("should be a JSON string");
-
-    dump("{ \"version\": \"2.0\" }");
-    expect_error("unsupported version");
-
-    dump("{ \"version\": \"1.0\" }");
-    expect_error("expected a 'summarized_experiment.dimensions'");
-
-    dump("{ \"version\": \"1.0\", \"dimensions\": 1 }");
-    expect_error("to be an array");
-
-    dump("{ \"version\": \"1.0\", \"dimensions\": [] }");
-    expect_error("array of length 2");
-
-    dump("{ \"version\": \"1.0\", \"dimensions\": [ true, false ] }");
-    expect_error("array of numbers");
-
-    dump("{ \"version\": \"1.0\", \"dimensions\": [ -1, 1 ] }");
-    expect_error("non-negative integers");
-
-    dump("{ \"version\": \"1.0\", \"dimensions\": [ 10, 1.5 ] }");
-    expect_error("non-negative integers");
-
-    dump("{ \"version\": \"1.0\", \"dimensions\": [ 10, 20 ] }");
-    test_validate(dir); // works without any assays!
+    // High-dimensional assay.
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 10, 2));
+        std::filesystem::remove_all(dir / "assays" / "1");
+        mock_dense_array(dir / "assays" / "1", DenseArrayType::NUMBER, { 20, 10, 5 });
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 20);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{20, 10}));
+    }
 }
 
-TEST_F(SummarizedExperimentTest, Assays) {
-    summarized_experiment::mock(dir, summarized_experiment::Options(10, 15, 2));
-    test_validate(dir); // success!
-    EXPECT_EQ(test_height(dir), 10);
-    std::vector<size_t> expected_dim{10, 15};
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
+TEST(SummarizedExperiment, MissingDirectoryOkay) {
+    auto dir = define_test_path("summarized_experiment");
 
+    // No row/column data.
     {
-        // Most checks are handled by utils_summarized_experiment.cpp,
-        // we just do a cursory check to ensure that it does get called.
-        std::ofstream handle(dir / "assays" / "names.json");
-        handle << "[\"aaron\",\"\"]";
+        SummarizedExperimentOptions opts(5, 99, 2);
+        opts.has_row_data = false;
+        opts.has_column_data = false;
+        mock_summarized_experiment(dir, opts);
     }
-    expect_error("empty string");
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 5);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{5, 99}));
+    }
 
+    // No other metadata.
     {
-        std::ofstream handle(dir / "assays" / "names.json");
-        handle << "[\"aaron\",\"jayaram\"]";
-        simple_list::mock(dir / "assays" / "0");
+        SummarizedExperimentOptions opts(99, 5, 1);
+        opts.has_other_data = false;
+        mock_summarized_experiment(dir, opts);
     }
-    expect_error("no registered 'dimensions' function");
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 99);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{99, 5}));
+    }
 
+    // No assay directory at all.
     {
-        dense_array::mock(dir / "assays" / "0", dense_array::Type::INTEGER, { 10 });
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 10, 0));
+        std::filesystem::remove_all(dir / "assays");
     }
-    expect_error("two or more dimensions");
-
     {
-        dense_array::mock(dir / "assays" / "0", dense_array::Type::INTEGER, { 20, 15 });
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 20);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{20, 10}));
     }
-    expect_error("number of rows");
-
-    {
-        dense_array::mock(dir / "assays" / "0", dense_array::Type::INTEGER, { 10, 20 });
-    }
-    expect_error("number of columns");
-
-    {
-        dense_array::mock(dir / "assays" / "0", dense_array::Type::INTEGER, { 10, 15 });
-        dense_array::mock(dir / "assays" / "foobar", dense_array::Type::INTEGER, { 10, 15 });
-    }
-    expect_error("more objects than expected");
 }
 
-TEST_F(SummarizedExperimentTest, AllOtherData) {
-    summarized_experiment::Options options(10, 15, 2);
-    options.has_row_data = true;
-    options.has_column_data = true;
-    options.has_other_data = true;
-    summarized_experiment::mock(dir, options);
-    test_validate(dir); // success!
+TEST(SummarizedExperiment, EmptyOkay) {
+    auto dir = define_test_path("summarized_experiment");
+
+    // No rows.
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(0, 20, 3));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 0);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{0, 20}));
+    }
+
+    // No columns.
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 0, 3));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 20);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{20, 0}));
+    }
+}
+
+/*****************************************/
+
+TEST(SummarizedExperiment, VersionError) {
+    auto dir = define_test_path("summarized_experiment");
 
     {
-        simple_list::mock(dir / "column_data");
+        initialize_directory_simple(dir, "summarized_experiment", "2.0");
     }
-    expect_error("object in 'column_data' should satisfy");
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(SummarizedExperiment, DimensionsError) {
+    auto dir = define_test_path("summarized_experiment");
 
     {
-        data_frame::mock(dir / "column_data", 10, {});
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"summarized_experiment\", \"summarized_experiment\": { \"version\": \"1.0\", \"dimensions\": null } }"
+        );
     }
-    expect_error("number of columns");
+    expect_validation_error(dir, "failed to read 'dimensions'");
+}
+
+/*****************************************/
+
+TEST(SummarizedExperiment, AssayNamesError) {
+    auto dir = define_test_path("summarized_experiment");
 
     {
-        data_frame::mock(dir / "column_data", 15, {});
-        simple_list::mock(dir / "row_data");
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6));
+        quick_text_write(
+            dir / "assays" / "names.json",
+            "[ 1, 2, 3 ]"
+        );
     }
-    expect_error("object in 'row_data' should satisfy");
+    expect_validation_error(dir, "expected an array of strings");
 
     {
-        data_frame::mock(dir / "row_data", 20, {});
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 2));
+        mock_dense_array(dir / "assays" / "2", DenseArrayType::NUMBER, { 5, 6 });
     }
-    expect_error("number of rows");
+    expect_validation_error(dir, "more objects than expected");
+}
+
+TEST(SummarizedExperiment, AssayContentError) {
+    auto dir = define_test_path("summarized_experiment");
+
+    // Check that validate() is actually called on the assays.
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 1));
+        H5::H5File handle(dir / "assays" / "0" / "array.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("dense_array");
+        ghandle.removeAttr("type");
+        add_hdf5_string_attribute(ghandle, "type", "foobar");
+    }
+    expect_validation_error(dir, "foobar");
+}
+
+TEST(SummarizedExperiment, AssayDimensionsError) {
+    auto dir = define_test_path("summarized_experiment");
 
     {
-        data_frame::mock(dir / "row_data", 10, {});
-        dense_array::mock(dir / "other_data", dense_array::Type::INTEGER, { 10, 20 });
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 3));
+        std::filesystem::remove_all(dir / "assays" / "1");
+        mock_dense_array(dir / "assays" / "1", DenseArrayType::STRING, { 1 });
     }
-    expect_error("'SIMPLE_LIST' interface");
+    expect_validation_error(dir, "two or more dimensions");
+
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 3));
+        std::filesystem::remove_all(dir / "assays" / "2");
+        mock_dense_array(dir / "assays" / "2", DenseArrayType::STRING, { 7, 6 });
+    }
+    expect_validation_error(dir, "number of rows");
+
+    {
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 3));
+        std::filesystem::remove_all(dir / "assays" / "0");
+        mock_dense_array(dir / "assays" / "0", DenseArrayType::STRING, { 5, 5 });
+    }
+    expect_validation_error(dir, "number of columns");
+}
+
+/*****************************************/
+
+TEST(SummarizedExperimentTest, RowDataError) {
+    auto dir = define_test_path("summarized_experiment");
+
+    {
+        SummarizedExperimentOptions opt(60, 3, 2);
+        opt.has_row_data = false;
+        mock_summarized_experiment(dir, opt);
+        mock_simple_list(dir / "row_data");
+    }
+    expect_validation_error(dir, "DATA_FRAME");
+
+    // Check that the row data is actually validated.
+    {
+        SummarizedExperimentOptions opt(60, 3, 2);
+        opt.has_row_data = false;
+        mock_summarized_experiment(dir, opt);
+        std::vector<DataFrameColumnDetails> cols(1);
+        mock_data_frame(dir / "row_data", 60, cols);
+    }
+    expect_validation_error(dir, "empty strings");
+
+    {
+        SummarizedExperimentOptions opt(60, 3, 2);
+        opt.has_row_data = false;
+        mock_summarized_experiment(dir, opt);
+        std::vector<DataFrameColumnDetails> cols(1);
+        cols[0].name = "akari";
+        mock_data_frame(dir / "row_data", 61, cols);
+    }
+    expect_validation_error(dir, "number of rows");
+}
+
+TEST(SummarizedExperimentTest, ColumnDataError) {
+    auto dir = define_test_path("summarized_experiment");
+
+    {
+        SummarizedExperimentOptions opt(30, 20, 0);
+        opt.has_column_data = false;
+        mock_summarized_experiment(dir, opt);
+        mock_simple_list(dir / "column_data");
+    }
+    expect_validation_error(dir, "DATA_FRAME");
+
+    // Check that the column data is actually validated.
+    {
+        SummarizedExperimentOptions opt(30, 20, 0);
+        opt.has_column_data = false;
+        mock_summarized_experiment(dir, opt);
+        std::vector<DataFrameColumnDetails> cols(1);
+        mock_data_frame(dir / "column_data", 20, cols);
+    }
+    expect_validation_error(dir, "empty strings");
+
+    {
+        SummarizedExperimentOptions opt(30, 20, 0);
+        opt.has_column_data = false;
+        mock_summarized_experiment(dir, opt);
+        std::vector<DataFrameColumnDetails> cols(1);
+        cols[0].name = "ai";
+        mock_data_frame(dir / "column_data", 19, cols);
+    }
+    expect_validation_error(dir, "number of columns");
+}
+
+TEST(SummarizedExperimentTest, MetadataError) {
+    auto dir = define_test_path("summarized_experiment");
+
+    // Check that metadata is actually validated.
+    {
+        SummarizedExperimentOptions opt(30, 20, 0);
+        opt.has_other_data = false;
+        mock_summarized_experiment(dir, opt);
+        initialize_directory_simple(dir / "other_data", "foobar", "1.2");
+    }
+    expect_validation_error(dir, "SIMPLE_LIST");
 }

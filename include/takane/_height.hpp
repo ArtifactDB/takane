@@ -19,8 +19,8 @@
 #include "genomic_ranges_list.hpp"
 #include "simple_list.hpp"
 #include "string_factor.hpp"
+#include "summarized_experiment.hpp"
 //#include "data_frame_factor.hpp"
-//#include "summarized_experiment.hpp"
 //#include "sequence_string_set.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
@@ -50,9 +50,9 @@ inline auto default_height_registry() {
     registry["genomic_ranges_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_genomic_ranges_list(p, m, o); };
     registry["simple_list"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_simple_list(p, m, o); };
     registry["string_factor"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_string_factor(p, m, o); };
+    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, const Options& o) -> std::size_t { return height_of_summarized_experiment(p, m, o); };
 
 //    // Subclasses of the SE, so we just re-use its methods here.
-//    registry["summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return summarized_experiment::height(p, m, o); };
 //    registry["ranged_summarized_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return summarized_experiment::height(p, m, o); };
 //    registry["single_cell_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return summarized_experiment::height(p, m, o); };
 //    registry["spatial_experiment"] = [](const std::filesystem::path& p, const ObjectMetadata& m, Options& o) -> size_t { return summarized_experiment::height(p, m, o); };
