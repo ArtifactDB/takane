@@ -1,15 +1,19 @@
 #ifndef TAKANE_SINGLE_CELL_EXPERIMENT_HPP
 #define TAKANE_SINGLE_CELL_EXPERIMENT_HPP
 
-#include "millijson/millijson.hpp"
 
 #include "summarized_experiment.hpp"
 #include "ranged_summarized_experiment.hpp"
 
+#include "utils_public.hpp"
+#include "utils_summarized_experiment.hpp"
+
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <unordered_set>
 #include <string>
+#include <cstddef>
 
 /**
  * @file single_cell_experiment.hpp
@@ -54,15 +58,19 @@ inline void validate_single_cell_experiment(const std::filesystem::path& path, c
         // Validating the main experiment name.
         auto mIt = scemap.find("main_experiment_name");
         if (mIt != scemap.end()) {
-            const auto& ver = mIt->second;
-            if (ver->type() != millijson::STRING) {
-                throw std::runtime_error("expected 'main_experiment_name' to be a string");
+            try {
+                const auto& ver = mIt->second;
+                if (ver->type() != millijson::STRING) {
+                    throw std::runtime_error("expected property to be a string");
+                }
+                auto& mname = reinterpret_cast<const millijson::String*>(ver.get())->value();
+                if (mname.empty()) {
+                    throw std::runtime_error("expected a non-empty string");
+                }
+                main_exp_name = std::move(mname);
+            } catch (...) {
+                std::throw_with_nested(std::runtime_error("failed to read 'main_experiment_name'"));
             }
-            auto& mname = reinterpret_cast<const millijson::String*>(ver.get())->value();
-            if (mname.empty()) {
-                throw std::runtime_error("expected 'main_experiment_name' to be a non-empty string");
-            }
-            main_exp_name = std::move(mname);
         }
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in object metadata"));

@@ -13,13 +13,13 @@
 #include "mock_dense_array.h"
 
 struct SummarizedExperimentOptions {
-    SummarizedExperimentOptions(std::size_t nr, std::size_t nc, std::size_t na = 1) : num_rows(nr), num_cols(nc), num_assays(na) {}
+    SummarizedExperimentOptions(std::size_t nr, std::size_t nc) : num_rows(nr), num_cols(nc) {}
     std::size_t num_rows;
     std::size_t num_cols;
-    std::size_t num_assays;
-    bool has_row_data = false;
-    bool has_column_data = false;
-    bool has_other_data = false;
+    std::size_t num_assays = 1;
+    bool has_row_data = true;
+    bool has_column_data = true;
+    bool has_other_data = true;
 };
 
 inline void add_summarized_experiment_metadata(millijson::Base* input, const std::string& version, size_t num_rows, size_t num_cols) {

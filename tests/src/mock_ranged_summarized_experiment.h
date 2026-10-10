@@ -10,10 +10,7 @@
 #include "mock_genomic_ranges.h"
 
 struct RangedSummarizedExperimentOptions : public SummarizedExperimentOptions {
-    RangedSummarizedExperimentOptions(size_t nr, size_t nc, bool use_grl) : 
-        SummarizedExperimentOptions(nr, nc),
-        use_grl(use_grl)
-    {}
+    RangedSummarizedExperimentOptions(size_t nr, size_t nc) : SummarizedExperimentOptions(nr, nc) {}
     bool use_grl = false;
 };
 

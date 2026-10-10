@@ -24,7 +24,9 @@ TEST(SummarizedExperiment, AssaysOkay) {
 
     // Multiple assays.
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(30, 15, 3));
+        SummarizedExperimentOptions opt(30, 15);
+        opt.num_assays = 3;
+        mock_summarized_experiment(dir, opt);
     }
     {
         test_validate(dir);
@@ -34,7 +36,9 @@ TEST(SummarizedExperiment, AssaysOkay) {
 
     // No assays.
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(50, 1, 0));
+        SummarizedExperimentOptions opt(50, 1);
+        opt.num_assays = 0;
+        mock_summarized_experiment(dir, opt);
     }
     {
         test_validate(dir);
@@ -44,7 +48,9 @@ TEST(SummarizedExperiment, AssaysOkay) {
 
     // High-dimensional assay.
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 10, 2));
+        SummarizedExperimentOptions opt(20, 10);
+        opt.num_assays = 2;
+        mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "1");
         mock_dense_array(dir / "assays" / "1", DenseArrayType::NUMBER, { 20, 10, 5 });
     }
@@ -60,7 +66,7 @@ TEST(SummarizedExperiment, MissingDirectoryOkay) {
 
     // No row/column data.
     {
-        SummarizedExperimentOptions opts(5, 99, 2);
+        SummarizedExperimentOptions opts(5, 99);
         opts.has_row_data = false;
         opts.has_column_data = false;
         mock_summarized_experiment(dir, opts);
@@ -73,7 +79,7 @@ TEST(SummarizedExperiment, MissingDirectoryOkay) {
 
     // No other metadata.
     {
-        SummarizedExperimentOptions opts(99, 5, 1);
+        SummarizedExperimentOptions opts(99, 5);
         opts.has_other_data = false;
         mock_summarized_experiment(dir, opts);
     }
@@ -85,7 +91,7 @@ TEST(SummarizedExperiment, MissingDirectoryOkay) {
 
     // No assay directory at all.
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 10, 0));
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 10));
         std::filesystem::remove_all(dir / "assays");
     }
     {
@@ -100,7 +106,7 @@ TEST(SummarizedExperiment, EmptyOkay) {
 
     // No rows.
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(0, 20, 3));
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(0, 20));
     }
     {
         test_validate(dir);
@@ -110,7 +116,7 @@ TEST(SummarizedExperiment, EmptyOkay) {
 
     // No columns.
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 0, 3));
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(20, 0));
     }
     {
         test_validate(dir);
@@ -157,7 +163,9 @@ TEST(SummarizedExperiment, AssayNamesError) {
     expect_validation_error(dir, "expected an array of strings");
 
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 2));
+        SummarizedExperimentOptions opt(5, 6);
+        opt.num_assays = 2;
+        mock_summarized_experiment(dir, opt);
         mock_dense_array(dir / "assays" / "2", DenseArrayType::NUMBER, { 5, 6 });
     }
     expect_validation_error(dir, "more objects than expected");
@@ -168,7 +176,7 @@ TEST(SummarizedExperiment, AssayContentError) {
 
     // Check that validate() is actually called on the assays.
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 1));
+        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6));
         H5::H5File handle(dir / "assays" / "0" / "array.h5", H5F_ACC_RDWR);
         auto ghandle = handle.openGroup("dense_array");
         ghandle.removeAttr("type");
@@ -180,22 +188,25 @@ TEST(SummarizedExperiment, AssayContentError) {
 TEST(SummarizedExperiment, AssayDimensionsError) {
     auto dir = define_test_path("summarized_experiment");
 
+    SummarizedExperimentOptions opt(5, 6);
+    opt.num_assays = 3; 
+
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 3));
+        mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "1");
         mock_dense_array(dir / "assays" / "1", DenseArrayType::STRING, { 1 });
     }
     expect_validation_error(dir, "two or more dimensions");
 
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 3));
+        mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "2");
         mock_dense_array(dir / "assays" / "2", DenseArrayType::STRING, { 7, 6 });
     }
     expect_validation_error(dir, "number of rows");
 
     {
-        mock_summarized_experiment(dir, SummarizedExperimentOptions(5, 6, 3));
+        mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "0");
         mock_dense_array(dir / "assays" / "0", DenseArrayType::STRING, { 5, 5 });
     }
@@ -207,9 +218,11 @@ TEST(SummarizedExperiment, AssayDimensionsError) {
 TEST(SummarizedExperimentTest, RowDataError) {
     auto dir = define_test_path("summarized_experiment");
 
+    SummarizedExperimentOptions opt(60, 3);
+    opt.num_assays = 2;
+    opt.has_row_data = false;
+
     {
-        SummarizedExperimentOptions opt(60, 3, 2);
-        opt.has_row_data = false;
         mock_summarized_experiment(dir, opt);
         mock_simple_list(dir / "row_data");
     }
@@ -217,8 +230,6 @@ TEST(SummarizedExperimentTest, RowDataError) {
 
     // Check that the row data is actually validated.
     {
-        SummarizedExperimentOptions opt(60, 3, 2);
-        opt.has_row_data = false;
         mock_summarized_experiment(dir, opt);
         std::vector<DataFrameColumnDetails> cols(1);
         mock_data_frame(dir / "row_data", 60, cols);
@@ -226,8 +237,6 @@ TEST(SummarizedExperimentTest, RowDataError) {
     expect_validation_error(dir, "empty strings");
 
     {
-        SummarizedExperimentOptions opt(60, 3, 2);
-        opt.has_row_data = false;
         mock_summarized_experiment(dir, opt);
         std::vector<DataFrameColumnDetails> cols(1);
         cols[0].name = "akari";
@@ -239,9 +248,11 @@ TEST(SummarizedExperimentTest, RowDataError) {
 TEST(SummarizedExperimentTest, ColumnDataError) {
     auto dir = define_test_path("summarized_experiment");
 
+    SummarizedExperimentOptions opt(30, 20);
+    opt.num_assays = 0;
+    opt.has_column_data = false;
+
     {
-        SummarizedExperimentOptions opt(30, 20, 0);
-        opt.has_column_data = false;
         mock_summarized_experiment(dir, opt);
         mock_simple_list(dir / "column_data");
     }
@@ -249,8 +260,6 @@ TEST(SummarizedExperimentTest, ColumnDataError) {
 
     // Check that the column data is actually validated.
     {
-        SummarizedExperimentOptions opt(30, 20, 0);
-        opt.has_column_data = false;
         mock_summarized_experiment(dir, opt);
         std::vector<DataFrameColumnDetails> cols(1);
         mock_data_frame(dir / "column_data", 20, cols);
@@ -258,8 +267,6 @@ TEST(SummarizedExperimentTest, ColumnDataError) {
     expect_validation_error(dir, "empty strings");
 
     {
-        SummarizedExperimentOptions opt(30, 20, 0);
-        opt.has_column_data = false;
         mock_summarized_experiment(dir, opt);
         std::vector<DataFrameColumnDetails> cols(1);
         cols[0].name = "ai";
@@ -273,7 +280,7 @@ TEST(SummarizedExperimentTest, MetadataError) {
 
     // Check that metadata is actually validated.
     {
-        SummarizedExperimentOptions opt(30, 20, 0);
+        SummarizedExperimentOptions opt(30, 20);
         opt.has_other_data = false;
         mock_summarized_experiment(dir, opt);
         initialize_directory_simple(dir / "other_data", "foobar", "1.2");

@@ -1,25 +1,25 @@
-#ifndef SINGLE_CELL_EXPERIMENT_H
-#define SINGLE_CELL_EXPERIMENT_H
+#ifndef MOCK_SINGLE_CELL_EXPERIMENT_H
+#define MOCK_SINGLE_CELL_EXPERIMENT_H
 
 #include <vector>
 #include <string>
 #include <numeric>
+#include <cstddef>
 
 #include "H5Cpp.h"
+
 #include "utils.h"
-#include "ranged_summarized_experiment.h"
-#include "genomic_ranges.h"
+#include "mock_ranged_summarized_experiment.h"
+#include "mock_genomic_ranges.h"
 
-namespace single_cell_experiment {
-
-struct Options : public ::ranged_summarized_experiment::Options {
-    Options(size_t nr, size_t nc, size_t nrd = 1, size_t nae = 1) : ::ranged_summarized_experiment::Options(nr, nc), num_reduced_dims(nrd), num_alt_exps(nae) {}
-    size_t num_reduced_dims;
-    size_t num_alt_exps;
+struct SingleCellExperimentOptions : public RangedSummarizedExperimentOptions {
+    SingleCellExperimentOptions(std::size_t nr, std::size_t nc) : RangedSummarizedExperimentOptions(nr, nc) {}
+    std::size_t num_reduced_dims = 1;
+    std::size_t num_alt_exps = 1;
     std::string main_exp_name;
 };
 
-inline void add_object_metadata(millijson::Base* input, const std::string& version, const std::string& main_exp_name) {
+inline void add_single_cell_experiment_metadata(millijson::Base* input, const std::string& version, const std::string& main_exp_name) {
     auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
     auto optr = new millijson::Object({});
     remap["single_cell_experiment"] = std::shared_ptr<millijson::Base>(optr);
@@ -29,16 +29,16 @@ inline void add_object_metadata(millijson::Base* input, const std::string& versi
     }
 }
 
-inline void mock(const std::filesystem::path& dir, const Options& options) {
-    ::ranged_summarized_experiment::mock(dir, options);
+inline void mock_single_cell_experiment(const std::filesystem::path& dir, const SingleCellExperimentOptions& options) {
+    mock_ranged_summarized_experiment(dir, options);
 
     auto opath = dir / "OBJECT";
     {
         auto parsed = millijson::parse_file(opath.c_str(), {});
         auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
         remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("single_cell_experiment"));
-        add_object_metadata(parsed.get(), "1.0", options.main_exp_name);
-        json_utils::dump(parsed.get(), opath);
+        add_single_cell_experiment_metadata(parsed.get(), "1.0", options.main_exp_name);
+        dump_json(parsed.get(), opath);
     }
 
     {
@@ -47,13 +47,13 @@ inline void mock(const std::filesystem::path& dir, const Options& options) {
 
         std::ofstream handle(rddir / "names.json");
         handle << "[";
-        for (size_t rd = 0; rd < options.num_reduced_dims; ++rd) {
+        for (std::size_t rd = 0; rd < options.num_reduced_dims; ++rd) {
             if (rd != 0) {
                 handle << ", ";
             }
             auto rdname = std::to_string(rd);
             handle << "\"reddim-" << rdname << "\"";
-            dense_array::mock(rddir / rdname, dense_array::Type::NUMBER, { static_cast<hsize_t>(options.num_cols), static_cast<hsize_t>(2) });
+            mock_dense_array(rddir / rdname, DenseArrayType::NUMBER, { static_cast<hsize_t>(options.num_cols), static_cast<hsize_t>(2) });
         }
         handle << "]";
     }
@@ -64,18 +64,16 @@ inline void mock(const std::filesystem::path& dir, const Options& options) {
 
         std::ofstream handle(aedir / "names.json");
         handle << "[";
-        for (size_t ae = 0; ae < options.num_alt_exps; ++ae) {
+        for (std::size_t ae = 0; ae < options.num_alt_exps; ++ae) {
             if (ae != 0) {
                 handle << ", ";
             }
             auto aename = std::to_string(ae);
             handle << "\"altexps-" << aename << "\"";
-            summarized_experiment::mock(aedir / aename, ::summarized_experiment::Options((ae + 1) * 10, options.num_cols));
+            mock_summarized_experiment(aedir / aename, SummarizedExperimentOptions((ae + 1) * 10, options.num_cols));
         }
         handle << "]";
     }
-}
-
 }
 
 #endif
