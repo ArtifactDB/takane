@@ -57,9 +57,39 @@ TEST_P(IterateStreamTest, NumericStreamIterator) {
 
     ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
     opt.contiguous_chunk_size = GetParam();
-    takane::NumericStreamIterator<std::int32_t> it(ritsuko::hdf5::Stream1dNumericDataset<std::int32_t>(&dhandle, values.size(), opt));
+    takane::StreamIterator<std::int32_t> it(ritsuko::hdf5::Stream1dNumericDataset<std::int32_t>(&dhandle, values.size(), opt));
 
     std::vector<std::int32_t> output(values.size());
+    for (std::size_t i = 0; i < num; ++i) {
+        output[i] = it.next();
+    }
+
+    EXPECT_EQ(output, values);
+}
+
+TEST_P(IterateStreamTest, StringStreamIterator) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    std::size_t num = 50;
+    std::vector<std::string> values(num);
+    for (std::size_t i = 0; i < num; ++i) {
+        values[i] = "thing-" + std::to_string(i);
+    }
+
+    {
+        H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
+        add_hdf5_string_dataset(handle, "bar", values);
+    }
+
+    H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
+    auto dhandle = handle.openDataSet("bar");
+
+    ritsuko::hdf5::Stream1dStringDatasetOptions opt;
+    opt.contiguous_chunk_size = GetParam();
+    takane::StreamIterator<std::string> it(ritsuko::hdf5::Stream1dStringDataset<>(&dhandle, values.size(), opt));
+
+    std::vector<std::string> output(values.size());
     for (std::size_t i = 0; i < num; ++i) {
         output[i] = it.next();
     }

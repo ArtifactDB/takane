@@ -180,7 +180,7 @@ inline void validate_compressed_sparse_matrix(const std::filesystem::path& path,
                 throw std::runtime_error("length of dataset should be equal to the number of non-zero elements");
             }
 
-            NumericStreamIterator<std::uint64_t> indstream(
+            StreamIterator<std::uint64_t> indstream(
                 ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(
                     &ihandle,
                     len,

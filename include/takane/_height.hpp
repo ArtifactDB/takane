@@ -51,8 +51,8 @@ inline auto default_height_registry() {
     registry["simple_list"] = height_of_simple_list;
     registry["string_factor"] = height_of_string_factor;
     registry["single_cell_experiment"] = height_of_summarized_experiment; // subclass of an SE.
-    registry["summarized_experiment"] = height_of_summarized_experiment;
     registry["spatial_experiment"] = height_of_summarized_experiment; // subclass of an SE.
+    registry["summarized_experiment"] = height_of_summarized_experiment;
     registry["ranged_summarized_experiment"] = height_of_summarized_experiment; // subclass of an SE.
 
 //    registry["sequence_string_set"] = sequence_string_set::height;

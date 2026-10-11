@@ -36,8 +36,8 @@ inline auto default_dimensions_registry() {
     registry["dense_array"] = dimensions_of_dense_array;
     registry["ranged_summarized_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
     registry["single_cell_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
-    registry["summarized_experiment"] = dimensions_of_summarized_experiment;
     registry["spatial_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
+    registry["summarized_experiment"] = dimensions_of_summarized_experiment;
 
 //    registry["bumpy_atomic_array"] = bumpy_atomic_array::dimensions;
 //    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::dimensions;

@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "ritsuko/ritsuko.hpp"
 #include "sanisizer/sanisizer.hpp"
 #include "byteme/byteme.hpp"
 
@@ -37,15 +38,22 @@ void iterate_stream(Stream_& stream, Action_ action) {
 
 // A more complicated class for returning each value of the stream.
 // This requires more boilerplate but allows simultaneous iteration through multiple streams.
-template<typename Type_>
-class NumericStreamIterator {
+template<typename Type_, class Pointer_ = const H5::DataSet*>
+class StreamIterator {
 private:
     hsize_t my_pos = 0, my_available = 0;
-    ritsuko::hdf5::Stream1dNumericDataset<Type_> my_stream;
+
+    typedef typename std::conditional<
+        std::is_same<Type_, std::string>::value,
+        ritsuko::hdf5::Stream1dStringDataset<Pointer_>,
+        ritsuko::hdf5::Stream1dNumericDataset<Type_, Pointer_> 
+    >::type Stream;
+    Stream my_stream;
+
     std::vector<Type_> my_buffer;
 
 public:
-    NumericStreamIterator(ritsuko::hdf5::Stream1dNumericDataset<Type_> stream) : 
+    StreamIterator(Stream stream) : 
         my_stream(std::move(stream)),
         my_buffer(sanisizer::cast<I<decltype(my_buffer.size())> >(my_stream.chunk_size()))
     {}

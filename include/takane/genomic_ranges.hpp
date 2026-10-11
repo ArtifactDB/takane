@@ -208,9 +208,9 @@ inline void validate_genomic_ranges(const std::filesystem::path& path, const Obj
 
         ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
         opt.contiguous_chunk_size = options.hdf5_buffer_size;
-        NumericStreamIterator<std::uint64_t> id_stream(ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(&id_handle, num_ranges, opt));
-        NumericStreamIterator<std::int64_t> start_stream(ritsuko::hdf5::Stream1dNumericDataset<std::int64_t>(&start_handle, num_ranges, opt));
-        NumericStreamIterator<std::uint64_t> width_stream(ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(&width_handle, num_ranges, opt));
+        StreamIterator<std::uint64_t> id_stream(ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(&id_handle, num_ranges, opt));
+        StreamIterator<std::int64_t> start_stream(ritsuko::hdf5::Stream1dNumericDataset<std::int64_t>(&start_handle, num_ranges, opt));
+        StreamIterator<std::uint64_t> width_stream(ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(&width_handle, num_ranges, opt));
 
         for (I<decltype(num_ranges)> i = 0; i < num_ranges; ++i) {
             const auto id = id_stream.next();
