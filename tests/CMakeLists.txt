@@ -42,9 +42,9 @@ add_executable(
     src/sequence_information.cpp
     src/simple_list.cpp
     src/single_cell_experiment.cpp
+    src/spatial_experiment.cpp
     src/string_factor.cpp
     src/summarized_experiment.cpp
-#    src/spatial_experiment.cpp
 #    src/multi_sample_dataset.cpp
 #    src/sequence_string_set.cpp
 #    src/bumpy_atomic_array.cpp
