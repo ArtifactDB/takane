@@ -4,24 +4,34 @@
 #include <vector>
 #include <string>
 #include <numeric>
+#include <optional>
 
 #include "H5Cpp.h"
 #include "utils.h"
 #include "mock_single_cell_experiment.h"
 
-struct SpatialExperimentOptions : public SingleCellExperimentOptions {
-    SpatialExperimentOptions(std::size_t nr, std::size_t nc) : SingleCellExperimentOptions(nr, nc) {}
+struct SpatialExperimentOptions {
+    SpatialExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc) {}
+    SingleCellExperimentOptions base;
+    std::size_t coordinate_dimensions = 2;
     std::size_t num_samples = 1;
     std::size_t num_images_per_sample = 1;
-    std::string version;
+    std::optional<std::string> version;
     bool add_images = true;
 };
 
-inline void add_spatial_experiment_metadata(millijson::Base* input, const std::string& version) {
+inline void add_spatial_experiment_metadata(millijson::Base* input, const std::optional<std::string>& version) {
     auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
     auto optr = new millijson::Object({});
     remap["spatial_experiment"] = std::shared_ptr<millijson::Base>(optr);
-    optr->value()["version"] = std::shared_ptr<millijson::Base>(new millijson::String(version));
+
+    std::shared_ptr<millijson::Base> vptr;
+    if (version.has_value()) {
+        vptr.reset(new millijson::String(*version));
+    } else {
+        vptr.reset(new millijson::String("1.0"));
+    }
+    optr->value()["version"] = std::move(vptr);
 }
 
 inline const std::vector<unsigned char>& get_png_signature() {
@@ -30,26 +40,21 @@ inline const std::vector<unsigned char>& get_png_signature() {
 }
 
 inline H5::Group mock_spatial_experiment(const std::filesystem::path& dir, const SpatialExperimentOptions& options) {
-    mock_single_cell_experiment(dir, options);
-
-    auto version = options.version;
-    if (version == "") {
-        version = "1.0";
-    }
+    mock_single_cell_experiment(dir, options.base);
 
     auto opath = dir / "OBJECT";
     {
         auto parsed = millijson::parse_file(opath.c_str(), {});
         auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
         remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("spatial_experiment"));
-        add_spatial_experiment_metadata(parsed.get(), version);
+        add_spatial_experiment_metadata(parsed.get(), options.version);
         dump_json(parsed.get(), opath);
     }
 
     {
         std::vector<hsize_t> dims(2);
-        dims[0] = options.num_cols;
-        dims[1] = 2;
+        dims[0] = options.base.base.base.num_cols;
+        dims[1] = options.coordinate_dimensions;
         mock_dense_array(dir / "coordinates", DenseArrayType::NUMBER, dims);
     }
 
@@ -69,8 +74,8 @@ inline H5::Group mock_spatial_experiment(const std::filesystem::path& dir, const
 
     {
         std::vector<int> assignments;
-        assignments.reserve(options.num_cols);
-        for (size_t c = 0; c < options.num_cols; ++c) {
+        assignments.reserve(options.base.base.base.num_cols);
+        for (size_t c = 0; c < options.base.base.base.num_cols; ++c) {
             assignments.push_back(c % options.num_samples);
         }
         add_hdf5_numeric_dataset(ghandle, "column_samples", H5::PredType::NATIVE_UINT16, assignments);

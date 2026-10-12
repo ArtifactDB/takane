@@ -24,7 +24,7 @@ TEST(RangedSummarizedExperiment, Okay) {
     // With a GRL.
     {
         RangedSummarizedExperimentOptions opt(55, 14);
-        opt.use_grl = true;
+        opt.row_ranges = RangedSummarizedExperimentRowRangesType::GRANGESLIST;
         mock_ranged_summarized_experiment(dir, opt);
     }
     {
@@ -35,8 +35,9 @@ TEST(RangedSummarizedExperiment, Okay) {
 
     // With nothing.
     {
-        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(6, 61));
-        std::filesystem::remove_all(dir / "row_ranges");
+        RangedSummarizedExperimentOptions opt(6, 61);
+        opt.row_ranges = RangedSummarizedExperimentRowRangesType::NONE;
+        mock_ranged_summarized_experiment(dir, opt);
     }
     {
         test_validate(dir);
@@ -51,7 +52,7 @@ TEST(RangedSummarizedExperiment, BaseError) {
     // Check that the base SE is actually validated.
     {
         RangedSummarizedExperimentOptions opt(17, 40);
-        opt.has_row_data = false;
+        opt.base.has_row_data = false;
         mock_ranged_summarized_experiment(dir, opt);
         mock_data_frame(dir / "row_data", 15, {});
     }
@@ -62,13 +63,9 @@ TEST(RangedSummarizedExperiment, VersionError) {
     auto dir = define_test_path("ranged_summarized_experiment");
 
     {
-        mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(12, 40));
-
-        std::string objpath = dir / "OBJECT";
-        auto contents = millijson::parse_file(objpath.c_str(), {});
-        auto optr = reinterpret_cast<millijson::Object*>(contents.get());
-        add_ranged_summarized_experiment_metadata(optr, "2.0");
-        dump_json(contents.get(), dir / "OBJECT");
+        RangedSummarizedExperimentOptions opt(12, 40);
+        opt.version = "2.0";
+        mock_ranged_summarized_experiment(dir, opt);
     }
     expect_validation_error(dir, "unsupported version");
 }

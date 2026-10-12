@@ -86,19 +86,32 @@ TEST(SpatialExperiment, VersionError) {
 
 /******************************************/
 
-TEST(SpatialExperiment, ThreeDCoordinatesOkay) {
+TEST(SpatialExperiment, CoordinatesOkay) {
     auto dir = define_test_path("spatial_experiment");
 
-    // Trying a 3D integer array this time, as opposed to the 2D float default.
+    // Trying a 3D array. 
+    {
+        SpatialExperimentOptions opt(19, 23);
+        opt.coordinate_dimensions = 3;
+        mock_spatial_experiment(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 19);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 19, 23 }));
+    }
+
+    // Trying an integer array. 
     {
         mock_spatial_experiment(dir, SpatialExperimentOptions(19, 23));
         std::filesystem::remove_all(dir / "coordinates");
-        mock_dense_array(dir / "coordinates", DenseArrayType::INTEGER, { 23, 3 });
+        mock_dense_array(dir / "coordinates", DenseArrayType::INTEGER, { 23, 2 });
     }
-
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 19);
-    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 19, 23 }));
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 19);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 19, 23 }));
+    }
 }
 
 TEST(SpatialExperiment, CoordinatesError) {

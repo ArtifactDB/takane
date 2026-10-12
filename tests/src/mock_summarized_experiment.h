@@ -5,6 +5,7 @@
 #include <string>
 #include <numeric>
 #include <cstddef>
+#include <optional>
 
 #include "H5Cpp.h"
 #include "utils.h"
@@ -20,13 +21,21 @@ struct SummarizedExperimentOptions {
     bool has_row_data = true;
     bool has_column_data = true;
     bool has_other_data = true;
+    std::optional<std::string> version;
 };
 
-inline void add_summarized_experiment_metadata(millijson::Base* input, const std::string& version, size_t num_rows, size_t num_cols) {
+inline void add_summarized_experiment_metadata(millijson::Base* input, const std::optional<std::string>& version, std::size_t num_rows, std::size_t num_cols) {
     auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
     auto optr = new millijson::Object({});
     remap["summarized_experiment"] = std::shared_ptr<millijson::Base>(optr);
-    optr->value()["version"] = std::shared_ptr<millijson::Base>(new millijson::String(version));
+
+    std::shared_ptr<millijson::Base> vptr;
+    if (version.has_value()) {
+        vptr.reset(new millijson::String(*version));
+    } else {
+        vptr.reset(new millijson::String("1.0"));
+    }
+    optr->value()["version"] = std::move(vptr);
 
     auto aptr = new millijson::Array({});
     optr->value()["dimensions"] = std::shared_ptr<millijson::Base>(aptr);
@@ -40,7 +49,7 @@ inline void mock_summarized_experiment(const std::filesystem::path& dir, const S
     auto optr = new millijson::Object({});
     std::shared_ptr<millijson::Base> contents(optr);
     optr->value()["type"] = std::shared_ptr<millijson::Base>(new millijson::String("summarized_experiment"));
-    add_summarized_experiment_metadata(contents.get(), "1.0", options.num_rows, options.num_cols);
+    add_summarized_experiment_metadata(contents.get(), options.version, options.num_rows, options.num_cols);
     dump_json(contents.get(), dir / "OBJECT");
 
     {

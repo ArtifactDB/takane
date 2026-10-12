@@ -80,7 +80,7 @@ TEST(SingleCellExperiment, BaseError) {
     // Check that the base RSE is actually validated.
     {
         SingleCellExperimentOptions opt(15, 30);
-        opt.use_grl = false;
+        opt.base.row_ranges = RangedSummarizedExperimentRowRangesType::NONE;
         mock_single_cell_experiment(dir, opt);
         mock_data_frame(dir / "row_ranges", 15, {});
     }
@@ -91,13 +91,9 @@ TEST(SingleCellExperiment, VersionError) {
     auto dir = define_test_path("single_cell_experiment");
 
     {
-        mock_single_cell_experiment(dir, SingleCellExperimentOptions(12, 40));
-
-        std::string objpath = dir / "OBJECT";
-        auto contents = millijson::parse_file(objpath.c_str(), {});
-        auto optr = reinterpret_cast<millijson::Object*>(contents.get());
-        add_single_cell_experiment_metadata(optr, "2.0", "foobar");
-        dump_json(contents.get(), dir / "OBJECT");
+        SingleCellExperimentOptions opt(12, 40);
+        opt.version = "2.0";
+        mock_single_cell_experiment(dir, opt);
     }
     expect_validation_error(dir, "unsupported version");
 }
