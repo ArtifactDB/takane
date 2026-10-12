@@ -13,9 +13,8 @@ struct SpatialExperimentOptions : public SingleCellExperimentOptions {
     SpatialExperimentOptions(std::size_t nr, std::size_t nc) : SingleCellExperimentOptions(nr, nc) {}
     std::size_t num_samples = 1;
     std::size_t num_images_per_sample = 1;
-    bool allow_other = true;
-    bool specify_format = true;
     std::string version;
+    bool add_images = true;
 };
 
 inline void add_spatial_experiment_metadata(millijson::Base* input, const std::string& version) {
@@ -25,15 +24,17 @@ inline void add_spatial_experiment_metadata(millijson::Base* input, const std::s
     optr->value()["version"] = std::shared_ptr<millijson::Base>(new millijson::String(version));
 }
 
-inline void mock_spatial_experiment(const std::filesystem::path& dir, const SpatialExperimentOptions& options) {
+inline const std::vector<unsigned char>& get_png_signature() {
+    static std::vector<unsigned char> png_sig{ 137, 80, 78, 71, 13, 10, 26, 10 };
+    return png_sig;
+}
+
+inline H5::Group mock_spatial_experiment(const std::filesystem::path& dir, const SpatialExperimentOptions& options) {
     mock_single_cell_experiment(dir, options);
 
     auto version = options.version;
-    if (options.allow_other) {
-        version = "1.1";
-    }
-    if (!options.specify_format) {
-        version = "1.3";
+    if (version == "") {
+        version = "1.0";
     }
 
     auto opath = dir / "OBJECT";
@@ -84,7 +85,7 @@ inline void mock_spatial_experiment(const std::filesystem::path& dir, const Spat
             for (size_t s = 0; s < options.num_samples; ++s) {
                 image_ids.push_back("IMAGE_" + std::to_string(i + 1));
                 image_assignments.push_back(s);
-                image_scales.push_back(0.1);
+                image_scales.push_back(0.1 * static_cast<double>(s + 1) * static_cast<double>(i + 1));
             }
         }
         add_hdf5_numeric_dataset(ghandle, "image_samples", H5::PredType::NATIVE_UINT8, image_assignments);
@@ -93,53 +94,19 @@ inline void mock_spatial_experiment(const std::filesystem::path& dir, const Spat
         num_images = image_ids.size();
     }
 
-    std::vector<std::vector<unsigned char> > sim_signatures{
-        std::vector<unsigned char>{ 137, 80, 78, 71, 13, 10, 26, 10 }, // png
-        std::vector<unsigned char>{ 77, 77, 0, 42 }, // tif (1)
-        std::vector<unsigned char>{ 73, 73, 42, 0 } // tif (2)
-    };
-    std::vector<std::string> sim_formats { "PNG", "TIFF", "TIFF" };
-    std::vector<std::string> sim_extensions { ".png", ".tif", ".tif" };
-
-    if (options.specify_format) {
-        std::vector<std::string> formats;
-        formats.reserve(num_images);
+    if (options.add_images) {
+        const auto& png_sig = get_png_signature();
         for (std::size_t i = 0; i < num_images; ++i) {
-            auto path = idir / std::to_string(i);
-
-            if (options.allow_other && i % 4) {
-                std::filesystem::create_directory(path);
-                quick_text_write(
-                    path / "OBJECT",
-                    "{ \"type\": \"image_file\", \"image_file\": { \"version\": \"1.0\", \"format\": \"" + sim_formats[i % 3] + "\" } }"
-                );
-                path /= "file" + sim_extensions[i % 3];
-                formats.push_back("OTHER");
-            } else {
-                path += sim_extensions[i % 3]; 
-                formats.push_back(sim_formats[i % 3]);
-            }
-
+            std::string path = idir / (std::to_string(i) + ".png");
             byteme::RawFileWriter writer(path.c_str(), {});
-            const auto& cur_sig = sim_signatures[i % 3];
-            writer.write(cur_sig.data(), cur_sig.size());
+            writer.write(png_sig.data(), png_sig.size());
         }
 
+        std::vector<std::string> formats(num_images, "PNG");
         add_hdf5_string_dataset(ghandle, "image_formats", formats);
-    } else {
-        for (std::size_t i = 0; i < num_images; ++i) {
-            auto path = idir / std::to_string(i);
-            std::filesystem::create_directory(path);
-            quick_text_write(
-                path / "OBJECT",
-                "{ \"type\": \"image_file\", \"image_file\": { \"version\": \"1.0\", \"format\": \"" + sim_formats[i % 3] + "\" } }"
-            );
-            path /= "file" + sim_extensions[i % 3];
-            byteme::RawFileWriter writer(path.c_str(), {});
-            const auto& cur_sig = sim_signatures[i % 3];
-            writer.write(cur_sig.data(), cur_sig.size());
-        }
     }
+
+    return ghandle;
 }
 
 #endif

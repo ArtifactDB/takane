@@ -32,7 +32,7 @@ inline void validate_tiff_image(const std::filesystem::path& path) {
     constexpr std::array<unsigned char, 4> iisig { 0x49, 0x49, 0x2A, 0x00 };
     constexpr std::array<unsigned char, 4> mmsig { 0x4D, 0x4D, 0x00, 0x2A };
     if (observed != iisig && observed != mmsig) {
-        throw std::runtime_error("incorrect TIFF file signature");
+        throw std::runtime_error("incorrect signature for a TIFF file");
     }
 }
 /**

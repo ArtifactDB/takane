@@ -13,7 +13,6 @@
 
 #include <filesystem>
 #include <stdexcept>
-#include <unordered_set>
 #include <string>
 #include <vector>
 #include <cmath>
@@ -57,7 +56,7 @@ inline void validate_spatial_coordinates(const std::filesystem::path& coord_path
     auto dhandle = ghandle.openDataSet("data");
     auto dclass = dhandle.getTypeClass();
     if (dclass != H5T_INTEGER && dclass != H5T_FLOAT) {
-        throw std::runtime_error("values in 'coordinates' should be numeric");
+        throw std::runtime_error("values should be numeric");
     }
 }
 
@@ -269,7 +268,7 @@ inline void validate_spatial_images(const std::filesystem::path& image_dir, std:
                 std::throw_with_nested(std::runtime_error("failed to validate 'image_formats'"));
             }
         }
-    } catch (std::exception& e) {
+    } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate 'mapping.h5'"));
     }
 
