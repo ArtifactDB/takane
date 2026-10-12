@@ -77,7 +77,7 @@ TEST(BcfFile, BcfError) {
         initialize_directory_simple(dir, "bcf_file", "1.0");
         quick_gzip_write(dir / "file.bcf", "foo");
     }
-    expect_validation_error(dir, "file is too short");
+    expect_validation_error(dir, "not enough bytes");
 
     {
         initialize_directory_simple(dir, "bcf_file", "1.0");

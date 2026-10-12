@@ -49,14 +49,9 @@ inline void validate_bcf_file(const std::filesystem::path& path, const ObjectMet
     try {
         check_gzip_file_signature(ipath);
         std::array<char, 5> payload;
-        auto extracted = extract_gunzipped_file_signature(
-            ipath,
-            reinterpret_cast<unsigned char*>(payload.data()),
-            payload.size(),
-            /* must_work = */ false
-        );
+        auto extracted = extract_gunzipped_file_signature(ipath, reinterpret_cast<unsigned char*>(payload.data()), payload.size());
         if (extracted < 4) {
-            throw std::runtime_error("file is too short to contain any BCF signature");
+            throw std::runtime_error("not enough bytes to extract a signature for a BCF file");
         } else {
             if (std::strncmp(payload.data(), "BCF\4", 4) == 0) {
                 // okay for the (obsolete) BCFv1.

@@ -47,8 +47,7 @@ inline void validate_bigwig_file(const std::filesystem::path& path, const Object
     auto ipath = path / "file.bw";
     try {
         std::array<unsigned char, 4> store;
-        extract_raw_file_signature(ipath, store.data(), store.size(), /* must_work = */ true);
-
+        extract_raw_file_signature(ipath, store.data(), store.size(), "a bigWig file");
         std::array<unsigned char, 4> be_magic { 0x26, 0xFC, 0x8F, 0x88 };
         std::array<unsigned char, 4> le_magic { 0x88, 0x8F, 0xFC, 0x26 };
         if (store != be_magic && store != le_magic) {
