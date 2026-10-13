@@ -30,12 +30,11 @@ namespace takane {
 inline void validate_compressed_sparse_matrix(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "compressed_sparse_matrix"; // use a separate variable to avoid dangling reference warnings from GCC.
 
-    ritsuko::Version version;
     try {
         const auto& type_meta = extract_json_object(metadata.other, type_name);
         try {
             const auto& vstring = extract_json_version_string(type_meta);
-            version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
             if (version.major != 1) {
                 throw std::runtime_error("unsupported version '" + vstring + "'");
             }
