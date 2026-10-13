@@ -39,7 +39,6 @@ inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const Gen
     auto ghandle = handle.createGroup("genomic_ranges");
 
     const auto& ranges = options.ranges;
-    const auto& sequences = options.sequences;
     std::vector<int> vals;
     vals.reserve(ranges.size());
 
@@ -75,7 +74,7 @@ inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const Gen
         add_hdf5_numeric_dataset(ghandle, "strand", H5::PredType::NATIVE_INT8, vals);
     }
 
-    mock_sequence_information(dir / "sequence_information", sequences);
+    mock_sequence_information(dir / "sequence_information", SequenceInformationOptions(options.sequences));
     return ghandle;
 }
 

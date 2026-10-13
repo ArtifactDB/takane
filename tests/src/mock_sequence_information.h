@@ -18,11 +18,19 @@ struct SequenceInfo {
     std::string genome;
 };
 
-inline H5::Group mock_sequence_information(const std::filesystem::path& dir, const std::vector<SequenceInfo>& info) {
-    initialize_directory_simple(dir, "sequence_information", "1.0");
+struct SequenceInformationOptions {
+    SequenceInformationOptions(std::vector<SequenceInfo> sequences) : sequences(std::move(sequences)), version("1.0") {}
+public:
+    std::vector<SequenceInfo> sequences;
+    std::string version;
+};
+
+inline H5::Group mock_sequence_information(const std::filesystem::path& dir, const SequenceInformationOptions& options) {
+    initialize_directory_simple(dir, "sequence_information", options.version);
     H5::H5File handle(dir / "info.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("sequence_information");
 
+    const auto& info = options.sequences;
     std::vector<const char*> ptrs;
     ptrs.reserve(info.size());
     std::vector<int> vals;

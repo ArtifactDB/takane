@@ -30,8 +30,8 @@ struct DataFrameColumn {
 
 struct DataFrameOptions {
 public:
-    DataFrameOptions(hsize_t num_rows, std::vector<DataFrameColumn> cols) : num_rows(num_rows), columns(std::move(cols)), version("1.0") {
-        for (const auto& col : columns) {
+    DataFrameOptions(hsize_t num_rows, std::vector<DataFrameColumn> columns) : num_rows(num_rows), columns(std::move(columns)), version("1.0") {
+        for (const auto& col : this->columns) {
             if (col.type == DataFrameColumnType::VLS) {
                 version[2] = '1'; 
                 break;

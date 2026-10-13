@@ -42,9 +42,11 @@ TEST(GenomicRanges, FindSequenceLimits) {
     auto dir = define_test_path("genomic_ranges");
     initialize_directory(dir);
 
+    SequenceInformationOptions sopt({ SequenceInfo("chrA", 100, true, "mm10"), SequenceInfo("chrB", 20, false, "hg19") });
+
     // No missing values.
     {
-        mock_sequence_information(dir, { SequenceInfo("chrA", 100, true, "mm10"), SequenceInfo("chrB", 20, false, "hg19") });
+        mock_sequence_information(dir, sopt);
     }
     {
         auto out = takane::find_sequence_limits(dir, {});
@@ -64,7 +66,7 @@ TEST(GenomicRanges, FindSequenceLimits) {
 
     // Injecting some missing placeholders.
     {
-        auto ghandle = mock_sequence_information(dir, { SequenceInfo("chrA", 100, true, "mm10"), SequenceInfo("chrB", 20, false, "hg19") });
+        auto ghandle = mock_sequence_information(dir, sopt);
         {
             auto dhandle = ghandle.openDataSet("length");
             auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);

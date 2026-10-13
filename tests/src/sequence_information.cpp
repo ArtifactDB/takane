@@ -8,14 +8,11 @@
 #include <string>
 
 static H5::Group mock_sequence_information(const std::filesystem::path& dir) {
-    return mock_sequence_information(
-        dir,
-        {
-            SequenceInfo("chrA", 4, true, "mm10"),
-            SequenceInfo("chrB", 9, false, "hg19"),
-            SequenceInfo("chrC", 19, true, "rn10")
-        }
-    );
+    return mock_sequence_information(dir, SequenceInformationOptions({
+        SequenceInfo("chrA", 4, true, "mm10"),
+        SequenceInfo("chrB", 9, false, "hg19"),
+        SequenceInfo("chrC", 19, true, "rn10")
+    }));
 }
 
 TEST(SequenceInformation, Okay) {
@@ -54,14 +51,11 @@ TEST(SequenceInformation, NameError) {
     expect_validation_error(dir, "1-dimensional dataset");
 
     {
-        mock_sequence_information(
-            dir,
-            {
-                SequenceInfo("chrA", 4, true, "mm10"),
-                SequenceInfo("chrB", 9, false, "hg19"),
-                SequenceInfo("chrA", 19, true, "rn10")
-            }
-        );
+        mock_sequence_information(dir, SequenceInformationOptions({
+            SequenceInfo("chrA", 4, true, "mm10"),
+            SequenceInfo("chrB", 9, false, "hg19"),
+            SequenceInfo("chrA", 19, true, "rn10")
+        }));
     }
     expect_validation_error(dir, "duplicated sequence name");
 }
