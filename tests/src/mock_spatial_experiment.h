@@ -4,34 +4,27 @@
 #include <vector>
 #include <string>
 #include <numeric>
-#include <optional>
 
 #include "H5Cpp.h"
 #include "utils.h"
 #include "mock_single_cell_experiment.h"
 
 struct SpatialExperimentOptions {
-    SpatialExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc) {}
+    SpatialExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc), version("1.0") {}
+public:
     SingleCellExperimentOptions base;
     std::size_t coordinate_dimensions = 2;
     std::size_t num_samples = 1;
     std::size_t num_images_per_sample = 1;
-    std::optional<std::string> version;
     bool add_images = true;
+    std::string version;
 };
 
-inline void add_spatial_experiment_metadata(millijson::Base* input, const std::optional<std::string>& version) {
+inline void add_spatial_experiment_metadata(millijson::Base* input, const std::string& version) {
     auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
     auto optr = new millijson::Object({});
     remap["spatial_experiment"] = std::shared_ptr<millijson::Base>(optr);
-
-    std::shared_ptr<millijson::Base> vptr;
-    if (version.has_value()) {
-        vptr.reset(new millijson::String(*version));
-    } else {
-        vptr.reset(new millijson::String("1.0"));
-    }
-    optr->value()["version"] = std::move(vptr);
+    optr->value()["version"] = std::make_shared<millijson::String>(version);
 }
 
 inline const std::vector<unsigned char>& get_png_signature() {
@@ -55,7 +48,7 @@ inline H5::Group mock_spatial_experiment(const std::filesystem::path& dir, const
         std::vector<hsize_t> dims(2);
         dims[0] = options.base.base.base.num_cols;
         dims[1] = options.coordinate_dimensions;
-        mock_dense_array(dir / "coordinates", DenseArrayType::NUMBER, dims);
+        mock_dense_array(dir / "coordinates", DenseArrayOptions(dims, DenseArrayType::NUMBER));
     }
 
     auto idir = dir / "images";

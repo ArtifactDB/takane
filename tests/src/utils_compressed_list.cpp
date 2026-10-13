@@ -19,7 +19,7 @@ TEST(ValidateCompressedList, Okay) {
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 2, 3, 1 });
-        mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(10));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -31,7 +31,7 @@ TEST(ValidateCompressedList, Okay) {
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 0, 0, 2, 0, 1, 1, 0, 3, 2, 0, 1 });
-        mock_atomic_vector(dir / "concatenated", 11, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(11));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -43,7 +43,7 @@ TEST(ValidateCompressedList, Okay) {
     {
         initialize_directory_simple(dir, "data_frame_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "data_frame_list", { 4, 12, 9, 1, 5 });
-        mock_data_frame(dir / "concatenated", 31, {});
+        mock_data_frame(dir / "concatenated", DataFrameOptions(31, {}));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -76,7 +76,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
-        mock_data_frame(dir / "concatenated", 10, {});
+        mock_data_frame(dir / "concatenated", DataFrameOptions(10, {}));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -92,7 +92,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
     {
         initialize_directory_simple(dir, "data_frame_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
-        mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(10));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -108,7 +108,7 @@ TEST(ValidateCompressedList, ConcatenatedError) {
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", lengths);
-        auto ghandle2 = mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
+        auto ghandle2 = mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(10));
         ghandle2.removeAttr("type");
         add_hdf5_string_attribute(ghandle2, "type", "string");
     }
@@ -131,7 +131,7 @@ TEST(ValidateCompressedList, PartitionsError) {
         H5::H5File handle(dir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("atomic_vector_list");
         ghandle.createDataSet("lengths", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(20));
-        mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(10));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -148,7 +148,7 @@ TEST(ValidateCompressedList, PartitionsError) {
         H5::H5File handle(dir / "partitions.h5", H5F_ACC_TRUNC);
         auto ghandle = handle.createGroup("atomic_vector_list");
         ghandle.createDataSet("lengths", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
-        mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(10));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -163,7 +163,7 @@ TEST(ValidateCompressedList, PartitionsError) {
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 2, 3, 1 });
-        mock_atomic_vector(dir / "concatenated", 20, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(20));
     }
     {
         auto meta = takane::read_object_metadata(dir);
@@ -176,97 +176,106 @@ TEST(ValidateCompressedList, PartitionsError) {
     }
 }
 
-TEST(ValidateCompressedList, Names) {
+TEST(ValidateCompressedList, NamesOkay) {
     auto dir = define_test_path("utils_compressed_list");
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         auto ghandle = mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 2, 3, 4, 5, 6 });
         ghandle.createDataSet("names", H5::StrType(0, 5), create_hdf5_dataspace(6));
-        mock_atomic_vector(dir / "concatenated", 21, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(21));
     }
-    {
-        auto meta = takane::read_object_metadata(dir);
-        takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
-        EXPECT_EQ(takane::height_of_compressed_list(dir, "atomic_vector_list", meta, {}), 6);
-    }
+
+    auto meta = takane::read_object_metadata(dir);
+    takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
+    EXPECT_EQ(takane::height_of_compressed_list(dir, "atomic_vector_list", meta, {}), 6);
+}
+
+TEST(ValidateCompressedList, NamesError) {
+    auto dir = define_test_path("utils_compressed_list");
 
     // Test that some kind of validation is performed.
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         auto ghandle = mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 1, 2, 3, 4, 5, 6 });
         ghandle.createDataSet("names", H5::StrType(0, 5), create_hdf5_dataspace(10));
-        mock_atomic_vector(dir / "concatenated", 21, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(21));
     }
-    {
-        auto meta = takane::read_object_metadata(dir);
-        expect_error(
-            "number of names",
-            [&]() -> void {
-                takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
-            }
-        );
-    }
+
+    auto meta = takane::read_object_metadata(dir);
+    expect_error(
+        "number of names",
+        [&]() -> void {
+            takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
+        }
+    );
 }
 
-TEST(ValidateCompressedList, Metadata) {
+TEST(ValidateCompressedList, MetadataOkay) {
     auto dir = define_test_path("utils_compressed_list");
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
-        mock_atomic_vector(dir / "concatenated", 12, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(12));
         mock_simple_list(dir / "other_annotations");
     }
-    {
-        auto meta = takane::read_object_metadata(dir);
-        takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
-        EXPECT_EQ(takane::height_of_compressed_list(dir, "atomic_vector_list", meta, {}), 8);
-    }
+
+    auto meta = takane::read_object_metadata(dir);
+    takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
+    EXPECT_EQ(takane::height_of_compressed_list(dir, "atomic_vector_list", meta, {}), 8);
+}
+
+TEST(ValidateCompressedList, MetadataError) {
+    auto dir = define_test_path("utils_compressed_list");
 
     // Test that some kind of validation is performed.
     {
-        std::filesystem::remove_all(dir / "other_annotations");
-        mock_atomic_vector(dir / "other_annotations", 12, AtomicVectorType::INTEGER);
+        initialize_directory_simple(dir, "atomic_vector_list", "1.0");
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(12));
+        mock_atomic_vector(dir / "other_annotations", AtomicVectorOptions(12));
     }
-    {
-        auto meta = takane::read_object_metadata(dir);
-        expect_error(
-            "'SIMPLE_LIST' interface",
-            [&]() -> void {
-                takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
-            }
-        );
-    }
+
+    auto meta = takane::read_object_metadata(dir);
+    expect_error(
+        "'SIMPLE_LIST' interface",
+        [&]() -> void {
+            takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
+        }
+    );
 }
 
-TEST(ValidateCompressedList, Mcols) {
+TEST(ValidateCompressedList, McolsOkay) {
     auto dir = define_test_path("utils_compressed_list");
 
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0");
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
-        mock_atomic_vector(dir / "concatenated", 12, AtomicVectorType::INTEGER);
-        mock_data_frame(dir / "element_annotations", 8, {});
-    }
-    {
-        auto meta = takane::read_object_metadata(dir);
-        takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
-        EXPECT_EQ(takane::height_of_compressed_list(dir, "atomic_vector_list", meta, {}), 8);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(12));
+        mock_data_frame(dir / "element_annotations", DataFrameOptions(8, {}));
     }
 
-    // Test that some kind of validation is performed.
+    auto meta = takane::read_object_metadata(dir);
+    takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
+    EXPECT_EQ(takane::height_of_compressed_list(dir, "atomic_vector_list", meta, {}), 8);
+}
+
+TEST(ValidateCompressedList, McolsError) {
+    auto dir = define_test_path("utils_compressed_list");
+
     {
-        std::filesystem::remove_all(dir / "element_annotations");
-        mock_data_frame(dir / "element_annotations", 9, {});
+        initialize_directory_simple(dir, "atomic_vector_list", "1.0");
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 3, 3, 2, 2, 1, 1, 0, 0 });
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(12));
+        mock_data_frame(dir / "element_annotations", DataFrameOptions(9, {}));
     }
-    {
-        auto meta = takane::read_object_metadata(dir);
-        expect_error(
-            "number of rows",
-            [&]() -> void {
-                takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
-            }
-        );
-    }
+
+    auto meta = takane::read_object_metadata(dir);
+    expect_error(
+        "number of rows",
+        [&]() -> void {
+            takane::validate_compressed_list<false>(dir, "atomic_vector_list", "atomic_vector", meta, {});
+        }
+    );
 }

@@ -54,7 +54,7 @@ TEST(RangedSummarizedExperiment, BaseError) {
         RangedSummarizedExperimentOptions opt(17, 40);
         opt.base.has_row_data = false;
         mock_ranged_summarized_experiment(dir, opt);
-        mock_data_frame(dir / "row_data", 15, {});
+        mock_data_frame(dir / "row_data", DataFrameOptions(15, {}));
     }
     expect_validation_error(dir, "number of rows");
 }
@@ -76,7 +76,7 @@ TEST(RangedSummarizedExperiment, RowRangesError) {
     {
         mock_ranged_summarized_experiment(dir, RangedSummarizedExperimentOptions(16, 41));
         std::filesystem::remove_all(dir / "row_ranges");
-        mock_data_frame(dir / "row_ranges", 16, {});
+        mock_data_frame(dir / "row_ranges", DataFrameOptions(16, {}));
     }
     expect_validation_error(dir, "'genomic_ranges', 'genomic_ranges_list'");
 

@@ -82,7 +82,7 @@ TEST(SimpleList, JsonOkay) {
         dump_compressed_json(dir, "{ \"type\": \"list\", \"values\": [ { \"type\": \"external\", \"index\": 0 } ] }");
         auto odir = dir / "other_contents";
         initialize_directory(odir);
-        mock_atomic_vector(odir / "0", 23, AtomicVectorType::INTEGER);
+        mock_atomic_vector(odir / "0", AtomicVectorOptions(23));
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 1);
@@ -172,7 +172,7 @@ TEST(SimpleList, Hdf5Okay) {
         }
         auto odir = dir / "other_contents";
         initialize_directory(odir);
-        mock_atomic_vector(odir / "0", 23, AtomicVectorType::INTEGER);
+        mock_atomic_vector(odir / "0", AtomicVectorOptions(23));
     }
 
     test_validate(dir);
@@ -297,7 +297,7 @@ TEST(SimpleList, ExternalError) {
     }
     expect_validation_error(dir, "failed to validate external list object at 'other_contents/0'");
 
-    mock_atomic_vector(dir0, 23, AtomicVectorType::INTEGER);
+    mock_atomic_vector(dir0, AtomicVectorOptions(23));
     expect_validation_error(dir, "fewer instances");
 }
 

@@ -15,9 +15,6 @@ enum class CompressedSparseMatrixType {
 };
 
 struct CompressedSparseMatrixBasicOptions {
-    CompressedSparseMatrixBasicOptions() = default;
-    CompressedSparseMatrixBasicOptions(bool column_sparse, CompressedSparseMatrixType type) : column_sparse(column_sparse), type(type) {}
-public:
     bool column_sparse = true;
     CompressedSparseMatrixType type = CompressedSparseMatrixType::INTEGER;
 };
@@ -54,12 +51,14 @@ void mock_compressed_sparse_matrix(
     add_hdf5_numeric_dataset(handle, "indptr", H5::PredType::NATIVE_UINT64, indptr);
 }
 
-struct CompressedSparseMatrixOptions : public CompressedSparseMatrixBasicOptions {
+struct CompressedSparseMatrixOptions {
     CompressedSparseMatrixOptions(int num_rows, int num_columns) : num_rows(num_rows), num_columns(num_columns) {}
 public:
     int num_rows;
     int num_columns;
     double density = 0.2;
+    bool column_sparse = true;
+    CompressedSparseMatrixType type = CompressedSparseMatrixType::INTEGER;
 };
 
 inline H5::Group mock_compressed_sparse_matrix(const std::filesystem::path& path, const CompressedSparseMatrixOptions& options) {
@@ -90,6 +89,10 @@ inline H5::Group mock_compressed_sparse_matrix(const std::filesystem::path& path
         indptr.push_back(indptr.back() + count);
     }
 
+    CompressedSparseMatrixBasicOptions bopt;
+    bopt.column_sparse = options.column_sparse;
+    bopt.type = options.type;
+
     H5::H5File handle(path / "matrix.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("compressed_sparse_matrix");
     mock_compressed_sparse_matrix(
@@ -98,7 +101,7 @@ inline H5::Group mock_compressed_sparse_matrix(const std::filesystem::path& path
         data,
         indices,
         indptr,
-        options
+        bopt
     );
 
     return ghandle;

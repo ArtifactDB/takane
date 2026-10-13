@@ -5,7 +5,6 @@
 #include <string>
 #include <numeric>
 #include <cstddef>
-#include <optional>
 
 #include "H5Cpp.h"
 #include "utils.h"
@@ -14,28 +13,22 @@
 #include "mock_dense_array.h"
 
 struct SummarizedExperimentOptions {
-    SummarizedExperimentOptions(std::size_t nr, std::size_t nc) : num_rows(nr), num_cols(nc) {}
+    SummarizedExperimentOptions(std::size_t nr, std::size_t nc) : num_rows(nr), num_cols(nc), version("1.0") {}
+public:
     std::size_t num_rows;
     std::size_t num_cols;
     std::size_t num_assays = 1;
     bool has_row_data = true;
     bool has_column_data = true;
     bool has_other_data = true;
-    std::optional<std::string> version;
+    std::string version;
 };
 
-inline void add_summarized_experiment_metadata(millijson::Base* input, const std::optional<std::string>& version, std::size_t num_rows, std::size_t num_cols) {
+inline void add_summarized_experiment_metadata(millijson::Base* input, const std::string& version, std::size_t num_rows, std::size_t num_cols) {
     auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
     auto optr = new millijson::Object({});
     remap["summarized_experiment"] = std::shared_ptr<millijson::Base>(optr);
-
-    std::shared_ptr<millijson::Base> vptr;
-    if (version.has_value()) {
-        vptr.reset(new millijson::String(*version));
-    } else {
-        vptr.reset(new millijson::String("1.0"));
-    }
-    optr->value()["version"] = std::move(vptr);
+    optr->value()["version"] = std::make_shared<millijson::String>(version);
 
     auto aptr = new millijson::Array({});
     optr->value()["dimensions"] = std::shared_ptr<millijson::Base>(aptr);
@@ -66,19 +59,21 @@ inline void mock_summarized_experiment(const std::filesystem::path& dir, const S
             handle << "\"assay-" << aname << "\"";
             mock_dense_array(
                 adir / aname,
-                DenseArrayType::INTEGER,
-                { static_cast<hsize_t>(options.num_rows), static_cast<hsize_t>(options.num_cols) }
+                DenseArrayOptions(
+                    { options.num_rows, options.num_cols },
+                    DenseArrayType::INTEGER
+                )
             );
         }
         handle << "]";
     }
 
     if (options.has_row_data) {
-        mock_data_frame(dir / "row_data", options.num_rows, {});
+        mock_data_frame(dir / "row_data", DataFrameOptions(options.num_rows, {}));
     }
 
     if (options.has_column_data) {
-        mock_data_frame(dir / "column_data", options.num_cols, {});
+        mock_data_frame(dir / "column_data", DataFrameOptions(options.num_cols, {}));
     }
 
     if (options.has_other_data) {

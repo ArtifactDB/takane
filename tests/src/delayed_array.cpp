@@ -10,11 +10,11 @@
 #include <filesystem>
 #include <stdexcept>
 
-TEST(DelayedArray, Okay) {
+TEST(DelayedArray, SimpleOkay) {
     auto dir = define_test_path("delayed_array");
 
     {
-        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }, DenseArrayType::INTEGER));
     }
     {
         test_validate(dir);
@@ -22,7 +22,38 @@ TEST(DelayedArray, Okay) {
         EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 10, 20 }));
     }
 
-    // No external references at all.
+    // Trying with different types and dimensionalities.
+    {
+        mock_delayed_array(dir, DelayedArrayOptions({ 5, 4, 3 }, DenseArrayType::STRING));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 5);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 5, 4, 3 }));
+    }
+
+    {
+        mock_delayed_array(dir, DelayedArrayOptions({ 33 }, DenseArrayType::NUMBER));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 33);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 33 }));
+    }
+
+    {
+        mock_delayed_array(dir, DelayedArrayOptions({ 0, 0 }, DenseArrayType::BOOLEAN));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 0);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 0, 0 }));
+    }
+}
+
+TEST(DelayedArray, NoExternalOkay) {
+    auto dir = define_test_path("delayed_array");
+
     {
         initialize_directory_simple(dir, "delayed_array", "1.0");
 
@@ -35,13 +66,15 @@ TEST(DelayedArray, Okay) {
         auto thandle = ghandle.createDataSet("value", H5::PredType::NATIVE_INT8, H5S_SCALAR);
         add_hdf5_string_attribute(thandle, "type", "BOOLEAN");
     }
-    {
-        test_validate(dir);
-        EXPECT_EQ(test_height(dir), 15);
-        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 15, 3, 14 }));
-    }
 
-    // Multiple external references.
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 15);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 15, 3, 14 }));
+}
+
+TEST(DelayedArray, MultiExternalOkay) {
+    auto dir = define_test_path("delayed_array");
+
     {
         initialize_directory_simple(dir, "delayed_array", "1.0");
 
@@ -77,15 +110,14 @@ TEST(DelayedArray, Okay) {
 
             auto ihandle = xhandle.createDataSet("index", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
             ihandle.write(&i, H5::PredType::NATIVE_INT);
-            mock_dense_array(dir / "seeds" / nm, DenseArrayType::INTEGER, std::move(dims));
+            mock_dense_array(dir / "seeds" / nm, DenseArrayOptions(std::move(dims)));
         }
     }
-    {
-        test_validate(dir);
-        EXPECT_EQ(test_height(dir), 10);
-        std::vector<std::size_t> expected_dims { 10, 60 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
-    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 10);
+    std::vector<std::size_t> expected_dims { 10, 60 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
 }
 
 TEST(DelayedArray, VersionError) {
@@ -99,7 +131,7 @@ TEST(DelayedArray, VersionError) {
 
     // Fails if the version is too old.
     {
-        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        auto ghandle = mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }));
         ghandle.removeAttr("delayed_version");
     }
     expect_validation_error(dir, "no less than 1.1");
@@ -108,6 +140,7 @@ TEST(DelayedArray, VersionError) {
 TEST(DelayedArray, ChihayaError) {
     auto dir = define_test_path("delayed_array");
 
+    // Check that chihaya::validate() is actually called.
     {
         initialize_directory_simple(dir, "delayed_array", "1.0");
         H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
@@ -123,35 +156,35 @@ TEST(DelayedArray, IndexError) {
     auto dir = define_test_path("delayed_array");
 
     {
-        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        auto ghandle = mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }));
         ghandle.unlink("index");
         ghandle.createDataSet("index", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(20));
     }
     expect_validation_error(dir, "scalar");
 
     {
-        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        auto ghandle = mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }));
         ghandle.unlink("index");
         ghandle.createDataSet("index", H5::PredType::NATIVE_INT, H5S_SCALAR);
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
     {
-        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
-        mock_dense_array(dir / "seeds" / "3", DenseArrayType::INTEGER, { 10, 20 });
+        mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }));
+        mock_dense_array(dir / "seeds" / "1", DenseArrayOptions({ 10, 20 }));
     }
     expect_validation_error(dir, "number of objects in 'seeds' is not consistent");
 
     // Trying with a single valid index that doesn't start at zero.
     {
-        auto ghandle = mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        auto ghandle = mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }));
         ghandle.unlink("index");
         auto dhandle = ghandle.createDataSet("index", H5::PredType::NATIVE_UINT64, H5S_SCALAR);
         int val = 3;
         dhandle.write(&val, H5::PredType::NATIVE_INT);
 
         std::filesystem::remove_all(dir / "seeds" / "0");
-        mock_dense_array(dir / "seeds" / "3", DenseArrayType::INTEGER, { 10, 20 });
+        mock_dense_array(dir / "seeds" / "3", DenseArrayOptions({ 10, 20 }));
         EXPECT_EQ(takane::count_directory_entries(dir / "seeds"), 1);
     }
     expect_validation_error(dir, "number of objects in 'seeds' is not consistent");
@@ -161,23 +194,24 @@ TEST(DelayedArray, DimensionsError) {
     auto dir = define_test_path("delayed_array");
 
     {
-        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }));
         std::filesystem::remove_all(dir / "seeds" / "0");
-        mock_dense_array(dir / "seeds" / "0", DenseArrayType::INTEGER, { 10, 20, 5 });
+        mock_dense_array(dir / "seeds" / "0", DenseArrayOptions({ 10, 20, 5 }));
     }
     expect_validation_error(dir, "dimensionality is not consistent");
 
     {
-        mock_delayed_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        mock_delayed_array(dir, DelayedArrayOptions({ 10, 20 }));
         std::filesystem::remove_all(dir / "seeds" / "0");
-        mock_dense_array(dir / "seeds" / "0", DenseArrayType::INTEGER, { 10, 5 });
+        mock_dense_array(dir / "seeds" / "0", DenseArrayOptions({ 10, 5 }));
     }
     expect_validation_error(dir, "dimension extents");
 
+    // Again, but now the mismatch is in the number of rows.
     {
-        mock_delayed_array(dir, DenseArrayType::INTEGER, { 20, 5 });
+        mock_delayed_array(dir, DelayedArrayOptions({ 20, 5 }));
         std::filesystem::remove_all(dir / "seeds" / "0");
-        mock_dense_array(dir / "seeds" / "0", DenseArrayType::INTEGER, { 10, 5 });
+        mock_dense_array(dir / "seeds" / "0", DenseArrayOptions({ 10, 5 }));
     }
     expect_validation_error(dir, "dimension extents");
 }
@@ -186,7 +220,7 @@ TEST(DelayedArray, OverrideError) {
     auto dir = define_test_path("delayed_array");
 
     {
-        mock_delayed_array(dir, DenseArrayType::INTEGER, { 1, 2, 3 });
+        mock_delayed_array(dir, DelayedArrayOptions({ 1, 2, 3 }));
     }
 
     // Check that we respect any custom overrides for the takane seed.

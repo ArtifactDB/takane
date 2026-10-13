@@ -4,7 +4,6 @@
 #include <vector>
 #include <string>
 #include <numeric>
-#include <optional>
 
 #include "utils.h"
 #include "mock_summarized_experiment.h"
@@ -13,24 +12,18 @@
 enum class RangedSummarizedExperimentRowRangesType { NONE, GRANGES, GRANGESLIST };
 
 struct RangedSummarizedExperimentOptions {
-    RangedSummarizedExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc) {}
+    RangedSummarizedExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc), version("1.0") {}
+public:
     SummarizedExperimentOptions base;
     RangedSummarizedExperimentRowRangesType row_ranges = RangedSummarizedExperimentRowRangesType::GRANGES;
-    std::optional<std::string> version;
+    std::string version;
 };
 
-inline void add_ranged_summarized_experiment_metadata(millijson::Base* input, const std::optional<std::string>& version) {
+inline void add_ranged_summarized_experiment_metadata(millijson::Base* input, const std::string& version) {
     auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
     auto optr = new millijson::Object({});
     remap["ranged_summarized_experiment"] = std::shared_ptr<millijson::Base>(optr);
-
-    std::shared_ptr<millijson::Base> vptr;
-    if (version.has_value()) {
-        vptr.reset(new millijson::String(*version));
-    } else {
-        vptr.reset(new millijson::String("1.0"));
-    }
-    optr->value()["version"] = std::move(vptr);
+    optr->value()["version"] = std::make_shared<millijson::String>(version);
 }
 
 inline void mock_ranged_summarized_experiment(const std::filesystem::path& dir, const RangedSummarizedExperimentOptions& options) {

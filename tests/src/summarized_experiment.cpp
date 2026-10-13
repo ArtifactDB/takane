@@ -52,7 +52,7 @@ TEST(SummarizedExperiment, AssaysOkay) {
         opt.num_assays = 2;
         mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "1");
-        mock_dense_array(dir / "assays" / "1", DenseArrayType::NUMBER, { 20, 10, 5 });
+        mock_dense_array(dir / "assays" / "1", DenseArrayOptions({ 20, 10, 5 }, DenseArrayType::NUMBER));
     }
     {
         test_validate(dir);
@@ -166,7 +166,7 @@ TEST(SummarizedExperiment, AssayNamesError) {
         SummarizedExperimentOptions opt(5, 6);
         opt.num_assays = 2;
         mock_summarized_experiment(dir, opt);
-        mock_dense_array(dir / "assays" / "2", DenseArrayType::NUMBER, { 5, 6 });
+        mock_dense_array(dir / "assays" / "2", DenseArrayOptions({ 5, 6 }, DenseArrayType::NUMBER));
     }
     expect_validation_error(dir, "more objects than expected");
 }
@@ -194,21 +194,21 @@ TEST(SummarizedExperiment, AssayDimensionsError) {
     {
         mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "1");
-        mock_dense_array(dir / "assays" / "1", DenseArrayType::STRING, { 1 });
+        mock_dense_array(dir / "assays" / "1", DenseArrayOptions({ 1 }, DenseArrayType::STRING));
     }
     expect_validation_error(dir, "two or more dimensions");
 
     {
         mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "2");
-        mock_dense_array(dir / "assays" / "2", DenseArrayType::STRING, { 7, 6 });
+        mock_dense_array(dir / "assays" / "2", DenseArrayOptions({ 7, 6 }, DenseArrayType::STRING));
     }
     expect_validation_error(dir, "number of rows");
 
     {
         mock_summarized_experiment(dir, opt);
         std::filesystem::remove_all(dir / "assays" / "0");
-        mock_dense_array(dir / "assays" / "0", DenseArrayType::STRING, { 5, 5 });
+        mock_dense_array(dir / "assays" / "0", DenseArrayOptions({ 5, 5 }, DenseArrayType::STRING));
     }
     expect_validation_error(dir, "number of columns");
 }
@@ -231,16 +231,13 @@ TEST(SummarizedExperimentTest, RowDataError) {
     // Check that the row data is actually validated.
     {
         mock_summarized_experiment(dir, opt);
-        std::vector<DataFrameColumnDetails> cols(1);
-        mock_data_frame(dir / "row_data", 60, cols);
+        mock_data_frame(dir / "row_data", DataFrameOptions(60, { DataFrameColumn("") }));
     }
     expect_validation_error(dir, "empty strings");
 
     {
         mock_summarized_experiment(dir, opt);
-        std::vector<DataFrameColumnDetails> cols(1);
-        cols[0].name = "akari";
-        mock_data_frame(dir / "row_data", 61, cols);
+        mock_data_frame(dir / "row_data", DataFrameOptions(61, { DataFrameColumn("akari") }));
     }
     expect_validation_error(dir, "number of rows");
 }
@@ -261,16 +258,13 @@ TEST(SummarizedExperimentTest, ColumnDataError) {
     // Check that the column data is actually validated.
     {
         mock_summarized_experiment(dir, opt);
-        std::vector<DataFrameColumnDetails> cols(1);
-        mock_data_frame(dir / "column_data", 20, cols);
+        mock_data_frame(dir / "column_data", DataFrameOptions(20, { DataFrameColumn("") }));
     }
     expect_validation_error(dir, "empty strings");
 
     {
         mock_summarized_experiment(dir, opt);
-        std::vector<DataFrameColumnDetails> cols(1);
-        cols[0].name = "ai";
-        mock_data_frame(dir / "column_data", 19, cols);
+        mock_data_frame(dir / "column_data", DataFrameOptions(19, { DataFrameColumn("ai") }));
     }
     expect_validation_error(dir, "number of columns");
 }

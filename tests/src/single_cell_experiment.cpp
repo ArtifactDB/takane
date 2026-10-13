@@ -46,19 +46,6 @@ TEST(SingleCellExperiment, Okay) {
         EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 8, 7 }));
     }
 
-    // Zero reduced dimensions or alternative experiments.
-    {
-        SingleCellExperimentOptions opt(31, 14);
-        opt.num_reduced_dims = 0;
-        opt.num_alt_exps = 0;
-        mock_single_cell_experiment(dir, opt);
-    }
-    {
-        test_validate(dir);
-        EXPECT_EQ(test_height(dir), 31);
-        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 31, 14 }));
-    }
-
     // Works with a SE subclass as an alternative experiment.
     {
         mock_single_cell_experiment(dir, SingleCellExperimentOptions(31, 14));
@@ -72,6 +59,35 @@ TEST(SingleCellExperiment, Okay) {
     }
 }
 
+TEST(SingleCellExperiment, EmptyOkay) {
+    auto dir = define_test_path("single_cell_experiment");
+
+    // Zero reduced dimensions or alternative experiments.
+    {
+        SingleCellExperimentOptions opt(31, 14);
+        opt.num_reduced_dims = 0;
+        opt.num_alt_exps = 0;
+        mock_single_cell_experiment(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 31);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 31, 14 }));
+    }
+
+    // No reduced dimensions or alternative experiments directory.
+    {
+        mock_single_cell_experiment(dir, SingleCellExperimentOptions(15, 32));
+        std::filesystem::remove_all(dir / "reduced_dimensions");
+        std::filesystem::remove_all(dir / "alternative_experiments");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 15);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 15, 32 }));
+    }
+}
+
 /********************************************/
 
 TEST(SingleCellExperiment, BaseError) {
@@ -82,7 +98,7 @@ TEST(SingleCellExperiment, BaseError) {
         SingleCellExperimentOptions opt(15, 30);
         opt.base.row_ranges = RangedSummarizedExperimentRowRangesType::NONE;
         mock_single_cell_experiment(dir, opt);
-        mock_data_frame(dir / "row_ranges", 15, {});
+        mock_data_frame(dir / "row_ranges", DataFrameOptions(15, {}));
     }
     expect_validation_error(dir, "'genomic_ranges', 'genomic_ranges_list'");
 }
@@ -147,6 +163,7 @@ TEST(SingleCellExperiment, ReducedDimensionsError) {
     }
     expect_validation_error(dir, "foobar");
 
+    // Check what happens if someone reports a zero-dimension array.
     {
         mock_single_cell_experiment(dir, SingleCellExperimentOptions(13, 39));
         std::filesystem::remove_all(dir / "reduced_dimensions" / "0");
@@ -162,13 +179,13 @@ TEST(SingleCellExperiment, ReducedDimensionsError) {
     {
         mock_single_cell_experiment(dir, SingleCellExperimentOptions(13, 39));
         std::filesystem::remove_all(dir / "reduced_dimensions" / "0");
-        mock_dense_array(dir / "reduced_dimensions" / "0", DenseArrayType::STRING, { 144, 10 });
+        mock_dense_array(dir / "reduced_dimensions" / "0", DenseArrayOptions({ 144, 10 }, DenseArrayType::STRING));
     }
     expect_validation_error(dir, "same number of rows");
 
     {
         mock_single_cell_experiment(dir, SingleCellExperimentOptions(13, 39));
-        mock_dense_array(dir / "reduced_dimensions" / "1", DenseArrayType::STRING, { 144, 10 });
+        mock_dense_array(dir / "reduced_dimensions" / "1", DenseArrayOptions({ 39, 5 }, DenseArrayType::STRING));
     }
     expect_validation_error(dir, "more objects than expected");
 }
@@ -195,7 +212,7 @@ TEST(SingleCellExperiment, AlternativeExperimentsError) {
     {
         mock_single_cell_experiment(dir, SingleCellExperimentOptions(13, 39));
         std::filesystem::remove_all(dir / "alternative_experiments" / "0");
-        mock_dense_array(dir / "alternative_experiments" / "0", DenseArrayType::STRING, { 13, 39 });
+        mock_dense_array(dir / "alternative_experiments" / "0", DenseArrayOptions({ 13, 39 }, DenseArrayType::STRING));
     }
     expect_validation_error(dir, "SUMMARIZED_EXPERIMENT");
 
@@ -221,132 +238,3 @@ TEST(SingleCellExperiment, AlternativeExperimentsError) {
     }
     expect_validation_error(dir, "more objects than expected");
 }
-
-//    single_cell_experiment::Options options(20, 15);
-//    single_cell_experiment::mock(dir, options);
-//
-//    // Hits the base SE checks.
-//
-//    // Hits the base RSE checks.
-//    auto opath = dir / "OBJECT";
-//    auto parsed = millijson::parse_file(opath.c_str(), {});
-//    {
-//        ::summarized_experiment::add_object_metadata(parsed.get(), "1.0", 99, 23);
-//        json_utils::dump(parsed.get(), opath);
-//    }
-//    expect_error("'ranged_summarized_experiment'");
-//
-//    // Check that SCE metadata is recognized.
-//    {
-//        ::ranged_summarized_experiment::add_object_metadata(parsed.get(), "1.0");
-//        ::single_cell_experiment::add_object_metadata(parsed.get(), "2.0", "");
-//        json_utils::dump(parsed.get(), opath);
-//    }
-//    expect_error("unsupported version");
-//
-//    single_cell_experiment::Options options(20, 15);
-//    single_cell_experiment::mock(dir, options);
-//    test_validate(dir); 
-//    EXPECT_EQ(test_height(dir), 20);
-//    std::vector<size_t> expected_dim{ 20, 15 };
-//    EXPECT_EQ(test_dimensions(dir), expected_dim);
-//}
-
-//TEST_F(SingleCellExperimentTest, ReducedDims) {
-//    single_cell_experiment::Options options(20, 15);
-//    options.num_reduced_dims = 2;
-//    options.num_alt_exps = 0;
-//    single_cell_experiment::mock(dir, options);
-//
-//    {
-//        simple_list::mock(dir / "reduced_dimensions" / "0");
-//    }
-//    expect_error("no registered 'dimensions' function");
-//
-//    {
-//        dense_array::mock(dir / "reduced_dimensions" / "0", dense_array::Type::INTEGER, {});
-//    }
-//    expect_error("at least one dimension");
-//
-//    {
-//        dense_array::mock(dir / "reduced_dimensions" / "0", dense_array::Type::INTEGER, { 20, 10 });
-//    }
-//    expect_error("number of rows");
-//
-//    {
-//        dense_array::mock(dir / "reduced_dimensions" / "0", dense_array::Type::INTEGER, { 15, 5 });
-//        dense_array::mock(dir / "reduced_dimensions" / "foobar", dense_array::Type::INTEGER, { 20, 10 });
-//    }
-//    expect_error("more objects than expected");
-//
-//    // Absence of reduced_dimensions is allowed.
-//    {
-//        std::filesystem::remove_all(dir / "reduced_dimensions");
-//    }
-//    test_validate(dir); 
-//}
-//
-//TEST_F(SingleCellExperimentTest, AlternativeExps) {
-//    single_cell_experiment::Options options(100, 20);
-//    options.num_reduced_dims = 0;
-//    options.num_alt_exps = 2;
-//    single_cell_experiment::mock(dir, options);
-//
-//    {
-//        dense_array::mock(dir / "alternative_experiments" / "0", dense_array::Type::INTEGER, { 100, 20 });
-//    }
-//    expect_error("'SUMMARIZED_EXPERIMENT' interface");
-//
-//    {
-//        summarized_experiment::mock(dir / "alternative_experiments" / "0", summarized_experiment::Options(10, 100));
-//    }
-//    expect_error("same number of columns");
-//
-//    {
-//        summarized_experiment::mock(dir / "alternative_experiments" / "0", summarized_experiment::Options(10, 20));
-//        summarized_experiment::mock(dir / "alternative_experiments" / "foobar", summarized_experiment::Options(10, 5));
-//    }
-//    expect_error("more objects than expected");
-//
-//    // Absence of alternative_experiments is allowed.
-//    {
-//        std::filesystem::remove_all(dir / "alternative_experiments");
-//    }
-//    test_validate(dir); 
-//}
-//
-//TEST_F(SingleCellExperimentTest, MainExperimentName) {
-//    single_cell_experiment::Options options(100, 20);
-//    options.num_reduced_dims = 2;
-//    options.num_alt_exps = 2;
-//    single_cell_experiment::mock(dir, options);
-//
-//    auto opath = dir / "OBJECT";
-//    auto parsed = millijson::parse_file(opath.c_str(), {});
-//    auto& toplevel = reinterpret_cast<millijson::Object*>(parsed.get())->value();
-//    auto& scemap = reinterpret_cast<millijson::Object*>(toplevel["single_cell_experiment"].get())->value();
-//    {
-//        scemap["main_experiment_name"] = std::shared_ptr<millijson::Base>(new millijson::Number(2));
-//        json_utils::dump(parsed.get(), opath);
-//    }
-//    expect_error("to be a string");
-//
-//    {
-//        scemap["main_experiment_name"] = std::shared_ptr<millijson::Base>(new millijson::String(""));
-//        json_utils::dump(parsed.get(), opath);
-//    }
-//    expect_error("empty string");
-//
-//    {
-//        scemap["main_experiment_name"] = std::shared_ptr<millijson::Base>(new millijson::String("foo"));
-//        json_utils::dump(parsed.get(), opath);
-//        std::ofstream ahandle(dir / "alternative_experiments" / "names.json");
-//        ahandle << "[ \"foo\", \"bar\" ]";
-//    }
-//    expect_error("not overlap");
-//
-//    // Finally success.
-//    options.main_exp_name = "stuff";
-//    single_cell_experiment::mock(dir, options);
-//    test_validate(dir);
-//}

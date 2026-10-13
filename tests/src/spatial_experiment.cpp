@@ -105,7 +105,7 @@ TEST(SpatialExperiment, CoordinatesOkay) {
     {
         mock_spatial_experiment(dir, SpatialExperimentOptions(19, 23));
         std::filesystem::remove_all(dir / "coordinates");
-        mock_dense_array(dir / "coordinates", DenseArrayType::INTEGER, { 23, 2 });
+        mock_dense_array(dir / "coordinates", DenseArrayOptions({ 23, 2 }, DenseArrayType::INTEGER));
     }
     {
         test_validate(dir);
@@ -120,7 +120,7 @@ TEST(SpatialExperiment, CoordinatesError) {
     {
         mock_spatial_experiment(dir, SpatialExperimentOptions(7, 5));
         std::filesystem::remove_all(dir / "coordinates");
-        mock_data_frame(dir / "coordinates", 5, {});
+        mock_data_frame(dir / "coordinates", DataFrameOptions(5, {}));
     }
     expect_validation_error(dir, "dense array");
 
@@ -137,28 +137,28 @@ TEST(SpatialExperiment, CoordinatesError) {
     {
         mock_spatial_experiment(dir, SpatialExperimentOptions(7, 5));
         std::filesystem::remove_all(dir / "coordinates");
-        mock_dense_array(dir / "coordinates", DenseArrayType::INTEGER, { 5, 2, 1 });
+        mock_dense_array(dir / "coordinates", DenseArrayOptions({ 5, 2, 1 }, DenseArrayType::INTEGER));
     }
     expect_validation_error(dir, "2-dimensional dense array");
 
     {
         mock_spatial_experiment(dir, SpatialExperimentOptions(7, 5));
         std::filesystem::remove_all(dir / "coordinates");
-        mock_dense_array(dir / "coordinates", DenseArrayType::INTEGER, { 5, 4 });
+        mock_dense_array(dir / "coordinates", DenseArrayOptions({ 5, 4 }, DenseArrayType::INTEGER));
     }
     expect_validation_error(dir, "2 or 3 columns");
 
     {
         mock_spatial_experiment(dir, SpatialExperimentOptions(7, 5));
         std::filesystem::remove_all(dir / "coordinates");
-        mock_dense_array(dir / "coordinates", DenseArrayType::INTEGER, { 4, 2 });
+        mock_dense_array(dir / "coordinates", DenseArrayOptions({ 4, 2 }, DenseArrayType::INTEGER));
     }
     expect_validation_error(dir, "number of columns");
 
     {
         mock_spatial_experiment(dir, SpatialExperimentOptions(7, 5));
         std::filesystem::remove_all(dir / "coordinates");
-        mock_dense_array(dir / "coordinates", DenseArrayType::STRING, { 5, 2 });
+        mock_dense_array(dir / "coordinates", DenseArrayOptions({ 5, 2 }, DenseArrayType::STRING));
     }
     expect_validation_error(dir, "numeric");
 }
@@ -555,8 +555,7 @@ TEST(SpatialExperiment, FormatOtherError) {
         std::vector<std::string> formats(12, "OTHER");
         add_hdf5_string_dataset(ghandle, "image_formats", formats);
         for (std::size_t i = 0; i < num_images; ++i) {
-            auto path = dir / "images" / std::to_string(i);
-            mock_data_frame(path, 5, {});
+            mock_data_frame(dir / "images" / std::to_string(i), DataFrameOptions(5, {}));
         }
     }
     expect_validation_error(dir, "'IMAGE' interface");

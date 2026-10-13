@@ -1,6 +1,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <numeric>
+#include <vector>
+#include <cstdint>
+#include <cstddef>
+
 #include "takane/utils_other.hpp"
 
 #include "mock_data_frame.h"
@@ -116,7 +121,7 @@ TEST(ValidateMcols, Okay) {
 
     // Alright, actually creating the directory.
     {
-        mock_data_frame(dir / name, 10, {});
+        mock_data_frame(dir / name, DataFrameOptions(10, {}));
     }
     takane::validate_mcols(dir, name, 10, opts);
 }
@@ -129,7 +134,7 @@ TEST(ValidateMcols, Error) {
 
     {
         initialize_directory(dir);
-        mock_data_frame(dir / name, 10, {});
+        mock_data_frame(dir / name, DataFrameOptions(10, {}));
     }
     expect_error(
         "unexpected number of rows",
@@ -141,7 +146,7 @@ TEST(ValidateMcols, Error) {
     // Check that we actually validate the data_frame.
     {
         initialize_directory(dir);
-        auto ghandle = mock_data_frame(dir / name, 10, {});
+        auto ghandle = mock_data_frame(dir / name, DataFrameOptions(10, {}));
         auto dhandle = ghandle.openGroup("data");
         dhandle.createGroup("0");
     }
@@ -198,7 +203,7 @@ TEST(ValidateMetadata, Error) {
     );
 
     {
-        mock_data_frame(dir / name, 10, {});
+        mock_data_frame(dir / name, DataFrameOptions(10, {}));
     }
     expect_error(
         "SIMPLE_LIST",

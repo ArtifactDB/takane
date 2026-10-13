@@ -15,34 +15,43 @@ enum class DenseArrayType {
     VLS
 };
 
-inline H5::Group mock_dense_array(const std::filesystem::path& dir, DenseArrayType type, const std::vector<hsize_t>& dims) {
-    std::string version = "1.0";
-    if (type == DenseArrayType::VLS) {
-        version = "1.1";
+struct DenseArrayOptions {
+    DenseArrayOptions(std::vector<hsize_t> dims, DenseArrayType type) : dims(std::move(dims)), type(type), version("1.0") {
+        if (type == DenseArrayType::VLS) {
+            version[2] = '1';
+        }
     }
+    DenseArrayOptions(std::vector<hsize_t> dims) : DenseArrayOptions(std::move(dims), DenseArrayType::INTEGER) {}
+public:
+    std::vector<hsize_t> dims;
+    DenseArrayType type;
+    std::size_t string_length = 3; // set to zero for variable-length strings.
+    std::string version;
+};
 
-    initialize_directory_simple(dir, "dense_array", version);
+inline H5::Group mock_dense_array(const std::filesystem::path& dir, const DenseArrayOptions& options) {
+    initialize_directory_simple(dir, "dense_array", options.version);
     H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("dense_array");
 
-    H5::DataSpace dspace(dims.size(), dims.data());
-    if (type == DenseArrayType::INTEGER) {
+    H5::DataSpace dspace(options.dims.size(), options.dims.data());
+    if (options.type == DenseArrayType::INTEGER) {
         ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, dspace);
         add_hdf5_string_attribute(ghandle, "type", "integer");
 
-    } else if (type == DenseArrayType::NUMBER) {
+    } else if (options.type == DenseArrayType::NUMBER) {
         ghandle.createDataSet("data", H5::PredType::NATIVE_DOUBLE, dspace);
         add_hdf5_string_attribute(ghandle, "type", "number");
 
-    } else if (type == DenseArrayType::BOOLEAN) {
+    } else if (options.type == DenseArrayType::BOOLEAN) {
         ghandle.createDataSet("data", H5::PredType::NATIVE_INT8, dspace);
         add_hdf5_string_attribute(ghandle, "type", "boolean");
 
-    } else if (type == DenseArrayType::STRING) {
-        ghandle.createDataSet("data", H5::StrType(0, 10), dspace);
+    } else if (options.type == DenseArrayType::STRING) {
+        ghandle.createDataSet("data", create_hdf5_strtype(options.string_length), dspace);
         add_hdf5_string_attribute(ghandle, "type", "string");
 
-    } else if (type == DenseArrayType::VLS) {
+    } else if (options.type == DenseArrayType::VLS) {
         add_hdf5_string_attribute(ghandle, "type", "vls");
 
         // Just make up whatever for the heap and pointers here.
@@ -52,7 +61,7 @@ inline H5::Group mock_dense_array(const std::filesystem::path& dir, DenseArrayTy
         add_hdf5_numeric_dataset(ghandle, "heap", H5::PredType::NATIVE_UINT8, buffer);
 
         hsize_t length = 1;
-        for (auto dm : dims) {
+        for (auto dm : options.dims) {
             length *= dm;
         }
         std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > pointers(length);
@@ -62,7 +71,7 @@ inline H5::Group mock_dense_array(const std::filesystem::path& dir, DenseArrayTy
         }
 
         auto ptype = ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>();
-        auto phandle = ghandle.createDataSet("pointers", ptype, H5::DataSpace(dims.size(), dims.data()));
+        auto phandle = ghandle.createDataSet("pointers", ptype, dspace);
         phandle.write(pointers.data(), ptype);
     }
 

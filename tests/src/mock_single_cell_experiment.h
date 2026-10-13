@@ -5,6 +5,7 @@
 #include <string>
 #include <numeric>
 #include <cstddef>
+#include <optional>
 
 #include "H5Cpp.h"
 
@@ -13,27 +14,20 @@
 #include "mock_genomic_ranges.h"
 
 struct SingleCellExperimentOptions {
-    SingleCellExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc) {}
+    SingleCellExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc), version("1.0") {}
+public:
     RangedSummarizedExperimentOptions base;
     std::size_t num_reduced_dims = 1;
     std::size_t num_alt_exps = 1;
     std::optional<std::string> main_exp_name;
-    std::optional<std::string> version;
+    std::string version;
 };
 
-inline void add_single_cell_experiment_metadata(millijson::Base* input, const std::optional<std::string>& version, const std::optional<std::string>& main_exp_name) {
+inline void add_single_cell_experiment_metadata(millijson::Base* input, const std::string& version, const std::optional<std::string>& main_exp_name) {
     auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
     auto optr = new millijson::Object({});
     remap["single_cell_experiment"] = std::shared_ptr<millijson::Base>(optr);
-
-    std::shared_ptr<millijson::Base> vptr;
-    if (version.has_value()) {
-        vptr.reset(new millijson::String(*version));
-    } else {
-        vptr.reset(new millijson::String("1.0"));
-    }
-    optr->value()["version"] = std::move(vptr);
-
+    optr->value()["version"] = std::make_shared<millijson::String>(version);
     if (main_exp_name.has_value()) {
         optr->value()["main_experiment_name"] = std::shared_ptr<millijson::Base>(new millijson::String(*main_exp_name));
     }
@@ -63,7 +57,7 @@ inline void mock_single_cell_experiment(const std::filesystem::path& dir, const 
             }
             auto rdname = std::to_string(rd);
             handle << "\"reddim-" << rdname << "\"";
-            mock_dense_array(rddir / rdname, DenseArrayType::NUMBER, { static_cast<hsize_t>(options.base.base.num_cols), static_cast<hsize_t>(2) });
+            mock_dense_array(rddir / rdname, DenseArrayOptions({ options.base.base.num_cols, std::size_t(2 + rd) }, DenseArrayType::NUMBER));
         }
         handle << "]";
     }

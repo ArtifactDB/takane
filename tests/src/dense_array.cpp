@@ -15,20 +15,19 @@ TEST(DenseArray, IntegerOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        mock_dense_array(dir, DenseArrayOptions({ 10, 20 }, DenseArrayType::INTEGER));
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 10);
-    std::vector<std::size_t> expected_dims { 10, 20 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 10, 20 }));
 }
 
 TEST(DenseArray, IntegerError) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 30, 10, 20 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 30, 10, 20 }, DenseArrayType::NUMBER));
         ghandle.removeAttr("type");
         add_hdf5_string_attribute(ghandle, "type", "integer");
     }
@@ -40,20 +39,19 @@ TEST(DenseArray, BooleanOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        mock_dense_array(dir, DenseArrayType::BOOLEAN, { 5, 10, 20 });
+        mock_dense_array(dir, DenseArrayOptions({ 5, 10, 20 }, DenseArrayType::BOOLEAN));
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 5);
-    std::vector<std::size_t> expected_dims { 5, 10, 20 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 5, 10, 20 }));
 }
 
 TEST(DenseArray, BooleanError) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 8 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 8 }, DenseArrayType::NUMBER));
         ghandle.removeAttr("type");
         add_hdf5_string_attribute(ghandle, "type", "boolean");
     }
@@ -65,13 +63,12 @@ TEST(DenseArray, NumberOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        mock_dense_array(dir, DenseArrayType::BOOLEAN, { 300 });
+        mock_dense_array(dir, DenseArrayOptions({ 300 }, DenseArrayType::NUMBER));
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 300);
-    std::vector<std::size_t> expected_dims { 300 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 300 }));
 }
 
 TEST(DenseArray, NumberError) {
@@ -92,15 +89,14 @@ TEST(DenseArray, NumericMissingOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 20, 10 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 20, 10 }, DenseArrayType::INTEGER));
         auto dhandle = ghandle.openDataSet("data");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 20);
-    std::vector<std::size_t> expected_dims { 20, 10 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 20, 10 }));
 }
 
 TEST(DenseArray, NumericMissingError) {
@@ -108,7 +104,7 @@ TEST(DenseArray, NumericMissingError) {
 
     // Test that the missing placeholder is actually validated.
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 20, 10 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 20, 10 }, DenseArrayType::INTEGER));
         auto dhandle = ghandle.openDataSet("data");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
@@ -122,31 +118,28 @@ TEST(DenseArray, StringOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        mock_dense_array(dir, DenseArrayType::STRING, { 13, 17, 11 });
+        mock_dense_array(dir, DenseArrayOptions({ 13, 17, 11 }, DenseArrayType::STRING));
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 13);
-    std::vector<std::size_t> expected_dims { 13, 17, 11 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 13, 17, 11 }));
 }
 
 TEST(DenseArray, StringError) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 121 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 121 }, DenseArrayType::NUMBER));
         ghandle.removeAttr("type");
         add_hdf5_string_attribute(ghandle, "type", "string");
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
     {
-        initialize_directory_simple(dir, "dense_array", "1.0");
-        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("dense_array");
-        ghandle.createDataSet("data", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(20));
-        add_hdf5_string_attribute(ghandle, "type", "string");
+        DenseArrayOptions opt({ 20 }, DenseArrayType::STRING);
+        opt.string_length = 0;
+        mock_dense_array(dir, opt);
     }
     expect_validation_error(dir, "NULL");
 }
@@ -155,15 +148,14 @@ TEST(DenseArray, StringMissingOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::STRING, { 5, 6, 2 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 5, 6, 2 }, DenseArrayType::STRING));
         auto dhandle = ghandle.openDataSet("data");
         add_hdf5_string_attribute(dhandle, "missing-value-placeholder", "asdasd");
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 5);
-    std::vector<std::size_t> expected_dims { 5, 6, 2 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 5, 6, 2 }));
 }
 
 TEST(DenseArray, StringMissingError) {
@@ -171,7 +163,7 @@ TEST(DenseArray, StringMissingError) {
 
     // Test that the missing placeholder is actually validated.
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::STRING, { 20, 10 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 20, 10 }, DenseArrayType::STRING));
         auto dhandle = ghandle.openDataSet("data");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
@@ -184,43 +176,41 @@ TEST(DenseArray, VlsOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        mock_dense_array(dir, DenseArrayType::VLS, { 33, 22, 11 });
+        mock_dense_array(dir, DenseArrayOptions({ 33, 22, 11 }, DenseArrayType::VLS));
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 33);
-    std::vector<std::size_t> expected_dims { 33, 22, 11 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 33, 22, 11 }));
 }
 
 TEST(DenseArray, VlsError) {
     auto dir = define_test_path("dense_array");
 
     {
-        initialize_directory_simple(dir, "dense_array", "1.0");
-        H5::H5File handle(dir / "array.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("dense_array");
-        add_hdf5_string_attribute(ghandle, "type", "vls");
+        DenseArrayOptions opt({ 25, 10 }, DenseArrayType::VLS);
+        opt.version = "1.0";
+        mock_dense_array(dir, opt);
     }
     expect_validation_error(dir, "unsupported type");
 
     // Check that the heap validator is called.
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 33, 22, 11 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 33, 22, 11 },DenseArrayType::VLS));
         ghandle.unlink("heap");
         ghandle.createDataSet("heap", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "8-bit unsigned integer");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 33, 22, 11 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 83 }, DenseArrayType::VLS));
         ghandle.unlink("pointers");
         ghandle.createDataSet("pointers", ritsuko::cvls::define_pointer_datatype<std::uint32_t, std::uint32_t>(), H5S_SCALAR);
     }
     expect_validation_error(dir, "at least one dimension");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 50, 20 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 50, 20 }, DenseArrayType::VLS));
         std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > pointers(1000);
         for (auto& pp : pointers) {
             pp.offset = 10000;
@@ -236,15 +226,14 @@ TEST(DenseArray, VlsMissingOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 212 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 212 }, DenseArrayType::VLS));
         auto phandle = ghandle.openDataSet("pointers");
         add_hdf5_string_attribute(phandle, "missing-value-placeholder", "asdasd");
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 212);
-    std::vector<std::size_t> expected_dims { 212 };
-    EXPECT_EQ(test_dimensions(dir), expected_dims);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 212 }));
 }
 
 TEST(DenseArray, VlsMissingError) {
@@ -252,7 +241,7 @@ TEST(DenseArray, VlsMissingError) {
 
     // Test that the missing placeholder is actually validated.
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::VLS, { 99 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 99 }, DenseArrayType::VLS));
         auto phandle = ghandle.openDataSet("pointers");
         phandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
     }
@@ -265,25 +254,23 @@ TEST(DenseArray, TransposedOkay) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 10, 5, 20 }));
         add_hdf5_numeric_attribute(ghandle, "transposed", H5::PredType::NATIVE_INT8, 0);
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 10);
-        std::vector<std::size_t> expected_dims { 10, 5, 20 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 10, 5, 20 }));
     }
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 10, 5, 20 }));
         add_hdf5_numeric_attribute(ghandle, "transposed", H5::PredType::NATIVE_INT8, 1);
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 20);
-        std::vector<std::size_t> expected_dims { 20, 5, 10 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 20, 5, 10 }));
     }
 }
 
@@ -291,15 +278,13 @@ TEST(DenseArray, TransposedError) {
     auto dir = define_test_path("dense_array");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 5, 20 });
-        hsize_t foo = 10;
-        H5::DataSpace dspace(1, &foo);
-        ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT32, dspace);
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 10, 5, 20 }));
+        ghandle.createAttribute("transposed", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(10));
     }
     expect_validation_error(dir, "scalar");
 
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 10, 20 }));
         add_hdf5_string_attribute(ghandle, "transposed", "123123");
     }
     expect_validation_error(dir, "32-bit signed integer");
@@ -312,19 +297,18 @@ TEST(DenseArray, NamesOkay) {
 
     // No names.
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 5, 12, 7 });
-        auto nhandle = ghandle.createGroup("names");
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 5, 12, 7 }));
+        ghandle.createGroup("names");
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 5);
-        std::vector<std::size_t> expected_dims { 5, 12, 7 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 5, 12, 7 }));
     }
 
     // Full names.
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::NUMBER, { 12, 5, 7 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 12, 5, 7 }));
         auto nhandle = ghandle.createGroup("names");
         nhandle.createDataSet("0", H5::StrType(0, 10), create_hdf5_dataspace(12));
         nhandle.createDataSet("1", H5::StrType(0, 11), create_hdf5_dataspace(5));
@@ -333,8 +317,7 @@ TEST(DenseArray, NamesOkay) {
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 12);
-        std::vector<std::size_t> expected_dims { 12, 5, 7 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 12, 5, 7 }));
     }
 }
 
@@ -343,7 +326,7 @@ TEST(DenseArray, NamesError) {
 
     // Test that the names are actually validated.
     {
-        auto ghandle = mock_dense_array(dir, DenseArrayType::INTEGER, { 10, 20 });
+        auto ghandle = mock_dense_array(dir, DenseArrayOptions({ 10, 20 }));
         auto nhandle = ghandle.createGroup("names");
         nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(20));
     }

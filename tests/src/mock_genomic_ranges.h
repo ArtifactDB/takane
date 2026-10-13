@@ -19,12 +19,27 @@ struct GenomicRange {
     int strand;
 };
 
-inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const std::vector<GenomicRange>& ranges, const std::vector<SequenceInfo>& sequences) {
-    initialize_directory_simple(dir, "genomic_ranges", "1.0");
+struct GenomicRangesOptions {
+    GenomicRangesOptions(std::vector<GenomicRange> ranges, std::vector<SequenceInfo> sequences) :
+        ranges(std::move(ranges)),
+        sequences(std::move(sequences)),
+        version("1.0")
+    {}
+    GenomicRangesOptions() : GenomicRangesOptions({}, {}) {}
+public:
+    std::vector<GenomicRange> ranges;
+    std::vector<SequenceInfo> sequences;
+    std::string version;
+};
+
+inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const GenomicRangesOptions& options) {
+    initialize_directory_simple(dir, "genomic_ranges", options.version);
 
     H5::H5File handle(dir / "ranges.h5", H5F_ACC_TRUNC);
     auto ghandle = handle.createGroup("genomic_ranges");
 
+    const auto& ranges = options.ranges;
+    const auto& sequences = options.sequences;
     std::vector<int> vals;
     vals.reserve(ranges.size());
 
@@ -65,19 +80,19 @@ inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, const std
 }
 
 inline H5::Group mock_genomic_ranges(const std::filesystem::path& dir, hsize_t num_ranges, hsize_t num_seq) {
-    std::vector<GenomicRange> ranges;
-    ranges.reserve(num_ranges);
+    GenomicRangesOptions options;
+
+    options.ranges.reserve(num_ranges);
     for (hsize_t i = 0; i < num_ranges; ++i) {
-        ranges.emplace_back(i % num_seq, i * 10, (i % 2) * 10 + 1, (i % 3) - 1);
+        options.ranges.emplace_back(i % num_seq, i * 10, (i % 2) * 10 + 1, (i % 3) - 1);
     }
 
-    std::vector<SequenceInfo> info;
-    info.reserve(num_ranges);
+    options.sequences.reserve(num_seq);
     for (hsize_t s = 0; s < num_seq; ++s) {
-        info.emplace_back("chr" + std::to_string(s), num_ranges * 100, s % 5 == 0, "foobar");
+        options.sequences.emplace_back("chr" + std::to_string(s), num_ranges * 100, s % 5 == 0, "foobar");
     }
 
-    return mock_genomic_ranges(dir, ranges, info);
+    return mock_genomic_ranges(dir, options);
 }
 
 #endif
