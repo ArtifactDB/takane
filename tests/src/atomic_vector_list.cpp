@@ -21,7 +21,7 @@ TEST(AtomicVectorList, Okay) {
     {
         initialize_directory_simple(dir, "atomic_vector_list", "1.0"); 
         mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 0, 4, 3, 2, 1 });
-        mock_atomic_vector(dir / "concatenated", 10, AtomicVectorType::INTEGER);
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(10, AtomicVectorType::INTEGER));
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 5);

@@ -14,49 +14,118 @@
 #include <vector>
 #include <fstream>
 
+static DataFrameColumn create_factor_column(std::string name, std::vector<std::string> levels, bool ordered) {
+    DataFrameColumn output(name, DataFrameColumnType::FACTOR);
+    output.factor_levels = std::move(levels);
+    output.factor_ordered = ordered;
+    return output;
+}
+
+TEST(DataFrame, MixedOkay) {
+    auto dir = define_test_path("data_frame");
+
+    // DataFrame with many different column types works correctly.
+    DataFrameOptions opt(51, {
+        DataFrameColumn("Aaron", DataFrameColumnType::BOOLEAN),
+        DataFrameColumn("Barry", DataFrameColumnType::NUMBER),
+        DataFrameColumn("Charlie", DataFrameColumnType::STRING),
+        DataFrameColumn("Delta", DataFrameColumnType::INTEGER),
+        create_factor_column("Echo", { "akari", "aika", "alice", "ai" }, false),
+        create_factor_column("Foxtrot", { "athena", "akira", "alicia" }, true)
+    });
+
+    {
+        mock_data_frame(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 51);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 51, 6 }));
+    }
+
+    // Injecting a VLS column.
+    opt.columns.emplace_back("Gamma", DataFrameColumnType::VLS);
+    opt.version = "1.1";
+    {
+        mock_data_frame(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 51);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 51, 7 }));
+    }
+}
+
+TEST(DataFrame, EmptyOkay) {
+    auto dir = define_test_path("data_frame");
+
+    {
+        mock_data_frame(dir, DataFrameOptions(11, {}));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 11);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 11, 0 }));
+    }
+
+    {
+        mock_data_frame(dir, DataFrameOptions(0, {
+            DataFrameColumn("foo"),
+            create_factor_column("bar", {}, false)
+        }));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 0);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 0, 2 }));
+    }
+}
+
+/**************************************/
+
 TEST(DataFrame, RownamesOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns.front().name = "WHEE";
-
     {
-        auto ghandle = mock_data_frame(dir, 29, columns);
-        attach_row_names_to_data_frame(ghandle, 29);
+        DataFrameOptions opt(29, { DataFrameColumn("WHEE") });
+        auto ghandle = mock_data_frame(dir, opt);
+        std::vector<std::string> row_names(opt.num_rows);
+        for (hsize_t i = 0; i < opt.num_rows; ++i) {
+            row_names[i] = std::to_string(i);
+        }
+        add_hdf5_string_dataset(ghandle, "row_names", row_names);
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 29);
-    std::vector<std::size_t> expected_dim{ 29, 1 };
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 29, 1 }));
 }
 
 TEST(DataFrame, RownamesError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns.front().name = "WHEE";
+    DataFrameOptions opt(29, { DataFrameColumn("WHEE") });
 
     {
-        auto ghandle = mock_data_frame(dir, 29, columns);
+        auto ghandle = mock_data_frame(dir, opt); 
         ghandle.createDataSet("row_names", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(29));
     }
     expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
     {
-        auto ghandle = mock_data_frame(dir, 29, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         ghandle.createDataSet("row_names", H5::StrType(0, 10), H5S_SCALAR);
     }
     expect_validation_error(dir, "1-dimensional");
 
     {
-        auto ghandle = mock_data_frame(dir, 29, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         ghandle.createDataSet("row_names", H5::StrType(0, 10), create_hdf5_dataspace(30));
     }
     expect_validation_error(dir, "number of row names");
 
     {
-        auto ghandle = mock_data_frame(dir, 29, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         ghandle.createDataSet("row_names", H5::StrType(0, H5T_VARIABLE), create_hdf5_dataspace(29));
     }
     expect_validation_error(dir, "failed to validate");
@@ -67,12 +136,12 @@ TEST(DataFrame, RownamesError) {
 TEST(DataFrame, ColnamesOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(2);
-    columns[0].name = "Aaron";
-    columns[1].name = "Barry";
-
     {
-        mock_data_frame(dir, 29, columns);
+        DataFrameOptions opt(29, {
+            DataFrameColumn("Aaron", DataFrameColumnType::NUMBER),
+            DataFrameColumn("Barry", DataFrameColumnType::STRING)
+        });
+        mock_data_frame(dir, opt);
     }
 
     test_validate(dir);
@@ -84,100 +153,54 @@ TEST(DataFrame, ColnamesOkay) {
 TEST(DataFrame, ColnamesError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(3);
-    columns[0].name = "Aaron";
-    columns[1].name = "Barry";
-    columns[2].name = "Charlie";
+    DataFrameOptions opt(29, {
+        DataFrameColumn("Aaron", DataFrameColumnType::NUMBER),
+        DataFrameColumn("Barry", DataFrameColumnType::BOOLEAN),
+        DataFrameColumn("Charlie")
+    });
 
     {
-        auto ghandle = mock_data_frame(dir, 29, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         ghandle.unlink("column_names");
-        ghandle.createDataSet("column_names", H5::PredType::NATIVE_INT, create_hdf5_dataspace(columns.size()));
+        ghandle.createDataSet("column_names", H5::PredType::NATIVE_INT, create_hdf5_dataspace(3));
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
     {
-        auto ghandle = mock_data_frame(dir, 29, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         ghandle.unlink("column_names");
         ghandle.createDataSet("column_names", H5::StrType(0, 5), H5S_SCALAR);
     }
     expect_validation_error(dir, "1-dimensional");
 
-    columns[1].name = "Aaron";
     {
-        mock_data_frame(dir, 29, columns);
+        auto optcopy = opt;
+        optcopy.columns[1].name = "Aaron";
+        mock_data_frame(dir, optcopy);
     }
     expect_validation_error(dir, "duplicated column name");
 
-    columns[0].name = "";
     {
-        mock_data_frame(dir, 29, columns);
+        auto optcopy = opt;
+        optcopy.columns[0].name = "";
+        mock_data_frame(dir, optcopy);
     }
     expect_validation_error(dir, "empty strings");
 }
 
 /**************************************/
 
-TEST(DataFrame, MixedOkay) {
-    auto dir = define_test_path("data_frame");
-
-    // DataFrame with many different column types works correctly.
-    std::vector<DataFrameColumnDetails> columns(6);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::BOOLEAN;
-    columns[1].name = "Barry";
-    columns[1].type = DataFrameColumnType::NUMBER;
-    columns[2].name = "Charlie";
-    columns[2].type = DataFrameColumnType::STRING;
-    columns[3].name = "Delta";
-    columns[3].type = DataFrameColumnType::INTEGER;
-    columns[4].name = "Echo";
-    columns[4].type = DataFrameColumnType::FACTOR;
-    columns[4].factor_levels = std::vector<std::string>{ "akari", "aika", "alice", "ai" };
-    columns[5].name = "Foxtrot";
-    columns[5].type = DataFrameColumnType::FACTOR;
-    columns[5].factor_levels = std::vector<std::string>{ "athena", "akira", "alicia" };
-    columns[5].factor_ordered = true;
-
-    const hsize_t len = 51;
-    {
-        mock_data_frame(dir, len, columns);
-    }
-    {
-        test_validate(dir);
-        EXPECT_EQ(test_height(dir), len);
-        std::vector<std::size_t> expected_dim;
-        expected_dim.push_back(len);
-        expected_dim.push_back(columns.size());
-        EXPECT_EQ(test_dimensions(dir), expected_dim);
-    }
-
-    // Injecting a VLS column.
-    columns.emplace_back();
-    columns[6].name = "Gamma";
-    {
-        mock_data_frame(dir, len, columns);
-    }
-    {
-        test_validate(dir);
-        EXPECT_EQ(test_height(dir), len);
-        std::vector<std::size_t> expected_dim;
-        expected_dim.push_back(len);
-        expected_dim.push_back(columns.size());
-        EXPECT_EQ(test_dimensions(dir), expected_dim);
-    }
-}
 
 TEST(DataFrame, ColumnDatasetError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(2);
-    columns[0].name = "Aaron";
-    columns[1].name = "Barry";
-    columns[1].type = DataFrameColumnType::STRING;
+    DataFrameOptions opt(33, {
+        DataFrameColumn("Aaron"),
+        DataFrameColumn("Barry", DataFrameColumnType::STRING)
+    });
 
     {
-        auto ghandle = mock_data_frame(dir, 33, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("1");
         xhandle.removeAttr("type");
@@ -186,7 +209,7 @@ TEST(DataFrame, ColumnDatasetError) {
     expect_validation_error(dir, "unknown column type");
 
     {
-        auto ghandle = mock_data_frame(dir, 33, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
         dhandle.createDataSet("0", H5::PredType::NATIVE_INT32, H5S_SCALAR);
@@ -194,7 +217,7 @@ TEST(DataFrame, ColumnDatasetError) {
     expect_validation_error(dir, "1-dimensional");
 
     {
-        auto ghandle = mock_data_frame(dir, 33, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         dhandle.unlink("0");
         auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(32));
@@ -206,13 +229,9 @@ TEST(DataFrame, ColumnDatasetError) {
 TEST(DataFrame, ColumnGroupError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Delta";
-    columns[0].type = DataFrameColumnType::FACTOR;
-    columns[0].factor_levels = std::vector<std::string>{ "chihaya", "haruka", "miki" };
-
     {
-        auto ghandle = mock_data_frame(dir, 33, columns);
+        DataFrameOptions opt(33, { create_factor_column("Delta", { "chihaya", "haruka", "miki" }, false) });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         xhandle.removeAttr("type");
@@ -226,12 +245,9 @@ TEST(DataFrame, ColumnGroupError) {
 TEST(DataFrame, BooleanError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Kyoko";
-    columns[0].type = DataFrameColumnType::NUMBER;
-
     {
-        auto ghandle = mock_data_frame(dir, 55, columns);
+        DataFrameOptions opt(54, { DataFrameColumn("Kyoko", DataFrameColumnType::NUMBER) });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.removeAttr("type");
@@ -243,12 +259,9 @@ TEST(DataFrame, BooleanError) {
 TEST(DataFrame, IntegerError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Kyubey";
-    columns[0].type = DataFrameColumnType::NUMBER;
-
     {
-        auto ghandle = mock_data_frame(dir, 55, columns);
+        DataFrameOptions opt(48, { DataFrameColumn("Kyubey", DataFrameColumnType::NUMBER) });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.removeAttr("type");
@@ -260,15 +273,12 @@ TEST(DataFrame, IntegerError) {
 TEST(DataFrame, NumberError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Madoka";
-    columns[0].type = DataFrameColumnType::NUMBER;
-
     {
-        auto ghandle = mock_data_frame(dir, 55, columns);
+        DataFrameOptions opt(49, { DataFrameColumn("Madoka", DataFrameColumnType::STRING) });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
-        dhandle.unlink("0");
-        auto xhandle = dhandle.createDataSet("0", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(55));
+        auto xhandle = dhandle.openDataSet("0");
+        xhandle.removeAttr("type");
         add_hdf5_string_attribute(xhandle, "type", "number");
     }
     expect_validation_error(dir, "64-bit float");
@@ -277,16 +287,13 @@ TEST(DataFrame, NumberError) {
 TEST(DataFrame, NumericMissingOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(3);
-    columns[0].name = "Madoka";
-    columns[0].type = DataFrameColumnType::BOOLEAN;
-    columns[1].name = "Homura";
-    columns[1].type = DataFrameColumnType::INTEGER;
-    columns[2].name = "Sayaka";
-    columns[2].type = DataFrameColumnType::NUMBER;
-
     {
-        auto ghandle = mock_data_frame(dir, 55, columns);
+        DataFrameOptions opt(55, {
+            DataFrameColumn("Madoka", DataFrameColumnType::BOOLEAN),
+            DataFrameColumn("Homura", DataFrameColumnType::INTEGER),
+            DataFrameColumn("Sayaka", DataFrameColumnType::NUMBER)
+        });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto x0handle = dhandle.openDataSet("0");
         x0handle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
@@ -298,26 +305,24 @@ TEST(DataFrame, NumericMissingOkay) {
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 55);
-    std::vector<std::size_t> expected_dim{ 55, 3 };
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 55, 3 }));
 }
 
 TEST(DataFrame, NumericMissingError) {
     auto dir = define_test_path("data_frame");
 
     for (int i = 0; i < 3; ++i) {
-        std::vector<DataFrameColumnDetails> columns(1);
-        columns[0].name = "mami";
+        DataFrameOptions opt(21, { DataFrameColumn("Mami") });
         if (i == 0) {
-            columns[0].type = DataFrameColumnType::INTEGER;
+            opt.columns[0].type = DataFrameColumnType::INTEGER;
         } else if (i == 1) {
-            columns[0].type = DataFrameColumnType::BOOLEAN;
+            opt.columns[0].type = DataFrameColumnType::BOOLEAN;
         } else {
-            columns[0].type = DataFrameColumnType::NUMBER;
+            opt.columns[0].type = DataFrameColumnType::NUMBER;
         }
 
         {
-            auto ghandle = mock_data_frame(dir, 21, columns);
+            auto ghandle = mock_data_frame(dir, opt);
             auto dhandle = ghandle.openGroup("data");
             auto xhandle = dhandle.openDataSet("0");
             xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT16, H5S_SCALAR);
@@ -328,36 +333,11 @@ TEST(DataFrame, NumericMissingError) {
 
 /**************************************/
 
-TEST(DataFrame, StringOkay) {
-    auto dir = define_test_path("data_frame");
-
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::STRING;
-
-    // Injecting a 'none' format to ensure that is respected.
-    {
-        auto ghandle = mock_data_frame(dir, 32, columns);
-        auto dhandle = ghandle.openGroup("data");
-        auto xhandle = dhandle.openDataSet("0");
-        add_hdf5_string_attribute(xhandle, "format", "none");
-    }
-
-    test_validate(dir);
-    EXPECT_EQ(test_height(dir), 32);
-    std::vector<std::size_t> expected_dim{ 32, 1 };
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
-}
-
 TEST(DataFrame, StringError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::INTEGER;
-
     {
-        auto ghandle = mock_data_frame(dir, 23, columns); 
+        auto ghandle = mock_data_frame(dir, DataFrameOptions(23, { DataFrameColumn("Kongou") })); 
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.removeAttr("type");
@@ -366,18 +346,16 @@ TEST(DataFrame, StringError) {
     expect_validation_error(dir, "represented by a UTF-8 encoded string");
 
     // Check that we validate the format.
-    columns[0].type = DataFrameColumnType::STRING;
     {
-        auto ghandle = mock_data_frame(dir, 23, columns); 
+        auto ghandle = mock_data_frame(dir, DataFrameOptions(23, { DataFrameColumn("Kongou", DataFrameColumnType::STRING) })); 
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
-        const hsize_t len = 12;
-        xhandle.createAttribute("format", H5::StrType(0, 10), H5::DataSpace(1, &len));
+        xhandle.createAttribute("format", H5::StrType(0, 10), create_hdf5_dataspace(12));
     }
     expect_validation_error(dir, "scalar");
 
     {
-        auto ghandle = mock_data_frame(dir, 23, columns); 
+        auto ghandle = mock_data_frame(dir, DataFrameOptions(23, { DataFrameColumn("Kongou", DataFrameColumnType::STRING) })); 
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         add_hdf5_string_attribute(xhandle, "format", "foobar"); 
@@ -385,22 +363,35 @@ TEST(DataFrame, StringError) {
     expect_validation_error(dir, "foobar");
 
     // Confirm that we validate the string contents.
-    columns[0].string_length = H5T_VARIABLE;
     {
-        mock_data_frame(dir, 23, columns); 
+        DataFrameOptions opt(23, { DataFrameColumn("Kongou", DataFrameColumnType::STRING) });
+        opt.columns[0].string_length = 0;
+        mock_data_frame(dir, opt);
     }
     expect_validation_error(dir, "NULL");
+}
+
+TEST(DataFrame, StringNoneOkay) {
+    auto dir = define_test_path("data_frame");
+
+    // Injecting a 'none' format to ensure that is respected.
+    {
+        auto ghandle = mock_data_frame(dir, DataFrameOptions(32, { DataFrameColumn("Haruna", DataFrameColumnType::STRING) }));
+        auto dhandle = ghandle.openGroup("data");
+        auto xhandle = dhandle.openDataSet("0");
+        add_hdf5_string_attribute(xhandle, "format", "none");
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 32);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 32, 1 }));
 }
 
 TEST(DataFrame, StringMissingOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::STRING;
-
     {
-        auto ghandle = mock_data_frame(dir, 14, columns); 
+        auto ghandle = mock_data_frame(dir, DataFrameOptions(14, { DataFrameColumn("Kirishima", DataFrameColumnType::STRING) })); 
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         add_hdf5_string_attribute(xhandle, "missing-value-placeholder", "asdasd");
@@ -408,72 +399,59 @@ TEST(DataFrame, StringMissingOkay) {
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 14);
-    std::vector<std::size_t> expected_dim{ 14, 1 };
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 14, 1 }));
 }
 
 TEST(DataFrame, StringMissingError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::STRING;
-
     {
-        auto ghandle = mock_data_frame(dir, 14, columns); 
+        auto ghandle = mock_data_frame(dir, DataFrameOptions(14, { DataFrameColumn("Hiei", DataFrameColumnType::STRING) })); 
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         xhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
     }
-
     expect_validation_error(dir, "UTF-8 string");
 }
 
 TEST(DataFrame, StringFormatOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::STRING;
-    columns[0].string_length = H5T_VARIABLE;
-
-    constexpr hsize_t len = 17;
     {
-        auto ghandle = mock_data_frame(dir, len, columns);
+        DataFrameOptions opt(17, { DataFrameColumn("Akagi", DataFrameColumnType::STRING) });
+        opt.columns[0].string_length = 0;
+        auto ghandle = mock_data_frame(dir, opt);
+
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         add_hdf5_string_attribute(xhandle, "format", "date");
+
         const char* placeholder = "2026-09-29";
-        std::vector<const char*> pointers(len, placeholder);
+        std::vector<const char*> pointers(opt.num_rows, placeholder);
         xhandle.write(pointers.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
     test_validate(dir);
-    EXPECT_EQ(test_height(dir), len);
-    std::vector<std::size_t> expected_dim;
-    expected_dim.push_back(len);
-    expected_dim.push_back(1);
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
+    EXPECT_EQ(test_height(dir), 17);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 17, 1 }));
 }
 
 TEST(DataFrame, StringFormatError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::STRING;
-    columns[0].string_length = H5T_VARIABLE;
-
-    constexpr hsize_t len = 9;
     {
-        auto ghandle = mock_data_frame(dir, len, columns);
+        DataFrameOptions opt(17, { DataFrameColumn("Kaga", DataFrameColumnType::STRING) });
+        opt.columns[0].string_length = 0;
+        auto ghandle = mock_data_frame(dir, opt);
+
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         add_hdf5_string_attribute(xhandle, "format", "date");
-        const char* placeholder = "2026-09-29";
+
         const char* dummy = "mitochondria";
-        std::vector<const char*> pointers(len, placeholder);
-        pointers[len / 2] = dummy;
+        const char* placeholder = "2026-09-29";
+        std::vector<const char*> pointers(opt.num_rows, placeholder);
+        pointers[opt.num_rows / 2] = dummy;
         xhandle.write(pointers.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
@@ -483,80 +461,40 @@ TEST(DataFrame, StringFormatError) {
 TEST(DataFrame, StringFormatMissingOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::STRING;
-    columns[0].string_length = H5T_VARIABLE;
-
     // We correctly pass along the missing placeholder to the format checker.
-    constexpr hsize_t len = 21;
     {
-        auto ghandle = mock_data_frame(dir, len, columns);
+        DataFrameOptions opt(35, { DataFrameColumn("Shoukaku", DataFrameColumnType::STRING) });
+        opt.columns[0].string_length = 0;
+        auto ghandle = mock_data_frame(dir, opt);
+
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openDataSet("0");
         add_hdf5_string_attribute(xhandle, "format", "date");
-        const char* placeholder = "2026-09-29";
+
         const char* dummy = "mitochondria";
-        std::vector<const char*> pointers(len, placeholder);
-        pointers[len / 2] = dummy;
-        xhandle.write(pointers.data(), H5::StrType(0, H5T_VARIABLE));
         add_hdf5_string_attribute(xhandle, "missing-value-placeholder", dummy);
+
+        const char* placeholder = "2026-09-29";
+        std::vector<const char*> pointers(opt.num_rows, placeholder);
+        pointers[opt.num_rows / 2] = dummy;
+        xhandle.write(pointers.data(), H5::StrType(0, H5T_VARIABLE));
     }
 
     test_validate(dir);
-    EXPECT_EQ(test_height(dir), len);
-    std::vector<std::size_t> expected_dim;
-    expected_dim.push_back(len);
-    expected_dim.push_back(1);
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
+    EXPECT_EQ(test_height(dir), 35);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 35, 1 }));
 }
 
 /**************************************/
 
-TEST(DataFrame, FactorOkay) {
-    auto dir = define_test_path("data_frame");
-
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::FACTOR;
-    columns[0].factor_levels = std::vector<std::string>{ "kanon", "chisato", "sumire", "ren", "keke" };
-
-    {
-        mock_data_frame(dir, 99, columns);
-    }
-    {
-        test_validate(dir);
-        EXPECT_EQ(test_height(dir), 99);
-        std::vector<std::size_t> expected_dim{ 99, 1 };
-        EXPECT_EQ(test_dimensions(dir), expected_dim);
-    }
-
-    // Plus the ordered attribute.
-    {
-        auto ghandle = mock_data_frame(dir, 99, columns);
-        auto dhandle = ghandle.openGroup("data");
-        auto xhandle = dhandle.openGroup("0");
-        xhandle.createAttribute("ordered", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
-    }
-    {
-        test_validate(dir);
-        EXPECT_EQ(test_height(dir), 99);
-        std::vector<std::size_t> expected_dim{ 99, 1 };
-        EXPECT_EQ(test_dimensions(dir), expected_dim);
-    }
-}
-
 TEST(DataFrame, FactorError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::FACTOR;
-    columns[0].factor_levels = std::vector<std::string>{ "kanon", "chisato", "sumire", "ren", "keke" };
+    DataFrameOptions opt(99, { create_factor_column("liella", { "kanon", "chisato", "sumire", "ren", "keke" }, false) });
 
     // Check that the ordered attribute is checked.
     {
-        auto ghandle = mock_data_frame(dir, 99, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.createAttribute("ordered", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR);
@@ -565,33 +503,27 @@ TEST(DataFrame, FactorError) {
 
     // Check that levels are correctly validated.
     {
-        auto ghandle = mock_data_frame(dir, 99, columns);
-        auto dhandle = ghandle.openGroup("data");
-        auto fhandle = dhandle.openGroup("0");
-        fhandle.unlink("levels");
-        fhandle.createDataSet("levels", H5::StrType(0, 10), create_hdf5_dataspace(5));
+        mock_data_frame(dir, DataFrameOptions(99, { create_factor_column("liella", { "shibuya", "heanna", "shibuya" }, false) }));
     }
     expect_validation_error(dir, "duplicated factor level");
 
     // Check that codes are correctly validated.
     {
-        auto ghandle = mock_data_frame(dir, 99, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.unlink("levels");
-        fhandle.createDataSet("levels", H5::StrType(0, 10), create_hdf5_dataspace(1));
+        add_hdf5_string_dataset(fhandle, "levels", { "ren" });
     }
     expect_validation_error(dir, "less than the number of levels");
 
     // Check that we correctly pass along the length to outer checks. 
     {
-        auto ghandle = mock_data_frame(dir, 99, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto fhandle = dhandle.openGroup("0");
         fhandle.unlink("codes");
-        auto xhandle = fhandle.createDataSet("codes", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(80));
-        std::vector<int> data(80);
-        xhandle.write(data.data(), H5::PredType::NATIVE_INT);
+        add_hdf5_numeric_dataset(fhandle, "codes", H5::PredType::NATIVE_UINT8, std::vector<int>(80));
     }
     expect_validation_error(dir, "not equal to the number of rows");
 }
@@ -601,14 +533,10 @@ TEST(DataFrame, FactorError) {
 TEST(DataFrame, VlsVersionError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::VLS;
-
     {
-        mock_data_frame(dir, 99, columns);
-        std::ofstream out(dir / "OBJECT");
-        out << "{ \"type\":\"data_frame\", \"data_frame\":{ \"version\": \"1.0\" } }";
+        DataFrameOptions opt(99, { DataFrameColumn("Zuikaku", DataFrameColumnType::VLS) });
+        opt.version = "1.0";
+        mock_data_frame(dir, opt);
     }
     expect_validation_error(dir, "unsupported type");
 }
@@ -616,13 +544,10 @@ TEST(DataFrame, VlsVersionError) {
 TEST(DataFrame, VlsHeapError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::VLS;
-
     // Check that we validate the heap.
     {
-        auto ghandle = mock_data_frame(dir, 99, columns);
+        DataFrameOptions opt(52, { DataFrameColumn("Atago", DataFrameColumnType::VLS) });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         xhandle.unlink("heap");
@@ -634,12 +559,10 @@ TEST(DataFrame, VlsHeapError) {
 TEST(DataFrame, VlsPointersError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::VLS;
+    DataFrameOptions opt(48, { DataFrameColumn("Takao", DataFrameColumnType::VLS) });
 
     {
-        auto ghandle = mock_data_frame(dir, 99, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         xhandle.unlink("pointers");
@@ -649,14 +572,13 @@ TEST(DataFrame, VlsPointersError) {
 
     // Check that we validate the pointers.
     {
-        const hsize_t num_rows = 99;
-        auto ghandle = mock_data_frame(dir, num_rows, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         auto phandle = xhandle.openDataSet("pointers");
 
-        std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > buffer(num_rows);
-        for (hsize_t i = 0; i < num_rows; ++i) {
+        std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > buffer(opt.num_rows);
+        for (hsize_t i = 0; i < opt.num_rows; ++i) {
             buffer[i].offset = 0; 
             buffer[i].length = -1;
         }
@@ -666,12 +588,12 @@ TEST(DataFrame, VlsPointersError) {
 
     // Check that the length is properly passed along.
     {
-        auto ghandle = mock_data_frame(dir, 99, columns);
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         xhandle.unlink("pointers");
 
-        const hsize_t new_num_rows = 100;
+        const hsize_t new_num_rows = 49;
         auto phandle = xhandle.createDataSet("pointers", ritsuko::cvls::define_pointer_datatype<std::uint64_t, std::uint64_t>(), create_hdf5_dataspace(new_num_rows));
         std::vector<ritsuko::cvls::Pointer<std::uint64_t, std::uint64_t> > buffer(new_num_rows);
         for (hsize_t i = 0; i < new_num_rows; ++i) {
@@ -686,12 +608,9 @@ TEST(DataFrame, VlsPointersError) {
 TEST(DataFrame, VlsMissingOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::VLS;
-
     {
-        auto ghandle = mock_data_frame(dir, 82, columns);
+        DataFrameOptions opt(82, { DataFrameColumn("Maya", DataFrameColumnType::VLS) });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         auto phandle = xhandle.openDataSet("pointers");
@@ -700,19 +619,15 @@ TEST(DataFrame, VlsMissingOkay) {
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 82);
-    std::vector<std::size_t> expected_dim{ 82, 1 };
-    EXPECT_EQ(test_dimensions(dir), expected_dim);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 82, 1 }));
 }
 
 TEST(DataFrame, VlsMissingError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(1);
-    columns[0].name = "Aaron";
-    columns[0].type = DataFrameColumnType::VLS;
-
     {
-        auto ghandle = mock_data_frame(dir, 82, columns);
+        DataFrameOptions opt(76, { DataFrameColumn("Choukai", DataFrameColumnType::VLS) });
+        auto ghandle = mock_data_frame(dir, opt);
         auto dhandle = ghandle.openGroup("data");
         auto xhandle = dhandle.openGroup("0");
         auto phandle = xhandle.openDataSet("pointers");
@@ -726,64 +641,53 @@ TEST(DataFrame, VlsMissingError) {
 TEST(DataFrame, OtherOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(3);
-    columns[0].name = "Kanon";
-    columns[0].type = DataFrameColumnType::OTHER;
-    columns[1].name = "Chisato";
-    columns[1].type = DataFrameColumnType::STRING; // intervening basic column, for some variety.
-    columns[2].name = "Keke";
-    columns[2].type = DataFrameColumnType::OTHER;
+    DataFrameOptions opt(51, {
+        DataFrameColumn("Kanon", DataFrameColumnType::OTHER),
+        DataFrameColumn("Chisato", DataFrameColumnType::STRING), // intervening basic column, for some variety.
+        DataFrameColumn("Keke", DataFrameColumnType::OTHER)
+    });
 
     {
-        mock_data_frame(dir, 51, columns);
+        mock_data_frame(dir, opt);
         initialize_directory(dir / "other_columns");
-
-        std::vector<DataFrameColumnDetails> subcolumns(1);
-        subcolumns[0].name = "shibuya"; 
-        mock_data_frame(dir / "other_columns" / "0", 51, subcolumns);
-
-        mock_atomic_vector(dir / "other_columns" / "2", 51, AtomicVectorType::STRING);
+        mock_data_frame(dir / "other_columns" / "0", DataFrameOptions(51, { DataFrameColumn("shibuya") }));
+        mock_atomic_vector(dir / "other_columns" / "2", AtomicVectorOptions(51));
     }
 
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 51);
-    std::vector<std::size_t> expected{ 51, 3 };
-    EXPECT_EQ(test_dimensions(dir), expected);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 51, 3 }));
 }
 
 TEST(DataFrame, OtherError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(2);
-    columns[0].name = "Sumire";
-    columns[0].type = DataFrameColumnType::OTHER;
-    columns[1].name = "Ren";
-    columns[1].type = DataFrameColumnType::OTHER;
+    DataFrameOptions opt(52, {
+        DataFrameColumn("Sumire", DataFrameColumnType::OTHER),
+        DataFrameColumn("Ren", DataFrameColumnType::OTHER)
+    });
 
     {
-        mock_data_frame(dir, 51, columns);
+        mock_data_frame(dir, opt);
         initialize_directory(dir / "other_columns");
-        std::vector<DataFrameColumnDetails> subcolumns(1);
-        subcolumns[0].name = "heanna";
-        mock_data_frame(dir / "other_columns" / "0", 32, subcolumns);
-        mock_atomic_vector(dir / "other_columns" / "1", 51, AtomicVectorType::STRING);
+        mock_data_frame(dir / "other_columns" / "0", DataFrameOptions(53, { DataFrameColumn("heanna") }));
+        mock_atomic_vector(dir / "other_columns" / "1", AtomicVectorOptions(51));
     }
     expect_validation_error(dir, "height is not equal");
 
     {
-        mock_data_frame(dir, 51, columns);
+        mock_data_frame(dir, opt);
         initialize_directory(dir / "other_columns");
         initialize_directory_simple(dir / "other_columns" / "0", "superfoobar", "1.0");
-        mock_atomic_vector(dir / "other_columns" / "1", 51, AtomicVectorType::STRING);
     }
     expect_validation_error(dir, "failed to validate column 0");
 
     {
-        mock_data_frame(dir, 51, columns);
+        mock_data_frame(dir, opt);
         initialize_directory(dir / "other_columns");
-        mock_atomic_vector(dir / "other_columns" / "0", 51, AtomicVectorType::INTEGER);
-        mock_atomic_vector(dir / "other_columns" / "1", 51, AtomicVectorType::STRING);
-        mock_atomic_vector(dir / "other_columns" / "2", 51, AtomicVectorType::STRING);
+        mock_atomic_vector(dir / "other_columns" / "0", AtomicVectorOptions(52));
+        mock_atomic_vector(dir / "other_columns" / "1", AtomicVectorOptions(52, AtomicVectorType::BOOLEAN));
+        mock_atomic_vector(dir / "other_columns" / "2", AtomicVectorOptions(52, AtomicVectorType::STRING));
     }
     expect_validation_error(dir, "more objects than expected");
 }
@@ -793,21 +697,16 @@ TEST(DataFrame, OtherError) {
 TEST(DataFrame, McolsOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(2);
-    columns[0].name = "nagisa";
-    columns[1].name = "tomoya";
-
-    std::vector<DataFrameColumnDetails> metacolumns(3);
-    metacolumns[0].name = "akio";
-    metacolumns[0].type = DataFrameColumnType::NUMBER;
-    metacolumns[1].name = "sanae";
-    metacolumns[1].type = DataFrameColumnType::STRING;
-    metacolumns[2].name = "ushio";
-    metacolumns[2].type = DataFrameColumnType::BOOLEAN;
-
     {
-        mock_data_frame(dir, 99, columns);
-        mock_data_frame(dir / "column_annotations", 2, metacolumns);
+        DataFrameOptions opt(99, { DataFrameColumn("nagisa"), DataFrameColumn("tomoya") });
+        mock_data_frame(dir, opt);
+
+        DataFrameOptions metaopt(2, {
+            DataFrameColumn("akio", DataFrameColumnType::NUMBER),
+            DataFrameColumn("sanae", DataFrameColumnType::STRING),
+            DataFrameColumn("ushio", DataFrameColumnType::BOOLEAN)
+        });
+        mock_data_frame(dir / "column_annotations", metaopt);
     }
 
     test_validate(dir);
@@ -816,14 +715,11 @@ TEST(DataFrame, McolsOkay) {
 TEST(DataFrame, McolsError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(2);
-    columns[0].name = "furukawa";
-    columns[1].name = "okazaki";
-
     // Check that we actually validate the mcols.
     {
-        mock_data_frame(dir, 99, columns);
-        mock_data_frame(dir / "column_annotations", 4, {});
+        DataFrameOptions opt(99, { DataFrameColumn("nagisa"), DataFrameColumn("tomoya") });
+        mock_data_frame(dir, opt);
+        mock_data_frame(dir / "column_annotations", DataFrameOptions(3, {}));
     }
     expect_validation_error(dir, "unexpected number of rows");
 }
@@ -831,34 +727,34 @@ TEST(DataFrame, McolsError) {
 TEST(DataFrame, MetadataOkay) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(4);
-    columns[0].name = "dango daikazoku";
-    columns[0].type = DataFrameColumnType::NUMBER;
-    columns[1].name = "toki wo izuma uta";
-    columns[1].type = DataFrameColumnType::STRING;
-    columns[2].name = "the palm of a tiny hand";
-    columns[2].type = DataFrameColumnType::BOOLEAN;
-    columns[3].name = "over";
-
     {
-        mock_data_frame(dir, 13, columns);
+        DataFrameOptions opt(13, {
+            DataFrameColumn("dango daikazoku", DataFrameColumnType::NUMBER),
+            DataFrameColumn("toki wo izuma uta", DataFrameColumnType::STRING),
+            DataFrameColumn("the palm of a tiny hand", DataFrameColumnType::BOOLEAN),
+            DataFrameColumn("over")
+        });
+        mock_data_frame(dir, opt);
         mock_simple_list(dir / "other_annotations");
     }
 
     test_validate(dir);
+    EXPECT_EQ(test_height(dir), 13);
+    EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 13, 4 }));
 }
 
 TEST(DataFrame, MetadataError) {
     auto dir = define_test_path("data_frame");
 
-    std::vector<DataFrameColumnDetails> columns(2);
-    columns[0].name = "cherry blossom petal";
-    columns[1].name = "roaring ocean";
+    DataFrameOptions opt(13, {
+        DataFrameColumn("cherry blossom petal"),
+        DataFrameColumn("roaring ocean")
+    });
 
     // Check that we actually validate the metadata.
     {
-        mock_data_frame(dir, 13, columns);
-        mock_data_frame(dir / "other_annotations", 2, {});
+        mock_data_frame(dir, opt);
+        mock_data_frame(dir / "other_annotations", DataFrameOptions(2, {}));
     }
     expect_validation_error(dir, "SIMPLE_LIST");
 }
@@ -891,9 +787,7 @@ TEST(DataFrame, GeneralError) {
     expect_validation_error(dir, "64-bit unsigned");
 
     {
-        std::vector<DataFrameColumnDetails> columns(1);
-        columns[0].name = "Aaron";
-        auto ghandle = mock_data_frame(dir, 33, columns);
+        auto ghandle = mock_data_frame(dir, DataFrameOptions(33, { DataFrameColumn("Aaron") }));
         auto dhandle = ghandle.openGroup("data");
         dhandle.createGroup("foo");
     }

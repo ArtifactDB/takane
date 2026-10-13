@@ -126,6 +126,14 @@ inline H5::DataSpace create_hdf5_dataspace(const hsize_t len) {
     return H5::DataSpace(1, &len);
 }
 
+inline H5::StrType create_hdf5_strtype(const std::size_t len) {
+    if (len == 0) {
+        return H5::StrType(0, H5T_VARIABLE);
+    } else {
+        return H5::StrType(0, len);
+    }
+}
+
 inline std::vector<const char*> pointerize_strings(const std::vector<std::string>& x) {
     std::vector<const char*> ptrs;
     ptrs.reserve(x.size());

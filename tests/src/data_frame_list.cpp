@@ -19,10 +19,7 @@ TEST(DataFrameList, Okay) {
     {
         initialize_directory_simple(dir, "data_frame_list", "1.0"); 
         mock_compressed_list_partitions(dir / "partitions.h5", "data_frame_list", { 0, 4, 3, 2, 1 });
-        std::vector<DataFrameColumnDetails> columns(2);
-        columns[0].name = "foo";
-        columns[1].name = "bar";
-        mock_data_frame(dir / "concatenated", 10, columns);
+        mock_data_frame(dir / "concatenated", DataFrameOptions(10, { DataFrameColumn("foo"), DataFrameColumn("bar") }));
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 5);

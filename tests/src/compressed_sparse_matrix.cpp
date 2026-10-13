@@ -13,52 +13,48 @@ TEST(CompressedSparseMatrix, Okay) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        mock_compressed_sparse_matrix(dir, 299, 121, 0.2, {});
+        mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(299, 121));
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 299);
-        std::vector<std::size_t> expected_dims { 299, 121 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 299, 121 }));
     }
 
     // CSR.
     {
-        CompressedSparseMatrixConfig config;
-        config.csc = false;
-        mock_compressed_sparse_matrix(dir, 182, 107, 0.2, config);
+        CompressedSparseMatrixOptions opt(182, 107);
+        opt.column_sparse = false;
+        mock_compressed_sparse_matrix(dir, opt);
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 182);
-        std::vector<std::size_t> expected_dims { 182, 107 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 182, 107 }));
     }
 
     // Double-precision.
     {
-        CompressedSparseMatrixConfig config;
-        config.type = CompressedSparseMatrixType::NUMBER;
-        mock_compressed_sparse_matrix(dir, 82, 154, 0.2, config);
+        CompressedSparseMatrixOptions opt(82, 154);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        mock_compressed_sparse_matrix(dir, opt);
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 82);
-        std::vector<std::size_t> expected_dims { 82, 154 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 82, 154 }));
     }
 
     // Boolean.
     {
-        CompressedSparseMatrixConfig config;
-        config.type = CompressedSparseMatrixType::BOOLEAN;
-        mock_compressed_sparse_matrix(dir, 32, 321, 0.2, config);
+        CompressedSparseMatrixOptions opt(32, 321);
+        opt.type = CompressedSparseMatrixType::BOOLEAN;
+        mock_compressed_sparse_matrix(dir, opt);
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 32);
-        std::vector<std::size_t> expected_dims { 32, 321 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 32, 321 }));
     }
 }
 
@@ -67,24 +63,26 @@ TEST(CompressedSparseMatrix, ExtremeOkay) {
 
     // All columns empty.
     {
-        mock_compressed_sparse_matrix(dir, 20, 30, 0, {});
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.density = 0;
+        mock_compressed_sparse_matrix(dir, opt);
     }
     {
         test_validate(dir);
         EXPECT_EQ(test_height(dir), 20);
-        std::vector<std::size_t> expected_dims { 20, 30 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 20, 30 }));
     }
 
     // All columns full.
     {
-        mock_compressed_sparse_matrix(dir, 20, 30, 1, {});
+        CompressedSparseMatrixOptions opt(25, 35);
+        opt.density = 1;
+        mock_compressed_sparse_matrix(dir, opt);
     }
     {
         test_validate(dir);
-        EXPECT_EQ(test_height(dir), 20);
-        std::vector<std::size_t> expected_dims { 20, 30 };
-        EXPECT_EQ(test_dimensions(dir), expected_dims);
+        EXPECT_EQ(test_height(dir), 25);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 25, 35 }));
     }
 }
 
@@ -104,14 +102,14 @@ TEST(CompressedSparseMatrix, TypeError) {
 
     // Test that the type attribute's type/shape are actually validated.
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.removeAttr("type");
         ghandle.createAttribute("type", H5::PredType::NATIVE_INT, H5S_SCALAR); 
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 1, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.removeAttr("type");
         add_hdf5_string_attribute(ghandle, "type", "foobar");
     }
@@ -123,14 +121,14 @@ TEST(CompressedSparseMatrix, LayoutError) {
 
     // Test that the layout attribute's type/shape are actually validated.
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.removeAttr("layout");
         ghandle.createAttribute("layout", H5::PredType::NATIVE_INT, H5S_SCALAR); 
     }
     expect_validation_error(dir, "UTF-8 encoded string");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 1, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.removeAttr("layout");
         add_hdf5_string_attribute(ghandle, "layout", "fooobar");
     }
@@ -141,14 +139,14 @@ TEST(CompressedSparseMatrix, ShapeError) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.unlink("shape");
         ghandle.createDataSet("shape", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(2));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.unlink("shape");
         ghandle.createDataSet("shape", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
     }
@@ -156,7 +154,7 @@ TEST(CompressedSparseMatrix, ShapeError) {
 
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.unlink("shape");
         ghandle.createDataSet("shape", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(3));
     }
@@ -169,7 +167,7 @@ TEST(CompressedSparseMatrix, DataError) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.unlink("data");
         ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
@@ -180,9 +178,9 @@ TEST(CompressedSparseMatrix, IntegerError) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        CompressedSparseMatrixConfig config;
-        config.type = CompressedSparseMatrixType::NUMBER;
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, config);
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        auto ghandle = mock_compressed_sparse_matrix(dir, opt);
         ghandle.removeAttr("type");
         add_hdf5_string_attribute(ghandle, "type", "integer");
     }
@@ -193,9 +191,9 @@ TEST(CompressedSparseMatrix, BooleanError) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        CompressedSparseMatrixConfig config;
-        config.type = CompressedSparseMatrixType::NUMBER;
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, config);
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        auto ghandle = mock_compressed_sparse_matrix(dir, opt);
         ghandle.removeAttr("type");
         add_hdf5_string_attribute(ghandle, "type", "boolean");
     }
@@ -206,9 +204,9 @@ TEST(CompressedSparseMatrix, NumberError) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        CompressedSparseMatrixConfig config;
-        config.type = CompressedSparseMatrixType::NUMBER;
-        auto ghandle = mock_compressed_sparse_matrix(dir, 20, 30, 0.2, config);
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        auto ghandle = mock_compressed_sparse_matrix(dir, opt);
 
         hsize_t len;
         {
@@ -225,7 +223,7 @@ TEST(CompressedSparseMatrix, MissingOkay) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 22, 35, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(22, 35));
         auto dhandle = ghandle.openDataSet("data");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
@@ -241,7 +239,7 @@ TEST(CompressedSparseMatrix, MissingError) {
 
     // Test that the missing placeholder is actually validated.
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 22, 35, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(22, 35));
         auto dhandle = ghandle.openDataSet("data");
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
     }
@@ -255,14 +253,14 @@ TEST(CompressedSparseMatrix, IndptrSimpleError) {
 
     {
         int NC = 35;
-        auto ghandle = mock_compressed_sparse_matrix(dir, 51, NC, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, NC));
         ghandle.unlink("indptr");
         ghandle.createDataSet("indptr", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(NC + 1));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 51, 14, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 14));
         ghandle.unlink("indptr");
         ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
     }
@@ -270,17 +268,16 @@ TEST(CompressedSparseMatrix, IndptrSimpleError) {
 
     {
         int NC = 14;
-        auto ghandle = mock_compressed_sparse_matrix(dir, 121, NC, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(121, NC));
         ghandle.unlink("indptr");
         ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(NC));
     }
     expect_validation_error(dir, "number of columns plus 1");
 
     {
-        int NR = 34;
-        CompressedSparseMatrixConfig config;
-        config.csc = false;
-        auto ghandle = mock_compressed_sparse_matrix(dir, NR, 23, 0.2, config);
+        CompressedSparseMatrixOptions options(55, 23);
+        options.column_sparse = false;
+        auto ghandle = mock_compressed_sparse_matrix(dir, options);
         ghandle.unlink("indptr");
         ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(100));
     }
@@ -297,9 +294,9 @@ TEST_P(CompressedSparseMatrixIndptrErrorTest, Hard) {
     std::vector<int> indices{ 1, 1, 1, 4, 2, 1, 2, 3 };
     std::vector<int> ptrs{ 0, 1, 3, 4, 5, 6, 8, 8, 8 };
 
-    CompressedSparseMatrixConfig config;
-    config.csc = GetParam();
-    if (!config.csc) {
+    CompressedSparseMatrixBasicOptions options;
+    options.column_sparse = GetParam();
+    if (!options.column_sparse) {
         std::reverse(dims.begin(), dims.end());
     }
 
@@ -309,7 +306,7 @@ TEST_P(CompressedSparseMatrixIndptrErrorTest, Hard) {
         auto ghandle = handle.createGroup("compressed_sparse_matrix");
         auto ptrcopy = ptrs;
         ptrcopy[0] = 1;
-        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, config);
+        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, options);
     }
     expect_validation_error(dir, "should be zero");
 
@@ -319,7 +316,7 @@ TEST_P(CompressedSparseMatrixIndptrErrorTest, Hard) {
         auto ghandle = handle.createGroup("compressed_sparse_matrix");
         auto ptrcopy = ptrs;
         ptrcopy.back() += 1;
-        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, config);
+        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, options);
     }
     expect_validation_error(dir, "equal the number of non-zero elements");
 
@@ -329,7 +326,7 @@ TEST_P(CompressedSparseMatrixIndptrErrorTest, Hard) {
         auto ghandle = handle.createGroup("compressed_sparse_matrix");
         auto ptrcopy = ptrs;
         std::reverse(ptrcopy.begin() + 1, ptrcopy.end() - 1); 
-        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, config);
+        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, options);
     }
     expect_validation_error(dir, "should be sorted");
 }
@@ -346,21 +343,21 @@ TEST(CompressedSparseMatrix, IndicesSimpleError) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 51, 74, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 74));
         ghandle.unlink("indices");
         ghandle.createDataSet("indices", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(100));
     }
     expect_validation_error(dir, "64-bit unsigned integer");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 51, 74, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 74));
         ghandle.unlink("indices");
         ghandle.createDataSet("indices", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
     }
     expect_validation_error(dir, "1-dimensional");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 51, 74, 0.2, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 74));
         hsize_t len;
         {
             auto ihandle = ghandle.openDataSet("indices");
@@ -389,9 +386,9 @@ TEST_P(CompressedSparseMatrixIndicesErrorTest, Hard) {
     };
     std::vector<int> ptrs{ 0, 3, 7, 11, 13, 14, 18 };
 
-    CompressedSparseMatrixConfig config;
-    config.csc = GetParam();
-    if (!config.csc) {
+    CompressedSparseMatrixBasicOptions options;
+    options.column_sparse = GetParam();
+    if (!options.column_sparse) {
         std::reverse(dims.begin(), dims.end());
     }
 
@@ -403,7 +400,7 @@ TEST_P(CompressedSparseMatrixIndicesErrorTest, Hard) {
             auto ghandle = handle.createGroup("compressed_sparse_matrix");
             auto icopy = indices;
             icopy[pos] = 15;
-            mock_compressed_sparse_matrix(ghandle, dims, data, icopy, ptrs, config);
+            mock_compressed_sparse_matrix(ghandle, dims, data, icopy, ptrs, options);
         }
         expect_validation_error(dir, "should be strictly increasing");
 
@@ -425,7 +422,7 @@ TEST_P(CompressedSparseMatrixIndicesErrorTest, Hard) {
             auto ghandle = handle.createGroup("compressed_sparse_matrix");
             auto icopy = indices;
             icopy[pos] = 15;
-            mock_compressed_sparse_matrix(ghandle, dims, data, icopy, ptrs, config);
+            mock_compressed_sparse_matrix(ghandle, dims, data, icopy, ptrs, options);
         }
         expect_validation_error(dir, "less than the number of");
 
@@ -452,7 +449,7 @@ TEST(CompressedSparseMatrix, NamesOkay) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 55, 33, 0.25, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(55, 33));
         auto nhandle = ghandle.createGroup("names");
         nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(55));
         nhandle.createDataSet("1", H5::StrType(0, 5), create_hdf5_dataspace(33));
@@ -468,7 +465,7 @@ TEST(CompressedSparseMatrix, NamesError) {
     auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto ghandle = mock_compressed_sparse_matrix(dir, 55, 33, 0.25, {});
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(55, 33));
         auto nhandle = ghandle.createGroup("names");
         nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(33));
         nhandle.createDataSet("1", H5::StrType(0, 5), create_hdf5_dataspace(55));
