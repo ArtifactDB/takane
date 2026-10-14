@@ -17,11 +17,11 @@
 #include "dense_array.hpp"
 #include "genomic_ranges.hpp"
 #include "genomic_ranges_list.hpp"
+#include "sequence_string_set.hpp"
 #include "simple_list.hpp"
 #include "string_factor.hpp"
 #include "summarized_experiment.hpp"
 //#include "data_frame_factor.hpp"
-//#include "sequence_string_set.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
 //#include "vcf_experiment.hpp"
@@ -48,6 +48,7 @@ inline auto default_height_registry() {
     registry["dense_array"] = height_of_dense_array;
     registry["genomic_ranges"] = height_of_genomic_ranges;
     registry["genomic_ranges_list"] = height_of_genomic_ranges_list;
+    registry["sequence_string_set"] = height_of_sequence_string_set;
     registry["simple_list"] = height_of_simple_list;
     registry["string_factor"] = height_of_string_factor;
     registry["single_cell_experiment"] = height_of_summarized_experiment; // subclass of an SE.
@@ -55,7 +56,6 @@ inline auto default_height_registry() {
     registry["summarized_experiment"] = height_of_summarized_experiment;
     registry["ranged_summarized_experiment"] = height_of_summarized_experiment; // subclass of an SE.
 
-//    registry["sequence_string_set"] = sequence_string_set::height;
 //    registry["bumpy_atomic_array"] = bumpy_atomic_array::height;
 //    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::height;
 //    registry["vcf_experiment"] = vcf_experiment::height;

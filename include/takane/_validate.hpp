@@ -31,13 +31,13 @@
 #include "ranged_summarized_experiment.hpp"
 #include "rds_file.hpp"
 #include "sequence_information.hpp"
+#include "sequence_string_set.hpp"
 #include "simple_list.hpp"
 #include "string_factor.hpp"
 #include "single_cell_experiment.hpp"
 #include "spatial_experiment.hpp"
 #include "summarized_experiment.hpp"
 //#include "multi_sample_dataset.hpp"
-//#include "sequence_string_set.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
 //#include "vcf_experiment.hpp"
@@ -77,13 +77,13 @@ inline auto default_validate_registry() {
     registry["ranged_summarized_experiment"] = validate_ranged_summarized_experiment;
     registry["rds_file"] = validate_rds_file;
     registry["sequence_information"] = validate_sequence_information;
+    registry["sequence_string_set"] = validate_sequence_string_set;
     registry["simple_list"] = validate_simple_list;
     registry["string_factor"] = validate_string_factor;
     registry["single_cell_experiment"] = validate_single_cell_experiment;
     registry["spatial_experiment"] = validate_spatial_experiment;
     registry["summarized_experiment"] = validate_summarized_experiment;
 //    registry["multi_sample_dataset"] = validate;
-//    registry["sequence_string_set"] = validate;
 //    registry["bumpy_atomic_array"] = validate;
 //    registry["bumpy_data_frame_array"] = validate;
 //    registry["vcf_experiment"] = validate;

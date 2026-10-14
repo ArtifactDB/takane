@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <limits>
-#include <cctype>
+#include <cstddef>
 #include <filesystem>
 
 /**
@@ -21,67 +21,84 @@
 namespace takane {
 
 /**
- * @namespace takane::sequence_string_set
- * @brief Definitions for sequence string sets.
- */
-namespace sequence_string_set {
-
-/**
  * @cond
  */
-namespace internal {
-
-inline int char2int(char val) {
+inline constexpr int char2int(char val) {
     return static_cast<int>(val) - static_cast<int>(std::numeric_limits<char>::min());
 }
 
-template<bool has_quality_>
-size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> allowed, char lowest_quality, bool parallel) {
-    auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
-    auto pb = internal_other::wrap_reader_for_bytes<char>(std::move(gzreader), parallel);
+typedef std::array<bool, char2int(std::numeric_limits<char>::max())> AllowedCharacterMap;
 
-    size_t nseq = 0;
-    size_t line_count = 0;
+template<bool has_quality_>
+std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCharacterMap allowed, char lowest_quality, bool parallel) {
+    auto gzreader = open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
+    auto pb = wrap_reader_for_bytes<char>(std::move(gzreader), parallel);
+
+    std::size_t nseq = 0;
+    unsigned long long line_count = 1;
     auto advance_and_check = [&]() -> char {
         if (!pb->advance()) {
-            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
+            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count));
         }
         return pb->get();
     };
 
     while (pb->valid()) {
-        // Processing the name. 
-        char val = pb->get();
-        if constexpr(!has_quality_) {
-            if (val != '>') {
-                throw std::runtime_error("sequence name should start with '>' at line " + std::to_string(line_count + 1));
+        // Chomp through any empty lines.
+        while (pb->get() == '\n') {
+            ++line_count;
+            if (!pb->advance()) {
+                break;
             }
-        } else {
-            if (val != '@') {
-                throw std::runtime_error("sequence name should start with '@' at line " + std::to_string(line_count + 1));
-            }
+        }
+        if (!pb->valid()) {
+            break;
         }
 
-        val = advance_and_check();
-        size_t proposed = 0;
-        bool empty = true;
-        while (val != '\n') {
-            if (!std::isdigit(val)) {
-                throw std::runtime_error("sequence name should be a non-negative integer at line " + std::to_string(line_count + 1));
+        // Processing the name. 
+        {
+            if constexpr(!has_quality_) {
+                if (pb->get() != '>') {
+                    throw std::runtime_error("sequence name should start with '>' at line " + std::to_string(line_count));
+                }
+            } else {
+                if (pb->get() != '@') {
+                    throw std::runtime_error("sequence name should start with '@' at line " + std::to_string(line_count));
+                }
             }
-            empty = false;
-            proposed *= 10;
-            proposed += (val - '0'); 
-            val = advance_and_check();
+
+            const std::size_t mult_limit = nseq / 10;
+            const std::size_t add_limit = nseq % 10;
+            std::size_t proposed = 0;
+            bool empty = true;
+            while (true) {
+                char val = advance_and_check();
+                if (val == '\n') {
+                    break;
+                }
+
+                empty = false;
+                if (val < '0' || val > '9') {
+                    throw std::runtime_error("sequence name should be a non-negative integer at line " + std::to_string(line_count));
+                }
+                
+                const auto delta = val - '0';
+                if (proposed > mult_limit || (proposed == mult_limit && sanisizer::is_greater_than(delta, add_limit))) {
+                    throw std::runtime_error("sequence name is out of bounds at line " + std::to_string(line_count));
+                }
+
+                proposed *= 10;
+                proposed += delta;
+            }
+            if (empty || proposed != nseq) {
+                throw std::runtime_error("sequence name should be its index at line " + std::to_string(line_count));
+            }
+            ++line_count;
         }
-        if (empty || proposed != nseq) {
-            throw std::runtime_error("sequence name should be its index at line " + std::to_string(line_count + 1));
-        }
-        ++line_count;
 
         if constexpr(!has_quality_) {
             // Processing the sequence itself until we get to a '>' or we run out of bytes.
-            val = advance_and_check();
+            char val = advance_and_check();
             while (true) {
                 if (val == '\n') {
                     ++line_count;
@@ -92,81 +109,81 @@ size_t parse_sequences(const std::filesystem::path& path, std::array<bool, 255> 
                     if (val == '>') {
                         break;
                     }
-                } else {
-                    if (!allowed[char2int(val)]) {
-                        throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count + 1));
-                    }
+                } else if (allowed[char2int(val)]) {
                     val = advance_and_check();
+                } else {
+                    throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count));
                 }
             }
 
         } else {
             // Processing the sequence itself until we get to a '+'.
-            val = advance_and_check();
-            size_t seq_length = 0;
-            while (true) {
-                if (val == '\n') {
-                    ++line_count;
-                    val = advance_and_check();
-                    if (val == '+') {
-                        break;
+            std::size_t seq_length = 0;
+            {
+                char val = advance_and_check();
+                while (true) {
+                    if (val == '\n') {
+                        ++line_count;
+                        val = advance_and_check();
+                        if (val == '+') {
+                            break;
+                        }
+                    } else if (allowed[char2int(val)]) {
+                        seq_length = sanisizer::sum<std::size_t>(seq_length, 1); // Protect against overflow as this is important for the quality string checks.
+                        val = advance_and_check();
+                    } else {
+                        throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count));
                     }
-                } else {
-                    if (!allowed[char2int(val)]) {
-                        throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count + 1));
-                    }
-                    ++seq_length;
-                    val = advance_and_check();
                 }
             }
 
             // Next should be a single line; starting with '+' is implicit from above.
-            do {
-                val = advance_and_check();
-            } while (val != '\n');
-            ++line_count;
+            while (true) {
+                const char val = advance_and_check();
+                if (val == '\n') {
+                    ++line_count;
+                    break;
+                }
+            }
 
-            // Processing the qualities. Extraction is allowed to fail if we're at
-            // the end of the file. Note that we can't check for '@' as a
+            // Processing the qualities. Note that we can't check for '@' as a
             // delimitor, as this can be a valid score, so instead we check at each
             // newline whether we've reached the specified length, and quit if so.
-            size_t qual_length = 0;
+            std::size_t qual_length = 0;
             while (true) {
-                val = advance_and_check();
+                const char val = advance_and_check();
                 if (val == '\n') {
                     ++line_count;
                     if (qual_length >= seq_length) {
-                        while (pb->advance() && pb->get() == '\n') {} // sneak past any newlines.
                         break;
                     }
+                } else if (val >= lowest_quality) {
+                    qual_length = sanisizer::sum<std::size_t>(qual_length, 1);
                 } else {
-                    if (val < lowest_quality) {
-                        throw std::runtime_error("out-of-range quality score '" + std::string(1, val) + "' detected at line " + std::to_string(line_count + 1));
-                    }
-                    ++qual_length;
+                    throw std::runtime_error("out-of-range quality score '" + std::string(1, val) + "' detected at line " + std::to_string(line_count));
                 }
             }
 
             if (qual_length != seq_length) {
-                throw std::runtime_error("unequal lengths for quality and sequence strings at line " + std::to_string(line_count + 1) + ")");
+                throw std::runtime_error("unequal lengths for quality and sequence strings at line " + std::to_string(line_count));
             }
         }
 
-        ++nseq;
+        nseq = sanisizer::sum<std::size_t>(nseq, 1);
     }
 
     return nseq;
 }
 
-inline size_t parse_names(const std::filesystem::path& path, bool parallel) {
-    auto gzreader = internal_other::open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
-    auto pb = internal_other::wrap_reader_for_bytes<char>(std::move(gzreader), parallel);
+inline std::size_t parse_sequence_names(const std::filesystem::path& path, bool parallel) {
+    auto gzreader = open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
+    auto pb = wrap_reader_for_bytes<char>(std::move(gzreader), parallel);
 
-    size_t nseq = 0;
-    size_t line_count = 0;
+    std::size_t nseq = 0;
+    unsigned long long line_count = 1;
     auto advance_and_check = [&]() -> char {
         if (!pb->advance()) {
-            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count + 1));
+            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count));
         }
         return pb->get();
     };
@@ -174,7 +191,7 @@ inline size_t parse_names(const std::filesystem::path& path, bool parallel) {
     while (pb->valid()) {
         char val = pb->get();
         if (val != '"') {
-            throw std::runtime_error("name should start with a quote");
+            throw std::runtime_error("name should start with a quote at line " + std::to_string(line_count));
         }
 
         while (true) {
@@ -187,7 +204,7 @@ inline size_t parse_names(const std::filesystem::path& path, bool parallel) {
                     pb->advance();
                     break;
                 } else if (val != '"') {
-                    throw std::runtime_error("characters present after end quote at line " + std::to_string(line_count + 1));
+                    throw std::runtime_error("characters present after end quote at line " + std::to_string(line_count));
                 }
             } else if (val == '\n') {
                 ++line_count;
@@ -196,8 +213,6 @@ inline size_t parse_names(const std::filesystem::path& path, bool parallel) {
     }
 
     return nseq;
-}
-
 }
 /**
  * @endcond
@@ -208,136 +223,166 @@ inline size_t parse_names(const std::filesystem::path& path, bool parallel) {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_sequence_string_set(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "sequence_string_set"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string version_name = "version"; // again, avoid dangling reference warnings.
-    const auto& vstring = internal_json::extract_string_from_typed_object(obj, version_name, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
-
-    size_t expected_nseq = 0;
-    {
-        auto lIt = obj.find("length");
-        if (lIt == obj.end()) {
-            throw std::runtime_error("expected a 'sequence_string_set.length' property");
-        }
-
-        const auto& val = lIt->second;
-        if (val->type() != millijson::NUMBER) {
-            throw std::runtime_error("'sequence_string_set.length' property should be a JSON number");
-        }
-
-        auto num = reinterpret_cast<const millijson::Number*>(val.get())->value();
-        if (num < 0 || std::floor(num) != num) {
-            throw std::runtime_error("'sequence_string_set.length' should be a non-negative integer");
-        }
-
-        expected_nseq = num;
-    }
-
-    std::array<bool, 255> allowed;
-    std::fill(allowed.begin(), allowed.end(), false);
-    {
-        const std::string stype_name = "sequence_type"; // avoid dangling reference again.
-        const std::string& stype = internal_json::extract_string(obj, stype_name, [&](std::exception& e) -> void {
-            throw std::runtime_error("failed to extract 'sequence_string_set." + stype_name + "' from the object metadata; " + std::string(e.what())); 
-        });
-
-        std::string allowable;
-        if (stype == "DNA" || stype == "RNA") {
-            allowable = "ACGRYSWKMBDHVN";
-            if (stype == "DNA") {
-                allowable += "T";
-            } else {
-                allowable += "U";
-            }
-        } else if (stype == "AA") {
-            allowable = "ACDEFGHIKLMNPQRSTVWY";
-        } else if (stype == "custom") {
-            std::fill(allowed.begin() + internal::char2int('!'), allowed.begin() + internal::char2int('~') + 1, true);
-        } else {
-            throw std::runtime_error("invalid string '" + stype + "' in the 'sequence_string_set." + stype_name + "' property");
-        }
-
-        for (auto a : allowable) {
-            allowed[internal::char2int(a)] = true;
-            allowed[internal::char2int(std::tolower(a))] = true;
-        }
-        allowed[internal::char2int('.')] = true;
-        allowed[internal::char2int('-')] = true;
-    }
-
+    std::size_t expected_nseq = 0;
+    AllowedCharacterMap allowed{};
     bool has_qualities = false;
     char lowest_quality = 0;
-    {
-        auto xIt = obj.find("quality_type");
-        if (xIt != obj.end()) {
-            const auto& val = xIt->second;
-            if (val->type() != millijson::STRING) {
-                throw std::runtime_error("'sequence_string_set.quality_type' property should be a JSON string");
+
+    try {
+        const auto& obj = extract_json_object(metadata.other, type_name);
+        try {
+        const auto& vstring = extract_json_version_string(obj);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to read 'version'"));
+        }
+
+        try {
+            auto lIt = obj.find("length");
+            if (lIt == obj.end()) {
+                throw std::runtime_error("no such property");
             }
 
-            const auto& qtype = reinterpret_cast<const millijson::String*>(val.get())->value();
-            has_qualities = true;
+            const auto& val = lIt->second;
+            if (val->type() != millijson::NUMBER) {
+                throw std::runtime_error("property should be a JSON number");
+            }
 
-            if (qtype == "phred") {
-                auto oIt = obj.find("quality_offset");
-                if (oIt == obj.end()) {
-                    throw std::runtime_error("expected a 'sequence_string_set.quality_offset' property for Phred quality scores");
-                }
+            auto num = reinterpret_cast<const millijson::Number*>(val.get())->value();
+            if (num < 0 || std::floor(num) != num) {
+                throw std::runtime_error("property should be a non-negative integer");
+            }
 
-                const auto& val = oIt->second;
-                if (val->type() != millijson::NUMBER) {
-                    throw std::runtime_error("'sequence_string_set.quality_offset' property should be a JSON number");
-                }
+            expected_nseq = sanisizer::from_float<std::size_t>(num);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to read 'length'"));
+        }
 
-                double offset = reinterpret_cast<const millijson::Number*>(val.get())->value();
-                if (offset == 33) {
-                    lowest_quality = '!';
-                } else if (offset == 64) {
-                    lowest_quality = '@';
+        try {
+            const std::string stype_name = "sequence_type"; // avoid dangling reference again.
+            const auto& stype = extract_json_string(obj, stype_name);
+
+            std::string allowable;
+            if (stype == "DNA" || stype == "RNA") {
+                allowable = "ACGRYSWKMBDHVN";
+                if (stype == "DNA") {
+                    allowable += "T";
                 } else {
-                    throw std::runtime_error("'sequence_string_set.quality_offset' property should be either 33 or 64");
+                    allowable += "U";
+                }
+            } else if (stype == "AA") {
+                allowable = "ACDEFGHIKLMNPQRSTVWY";
+            } else if (stype == "custom") {
+                std::fill(allowed.begin() + char2int('!'), allowed.begin() + char2int('~') + 1, true);
+            } else {
+                throw std::runtime_error("unknown sequence type '" + stype + "'");
+            }
+
+            const auto lower_shift = 'A' - 'a';
+            for (auto a : allowable) {
+                allowed[char2int(a)] = true;
+                allowed[char2int(a) - lower_shift] = true; // don't trust std::tolower(), as this is locale dependent.
+            }
+            allowed[char2int('.')] = true;
+            allowed[char2int('-')] = true;
+
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to extract 'sequence_type'"));
+        }
+
+        bool offset_failed = false;
+        try {
+            auto xIt = obj.find("quality_type");
+            if (xIt != obj.end()) {
+                const auto& val = xIt->second;
+                if (val->type() != millijson::STRING) {
+                    throw std::runtime_error("expected a JSON string");
                 }
 
-            } else if (qtype == "solexa") {
-                lowest_quality = ';';
+                const auto& qtype = reinterpret_cast<const millijson::String*>(val.get())->value();
 
-            } else if (qtype == "none") {
-                has_qualities = false;
+                if (qtype == "phred") {
+                    has_qualities = true;
+                    offset_failed = true;
+                    try {
+                        auto oIt = obj.find("quality_offset");
+                        if (oIt == obj.end()) {
+                            throw std::runtime_error("no such property");
+                        }
 
+                        const auto& val = oIt->second;
+                        if (val->type() != millijson::NUMBER) {
+                            throw std::runtime_error("property should be a JSON number");
+                        }
+
+                        double offset = reinterpret_cast<const millijson::Number*>(val.get())->value();
+                        if (offset == 33) {
+                            lowest_quality = '!';
+                        } else if (offset == 64) {
+                            lowest_quality = '@';
+                        } else {
+                            throw std::runtime_error("property should be either 33 or 64");
+                        }
+                    } catch (...) {
+                        std::throw_with_nested(std::runtime_error("failed to extract 'quality_offset'"));
+                    }
+
+                } else if (qtype == "solexa") {
+                    has_qualities = true;
+                    lowest_quality = ';';
+
+                } else if (qtype != "none") {
+                    throw std::runtime_error("unknown quality type '" + qtype + "'");
+                }
+            }
+        } catch (...) {
+            if (offset_failed) {
+                throw;
             } else {
-                throw std::runtime_error("invalid string '" + qtype + "' for the 'sequence_string_set.quality_type' property");
+                std::throw_with_nested(std::runtime_error("failed to extract 'quality_type'"));
             }
         }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to read '" + type_name + "' in the object metadata"));
     }
 
-    size_t nseq = 0;
-    if (has_qualities) {
-        auto spath = path / "sequences.fastq.gz";
-        nseq = internal::parse_sequences<true>(spath, allowed, lowest_quality, options.parallel_reads);
-    } else {
-        auto spath = path / "sequences.fasta.gz";
-        nseq = internal::parse_sequences<false>(spath, allowed, lowest_quality, options.parallel_reads);
-    }
-    if (nseq != expected_nseq) {
-        throw std::runtime_error("observed number of sequences is different from the expected number (" + std::to_string(nseq) + " to " + std::to_string(expected_nseq) + ")");
+    std::string fname;
+    try {
+        std::size_t nseq = 0;
+        if (has_qualities) {
+            fname = "sequences.fastq.gz";
+            nseq = parse_sequence_contents<true>(path / fname, allowed, lowest_quality, options.parallel_reads);
+        } else {
+            fname = "sequences.fasta.gz";
+            nseq = parse_sequence_contents<false>(path / fname, allowed, lowest_quality, options.parallel_reads);
+        }
+        if (nseq != expected_nseq) {
+            throw std::runtime_error("number of sequences is different from the expected length (" + std::to_string(nseq) + " to " + std::to_string(expected_nseq) + ")");
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + fname + "'"));
     }
 
     auto npath = path / "names.txt.gz";
     if (std::filesystem::exists(npath)) {
-        size_t nnames = internal::parse_names(npath, options.parallel_reads);
-        if (nnames != expected_nseq) {
-            throw std::runtime_error("number of names is different from the number of sequences (" + std::to_string(nnames) + " to " + std::to_string(expected_nseq) + ")");
+        try {
+            std::size_t nnames = parse_sequence_names(npath, options.parallel_reads);
+            if (nnames != expected_nseq) {
+                throw std::runtime_error("number of names is different from the number of sequences (" + std::to_string(nnames) + " to " + std::to_string(expected_nseq) + ")");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate '" + npath.filename().string() + "'"));
         }
     }
 
-    internal_other::validate_mcols(path, "sequence_annotations", nseq, options);
-    internal_other::validate_metadata(path, "other_annotations", options);
+    validate_mcols(path, "sequence_annotations", expected_nseq, options);
+    validate_metadata(path, "other_annotations", options);
 }
 
 /**
@@ -346,14 +391,12 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return The number of sequences.
  */
-inline size_t height([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+inline std::size_t height_of_sequence_string_set([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     const std::string type_name = "sequence_string_set"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& obj = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
+    const auto& obj = extract_json_object(metadata.other, type_name);
     auto lIt = obj.find("length");
     const auto& val = lIt->second;
-    return reinterpret_cast<const millijson::Number*>(val.get())->value();
-}
-
+    return sanisizer::from_float<std::size_t>(reinterpret_cast<const millijson::Number*>(val.get())->value());
 }
 
 }
