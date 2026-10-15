@@ -83,12 +83,12 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
                 }
                 
                 const auto delta = val - '0';
-                if (proposed > mult_limit || (proposed == mult_limit && sanisizer::is_greater_than(delta, add_limit))) {
+                if (proposed < mult_limit || (proposed == mult_limit && sanisizer::is_less_than_or_equal(delta, add_limit))) {
+                    proposed *= 10;
+                    proposed += delta;
+                } else {
                     throw std::runtime_error("sequence name is out of bounds at line " + std::to_string(line_count));
                 }
-
-                proposed *= 10;
-                proposed += delta;
             }
             if (empty || proposed != nseq) {
                 throw std::runtime_error("sequence name should be its index at line " + std::to_string(line_count));
@@ -363,7 +363,7 @@ inline void validate_sequence_string_set(const std::filesystem::path& path, cons
             nseq = parse_sequence_contents<false>(path / fname, allowed, lowest_quality, options.parallel_reads);
         }
         if (nseq != expected_nseq) {
-            throw std::runtime_error("number of sequences is different from the expected length (" + std::to_string(nseq) + " to " + std::to_string(expected_nseq) + ")");
+            throw std::runtime_error("number of sequences is different from the expected length (" + std::to_string(nseq) + " versus " + std::to_string(expected_nseq) + ")");
         }
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate '" + fname + "'"));
@@ -374,7 +374,7 @@ inline void validate_sequence_string_set(const std::filesystem::path& path, cons
         try {
             std::size_t nnames = parse_sequence_names(npath, options.parallel_reads);
             if (nnames != expected_nseq) {
-                throw std::runtime_error("number of names is different from the number of sequences (" + std::to_string(nnames) + " to " + std::to_string(expected_nseq) + ")");
+                throw std::runtime_error("number of names is different from the number of sequences (" + std::to_string(nnames) + " versus " + std::to_string(expected_nseq) + ")");
             }
         } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate '" + npath.filename().string() + "'"));

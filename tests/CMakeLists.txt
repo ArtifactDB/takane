@@ -40,13 +40,13 @@ add_executable(
     src/ranged_summarized_experiment.cpp
     src/rds_file.cpp
     src/sequence_information.cpp
+    src/sequence_string_set.cpp
     src/simple_list.cpp
     src/single_cell_experiment.cpp
     src/spatial_experiment.cpp
     src/string_factor.cpp
     src/summarized_experiment.cpp
 #    src/multi_sample_dataset.cpp
-#    src/sequence_string_set.cpp
 #    src/bumpy_atomic_array.cpp
 #    src/bumpy_data_frame_array.cpp
 #    src/vcf_experiment.cpp
