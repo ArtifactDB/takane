@@ -150,11 +150,11 @@ TEST(SequenceStringSet, FastaBasicOkay) {
 
 TEST(SequenceStringSet, FastaNewlinesOkay) {
     auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
 
     // Simulate annoying newlines everywhere.
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
-        std::string spath = dir / "sequences.fasta.gz";
         byteme::GzipFileWriter writer(spath.c_str(), {});
         dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
         dump_fasta(writer, 1, "\nAAAAAACCCCGGGGTTTT");
@@ -170,7 +170,6 @@ TEST(SequenceStringSet, FastaNewlinesOkay) {
     // Check correct chomping.
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(4));
-        std::string spath = dir / "sequences.fasta.gz";
         byteme::GzipFileWriter writer(spath.c_str(), {});
         std::string newlines = "\n\n\n";
         writer.write(reinterpret_cast<const unsigned char*>(newlines.c_str()), newlines.size());
@@ -188,12 +187,12 @@ TEST(SequenceStringSet, FastaNewlinesOkay) {
 
 TEST(SequenceStringSet, FastaEmptyOkay) {
     auto dir = define_test_path("sequence_string_set");
-    auto spath = dir / "sequences.fasta.gz";
+    std::string spath = dir / "sequences.fasta.gz";
 
     // Zero-length sequences are okay.
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(2));
-        quick_gzip_write(spath.string(),
+        quick_gzip_write(spath,
             ">0\n\n"
             ">1\n\n"
         );
@@ -203,15 +202,15 @@ TEST(SequenceStringSet, FastaEmptyOkay) {
     // Empty file is okay.
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(0));
-        quick_gzip_write(spath.string(), "");
+        quick_gzip_write(spath, "");
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 0);
 
-    // Empty file with only newlines is okay.
+    // Newline-only file is okay.
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(0));
-        quick_gzip_write(spath.string(), "\n\n\n");
+        quick_gzip_write(spath, "\n\n\n");
     }
     test_validate(dir);
     EXPECT_EQ(test_height(dir), 0);
@@ -219,35 +218,35 @@ TEST(SequenceStringSet, FastaEmptyOkay) {
 
 TEST(SequenceStringSet, FastaNameError) {
     auto dir = define_test_path("sequence_string_set");
-    auto spath = dir / "sequences.fasta.gz";
+    std::string spath = dir / "sequences.fasta.gz";
 
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
-        quick_gzip_write(spath.string(), "foobar\n");
+        quick_gzip_write(spath, "foobar\n");
     }
     expect_validation_error(dir, "sequence name should start with '>'");
 
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
-        quick_gzip_write(spath.string(), ">foobar\n");
+        quick_gzip_write(spath, ">foobar\n");
     }
     expect_validation_error(dir, "sequence name should be a non-negative integer");
 
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(50));
-        quick_gzip_write(spath.string(), ">123\n");
+        quick_gzip_write(spath, ">123\n");
     }
     expect_validation_error(dir, "out of bounds"); // fails the LHS condition of the out-of-bounds check.
 
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(52));
-        quick_gzip_write(spath.string(), ">53\n");
+        quick_gzip_write(spath, ">53\n");
     }
     expect_validation_error(dir, "out of bounds"); // fails the RHS condition of the out-of-bounds check.
 
     {
         initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
-        quick_gzip_write(spath.string(), ">\n"); // Empty name.
+        quick_gzip_write(spath, ">\n"); // Empty name.
     }
     expect_validation_error(dir, "sequence name should be its index");
 
@@ -261,18 +260,23 @@ TEST(SequenceStringSet, FastaNameError) {
     expect_validation_error(dir, "sequence name should be its index");
 }
 
-TEST(SequenceStringSet, FastaStructuralError) {
+TEST(SequenceStringSet, FastaPrematureEndError) {
     auto dir = define_test_path("sequence_string_set");
-    auto spath = dir / "sequences.fasta.gz";
+    std::string spath = dir / "sequences.fasta.gz";
 
-    {
-        initialize_sequence_string_set(dir, SequenceStringSetOptions(2));
-        quick_gzip_write(spath.string(),
-            ">0\nACGT\n"
-            ">1\n" // no terminating newline.
-        );
+    std::vector<std::string> contents{ ">1", ">1\n", ">1\nACGT" };
+    for (const auto& x : contents) {
+        {
+            initialize_sequence_string_set(dir, SequenceStringSetOptions(2));
+            quick_gzip_write(spath, ">0\nACGT\n" + x);
+        }
+        expect_validation_error(dir, "premature end");
     }
-    expect_validation_error(dir, "premature end");
+}
+
+TEST(SequenceStringSet, FastaCountError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
 
     // Checking the count.
     {
@@ -283,120 +287,260 @@ TEST(SequenceStringSet, FastaStructuralError) {
     expect_validation_error(dir, "number of sequences");
 }
 
-//TEST_F(SequenceStringSetTest, FastqParsing) {
-//    sequence_string_set::Options options;
-//    options.quality_type = sequence_string_set::QualityType::PHRED33;
-//    sequence_string_set::mock(dir, 200, options);
-//    test_validate(dir); // OKAY.
-//
-//    // Non-parallelized.
-//    {
-//        takane::Options inopt;
-//        inopt.parallel_reads = false;
-//        auto meta = takane::read_object_metadata(dir);
-//        takane::validate(dir, meta, inopt); 
-//    }
-//
-//    // Name checks.
-//    auto spath = dir / "sequences.fastq.gz";
-//    {
-//        quick_gzip_write(spath.string(), "foobar\n");
-//        expect_error("sequence name should start with '@'");
-//
-//        quick_gzip_write(spath.string(), "@foobar\n");
-//        expect_error("sequence name should be a non-negative integer");
-//
-//        quick_gzip_write(spath.string(), "@\n");
-//        expect_error("sequence name should be its index");
-//
-//        {
-//            byteme::GzipFileWriter writer(spath.c_str(), {});
-//            for (size_t i = 0; i < 200; ++i) {
-//                sequence_string_set::dump_fastq(writer, i % 10, "ACGT", "FECD");
-//            }
-//        }
-//        expect_error("sequence name should be its index");
-//    }
-//
-//    // Structural checks for correct parsing.
-//    {
-//        sequence_string_set::mock(dir, 2, options);
-//
-//        // Ignores gunk on the + line.
-//        quick_gzip_write(spath.string(),
-//            "@0\nACGT\n+123123123\nFECD\n"
-//            "@1\nACGT\n+ foo bar\nFECD\n"
-//        );
-//        test_validate(dir);
-//
-//        // Works when you have '@' in the quality scores.
-//        quick_gzip_write(spath.string(),
-//            "@0\nACGT\n+\n@@@@\n"
-//            "@1\nACGT\n+\n++++\n"
-//        );
-//        test_validate(dir);
-//
-//        // Fails with a mismatch in the lengths.
-//        quick_gzip_write(spath.string(),
-//            "@0\nACGT\n+\n@@@\n"
-//            "@1\nACGT\n+\n++++\n"
-//        );
-//        expect_error("unequal lengths");
-//
-//        quick_gzip_write(spath.string(),
-//            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@@@@\n"
-//            "@1\nACGT\n+\n++++\n"
-//        );
-//        test_validate(dir); // OK!
-//
-//        // More complicated mismatch in the lengths.
-//        quick_gzip_write(spath.string(),
-//            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n"
-//            "@1\nACGT\n+\n++++\n"
-//        );
-//        expect_error("unequal lengths");
-//
-//        // Zero length sequences are okay.
-//        quick_gzip_write(spath.string(),
-//            "@0\n\n+\n\n"
-//            "@1\n\n+\n\n"
-//        );
-//        test_validate(dir);
-//
-//        // But they must be newline-terminated.
-//        quick_gzip_write(spath.string(),
-//            "@0\n\n+\n\n"
-//            "@1\n\n+\n"
-//        );
-//        expect_error("premature end");
-//    }
-//
-//    // Checking the count.
-//    sequence_string_set::mock(dir, 5, options);
-//    {
-//        byteme::GzipFileWriter writer(spath.c_str(), {});
-//        sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "~~~~!!!!AAAAFFFF");
-//    }
-//    expect_error("observed number of sequences");
-//
-//    // Simulating sequences with annoying newlines everywhere.
-//    sequence_string_set::mock(dir, 10, options);
-//    {
-//        byteme::GzipFileWriter writer(spath.c_str(), {});
-//        sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
-//        sequence_string_set::dump_fastq(writer, 1, "\nAAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
-//        sequence_string_set::dump_fastq(writer, 2, "AAAACCCCGGGGTTTT\n", "FFFFEEEEDDDDCCCC");
-//        sequence_string_set::dump_fastq(writer, 3, "AAAACCCC\nGGGGTTTT", "FFFFEEEEDDDDCCCC");
-//        sequence_string_set::dump_fastq(writer, 4, "AAAA\nCCCC\nGGGG\nTTTT", "FFFFEEEEDDDDCCCC");
-//        sequence_string_set::dump_fastq(writer, 5, "AAAACCCCGGGGTTTT", "\nFFFFEEEEDDDDCCCC");
-//        sequence_string_set::dump_fastq(writer, 6, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC\n");
-//        sequence_string_set::dump_fastq(writer, 7, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDD\nCCCC");
-//        sequence_string_set::dump_fastq(writer, 8, "AAAACCCCGGGGTTTT", "FFFFEEEE\nDDDDCCCC");
-//        sequence_string_set::dump_fastq(writer, 9, "AAAACCCCGGGGTTTT", "FFFF\nEEEE\nDDDD\nCCCC");
-//    }
-//    test_validate(dir); // OKAY.
-//}
-//
+/****************************************/
+
+TEST(SequenceStringSet, FastqBasicOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(300);
+        options.quality_type = QualityType::PHRED33;
+        mock_sequence_string_set(dir, options);
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 300);
+
+    // Non-parallelized.
+    takane::Options inopt;
+    inopt.parallel_reads = false;
+    test_validate(dir, inopt); 
+}
+
+TEST(SequenceStringSet, FastqPlusOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    // Check that the validator ignores gunk on the + line.
+    {
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "@0\nACGT\n+123123123\nFECD\n"
+            "@1\nACGT\n+ foo bar\nFECD\n"
+        );
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+}
+
+TEST(SequenceStringSet, FastqAtOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    // Check that the validator handles '@' in the quality scores.
+    {
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "@0\nACGT\n+\n@@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+}
+
+TEST(SequenceStringSet, FastqNewlinesOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+ 
+    // Simulate annoying newlines everywhere.
+    {
+        SequenceStringSetOptions options(12);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 1, "\nAAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 2, "AAAACCCCGGGGTTTT\n", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 3, "AAAACCCC\nGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 4, "AAAA\nCCCC\nGGGG\nTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 5, "AAAACCCC\n\nGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 6, "AAAACCCCGGGGTTTT", "\nFFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 7, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC\n");
+        dump_fastq(writer, 8, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDD\nCCCC");
+        dump_fastq(writer, 9, "AAAACCCCGGGGTTTT", "FFFFEEEE\nDDDDCCCC");
+        dump_fastq(writer, 10, "AAAACCCCGGGGTTTT", "FFFFEEEE\n\nDDDDCCCC");
+        dump_fastq(writer, 11, "AAAACCCCGGGGTTTT", "FFFF\nEEEE\nDDDD\nCCCC");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 12);
+    }
+
+    // Chomps work correctly.
+    {
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "\n\n\n"
+            "@0\nACGTACGTACGT\n+\n@@@@@@@@@@@@\n"
+            "@1\nACGT\n+\n++++\n"
+            "\n\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 2);
+    }
+}
+
+TEST(SequenceStringSet, FastqEmptyOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    // Zero length sequences are okay.
+    {
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "@0\n\n+\n\n"
+            "@1\n\n+\n\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 2);
+    }
+
+    // Empty file is okay.
+    {
+        SequenceStringSetOptions options(0);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 0);
+    }
+
+    // Newline-only file is okay.
+    {
+        SequenceStringSetOptions options(0);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "\n\n\n");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 0);
+    }
+}
+
+TEST(SequenceStringSet, FastqNameError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    SequenceStringSetOptions options(2);
+    options.quality_type = QualityType::PHRED33;
+
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "foobar\n");
+    }
+    expect_validation_error(dir, "sequence name should start with '@'");
+
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "@foobar\n");
+    }
+    expect_validation_error(dir, "sequence name should be a non-negative integer");
+
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "@\n");
+    }
+    expect_validation_error(dir, "sequence name should be its index");
+
+    {
+        SequenceStringSetOptions options(200);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        for (size_t i = 0; i < 200; ++i) {
+            dump_fastq(writer, i % 10, "ACGT", "FECD");
+        }
+    }
+    expect_validation_error(dir, "sequence name should be its index");
+}
+
+TEST(SequenceStringSet, FastqLengthMismatchError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    SequenceStringSetOptions options(2);
+    options.quality_type = QualityType::PHRED33;
+
+    // Fails with a mismatch in the lengths.
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "@0\nACGT\n+\n@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
+    }
+    expect_validation_error(dir, "unequal lengths");
+
+    // More complicated mismatch in the lengths.
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
+    }
+    expect_validation_error(dir, "unequal lengths");
+}
+
+TEST(SequenceStringSet, FastqPrematureEndError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    SequenceStringSetOptions options(1);
+    options.quality_type = QualityType::PHRED33;
+
+    std::vector<std::string> contents{
+        "@0",
+        "@0\n",
+        "@0\nACGT",
+        "@0\nACGT\n",
+        "@0\nACGT\n+",
+        "@0\nACGT\n+\n",
+        "@0\nACGT\n+\n++++"
+    };
+
+    for (const auto& x : contents) {
+        {
+            initialize_sequence_string_set(dir, options);
+            quick_gzip_write(spath, x);
+        }
+        expect_validation_error(dir, "premature end");
+    }
+}
+
+TEST(SequenceStringSet, FastqCountError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    {
+        SequenceStringSetOptions options(0);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "~~~~!!!!AAAAFFFF");
+    }
+
+    expect_validation_error(dir, "number of sequences");
+}
+
 //TEST_F(SequenceStringSetTest, SequenceTypes) {
 //    sequence_string_set::Options options;
 //    auto spath = (dir / "sequences.fasta.gz").string();
