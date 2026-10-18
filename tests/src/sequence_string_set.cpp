@@ -541,267 +541,513 @@ TEST(SequenceStringSet, FastqCountError) {
     expect_validation_error(dir, "number of sequences");
 }
 
-//TEST_F(SequenceStringSetTest, SequenceTypes) {
-//    sequence_string_set::Options options;
-//    auto spath = (dir / "sequences.fasta.gz").string();
-//
-//    // DNA.
-//    {
-//        options.sequence_type = sequence_string_set::SequenceType::DNA;
-//        sequence_string_set::mock(dir, 3, options);
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            ">0\nacgt\n"
-//            ">1\na.c-g.tacgryswkmbdhvn.-\n"
-//            ">2\nTACGRYSWKMBDHVN.-\n"
-//        );
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            ">0\nacgt\n"
-//            ">1\nuuuu\n"
-//            ">2\nACGT\n"
-//        );
-//        expect_error("forbidden character 'u'");
-//    }
-//
-//    // FASTQ, for DNA.
-//    {
-//        options.quality_type = sequence_string_set::QualityType::PHRED33;
-//        sequence_string_set::mock(dir, 1, options);
-//
-//        quick_gzip_write((dir / "sequences.fastq.gz").string(), "@0\nacgu\n+\n;;;;\n");
-//        expect_error("forbidden character 'u'");
-//
-//        options.quality_type = sequence_string_set::QualityType::NONE;
-//    }
-//
-//    // RNA.
-//    {
-//        options.sequence_type = sequence_string_set::SequenceType::RNA;
-//        sequence_string_set::mock(dir, 3, options);
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            ">0\nacgU\n"
-//            ">1\na.c-g.uacgryswkmbdhvn.-\n"
-//            ">2\nUACGRYSWKMBDHVN.-\n"
-//        );
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            ">0\nacgu\n"
-//            ">1\nTTTT\n"
-//            ">2\nACGU\n"
-//        );
-//        expect_error("forbidden character 'T'");
-//    }
-//
-//    // Protein.
-//    {
-//        options.sequence_type = sequence_string_set::SequenceType::AA;
-//        sequence_string_set::mock(dir, 3, options);
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            ">0\nacgt\n"
-//            ">1\nACD.EFGHIKLMNP-QRSTVWY\n"
-//            ">2\nacd.efghiklmnp-qrstvwy\n"
-//        );
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            ">0\nacgt\n"
-//            ">1\nxxxx\n"
-//            ">2\nACGU\n"
-//        );
-//        expect_error("forbidden character 'x'");
-//    }
-//
-//    // Custom.
-//    {
-//        options.sequence_type = sequence_string_set::SequenceType::CUSTOM;
-//        sequence_string_set::mock(dir, 3, options);
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            ">0\nxxxx\n"
-//            ">1\n!;;;*8acac~\n"
-//            ">2\nacd.efghiklmnp-qrstvwy\n"
-//        );
-//        test_validate(dir);
-//    }
-//}
-//
-//TEST_F(SequenceStringSetTest, QualityType) {
-//    sequence_string_set::Options options;
-//    auto spath = (dir / "sequences.fastq.gz").string();
-//
-//    // Phred+33.
-//    {
-//        options.quality_type = sequence_string_set::QualityType::PHRED33;
-//        sequence_string_set::mock(dir, 3, options);
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            "@0\nacgt\n+\n!!!!\n"
-//            "@1\nacgt\n+\n!!!!\n"
-//            "@2\nacgt\n+\n!!!!\n"
-//        );
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            "@0\nacgt\n+\n\1\1\1\1\n"
-//            "@1\nacgt\n+\n!!!!\n"
-//            "@2\nacgt\n+\n!!!!\n"
-//        );
-//        expect_error("out-of-range quality score");
-//    }
-//
-//    // Phred+64.
-//    {
-//        options.quality_type = sequence_string_set::QualityType::ILLUMINA64;
-//        sequence_string_set::mock(dir, 3, options);
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            "@0\nacgt\n+\n@@@@\n"
-//            "@1\nacgt\n+\n@@@@\n"
-//            "@2\nacgt\n+\n@@@@\n"
-//        );
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            "@0\nacgt\n+\n????\n"
-//            "@1\nacgt\n+\n@@@@\n"
-//            "@2\nacgt\n+\n@@@@\n"
-//        );
-//        expect_error("out-of-range quality score");
-//    }
-//
-//    // Solexa+64.
-//    {
-//        options.quality_type = sequence_string_set::QualityType::SOLEXA;
-//        sequence_string_set::mock(dir, 3, options);
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            "@0\nacgt\n+\n;;;;\n"
-//            "@1\nacgt\n+\n@@@@\n"
-//            "@2\nacgt\n+\n@@@@\n"
-//        );
-//        test_validate(dir);
-//
-//        quick_gzip_write(spath,
-//            "@0\nacgt\n+\n::::\n"
-//            "@1\nacgt\n+\n@@@@\n"
-//            "@2\nacgt\n+\n@@@@\n"
-//        );
-//        expect_error("out-of-range quality score");
-//    }
-//
-//    // None.
-//    {
-//        options.quality_type = sequence_string_set::QualityType::NONE;
-//        sequence_string_set::mock(dir, 10, options);
-//        quick_text_write((dir / "OBJECT").string(),
-//            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }"
-//        );
-//        test_validate(dir);
-//    }
-//}
-//
-//TEST_F(SequenceStringSetTest, Names) {
-//    sequence_string_set::Options options;
-//    options.quality_type = sequence_string_set::QualityType::PHRED33;
-//    sequence_string_set::mock(dir, 10, options);
-//
-//    auto npath = dir / "names.txt.gz";
-//    {
-//        byteme::GzipFileWriter writer(npath.c_str(), {});
-//        for (size_t i = 0; i < 10; ++i) {
-//            std::string tmpname = "\"gene_" + std::to_string(i + 1) + "\"\n";
-//            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
-//        }
-//    }
-//    test_validate(dir);
-//
-//    // Non-parallelized.
-//    {
-//        takane::Options inopt;
-//        inopt.parallel_reads = false;
-//        auto meta = takane::read_object_metadata(dir);
-//        takane::validate(dir, meta, inopt); 
-//    }
-//
-//    // Works with newlines.
-//    {
-//        byteme::GzipFileWriter writer(npath.c_str(), {});
-//        for (size_t i = 0; i < 10; ++i) {
-//            std::string tmpname = "\"gene\n" + std::to_string(i + 1) + "\"\n";
-//            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
-//        }
-//    }
-//    test_validate(dir);
-//
-//    // Errors out with differences in counts.
-//    {
-//        byteme::GzipFileWriter writer(npath.c_str(), {});
-//        for (size_t i = 0; i < 5; ++i) {
-//            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"\n";
-//            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
-//        }
-//    }
-//    expect_error("number of names");
-//
-//    // Errors out with quotes.
-//    {
-//        byteme::GzipFileWriter writer(npath.c_str(), {});
-//        for (size_t i = 0; i < 10; ++i) {
-//            std::string tmpname = "gene-" + std::to_string(i + 1) + "\n";
-//            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
-//        }
-//    }
-//    expect_error("should start with a quote");
-//
-//    {
-//        byteme::GzipFileWriter writer(npath.c_str(), {});
-//        for (size_t i = 0; i < 10; ++i) {
-//            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"a\n";
-//            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
-//        }
-//    }
-//    expect_error("present after end quote");
-//
-//    // Errors out if there no terminating newline.
-//    {
-//        byteme::GzipFileWriter writer(npath.c_str(), {});
-//        for (size_t i = 0; i < 10; ++i) {
-//            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"";
-//            if (i < 9) {
-//                tmpname += "\n";
-//            }
-//            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
-//        }
-//    }
-//    expect_error("premature end");
-//}
-//
-//TEST_F(SequenceStringSetTest, Metadata) {
-//    sequence_string_set::Options options;
-//    sequence_string_set::mock(dir, 20, options);
-//
-//    auto odir = dir / "other_annotations";
-//    auto rdir = dir / "sequence_annotations";
-//
-//    initialize_directory_simple(rdir, "simple_list", "1.0");
-//    expect_error("'DATA_FRAME'"); 
-//
-//    data_frame::mock(rdir, 20, {});
-//    initialize_directory_simple(odir, "data_frame", "1.0");
-//    expect_error("'SIMPLE_LIST'");
-//
-//    simple_list::mock(odir);
-//    test_validate(dir);
-//}
+/****************************************/
+
+TEST(SequenceStringSet, DnaOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
+
+    {
+        SequenceStringSetOptions options(150);
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 150);
+    }
+
+    // More exotic choices.
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::DNA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nacgt\n"
+            ">1\na.c-g.tacgryswkmbdhvn.-\n"
+            ">2\nTACGRYSWKMBDHVN.-\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+TEST(SequenceStringSet, DnaError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nacgt\n"
+            ">1\nuuuu\n"
+            ">2\nACGT\n"
+        );
+    }
+    expect_validation_error(dir, "forbidden character 'u'");
+
+    // Repeat for FASTQ, just to ensure that the same checks are run.
+    {
+        SequenceStringSetOptions options(1);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgx\n+\n;;;;\n"
+        );
+    }
+    expect_validation_error(dir, "forbidden character 'x'");
+}
+
+TEST(SequenceStringSet, RnaOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(201);
+        options.sequence_type = SequenceType::RNA;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 201);
+    }
+
+    // Trying with some more exotic bases.
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::RNA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nacgU\n"
+            ">1\na.c-g.uacgryswkmbdhvn.-\n"
+            ">2\nUACGRYSWKMBDHVN.-\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+TEST(SequenceStringSet, RnaError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::RNA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nacgu\n"
+            ">1\nTTTT\n"
+            ">2\nACGU\n"
+        );
+    }
+    expect_validation_error(dir, "forbidden character 'T'");
+}
+
+TEST(SequenceStringSet, ProteinOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(234);
+        options.sequence_type = SequenceType::AA;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 234);
+    }
+
+    // Trying with some more exotic bases.
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::AA;
+        mock_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nacgt\n"
+            ">1\nACD.EFGHIKLMNP-QRSTVWY\n"
+            ">2\nacd.efghiklmnp-qrstvwy\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+TEST(SequenceStringSet, ProteinError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::AA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nacgt\n"
+            ">1\nxxxx\n"
+            ">2\nACGU\n"
+        );
+    }
+    expect_validation_error(dir, "forbidden character 'x'");
+}
+
+TEST(SequenceStringSet, CustomOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(99);
+        options.sequence_type = SequenceType::CUSTOM;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 99);
+    }
+
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::CUSTOM;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nxxxx\n"
+            ">1\n!;;;*8acac~\n"
+            ">2\nacd.efghiklmnp-qrstvwy\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+/****************************************/
+
+TEST(SequenceStringSet, Phred33Okay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(101);
+        options.quality_type = QualityType::PHRED33;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 101);
+    }
+
+    // Extremes of qualities are okay.
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n!~!~\n"
+            "@1\nacgt\n+\n~!~!\n"
+            "@2\nacgt\n+\n!~~!\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+TEST(SequenceStringSet, Phred33Error) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n\1\1\1\1\n"
+            "@1\nacgt\n+\n!!!!\n"
+            "@2\nacgt\n+\n!!!!\n"
+        );
+    }
+    expect_validation_error(dir, "out-of-range quality score");
+}
+
+TEST(SequenceStringSet, Phred64Okay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(59);
+        options.quality_type = QualityType::ILLUMINA64;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 59);
+    }
+
+    // Checking extremes.
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::ILLUMINA64;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n@@@@\n"
+            "@1\nacgt\n+\n@~~@\n"
+            "@2\nacgt\n+\n~@@~\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+TEST(SequenceStringSet, Phred64Error) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::ILLUMINA64;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n????\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
+    }
+    expect_validation_error(dir, "out-of-range quality score");
+}
+
+TEST(SequenceStringSet, SolexaOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(24);
+        options.quality_type = QualityType::SOLEXA;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 24);
+    }
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::SOLEXA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n;;;;\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+TEST(SequenceStringSet, SolexaError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::SOLEXA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n::::\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
+    }
+    expect_validation_error(dir, "out-of-range quality score");
+}
+
+TEST(SequenceStringSet, NoneOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(10);
+        options.quality_type = QualityType::NONE;
+        mock_sequence_string_set(dir, options);
+        // Manually inject 'none' in the OBJECT metadata.
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }"
+        );
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 10);
+}
+
+/****************************************/
+
+TEST(SequenceStringSet, NamesOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string npath = dir / "names.txt.gz";
+
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (int i = 0; i < 10; ++i) {
+            std::string tmpname = "\"gene_" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+
+        // Non-parallelized.
+        takane::Options inopt;
+        inopt.parallel_reads = false;
+        test_validate(dir, inopt); 
+    }
+
+    // Works with quotes in the names.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (int i = 0; i < 10; ++i) {
+            std::string tmpname = "\"gene\"\"" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+    }
+
+    // Works with newlines in the names.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (int i = 0; i < 10; ++i) {
+            std::string tmpname = "\"gene\n" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+    }
+}
+
+TEST(SequenceStringSet, NamesError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string npath = dir / "names.txt.gz";
+
+    // Difference in counts.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (int i = 0; i < 5; ++i) {
+            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    expect_validation_error(dir, "number of names");
+
+    // No quotes.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (int i = 0; i < 10; ++i) {
+            std::string tmpname = "gene-" + std::to_string(i + 1) + "\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    expect_validation_error(dir, "should start with a quote");
+
+    // Unescaped quotes.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (size_t i = 0; i < 10; ++i) {
+            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"a\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    expect_validation_error(dir, "present after end quote");
+
+    // No terminating newline.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (size_t i = 0; i < 10; ++i) {
+            std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"";
+            if (i < 9) {
+                tmpname += "\n";
+            }
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    expect_validation_error(dir, "premature end");
+}
+
+/****************************************/
+
+TEST(SequenceStringSet, McolsOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        mock_data_frame(dir / "sequence_annotations", DataFrameOptions(20, {}));
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 20);
+}
+
+TEST(SequenceStringSet, McolsError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        mock_data_frame(dir / "sequence_annotations", DataFrameOptions(10, {}));
+    }
+    expect_validation_error(dir, "number of rows");
+}
+
+TEST(SequenceStringSet, MetadataOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        mock_simple_list(dir / "other_annotations");
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 20);
+}
+
+TEST(SequenceStringSet, MetadataError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        initialize_directory_simple(dir / "other_annotations", "data_frame", "1.0");
+    }
+    expect_validation_error(dir, "SIMPLE_LIST");
+}
