@@ -28,6 +28,7 @@
 #include "gff_file.hpp"
 #include "gmt_file.hpp"
 #include "image_file.hpp"
+#include "multi_sample_dataset.hpp"
 #include "ranged_summarized_experiment.hpp"
 #include "rds_file.hpp"
 #include "sequence_information.hpp"
@@ -37,7 +38,6 @@
 #include "single_cell_experiment.hpp"
 #include "spatial_experiment.hpp"
 #include "summarized_experiment.hpp"
-//#include "multi_sample_dataset.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
 //#include "vcf_experiment.hpp"
@@ -74,6 +74,7 @@ inline auto default_validate_registry() {
     registry["gff_file"] = validate_gff_file;
     registry["gmt_file"] = validate_gmt_file;
     registry["image_file"] = validate_image_file;
+    registry["multi_sample_dataset"] = validate_multi_sample_dataset;
     registry["ranged_summarized_experiment"] = validate_ranged_summarized_experiment;
     registry["rds_file"] = validate_rds_file;
     registry["sequence_information"] = validate_sequence_information;
@@ -83,7 +84,6 @@ inline auto default_validate_registry() {
     registry["single_cell_experiment"] = validate_single_cell_experiment;
     registry["spatial_experiment"] = validate_spatial_experiment;
     registry["summarized_experiment"] = validate_summarized_experiment;
-//    registry["multi_sample_dataset"] = validate;
 //    registry["bumpy_atomic_array"] = validate;
 //    registry["bumpy_data_frame_array"] = validate;
 //    registry["vcf_experiment"] = validate;

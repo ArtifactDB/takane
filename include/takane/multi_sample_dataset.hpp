@@ -20,118 +20,146 @@ namespace takane {
 /**
  * @cond
  */
-void validate(const std::filesystem::path&, const ObjectMetadata&, Options&);
-size_t height(const std::filesystem::path&, const ObjectMetadata&, Options&);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
+std::size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
 bool satisfies_interface(const std::string&, const std::string&, const Options&);
 /**
  * @endcond
  */
 
 /**
- * @namespace takane::multi_sample_dataset
- * @brief Definitions for multi-sample datasets.
- */
-namespace multi_sample_dataset {
-
-/**
  * @param path Path to the directory containing the multi-sample dataset.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_multi_sample_dataset(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "multi_sample_dataset"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& dmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string version_name = "version"; // again, avoid dangling reference warnings.
-    const std::string& vstring = internal_json::extract_string_from_typed_object(dmap, version_name, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
+    try {
+        const auto& dmap = extract_json_object(metadata.other, type_name);
+        try {
+            const std::string& vstring = extract_json_version_string(dmap);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to read 'version'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to read '" + type_name + "' in object metadata"));
     }
 
     // Sample data should exist.
-    auto sd_path = path / "sample_data";
-    auto sdmeta = read_object_metadata(sd_path);
-    if (!satisfies_interface(sdmeta.type, "DATA_FRAME", options)) {
-        throw std::runtime_error("object in 'sample_data' should satisfy the 'DATA_FRAME' interface");
-    }
+    std::size_t num_samples;
     try {
-        ::takane::validate(sd_path, sdmeta, options);
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to validate 'sample_data'; " + std::string(e.what()));
+        auto sd_path = path / "sample_data";
+        auto sdmeta = read_object_metadata(sd_path);
+        if (!satisfies_interface(sdmeta.type, "DATA_FRAME", options)) {
+            throw std::runtime_error("object in 'sample_data' should satisfy the 'DATA_FRAME' interface");
+        }
+        validate(sd_path, sdmeta, options);
+        num_samples = height(sd_path, sdmeta, options);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate 'sample_data'"));
     }
-    size_t num_samples = ::takane::height(sd_path, sdmeta, options);
 
     // Checking the experiments.
     std::vector<size_t> num_columns;
     auto edir = path / "experiments";
     if (std::filesystem::exists(edir)) {
-        size_t num_experiments = internal_summarized_experiment::check_names_json(edir);
-        num_columns.reserve(num_experiments);
+        try {
+            const auto num_experiments = [&]{
+                try {
+                    return extract_summarized_experiment_names(edir / "names.json").size(); 
+                } catch (...) {
+                    std::throw_with_nested(std::runtime_error("failed to read 'names.json'"));
+                }
+            }();
 
-        for (size_t e = 0; e < num_experiments; ++e) {
-            auto ename = std::to_string(e);
-            auto epath = edir / ename;
-            auto emeta = read_object_metadata(epath);
-
-            if (!satisfies_interface(emeta.type, "SUMMARIZED_EXPERIMENT", options)) {
-                throw std::runtime_error("object in 'experiments/" + ename + "' should satisfy the 'SUMMARIZED_EXPERIMENT' interface");
+            num_columns.reserve(num_experiments);
+            for (I<decltype(num_experiments)> e = 0; e < num_experiments; ++e) {
+                auto ename = ritsuko::itoa(e);
+                auto epath = edir / ename;
+                try {
+                    auto emeta = read_object_metadata(epath);
+                    if (!satisfies_interface(emeta.type, "SUMMARIZED_EXPERIMENT", options)) {
+                        throw std::runtime_error("object should satisfy the 'SUMMARIZED_EXPERIMENT' interface");
+                    }
+                    validate(epath, emeta, options);
+                    auto dims = dimensions(epath, emeta, options);
+                    num_columns.push_back(dims[1]);
+                } catch (std::exception& e) {
+                    std::throw_with_nested(std::runtime_error("failed to validate experiment " + ename));
+                }
             }
 
-            try {
-                ::takane::validate(epath, emeta, options);
-            } catch (std::exception& e) {
-                throw std::runtime_error("failed to validate 'experiments/" + ename + "'; " + std::string(e.what()));
+            const auto num_dir_obj = count_directory_entries(edir);
+            if (!sanisizer::is_equal(num_dir_obj - 1, num_experiments)) { // -1 to account for the names.json file itself.
+                throw std::runtime_error("more objects than expected inside the subdirectory");
             }
-
-            auto dims = ::takane::dimensions(epath, emeta, options);
-            num_columns.push_back(dims[1]);
-        }
-
-        size_t num_dir_obj = internal_other::count_directory_entries(edir);
-        if (num_dir_obj - 1 != num_experiments) { // -1 to account for the names.json file itself.
-            throw std::runtime_error("more objects than expected inside the 'experiments' subdirectory");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'experiments'"));
         }
     }
 
-    // Checking the sample map.
-    if (num_columns.size() > 0) {
+    // Checking the sample map, if it exists or if there are any experiments.
+    const auto mappath = path / "sample_map.h5";
+    if (!num_columns.empty() || std::filesystem::exists(mappath)) {
         try {
-            auto handle = ritsuko::hdf5::open_file(path / "sample_map.h5");
-            auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
+            H5::H5File handle(mappath, H5F_ACC_RDONLY);
+            auto ghandle = handle.openGroup(type_name);
 
-            for (size_t e = 0, end = num_columns.size(); e < end; ++e) {
-                auto ename = std::to_string(e);
-                auto dhandle = ritsuko::hdf5::open_dataset(ghandle, ename.c_str());
-                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, false)) {
-                    throw std::runtime_error("'multi_sample_dataset/" + ename + "' should have a datatype that fits into a 64-bit unsigned integer");
-                }
-
-                auto len = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-                if (len != num_columns[e]) {
-                    throw std::runtime_error("length of 'multi_sample_dataset/" + ename + "' should equal the number of columns of 'experiments/" + ename + "'");
-                }
-
-                ritsuko::hdf5::Stream1dNumericDataset<uint64_t> stream(&dhandle, len, options.hdf5_buffer_size);
-                for (hsize_t i = 0; i < len; ++i, stream.next()) {
-                    auto x = stream.get();
-                    if (static_cast<size_t>(x) >= num_samples) {
-                        throw std::runtime_error("indices in 'multi_sample_dataset/" + ename + "' should be less than the number of samples");
+            const auto num_experiments = num_columns.size();
+            for (I<decltype(num_experiments)> e = 0; e < num_experiments; ++e) {
+                auto ename = ritsuko::itoa(e);
+                try {
+                    auto dhandle = ghandle.openDataSet(ename);
+                    if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, false)) {
+                        throw std::runtime_error("expected a datatype that fits into a 64-bit unsigned integer");
                     }
+
+                    auto dspace = dhandle.getSpace();
+                    if (dspace.getSimpleExtentNdims() != 1) {
+                        throw std::runtime_error("expected a 1-dimensional dataset");
+                    }
+                    hsize_t len;
+                    dspace.getSimpleExtentDims(&len);
+                    if (!sanisizer::is_equal(len, num_columns[e])) {
+                        throw std::runtime_error("dataset extent should equal the number of columns of 'experiments/" + ename + "'");
+                    }
+
+                    ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t> stream(
+                        &dhandle,
+                        len,
+                        [&]{
+                            ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+                            opt.contiguous_chunk_size = options.hdf5_buffer_size;
+                            return opt;
+                        }()
+                    );
+                    iterate_stream<std::uint64_t>(
+                        stream,
+                        [&](hsize_t, std::uint64_t val) -> void {
+                            if (sanisizer::is_greater_than_or_equal(val, num_samples)) {
+                                throw std::runtime_error("entries should be less than the number of samples");
+                            }
+                        }
+                    );
+                } catch (...) {
+                    std::throw_with_nested(std::runtime_error("failed to validate mapping for experiment " + ename));
                 }
             }
 
-            if (num_columns.size() != ghandle.getNumObjs()) {
+            if (!sanisizer::is_equal(num_columns.size(), ghandle.getNumObjs())) {
                 throw std::runtime_error("more objects present in the 'multi_sample_dataset' group than expected");
             }
         } catch (std::exception& e) {
-            throw std::runtime_error("failed to validate the sample mapping; " + std::string(e.what()));
+            std::throw_with_nested(std::runtime_error("failed to validate the sample mapping in 'sample_map.h5'"));
         }
     }
 
-    internal_other::validate_metadata(path, "other_data", options);
-}
-
+    validate_metadata(path, "other_data", options);
 }
 
 }

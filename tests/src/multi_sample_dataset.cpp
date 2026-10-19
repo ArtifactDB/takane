@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "multi_sample_dataset.h"
-#include "summarized_experiment.h"
+#include "mock_multi_sample_dataset.h"
+#include "mock_summarized_experiment.h"
 #include "utils.h"
 
 #include <string>
@@ -10,148 +10,206 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct MultiSampleDatasetTest : public ::testing::Test {
-    MultiSampleDatasetTest() {
-        dir = "TEST_multi_sample_dataset";
-        name = "multi_sample_dataset";
-    }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(MultiSampleDatasetTest, Metadata) {
-    initialize_directory(dir);
-    auto dump = [&](const std::string& contents) {
-        std::ofstream handle(dir / "OBJECT");
-        handle << "{ \"type\": \"" + name + "\", \"" + name + "\": " + contents + " }";
-    };
-
-    dump("{ \"version\": 1.0 }");
-    expect_error("should be a JSON string");
-
-    dump("{ \"version\": \"2.0\" }");
-    expect_error("unsupported version");
-}
-
-TEST_F(MultiSampleDatasetTest, Basic) {
-    // No experiments.
-    multi_sample_dataset::Options opt(3);
-    multi_sample_dataset::mock(dir, opt);
-    test_validate(dir); // success!
+TEST(MultiSampleDataset, Okay) {
+    auto dir = define_test_path("multi_sample_dataset");
 
     // One experiment.
-    opt.experiments.emplace_back(18, 7);
-    multi_sample_dataset::mock(dir, opt);
-    test_validate(dir); // success!
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7) });
+        mock_multi_sample_dataset(dir, opt);
+    }
+    test_validate(dir);
 
     // Two experiments.
-    opt.experiments.emplace_back(21, 11);
-    multi_sample_dataset::mock(dir, opt);
-    test_validate(dir); // success!
-}
-
-TEST_F(MultiSampleDatasetTest, SampleMap) {
-    multi_sample_dataset::Options opt(3);
-    opt.experiments.emplace_back(18, 7);
-    multi_sample_dataset::mock(dir, opt);
-
     {
-        H5::H5File handle(dir / "sample_map.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("multi_sample_dataset");
-        ghandle.createGroup("1");
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7), SummarizedExperimentOptions(21, 11) });
+        mock_multi_sample_dataset(dir, opt);
     }
-    expect_error("more objects present");
-
-    {
-        H5::H5File handle(dir / "sample_map.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("multi_sample_dataset");
-        auto dhandle = ghandle.openDataSet("0");
-
-        size_t len = ritsuko::hdf5::get_1d_length(dhandle, false);
-        std::vector<int> dump(len);
-        dhandle.read(dump.data(), H5::PredType::NATIVE_INT);
-        dump[0] = 10;
-        dhandle.write(dump.data(), H5::PredType::NATIVE_INT);
-    }
-    expect_error("less than the number of samples");
-
-    {
-        H5::H5File handle(dir / "sample_map.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("multi_sample_dataset");
-        ghandle.unlink("0");
-        hdf5_utils::spawn_data(ghandle, "0", 7, H5::PredType::NATIVE_INT32);
-    }
-    expect_error("64-bit unsigned integer");
-
-    {
-        H5::H5File handle(dir / "sample_map.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("multi_sample_dataset");
-        ghandle.unlink("0");
-        hdf5_utils::spawn_data(ghandle, "0", 10, H5::PredType::NATIVE_UINT32);
-    }
-    expect_error("should equal the number of columns");
-}
-
-TEST_F(MultiSampleDatasetTest, SampleData) {
-    multi_sample_dataset::Options opt(4);
-    opt.experiments.emplace_back(18, 7);
-    multi_sample_dataset::mock(dir, opt);
-
-    simple_list::mock(dir / "sample_data");
-    expect_error("'DATA_FRAME' interface");
-
-    initialize_directory_simple(dir / "sample_data", "data_frame", "2.0");
-    expect_error("failed to validate 'sample_data'");
-}
-
-TEST_F(MultiSampleDatasetTest, Experiments) {
-    multi_sample_dataset::Options opt(5);
-    opt.experiments.emplace_back(18, 7);
-    opt.experiments.emplace_back(21, 11);
-
-    // Basic errors.
-    {
-        multi_sample_dataset::mock(dir, opt);
-        simple_list::mock(dir / "experiments" / "2");
-        expect_error("more objects than expected");
-
-        simple_list::mock(dir / "experiments" / "1");
-        expect_error("'SUMMARIZED_EXPERIMENT' interface");
-
-        initialize_directory_simple(dir / "experiments" / "1", "summarized_experiment", "2.0");
-        expect_error("failed to validate 'experiments/1'");
-    }
-
-    // Mismatch in columns and index dataset length for later experiments.
-    {
-        multi_sample_dataset::mock(dir, opt);
-        H5::H5File handle(dir / "sample_map.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("multi_sample_dataset");
-        ghandle.unlink("1");
-        hdf5_utils::spawn_data(ghandle, "1", 7, H5::PredType::NATIVE_UINT32);
-    }
-    expect_error("should equal the number of columns");
-}
-
-TEST_F(MultiSampleDatasetTest, OtherData) {
-    multi_sample_dataset::Options opt(4);
-    multi_sample_dataset::mock(dir, opt);
-
-    dense_array::mock(dir / "other_data", dense_array::Type::INTEGER, { 10, 20 });
-    expect_error("'SIMPLE_LIST' interface");
-
-    simple_list::mock(dir / "other_data");
     test_validate(dir);
+
+    // Three experiments.
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7), SummarizedExperimentOptions(21, 11), SummarizedExperimentOptions(5, 2) });
+        mock_multi_sample_dataset(dir, opt);
+    }
+    test_validate(dir);
+}
+
+TEST(MultiSampleDataset, EmptyOkay) {
+    auto dir = define_test_path("multi_sample_dataset");
+
+    // No experiments.
+    {
+        MultiSampleDatasetOptions opt(3, {});
+        mock_multi_sample_dataset(dir, opt);
+    }
+    test_validate(dir);
+
+    // No samples.
+    {
+        MultiSampleDatasetOptions opt(0, { SummarizedExperimentOptions(10, 0), SummarizedExperimentOptions(5, 0) });
+        mock_multi_sample_dataset(dir, opt);
+    }
+    test_validate(dir);
+
+    // No experiment directory at all.
+    {
+        MultiSampleDatasetOptions opt(3, {});
+        mock_multi_sample_dataset(dir, opt);
+        std::filesystem::remove_all(dir / "experiments");
+    }
+    test_validate(dir);
+
+    // No mapping file at all.
+    {
+        MultiSampleDatasetOptions opt(3, {});
+        mock_multi_sample_dataset(dir, opt);
+        std::filesystem::remove_all(dir / "sample_map.h5");
+    }
+    test_validate(dir);
+}
+
+TEST(MultiSampleDataset, VersionError) {
+    auto dir = define_test_path("multi_sample_dataset");
+
+    {
+        MultiSampleDatasetOptions opt(3, {});
+        opt.version = "2.0";
+        mock_multi_sample_dataset(dir, opt);
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(MultiSampleDataset, SampleDataError) {
+    auto dir = define_test_path("multi_sample_dataset");
+
+    {
+        MultiSampleDatasetOptions opt(3, {});
+        opt.has_sample_data = false;
+        mock_multi_sample_dataset(dir, opt);
+        mock_simple_list(dir / "sample_data");
+    }
+    expect_validation_error(dir, "DATA_FRAME");
+
+    // Check that data frame validation is performed.
+    {
+        MultiSampleDatasetOptions opt(3, {});
+        mock_multi_sample_dataset(dir, opt);
+        H5::H5File handle(dir / "sample_data" / "basic_columns.h5", H5F_ACC_RDWR);
+        auto ghandle = handle.openGroup("data_frame");
+        ghandle.removeAttr("row-count");
+        add_hdf5_string_attribute(ghandle, "row-count", "foobar");
+    }
+    expect_validation_error(dir, "64-bit unsigned integer");
+}
+
+TEST(MultiSampleDataset, ExperimentsError) {
+    auto dir = define_test_path("multi_sample_dataset");
+
+    // Check that names are actually validated.
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7), SummarizedExperimentOptions(5, 4) });
+        mock_multi_sample_dataset(dir, opt);
+        quick_text_write(dir / "experiments" / "names.json", "[ true ]");
+    }
+    expect_validation_error(dir, "array of strings");
+
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7), SummarizedExperimentOptions(5, 4) });
+        mock_multi_sample_dataset(dir, opt);
+        quick_text_write(dir / "experiments" / "names.json", "[ \"a\", \"b\", \"c\" ]");
+        mock_data_frame(dir / "experiments" / "2", DataFrameOptions(3, {}));
+    }
+    expect_validation_error(dir, "SUMMARIZED_EXPERIMENT");
+
+    // Test that we actually validate the SEs.
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7), SummarizedExperimentOptions(5, 4) });
+        mock_multi_sample_dataset(dir, opt);
+        quick_text_write(dir / "experiments" / "0" / "assays" / "names.json", "[ \"a\", \"a\" ]");
+    }
+    expect_validation_error(dir, "duplicated name");
+
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7), SummarizedExperimentOptions(5, 4) });
+        mock_multi_sample_dataset(dir, opt);
+        initialize_directory(dir / "experiments" / "foo");
+    }
+    expect_validation_error(dir, "more objects than expected");
+}
+
+TEST(MultiSampleDataset, SampleMapError) {
+    auto dir = define_test_path("multi_sample_dataset");
+
+    {
+        MultiSampleDatasetOptions opt(10, { SummarizedExperimentOptions(20, 30) });
+        auto ghandle = mock_multi_sample_dataset(dir, opt);
+        ghandle.unlink("0");
+        ghandle.createDataSet("0", H5::PredType::NATIVE_INT, create_hdf5_dataspace(30));
+    }
+    expect_validation_error(dir, "64-bit unsigned integer");
+
+    {
+        MultiSampleDatasetOptions opt(10, { SummarizedExperimentOptions(20, 30), SummarizedExperimentOptions(5, 40) });
+        auto ghandle = mock_multi_sample_dataset(dir, opt);
+        ghandle.unlink("1");
+        ghandle.createDataSet("1", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional dataset");
+
+    {
+        MultiSampleDatasetOptions opt(10, { SummarizedExperimentOptions(15, 5), SummarizedExperimentOptions(5, 2), SummarizedExperimentOptions(12, 10) });
+        auto ghandle = mock_multi_sample_dataset(dir, opt);
+        ghandle.unlink("2");
+        ghandle.createDataSet("2", H5::PredType::NATIVE_UINT8, create_hdf5_dataspace(11));
+    }
+    expect_validation_error(dir, "should equal the number of columns");
+
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(15, 5), SummarizedExperimentOptions(5, 2) });
+        auto ghandle = mock_multi_sample_dataset(dir, opt);
+        ghandle.unlink("0");
+        std::vector<int> new_mapping(5, 2);
+        new_mapping.back() = 3;
+        add_hdf5_numeric_dataset(ghandle, "0", H5::PredType::NATIVE_UINT8, new_mapping);
+    }
+    expect_validation_error(dir, "less than the number of samples");
+
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(15, 5), SummarizedExperimentOptions(5, 2) });
+        auto ghandle = mock_multi_sample_dataset(dir, opt);
+        ghandle.createGroup("2");
+    }
+    expect_validation_error(dir, "more objects present");
+
+    // Validation is still performed if there are no experiments, as long as the mapping file exists.
+    {
+        MultiSampleDatasetOptions opt(10, {});
+        auto ghandle = mock_multi_sample_dataset(dir, opt);
+        ghandle.createGroup("0");
+    }
+    expect_validation_error(dir, "more objects present");
+}
+
+TEST(MultiSampleDataset, MetadataOkay) {
+    auto dir = define_test_path("multi_sample_dataset");
+
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7) });
+        mock_multi_sample_dataset(dir, opt);
+        mock_simple_list(dir / "other_data");
+    }
+    test_validate(dir);
+}
+
+TEST(MultiSampleDataset, MetadataError) {
+    auto dir = define_test_path("multi_sample_dataset");
+
+    // Check that we actually validate the other_data.
+    {
+        MultiSampleDatasetOptions opt(3, { SummarizedExperimentOptions(18, 7) });
+        mock_multi_sample_dataset(dir, opt);
+        mock_data_frame(dir / "other_data", DataFrameOptions(7, {}));
+    }
+    expect_validation_error(dir, "'SIMPLE_LIST' interface");
 }
