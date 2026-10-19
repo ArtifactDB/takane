@@ -90,22 +90,22 @@ inline SequenceLimits find_sequence_limits(const std::filesystem::path& path, co
     return output;
 }
 
-inline bool end_position_exceeds_int64(std::int64_t start, std::uint64_t width) {
+inline bool start_plus_width_exceeds_int64(std::int64_t start, std::uint64_t width) {
     constexpr std::uint64_t end_limit = std::numeric_limits<std::int64_t>::max();
-    if (start > 0) {
-        // That is, does 'start + width - 1 > end_limit'?
-        // No underflow as 'start - 1 < end_limit', so 'end_limit - (start - 1) > 0'.
-        return sanisizer::is_less_than(end_limit - (start - 1), width);
+    if (start >= 0) {
+        // That is, does 'start + width > end_limit'?
+        // No underflow as 'start <= end_limit', so 'end_limit - start >= 0'.
+        return sanisizer::is_less_than(end_limit - start, width);
     }
 
     const std::uint64_t abs_start = static_cast<std::uint64_t>(-(1 + start)) + 1; // effectively '-start' but avoid overflow of the signed type.
     if (abs_start >= width) {
-        // end position is 'start + width - 1 == width - abs_start - 1', which would be negative in this case.
+        // 'start + width == width - abs_start', which would be non-positive in this case.
         // So it can't possibly exceed end_limit.
         return false;
     }
 
-    return sanisizer::is_less_than(end_limit, width - abs_start - 1);
+    return sanisizer::is_less_than(end_limit, width - abs_start);
 }
 /**
  * @endcond
@@ -237,13 +237,13 @@ inline void validate_genomic_ranges(const std::filesystem::path& path, const Obj
                     // End position is computed as 'start + width - 1', which should be <= length. 
                     // The LHS should not overflow as 'start >= 1' and 'start <= length' so '0 <= length - start + 1 <= length'.
                     if (sanisizer::is_less_than(*length - (start - 1), width)) {
-                        throw std::runtime_error("end position ('start + width - 1') exceeds sequence length for a non-circular sequence");
+                        throw std::runtime_error("end position exceeds sequence length for a non-circular sequence");
                     }
                 }
             }
 
-            if (end_position_exceeds_int64(start, width)) {
-                throw std::runtime_error("end position ('start + width - 1') is beyond the range of a 64-bit signed integer");
+            if (start_plus_width_exceeds_int64(start, width)) {
+                throw std::runtime_error("sum of 'start' and 'width' is beyond the range of a 64-bit signed integer");
             }
         }
 

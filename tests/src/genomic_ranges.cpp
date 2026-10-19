@@ -13,29 +13,29 @@
 #include <string>
 
 TEST(GenomicRanges, EndPositionExceedsInt64) {
-    EXPECT_FALSE(takane::end_position_exceeds_int64(0, 0));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(0, 100));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(1, 100));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(100, 200));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(-100, 200));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(-100, 20));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(0, 0));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(0, 100));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(1, 100));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(100, 200));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(-100, 200));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(-100, 20));
 
     constexpr std::int64_t max_i64 = std::numeric_limits<std::int64_t>::max();
     constexpr std::int64_t min_i64 = std::numeric_limits<std::int64_t>::lowest();
     constexpr std::uint64_t max_u64 = std::numeric_limits<std::uint64_t>::max();
 
-    EXPECT_FALSE(takane::end_position_exceeds_int64(1, max_i64));
-    EXPECT_TRUE(takane::end_position_exceeds_int64(2, max_i64));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(2, max_i64 - 1));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(-1, static_cast<std::uint64_t>(max_i64) + 2));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(1, max_i64 - 1));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(2, max_i64));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(-1, static_cast<std::uint64_t>(max_i64) + 1));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(-1, static_cast<std::uint64_t>(max_i64) + 2));
 
-    EXPECT_TRUE(takane::end_position_exceeds_int64(1, max_u64));
-    EXPECT_TRUE(takane::end_position_exceeds_int64(0, max_u64));
-    EXPECT_TRUE(takane::end_position_exceeds_int64(-1, max_u64));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(1, max_u64));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(0, max_u64));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(-1, max_u64));
 
-    EXPECT_FALSE(takane::end_position_exceeds_int64(min_i64, max_i64));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(min_i64, max_i64 - 1));
-    EXPECT_FALSE(takane::end_position_exceeds_int64(min_i64, max_u64));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(min_i64, max_i64));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(min_i64, max_i64 - 1));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(min_i64, max_u64));
 }
 
 TEST(GenomicRanges, FindSequenceLimits) {
