@@ -728,6 +728,22 @@ TEST(SequenceStringSet, CustomOkay) {
     }
 }
 
+TEST(SequenceStringSet, CustomFail) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(2);
+        options.sequence_type = SequenceType::CUSTOM;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nabcd\1\n"
+            ">1\n\2cdsdf\n"
+        );
+    }
+    expect_validation_error(dir, "forbidden character");
+}
+
 /****************************************/
 
 TEST(SequenceStringSet, Phred33Okay) {
@@ -866,6 +882,23 @@ TEST(SequenceStringSet, SolexaError) {
         quick_gzip_write(
             dir / "sequences.fastq.gz",
             "@0\nacgt\n+\n::::\n"
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
+    }
+    expect_validation_error(dir, "out-of-range quality score");
+}
+
+TEST(SequenceStringSet, InvalidQualityError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::SOLEXA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n\177\177\177\177\n" // i.e., octal 127.
             "@1\nacgt\n+\n@@@@\n"
             "@2\nacgt\n+\n@@@@\n"
         );

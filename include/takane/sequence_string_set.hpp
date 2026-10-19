@@ -157,7 +157,7 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
                     if (qual_length >= seq_length) {
                         break;
                     }
-                } else if (val >= lowest_quality) {
+                } else if (val >= lowest_quality && val <= '~') {
                     qual_length = sanisizer::sum<std::size_t>(qual_length, 1);
                 } else {
                     throw std::runtime_error("out-of-range quality score '" + std::string(1, val) + "' detected at line " + std::to_string(line_count));
