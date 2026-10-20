@@ -49,7 +49,6 @@ add_executable(
     src/summarized_experiment.cpp
 #    src/bumpy_atomic_array.cpp
 #    src/bumpy_data_frame_array.cpp
-#    src/vcf_experiment.cpp
     src/utils_array.cpp
 #    src/utils_bumpy_array.cpp
     src/utils_compressed_list.cpp
@@ -62,6 +61,7 @@ add_executable(
     src/utils_string.cpp
     src/utils_summarized_experiment.cpp
     src/utils.cpp
+    src/vcf_experiment.cpp
 #    src/dispatch.cpp
 )
 

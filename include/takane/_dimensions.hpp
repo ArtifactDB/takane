@@ -14,7 +14,7 @@
 #include "summarized_experiment.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
-//#include "vcf_experiment.hpp"
+#include "vcf_experiment.hpp"
 
 /**
  * @file _dimensions.hpp
@@ -38,10 +38,10 @@ inline auto default_dimensions_registry() {
     registry["single_cell_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
     registry["spatial_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
     registry["summarized_experiment"] = dimensions_of_summarized_experiment;
+    registry["vcf_experiment"] = dimensions_of_vcf_experiment;
 
 //    registry["bumpy_atomic_array"] = bumpy_atomic_array::dimensions;
 //    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::dimensions;
-//    registry["vcf_experiment"] = vcf_experiment::dimensions;
 
     return registry;
 } 

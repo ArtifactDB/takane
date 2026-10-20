@@ -24,7 +24,7 @@
 //#include "data_frame_factor.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
-//#include "vcf_experiment.hpp"
+#include "vcf_experiment.hpp"
 
 /**
  * @file _height.hpp
@@ -55,10 +55,10 @@ inline auto default_height_registry() {
     registry["spatial_experiment"] = height_of_summarized_experiment; // subclass of an SE.
     registry["summarized_experiment"] = height_of_summarized_experiment;
     registry["ranged_summarized_experiment"] = height_of_summarized_experiment; // subclass of an SE.
+    registry["vcf_experiment"] = height_of_vcf_experiment;
 
 //    registry["bumpy_atomic_array"] = bumpy_atomic_array::height;
 //    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::height;
-//    registry["vcf_experiment"] = vcf_experiment::height;
     return registry;
 } 
 /**

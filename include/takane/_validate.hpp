@@ -40,7 +40,7 @@
 #include "summarized_experiment.hpp"
 //#include "bumpy_atomic_array.hpp"
 //#include "bumpy_data_frame_array.hpp"
-//#include "vcf_experiment.hpp"
+#include "vcf_experiment.hpp"
 
 /**
  * @file _validate.hpp
@@ -86,7 +86,7 @@ inline auto default_validate_registry() {
     registry["summarized_experiment"] = validate_summarized_experiment;
 //    registry["bumpy_atomic_array"] = validate;
 //    registry["bumpy_data_frame_array"] = validate;
-//    registry["vcf_experiment"] = validate;
+    registry["vcf_experiment"] = validate_vcf_experiment;
     return registry;
 } 
 /**
