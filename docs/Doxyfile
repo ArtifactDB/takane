@@ -1000,6 +1000,7 @@ EXCLUDE                = ../include/takane/utils_array.hpp \
                          ../include/takane/utils_factor.hpp \
                          ../include/takane/utils_files.hpp \
                          ../include/takane/utils_json.hpp \
+                         ../include/takane/utils_missing.hpp \
                          ../include/takane/utils_other.hpp \
                          ../include/takane/utils_string.hpp \
                          ../include/takane/utils_summarized_experiment.hpp
