@@ -24,8 +24,8 @@ add_executable(
     src/bed_file.cpp
     src/bigbed_file.cpp
     src/bigwig_file.cpp
-#    src/bumpy_atomic_array.cpp
-#    src/bumpy_data_frame_array.cpp
+    src/bumpy_atomic_array.cpp
+    src/bumpy_data_frame_array.cpp
     src/compressed_sparse_matrix.cpp
     src/data_frame.cpp
     src/data_frame_factor.cpp
@@ -62,7 +62,11 @@ add_executable(
     src/utils_summarized_experiment.cpp
     src/utils.cpp
     src/vcf_experiment.cpp
-#    src/dispatch.cpp
+    src/_derived_from.cpp
+    src/_dimensions.cpp
+    src/_height.cpp
+    src/_satisfies_interface.cpp
+    src/_validate.cpp
 )
 
 target_link_libraries(
