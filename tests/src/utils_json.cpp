@@ -30,7 +30,8 @@ TEST(ExtractJsonObject, Basic) {
     }
 
     auto parsed = takane::read_object_metadata(dir);
-    const auto& res = takane::extract_json_object(parsed.other, "foo");
+    const std::string propname = "foo";
+    const auto& res = takane::extract_json_object(parsed.other, propname);
     EXPECT_EQ(res.size(), 2);
     EXPECT_TRUE(res.find("a") != res.end());
     EXPECT_TRUE(res.find("bc") != res.end());
