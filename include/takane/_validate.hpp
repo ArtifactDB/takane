@@ -15,6 +15,8 @@
 #include "bed_file.hpp"
 #include "bigbed_file.hpp"
 #include "bigwig_file.hpp"
+#include "bumpy_atomic_array.hpp"
+#include "bumpy_data_frame_array.hpp"
 #include "compressed_sparse_matrix.hpp"
 #include "data_frame.hpp"
 #include "data_frame_factor.hpp"
@@ -38,8 +40,6 @@
 #include "single_cell_experiment.hpp"
 #include "spatial_experiment.hpp"
 #include "summarized_experiment.hpp"
-//#include "bumpy_atomic_array.hpp"
-//#include "bumpy_data_frame_array.hpp"
 #include "vcf_experiment.hpp"
 
 /**
@@ -61,6 +61,8 @@ inline auto default_validate_registry() {
     registry["bed_file"] = validate_bed_file;
     registry["bigbed_file"] = validate_bigbed_file;
     registry["bigwig_file"] = validate_bigwig_file;
+    registry["bumpy_atomic_array"] = validate_bumpy_atomic_array;
+    registry["bumpy_data_frame_array"] = validate_bumpy_data_frame_array;
     registry["compressed_sparse_matrix"] = validate_compressed_sparse_matrix;
     registry["data_frame"] = validate_data_frame;
     registry["data_frame_factor"] = validate_data_frame_factor;
@@ -84,8 +86,6 @@ inline auto default_validate_registry() {
     registry["single_cell_experiment"] = validate_single_cell_experiment;
     registry["spatial_experiment"] = validate_spatial_experiment;
     registry["summarized_experiment"] = validate_summarized_experiment;
-//    registry["bumpy_atomic_array"] = validate;
-//    registry["bumpy_data_frame_array"] = validate;
     registry["vcf_experiment"] = validate_vcf_experiment;
     return registry;
 } 

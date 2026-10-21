@@ -30,6 +30,8 @@ inline auto default_dimensions_registry() {
     typedef std::vector<std::size_t> Dims;
     std::unordered_map<std::string, std::function<Dims(const std::filesystem::path&, const ObjectMetadata&, const Options& os)> > registry;
 
+    registry["bumpy_atomic_array"] = dimensions_of_bumpy_atomic_array;
+    registry["bumpy_data_frame_array"] = dimensions_of_bumpy_data_frame_array;
     registry["compressed_sparse_matrix"] = dimensions_of_compressed_sparse_matrix;
     registry["data_frame"] = dimensions_of_data_frame;
     registry["delayed_array"] = dimensions_of_delayed_array;
@@ -39,9 +41,6 @@ inline auto default_dimensions_registry() {
     registry["spatial_experiment"] = dimensions_of_summarized_experiment; // subclass of an SE.
     registry["summarized_experiment"] = dimensions_of_summarized_experiment;
     registry["vcf_experiment"] = dimensions_of_vcf_experiment;
-
-//    registry["bumpy_atomic_array"] = bumpy_atomic_array::dimensions;
-//    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::dimensions;
 
     return registry;
 } 

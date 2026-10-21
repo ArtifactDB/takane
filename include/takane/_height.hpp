@@ -10,9 +10,12 @@
 #include "utils_public.hpp"
 #include "atomic_vector.hpp"
 #include "atomic_vector_list.hpp"
+#include "bumpy_atomic_array.hpp"
+#include "bumpy_data_frame_array.hpp"
 #include "compressed_sparse_matrix.hpp"
-#include "data_frame_list.hpp"
 #include "data_frame.hpp"
+#include "data_frame_factor.hpp"
+#include "data_frame_list.hpp"
 #include "delayed_array.hpp"
 #include "dense_array.hpp"
 #include "genomic_ranges.hpp"
@@ -21,9 +24,6 @@
 #include "simple_list.hpp"
 #include "string_factor.hpp"
 #include "summarized_experiment.hpp"
-//#include "data_frame_factor.hpp"
-//#include "bumpy_atomic_array.hpp"
-//#include "bumpy_data_frame_array.hpp"
 #include "vcf_experiment.hpp"
 
 /**
@@ -40,6 +40,8 @@ inline auto default_height_registry() {
     std::unordered_map<std::string, std::function<std::size_t(const std::filesystem::path&, const ObjectMetadata& m, const Options& os)> > registry;
     registry["atomic_vector"] = height_of_atomic_vector;
     registry["atomic_vector_list"] = height_of_atomic_vector_list;
+    registry["bumpy_atomic_array"] = height_of_bumpy_atomic_array;
+    registry["bumpy_data_frame_array"] = height_of_bumpy_data_frame_array;
     registry["compressed_sparse_matrix"] = height_of_compressed_sparse_matrix;
     registry["data_frame"] = height_of_data_frame;
     registry["data_frame_factor"] = height_of_data_frame_factor;
@@ -56,9 +58,6 @@ inline auto default_height_registry() {
     registry["summarized_experiment"] = height_of_summarized_experiment;
     registry["ranged_summarized_experiment"] = height_of_summarized_experiment; // subclass of an SE.
     registry["vcf_experiment"] = height_of_vcf_experiment;
-
-//    registry["bumpy_atomic_array"] = bumpy_atomic_array::height;
-//    registry["bumpy_data_frame_array"] = bumpy_data_frame_array::height;
     return registry;
 } 
 /**

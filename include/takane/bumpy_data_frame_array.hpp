@@ -17,15 +17,13 @@
 
 namespace takane {
 
-namespace bumpy_data_frame_array {
-
 /**
  * @param path Path to the directory containing the bumpy data frame array.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    internal_bumpy_array::validate_directory<true>(path, "bumpy_data_frame_array", "DATA_FRAME", metadata, options);
+inline void validate_bumpy_data_frame_array(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+    validate_bumpy_array<true>(path, "bumpy_data_frame_array", "DATA_FRAME", metadata, options);
 }
 
 /**
@@ -34,8 +32,8 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return The height (i.e., first dimension extent) of the array.
  */
-inline size_t height(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    return internal_bumpy_array::height(path, "bumpy_data_frame_array", metadata, options);
+inline std::size_t height_of_bumpy_data_frame_array(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+    return height_of_bumpy_array(path, "bumpy_data_frame_array", metadata, options);
 }
 
 /**
@@ -44,10 +42,8 @@ inline size_t height(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Vector containing the dimensions of the array.
  */
-inline std::vector<size_t> dimensions(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
-    return internal_bumpy_array::dimensions(path, "bumpy_data_frame_array", metadata, options);
-}
-
+inline std::vector<std::size_t> dimensions_of_bumpy_data_frame_array(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
+    return dimensions_of_bumpy_array(path, "bumpy_data_frame_array", metadata, options);
 }
 
 }
