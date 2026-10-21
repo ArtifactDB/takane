@@ -24,6 +24,8 @@ add_executable(
     src/bed_file.cpp
     src/bigbed_file.cpp
     src/bigwig_file.cpp
+#    src/bumpy_atomic_array.cpp
+#    src/bumpy_data_frame_array.cpp
     src/compressed_sparse_matrix.cpp
     src/data_frame.cpp
     src/data_frame_factor.cpp
@@ -47,10 +49,8 @@ add_executable(
     src/spatial_experiment.cpp
     src/string_factor.cpp
     src/summarized_experiment.cpp
-#    src/bumpy_atomic_array.cpp
-#    src/bumpy_data_frame_array.cpp
     src/utils_array.cpp
-#    src/utils_bumpy_array.cpp
+    src/utils_bumpy_array.cpp
     src/utils_compressed_list.cpp
     src/utils_factor.cpp
     src/utils_files.cpp

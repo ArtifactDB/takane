@@ -52,6 +52,11 @@ inline void validate_bumpy_array_sparse_indices(const H5::Group& handle, const s
         }
     }
 
+    // Skip orderedness checks if there are no indices at all.
+    if (num_lengths == 0) {
+        return;
+    }
+
     std::vector<StreamIterator<std::uint64_t> > streams;
     streams.reserve(ndims);
     std::vector<std::uint64_t> position;
@@ -152,7 +157,7 @@ void validate_bumpy_array(
 
         std::vector<std::uint64_t> dims;
         try {
-            auto dhandle = handle.openDataSet("dimensions");
+            auto dhandle = ghandle.openDataSet("dimensions");
             if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, false)) {
                 throw std::runtime_error("expected a datatype that fits in a 64-bit unsigned integer");
             }
