@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-TEST(Validate, Fail) {
+TEST(Validate, Error) {
     auto dir = define_test_path("_validate");
 
     {

@@ -728,7 +728,7 @@ TEST(SequenceStringSet, CustomOkay) {
     }
 }
 
-TEST(SequenceStringSet, CustomFail) {
+TEST(SequenceStringSet, CustomError) {
     auto dir = define_test_path("sequence_string_set");
 
     {
