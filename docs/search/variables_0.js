@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['bam_5ffile_5fstrict_5fcheck_0',['bam_file_strict_check',['../structtakane_1_1Options.html#a572c7071276f7318276354eb658a93cb',1,'takane::Options']]],
-  ['bcf_5ffile_5fstrict_5fcheck_1',['bcf_file_strict_check',['../structtakane_1_1Options.html#a7f46e8ff4df461fffd39e9da9c20dd9f',1,'takane::Options']]],
-  ['bed_5ffile_5fstrict_5fcheck_2',['bed_file_strict_check',['../structtakane_1_1Options.html#ae2131813ae3f9328ac031b8a4de341b1',1,'takane::Options']]],
-  ['bigbed_5ffile_5fstrict_5fcheck_3',['bigbed_file_strict_check',['../structtakane_1_1Options.html#a8ec71d9ee8826f216cfb094d5b37ac94',1,'takane::Options']]],
-  ['bigwig_5ffile_5fstrict_5fcheck_4',['bigwig_file_strict_check',['../structtakane_1_1Options.html#a0e7327940826ab979c0e83e5eab25942',1,'takane::Options']]]
+  ['bam_5ffile_5fstrict_5fcheck_0',['bam_file_strict_check',['../structtakane_1_1Options.html#a8b13ea281b972925e7da6efa7de563d3',1,'takane::Options']]],
+  ['bcf_5ffile_5fstrict_5fcheck_1',['bcf_file_strict_check',['../structtakane_1_1Options.html#a57992f70be0c180fdcd8c8dfa74bcf92',1,'takane::Options']]],
+  ['bed_5ffile_5fstrict_5fcheck_2',['bed_file_strict_check',['../structtakane_1_1Options.html#a2d36d4abdca6562ac321edb2cdd99013',1,'takane::Options']]],
+  ['bigbed_5ffile_5fstrict_5fcheck_3',['bigbed_file_strict_check',['../structtakane_1_1Options.html#ab6bf2b04aa002ea306e2ca83e2e636e7',1,'takane::Options']]],
+  ['bigwig_5ffile_5fstrict_5fcheck_4',['bigwig_file_strict_check',['../structtakane_1_1Options.html#a00fa2c347604905244398ea2fd44c0a1',1,'takane::Options']]]
 ];

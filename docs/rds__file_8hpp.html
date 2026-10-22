@@ -99,27 +99,30 @@ $(function(){ initResizable(false); });
 
 <p>Validation for RDS files.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;utils_files.hpp&quot;</code><br />
-<code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
+<div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;exception&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &quot;utils_files.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for rds_file.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="rds__file_8hpp__incl.png" border="0" usemap="#atakane_2rds__file_8hpp" alt=""/></div>
 <map name="atakane_2rds__file_8hpp" id="atakane_2rds__file_8hpp">
-<area shape="rect" title="Validation for RDS files." alt="" coords="256,5,385,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,105,105"/>
-<area shape="poly" title=" " alt="" coords="276,34,115,77,114,72,275,29"/>
-<area shape="rect" title=" " alt="" coords="129,79,256,105"/>
-<area shape="poly" title=" " alt="" coords="300,34,229,73,226,69,297,29"/>
-<area shape="rect" title=" " alt="" coords="281,79,360,105"/>
-<area shape="poly" title=" " alt="" coords="323,31,323,63,318,63,318,31"/>
-<area shape="rect" title=" " alt="" coords="384,79,462,105"/>
-<area shape="poly" title=" " alt="" coords="339,29,395,68,392,72,336,34"/>
-<area shape="rect" title=" " alt="" coords="486,79,539,105"/>
-<area shape="poly" title=" " alt="" coords="354,29,472,73,470,78,352,34"/>
+<area shape="rect" title="Validation for RDS files." alt="" coords="286,5,415,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,133,105"/>
+<area shape="poly" title=" " alt="" coords="303,34,132,77,131,72,302,29"/>
+<area shape="rect" title=" " alt="" coords="157,79,237,105"/>
+<area shape="poly" title=" " alt="" coords="325,34,238,75,236,70,323,29"/>
+<area shape="rect" title=" " alt="" coords="261,79,338,105"/>
+<area shape="poly" title=" " alt="" coords="344,33,319,68,315,65,340,30"/>
+<area shape="rect" title=" " alt="" coords="363,79,439,105"/>
+<area shape="poly" title=" " alt="" coords="361,30,386,65,382,68,357,33"/>
+<area shape="rect" title=" " alt="" coords="464,79,517,105"/>
+<area shape="poly" title=" " alt="" coords="375,29,454,69,452,74,373,34"/>
+<area shape="rect" title=" " alt="" coords="541,79,640,105"/>
+<area shape="poly" title=" " alt="" coords="392,29,536,72,534,77,390,34"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -142,14 +145,11 @@ Namespaces</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1rds__file.html">takane::rds_file</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1rds__file"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for RDS files. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab27e77b38f937d6e332b28ada6694250" id="r_ab27e77b38f937d6e332b28ada6694250"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1rds__file.html#ab27e77b38f937d6e332b28ada6694250">takane::rds_file::validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:ab27e77b38f937d6e332b28ada6694250"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab69a360aba6afc366af1fb16380bb4c" id="r_aab69a360aba6afc366af1fb16380bb4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#aab69a360aba6afc366af1fb16380bb4c">takane::validate_rds_file</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:aab69a360aba6afc366af1fb16380bb4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Validation for RDS files. </p>

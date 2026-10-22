@@ -1,15 +1,17 @@
 <map id="takane/fasta_file.hpp" name="takane/fasta_file.hpp">
-<area shape="rect" id="Node000001" title="Validation for FASTA files." alt="" coords="342,5,482,31"/>
+<area shape="rect" id="Node000001" title="Validation for FASTA files." alt="" coords="408,5,548,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,105,105"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="352,34,120,80,119,75,351,29"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="407,33,121,81,120,76,407,28"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="129,79,256,105"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="376,34,245,76,243,71,374,29"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="430,34,256,77,255,72,429,29"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="280,79,414,105"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="404,33,370,69,366,66,400,29"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="457,34,383,74,381,69,454,29"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="438,79,517,105"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="425,29,458,66,454,69,421,33"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="480,31,480,63,475,63,475,31"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="542,79,619,105"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="442,29,539,70,537,75,440,34"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="643,79,696,105"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="459,29,629,76,627,81,457,34"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="497,29,552,68,549,72,494,34"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="644,79,720,105"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="513,29,634,71,632,76,511,34"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="744,79,798,105"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="535,29,730,76,729,81,533,34"/>
 </map>

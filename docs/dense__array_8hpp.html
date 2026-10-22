@@ -99,56 +99,71 @@ $(function(){ initResizable(false); });
 
 <p>Validation for dense arrays.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
-<code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
-<code>#include &quot;ritsuko/hdf5/vls/vls.hpp&quot;</code><br />
+<div class="textblock"><code>#include &quot;H5Cpp.h&quot;</code><br />
+<code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
+<code>#include &quot;sanisizer/sanisizer.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils__public_8hpp_source.html">utils_public.hpp</a>&quot;</code><br />
 <code>#include &quot;utils_array.hpp&quot;</code><br />
+<code>#include &quot;utils_json.hpp&quot;</code><br />
+<code>#include &quot;utils_missing.hpp&quot;</code><br />
+<code>#include &quot;utils_string.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for dense_array.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="dense__array_8hpp__incl.png" border="0" usemap="#atakane_2dense__array_8hpp" alt=""/></div>
 <map name="atakane_2dense__array_8hpp" id="atakane_2dense__array_8hpp">
-<area shape="rect" title="Validation for dense arrays." alt="" coords="532,5,691,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,133,105"/>
-<area shape="poly" title=" " alt="" coords="532,32,149,81,148,76,532,26"/>
-<area shape="rect" title=" " alt="" coords="156,79,299,105"/>
-<area shape="poly" title=" " alt="" coords="547,34,308,78,308,73,546,29"/>
-<area shape="rect" title=" " alt="" coords="323,79,479,105"/>
-<area shape="poly" title=" " alt="" coords="577,34,452,76,451,71,575,29"/>
-<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="603,79,714,105"/>
-<area shape="poly" title=" " alt="" coords="622,30,644,64,640,67,617,33"/>
-<area shape="rect" title=" " alt="" coords="364,153,417,178"/>
-<area shape="poly" title=" " alt="" coords="597,34,492,107,426,147,423,142,489,102,594,29"/>
-<area shape="rect" title=" " alt="" coords="441,153,521,178"/>
-<area shape="poly" title=" " alt="" coords="603,33,504,143,500,139,599,30"/>
-<area shape="rect" title=" " alt="" coords="738,79,842,105"/>
-<area shape="poly" title=" " alt="" coords="643,29,747,70,745,75,641,34"/>
-<area shape="rect" title=" " alt="" coords="867,79,924,105"/>
-<area shape="poly" title=" " alt="" coords="664,29,852,76,851,81,662,34"/>
-<area shape="rect" title=" " alt="" coords="949,79,1026,105"/>
-<area shape="poly" title=" " alt="" coords="683,29,934,76,933,81,682,34"/>
-<area shape="rect" title=" " alt="" coords="1051,79,1111,105"/>
-<area shape="poly" title=" " alt="" coords="692,25,847,44,1036,76,1035,81,846,50,691,30"/>
-<area shape="poly" title=" " alt="" coords="610,108,433,155,431,149,609,103"/>
-<area shape="poly" title=" " alt="" coords="629,108,526,149,524,144,627,103"/>
-<area shape="rect" title=" " alt="" coords="544,153,655,178"/>
-<area shape="poly" title=" " alt="" coords="651,107,621,142,617,139,647,103"/>
-<area shape="rect" title=" " alt="" coords="678,153,756,178"/>
-<area shape="poly" title=" " alt="" coords="670,103,700,139,696,142,666,107"/>
-<area shape="rect" title=" " alt="" coords="780,153,851,178"/>
-<area shape="poly" title=" " alt="" coords="686,103,776,143,774,148,684,108"/>
-<area shape="rect" title=" " alt="" coords="876,153,1019,178"/>
-<area shape="poly" title=" " alt="" coords="708,103,884,146,883,151,707,108"/>
-<area shape="rect" title=" " alt="" coords="1043,153,1180,178"/>
-<area shape="poly" title=" " alt="" coords="714,100,727,102,1028,149,1027,154,726,107,714,105"/>
-<area shape="rect" title=" " alt="" coords="1204,153,1304,178"/>
-<area shape="poly" title=" " alt="" coords="714,100,727,102,855,117,957,125,1059,134,1189,150,1188,155,1058,139,956,130,855,122,726,107,714,106"/>
+<area shape="rect" title="Validation for dense arrays." alt="" coords="687,5,846,31"/>
+<area shape="rect" title=" " alt="" coords="5,153,77,178"/>
+<area shape="poly" title=" " alt="" coords="687,29,522,49,330,82,199,115,91,150,89,145,198,110,328,76,521,44,686,24"/>
+<area shape="rect" title=" " alt="" coords="829,79,957,105"/>
+<area shape="poly" title=" " alt="" coords="789,29,860,69,857,73,787,34"/>
+<area shape="rect" title=" " alt="" coords="101,153,253,178"/>
+<area shape="poly" title=" " alt="" coords="687,31,558,51,414,82,308,115,220,149,218,144,307,110,412,76,557,46,686,26"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="543,79,654,105"/>
+<area shape="poly" title=" " alt="" coords="739,34,642,75,640,70,737,29"/>
+<area shape="rect" title=" " alt="" coords="277,153,330,178"/>
+<area shape="poly" title=" " alt="" coords="687,33,587,52,479,82,402,114,338,147,336,143,400,109,477,76,586,47,686,28"/>
+<area shape="rect" title=" " alt="" coords="355,153,434,178"/>
+<area shape="poly" title=" " alt="" coords="696,34,616,53,533,81,473,113,424,146,421,141,470,108,531,77,615,48,695,29"/>
+<area shape="rect" title=" " alt="" coords="1122,153,1200,178"/>
+<area shape="poly" title=" " alt="" coords="754,34,738,49,725,68,718,87,720,95,724,103,751,122,791,134,841,141,896,145,1011,146,1107,150,1107,155,1010,151,896,150,840,147,790,139,749,126,720,106,715,97,713,86,720,65,734,46,750,30"/>
+<area shape="rect" title=" " alt="" coords="1224,153,1288,178"/>
+<area shape="poly" title=" " alt="" coords="766,32,762,67,765,87,775,103,789,114,807,123,853,136,909,143,971,146,1100,146,1208,150,1208,155,1100,151,971,151,908,148,852,141,805,128,786,118,771,106,760,88,757,68,760,31"/>
+<area shape="rect" title=" " alt="" coords="1312,153,1412,178"/>
+<area shape="poly" title=" " alt="" coords="772,30,788,67,801,87,818,102,858,120,911,131,974,138,1042,142,1181,145,1297,150,1297,155,1181,150,1042,147,974,143,911,136,857,125,816,107,797,90,783,70,767,32"/>
+<area shape="rect" title=" " alt="" coords="981,79,1085,105"/>
+<area shape="poly" title=" " alt="" coords="812,29,974,72,972,77,811,34"/>
+<area shape="rect" title=" " alt="" coords="1110,79,1231,105"/>
+<area shape="poly" title=" " alt="" coords="836,29,1095,75,1094,80,835,34"/>
+<area shape="rect" title=" " alt="" coords="1255,79,1363,105"/>
+<area shape="poly" title=" " alt="" coords="846,26,1023,46,1240,76,1239,81,1022,52,846,31"/>
+<area shape="rect" title=" " alt="" coords="1387,79,1444,105"/>
+<area shape="poly" title=" " alt="" coords="846,20,1079,36,1224,53,1372,76,1372,81,1223,58,1078,42,846,25"/>
+<area shape="rect" title=" " alt="" coords="1468,79,1528,105"/>
+<area shape="poly" title=" " alt="" coords="846,19,1112,34,1281,51,1453,76,1453,81,1280,56,1112,39,846,24"/>
+<area shape="poly" title=" " alt="" coords="543,100,348,119,222,135,92,155,92,150,222,130,347,114,542,95"/>
+<area shape="poly" title=" " alt="" coords="543,105,264,152,264,147,542,100"/>
+<area shape="poly" title=" " alt="" coords="543,108,346,155,345,149,542,102"/>
+<area shape="poly" title=" " alt="" coords="565,108,444,150,442,145,563,103"/>
+<area shape="rect" title=" " alt="" coords="988,153,1099,178"/>
+<area shape="poly" title=" " alt="" coords="655,99,974,149,973,155,654,105"/>
+<area shape="rect" title=" " alt="" coords="458,153,536,178"/>
+<area shape="poly" title=" " alt="" coords="583,107,528,145,525,141,580,103"/>
+<area shape="rect" title=" " alt="" coords="560,153,636,178"/>
+<area shape="poly" title=" " alt="" coords="601,105,601,137,596,137,596,105"/>
+<area shape="poly" title=" " alt="" coords="654,100,672,102,793,116,888,123,985,132,1107,150,1107,155,984,138,888,129,792,121,671,107,654,105"/>
+<area shape="poly" title=" " alt="" coords="654,96,1208,150,1208,156,654,101"/>
+<area shape="rect" title=" " alt="" coords="660,153,803,178"/>
+<area shape="poly" title=" " alt="" coords="622,103,697,143,694,147,620,108"/>
+<area shape="rect" title=" " alt="" coords="827,153,964,178"/>
+<area shape="poly" title=" " alt="" coords="650,103,831,146,830,151,648,108"/>
+<area shape="poly" title=" " alt="" coords="654,95,972,119,1297,150,1297,155,972,124,654,100"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -177,18 +192,15 @@ Namespaces</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html">takane::dense_array</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1dense__array"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for dense arrays. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a4404752f3b5f866ccd42af5ca9b708b2" id="r_a4404752f3b5f866ccd42af5ca9b708b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html#a4404752f3b5f866ccd42af5ca9b708b2">takane::dense_array::validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a4404752f3b5f866ccd42af5ca9b708b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4b29b8c1bc4c564c9e56ded043252e7" id="r_aa4b29b8c1bc4c564c9e56ded043252e7"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html#aa4b29b8c1bc4c564c9e56ded043252e7">takane::dense_array::height</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:aa4b29b8c1bc4c564c9e56ded043252e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf1bad0afc41d1b96f42e7234c5090fa" id="r_abf1bad0afc41d1b96f42e7234c5090fa"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1dense__array.html#abf1bad0afc41d1b96f42e7234c5090fa">takane::dense_array::dimensions</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:abf1bad0afc41d1b96f42e7234c5090fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ff812d48dee930c19aeb7f9e93348da" id="r_a2ff812d48dee930c19aeb7f9e93348da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2ff812d48dee930c19aeb7f9e93348da">takane::validate_dense_array</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a2ff812d48dee930c19aeb7f9e93348da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e1b8667b846fce10f691c5d353b1891" id="r_a3e1b8667b846fce10f691c5d353b1891"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a3e1b8667b846fce10f691c5d353b1891">takane::height_of_dense_array</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a3e1b8667b846fce10f691c5d353b1891"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab518cd77ec7c722d8e64dd5f5ebeae16" id="r_ab518cd77ec7c722d8e64dd5f5ebeae16"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#ab518cd77ec7c722d8e64dd5f5ebeae16">takane::dimensions_of_dense_array</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:ab518cd77ec7c722d8e64dd5f5ebeae16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Validation for dense arrays. </p>

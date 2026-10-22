@@ -1,31 +1,44 @@
 <map id="takane/multi_sample_dataset.hpp" name="takane/multi_sample_dataset.hpp">
-<area shape="rect" id="Node000001" title="Validation for multi&#45;sample datasets." alt="" coords="338,5,480,46"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,168,85,193"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="339,47,268,69,194,96,131,129,77,161,74,157,128,124,192,92,266,64,337,42"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="109,168,162,193"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="342,49,288,69,234,96,193,127,159,159,155,155,189,123,232,92,286,65,340,44"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="379,94,439,120"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="412,46,412,78,406,78,406,46"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="464,94,541,120"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="434,44,478,82,475,86,430,48"/>
-<area shape="rect" id="Node000006" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="244,94,355,120"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="384,49,330,87,327,82,380,44"/>
-<area shape="rect" id="Node000013" title=" " alt="" coords="566,94,671,120"/>
-<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="462,44,573,86,571,91,460,49"/>
-<area shape="rect" id="Node000014" title=" " alt="" coords="696,94,912,120"/>
-<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="481,39,729,88,728,93,479,44"/>
-<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="257,123,100,167,99,161,256,118"/>
-<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="273,123,177,164,175,159,271,118"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="186,168,296,193"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="292,122,262,157,258,154,288,118"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="320,168,397,193"/>
-<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="311,118,341,154,337,157,307,122"/>
-<area shape="rect" id="Node000009" title=" " alt="" coords="421,168,493,193"/>
-<area shape="poly" id="edge10_Node000006_Node000009" title=" " alt="" coords="327,118,417,158,415,163,325,123"/>
-<area shape="rect" id="Node000010" title=" " alt="" coords="517,168,661,193"/>
-<area shape="poly" id="edge11_Node000006_Node000010" title=" " alt="" coords="349,118,526,161,524,166,348,123"/>
-<area shape="rect" id="Node000011" title=" " alt="" coords="684,168,822,193"/>
-<area shape="poly" id="edge12_Node000006_Node000011" title=" " alt="" coords="356,115,367,117,669,164,668,169,366,122,355,120"/>
-<area shape="rect" id="Node000012" title=" " alt="" coords="846,168,946,193"/>
-<area shape="poly" id="edge13_Node000006_Node000012" title=" " alt="" coords="356,115,367,117,496,132,597,140,700,149,830,165,830,170,699,154,597,146,495,137,366,122,355,121"/>
+<area shape="rect" id="Node000001" title="Validation for multi&#45;sample datasets." alt="" coords="484,5,625,46"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,168,77,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,49,327,97,92,167,91,161,326,91,487,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="731,94,858,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="615,44,744,86,742,91,613,49"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="101,168,253,193"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="507,49,222,164,220,159,505,44"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="277,168,357,193"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="525,49,350,161,347,157,522,44"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="381,168,434,193"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="538,48,432,158,428,154,534,44"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="882,94,942,120"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="626,38,867,91,866,96,625,43"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="458,168,536,193"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="548,47,527,95,507,154,502,152,523,93,543,45"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="560,168,636,193"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="546,47,534,82,533,101,537,119,550,139,568,156,565,160,546,143,532,121,527,101,529,81,541,46"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="1350,168,1414,193"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="589,44,665,89,719,117,809,140,886,152,955,156,1021,155,1160,151,1241,154,1335,165,1335,170,1240,160,1160,156,1021,160,955,161,885,157,808,145,717,122,663,94,586,49"/>
+<area shape="rect" id="Node000011" href="$utils__public_8hpp.html" title="Exported utilities." alt="" coords="546,94,656,120"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="568,45,588,79,584,82,564,48"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="966,94,1071,120"/>
+<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="626,36,951,91,950,96,625,41"/>
+<area shape="rect" id="Node000018" title=" " alt="" coords="1096,94,1312,120"/>
+<area shape="poly" id="edge24_Node000001_Node000018" title=" " alt="" coords="625,33,1089,89,1088,94,625,38"/>
+<area shape="poly" id="edge18_Node000011_Node000002" title=" " alt="" coords="546,115,349,134,223,150,93,170,92,165,223,145,349,129,545,110"/>
+<area shape="poly" id="edge21_Node000011_Node000004" title=" " alt="" coords="546,120,265,167,264,162,545,115"/>
+<area shape="poly" id="edge12_Node000011_Node000005" title=" " alt="" coords="553,123,373,168,371,163,552,118"/>
+<area shape="poly" id="edge11_Node000011_Node000006" title=" " alt="" coords="569,123,450,166,448,161,567,118"/>
+<area shape="poly" id="edge16_Node000011_Node000008" title=" " alt="" coords="585,122,529,161,526,156,582,118"/>
+<area shape="poly" id="edge15_Node000011_Node000009" title=" " alt="" coords="603,120,602,152,597,152,598,120"/>
+<area shape="poly" id="edge17_Node000011_Node000010" title=" " alt="" coords="657,115,675,117,858,132,1003,136,1149,143,1235,151,1335,165,1334,170,1234,156,1149,148,1003,141,858,137,674,122,656,120"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="1215,168,1326,193"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="657,115,675,117,821,132,936,140,1052,149,1200,165,1199,170,1051,154,936,146,820,138,674,122,656,120"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="661,168,738,193"/>
+<area shape="poly" id="edge14_Node000011_Node000013" title=" " alt="" coords="619,118,673,156,669,161,616,122"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="763,168,906,193"/>
+<area shape="poly" id="edge19_Node000011_Node000014" title=" " alt="" coords="641,118,781,160,779,165,640,123"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="930,168,1067,193"/>
+<area shape="poly" id="edge20_Node000011_Node000015" title=" " alt="" coords="657,115,916,162,915,167,656,121"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="1091,168,1191,193"/>
+<area shape="poly" id="edge22_Node000011_Node000016" title=" " alt="" coords="657,114,675,117,874,140,1076,164,1075,170,874,145,674,122,656,120"/>
 </map>

@@ -99,61 +99,87 @@ $(function(){ initResizable(false); });
 
 <p>Validation for single cell experiments.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;millijson/millijson.hpp&quot;</code><br />
+<div class="textblock"><code>#include &quot;sanisizer/sanisizer.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="summarized__experiment_8hpp_source.html">summarized_experiment.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ranged__summarized__experiment_8hpp_source.html">ranged_summarized_experiment.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__public_8hpp_source.html">utils_public.hpp</a>&quot;</code><br />
+<code>#include &quot;utils_summarized_experiment.hpp&quot;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;exception&gt;</code><br />
 <code>#include &lt;unordered_set&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
+<code>#include &lt;optional&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for single_cell_experiment.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="single__cell__experiment_8hpp__incl.png" border="0" usemap="#atakane_2single__cell__experiment_8hpp" alt=""/></div>
 <map name="atakane_2single__cell__experiment_8hpp" id="atakane_2single__cell__experiment_8hpp">
-<area shape="rect" title="Validation for single cell experiments." alt="" coords="866,5,992,46"/>
-<area shape="rect" title=" " alt="" coords="5,315,149,341"/>
-<area shape="poly" title=" " alt="" coords="866,39,755,58,609,86,446,124,283,170,191,195,154,211,115,243,96,271,85,301,80,299,91,269,111,240,151,206,189,190,282,165,445,119,608,81,754,53,866,34"/>
-<area shape="rect" href="summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="555,168,740,193"/>
-<area shape="poly" title=" " alt="" coords="867,49,813,70,758,96,712,128,673,159,670,155,709,123,756,92,811,65,865,44"/>
-<area shape="rect" title=" " alt="" coords="949,315,1002,341"/>
-<area shape="poly" title=" " alt="" coords="993,36,1042,56,1064,72,1082,93,1094,121,1096,151,1089,182,1076,212,1039,266,1001,306,997,303,1035,262,1071,209,1084,180,1090,151,1089,123,1077,95,1060,76,1039,61,991,41"/>
-<area shape="rect" title=" " alt="" coords="789,315,869,341"/>
-<area shape="poly" title=" " alt="" coords="867,47,831,66,816,80,803,95,792,121,786,148,786,176,789,205,802,258,819,300,814,302,797,260,783,206,780,177,781,148,787,119,799,93,812,76,828,62,865,42"/>
-<area shape="rect" title=" " alt="" coords="917,241,994,267"/>
-<area shape="poly" title=" " alt="" coords="993,42,1030,62,1046,76,1059,93,1067,113,1067,133,1061,153,1050,172,1020,207,987,234,984,230,1016,203,1045,169,1056,151,1062,132,1062,114,1055,95,1042,80,1027,66,991,47"/>
-<area shape="rect" href="ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="813,94,1045,120"/>
-<area shape="poly" title=" " alt="" coords="932,46,932,78,926,78,926,46"/>
-<area shape="rect" title=" " alt="" coords="1171,94,1274,120"/>
-<area shape="poly" title=" " alt="" coords="993,41,1163,87,1162,92,992,47"/>
-<area shape="poly" title=" " alt="" coords="595,196,521,216,439,244,414,257,389,270,290,293,165,315,164,310,289,288,387,264,412,252,437,239,519,211,594,191"/>
-<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="450,241,560,267"/>
-<area shape="poly" title=" " alt="" coords="625,196,544,236,542,232,622,191"/>
-<area shape="poly" title=" " alt="" coords="676,191,936,306,934,311,674,196"/>
-<area shape="poly" title=" " alt="" coords="664,192,804,303,800,307,661,196"/>
-<area shape="rect" title=" " alt="" coords="584,241,690,267"/>
-<area shape="poly" title=" " alt="" coords="649,194,644,226,638,226,643,193"/>
-<area shape="rect" title=" " alt="" coords="160,241,376,267"/>
-<area shape="poly" title=" " alt="" coords="583,197,348,241,347,235,582,191"/>
-<area shape="poly" title=" " alt="" coords="701,191,902,238,901,243,700,197"/>
-<area shape="poly" title=" " alt="" coords="450,267,165,315,164,309,449,262"/>
-<area shape="poly" title=" " alt="" coords="561,263,572,264,934,318,934,323,571,270,560,268"/>
-<area shape="poly" title=" " alt="" coords="561,265,775,312,773,317,560,270"/>
-<area shape="rect" title=" " alt="" coords="655,315,766,341"/>
-<area shape="poly" title=" " alt="" coords="541,265,662,307,660,312,539,270"/>
-<area shape="rect" title=" " alt="" coords="173,315,250,341"/>
-<area shape="poly" title=" " alt="" coords="456,270,266,316,265,311,455,265"/>
-<area shape="rect" title=" " alt="" coords="275,315,346,341"/>
-<area shape="poly" title=" " alt="" coords="473,270,359,312,357,307,471,265"/>
-<area shape="rect" title=" " alt="" coords="370,315,507,341"/>
-<area shape="poly" title=" " alt="" coords="496,269,462,305,458,302,492,265"/>
-<area shape="rect" title=" " alt="" coords="531,315,631,341"/>
-<area shape="poly" title=" " alt="" coords="520,266,559,302,555,306,516,269"/>
-<area shape="poly" title=" " alt="" coords="813,120,645,138,451,164,357,181,272,200,201,221,149,244,116,272,93,304,88,301,113,268,146,239,199,216,271,194,356,176,450,159,644,133,812,115"/>
-<area shape="poly" title=" " alt="" coords="882,123,711,166,710,161,881,118"/>
-<area shape="poly" title=" " alt="" coords="941,118,977,169,995,204,1009,241,1011,257,1008,274,995,303,990,301,1003,272,1005,257,1004,242,990,206,972,172,937,122"/>
-<area shape="poly" title=" " alt="" coords="926,121,843,302,838,300,921,119"/>
-<area shape="poly" title=" " alt="" coords="934,120,953,225,948,226,929,120"/>
+<area shape="rect" title="Validation for single cell experiments." alt="" coords="1286,5,1412,46"/>
+<area shape="rect" title=" " alt="" coords="5,315,157,341"/>
+<area shape="poly" title=" " alt="" coords="1286,32,900,53,686,72,599,83,532,97,468,117,404,142,283,201,182,261,111,308,108,304,179,257,281,197,402,137,466,112,531,91,598,78,686,66,900,47,1286,27"/>
+<area shape="rect" href="summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="855,168,1040,193"/>
+<area shape="poly" title=" " alt="" coords="1298,49,994,164,993,159,1296,44"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="506,241,616,267"/>
+<area shape="poly" title=" " alt="" coords="1286,32,1123,40,919,53,736,72,671,83,636,96,608,124,588,159,575,195,568,226,563,225,570,193,584,157,604,121,633,92,670,78,735,66,918,48,1122,34,1286,27"/>
+<area shape="rect" title=" " alt="" coords="181,315,234,341"/>
+<area shape="poly" title=" " alt="" coords="1286,32,1131,39,934,52,741,71,662,83,603,97,546,117,490,142,385,201,297,261,235,307,232,303,293,256,382,197,487,137,544,112,602,91,661,78,741,66,933,47,1131,34,1286,27"/>
+<area shape="rect" title=" " alt="" coords="1435,315,1514,341"/>
+<area shape="poly" title=" " alt="" coords="1413,42,1458,61,1504,87,1545,122,1561,143,1574,167,1585,194,1590,218,1588,242,1577,268,1555,293,1528,310,1525,306,1552,289,1572,266,1583,240,1585,218,1580,196,1569,169,1557,146,1541,126,1501,91,1455,65,1411,47"/>
+<area shape="rect" title=" " alt="" coords="1234,315,1310,341"/>
+<area shape="poly" title=" " alt="" coords="1389,44,1455,84,1491,110,1523,139,1549,170,1565,203,1567,236,1561,252,1551,269,1536,281,1513,292,1454,308,1387,319,1325,325,1325,320,1386,314,1453,303,1512,287,1533,277,1547,265,1557,250,1562,235,1560,204,1545,173,1519,143,1487,114,1452,89,1386,49"/>
+<area shape="rect" title=" " alt="" coords="1132,315,1209,341"/>
+<area shape="poly" title=" " alt="" coords="1380,44,1435,86,1464,113,1491,143,1512,174,1523,206,1523,238,1517,254,1507,269,1486,284,1457,295,1381,307,1225,318,1224,312,1380,301,1456,290,1484,279,1503,265,1512,251,1518,237,1518,207,1507,176,1487,146,1460,117,1431,90,1377,49"/>
+<area shape="rect" title=" " alt="" coords="1044,315,1108,341"/>
+<area shape="poly" title=" " alt="" coords="1286,31,1129,37,938,49,768,68,710,81,691,88,680,96,664,109,646,119,631,128,622,139,621,155,634,179,663,215,713,265,737,279,770,290,856,301,948,306,1028,312,1028,318,948,311,855,306,769,295,735,284,710,269,659,219,629,182,616,156,617,137,628,124,644,114,661,104,677,92,689,84,709,76,767,63,937,44,1129,32,1286,26"/>
+<area shape="rect" title=" " alt="" coords="1277,241,1493,267"/>
+<area shape="poly" title=" " alt="" coords="1355,46,1383,226,1378,226,1349,47"/>
+<area shape="rect" href="ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="691,94,922,120"/>
+<area shape="poly" title=" " alt="" coords="1286,39,906,94,905,89,1285,34"/>
+<area shape="rect" title=" " alt="" coords="1720,94,1823,120"/>
+<area shape="poly" title=" " alt="" coords="1413,36,1706,91,1705,96,1412,41"/>
+<area shape="rect" title=" " alt="" coords="1848,94,1914,120"/>
+<area shape="poly" title=" " alt="" coords="1412,31,1597,53,1833,91,1832,96,1596,58,1412,36"/>
+<area shape="poly" title=" " alt="" coords="855,190,643,208,518,224,394,244,251,278,133,312,131,307,250,272,392,239,517,218,642,203,855,185"/>
+<area shape="rect" title=" " alt="" coords="741,241,869,267"/>
+<area shape="poly" title=" " alt="" coords="925,196,844,236,842,232,922,191"/>
+<area shape="poly" title=" " alt="" coords="882,197,632,242,631,237,881,191"/>
+<area shape="poly" title=" " alt="" coords="855,192,686,212,590,226,495,244,360,279,250,314,248,309,359,274,494,239,589,221,686,206,854,187"/>
+<area shape="poly" title=" " alt="" coords="992,191,1420,309,1419,314,991,196"/>
+<area shape="poly" title=" " alt="" coords="987,191,1047,212,1114,239,1182,272,1240,304,1237,309,1179,277,1112,244,1046,217,986,196"/>
+<area shape="poly" title=" " alt="" coords="952,193,962,229,972,248,985,265,1035,285,1117,309,1116,314,1034,290,982,269,967,251,957,231,947,194"/>
+<area shape="poly" title=" " alt="" coords="944,195,934,229,934,248,941,266,953,277,975,289,1029,310,1028,315,973,294,950,281,936,268,929,249,929,228,939,193"/>
+<area shape="rect" title=" " alt="" coords="995,241,1100,267"/>
+<area shape="poly" title=" " alt="" coords="966,192,1020,230,1017,234,963,196"/>
+<area shape="poly" title=" " alt="" coords="1023,191,1296,236,1295,241,1022,197"/>
+<area shape="poly" title=" " alt="" coords="506,266,172,316,172,310,505,261"/>
+<area shape="poly" title=" " alt="" coords="506,267,392,287,250,317,249,312,391,282,505,262"/>
+<area shape="poly" title=" " alt="" coords="617,257,1419,320,1419,325,617,262"/>
+<area shape="rect" title=" " alt="" coords="383,315,494,341"/>
+<area shape="poly" title=" " alt="" coords="542,270,473,309,471,305,539,265"/>
+<area shape="rect" title=" " alt="" coords="517,315,594,341"/>
+<area shape="poly" title=" " alt="" coords="563,267,560,300,555,299,557,267"/>
+<area shape="poly" title=" " alt="" coords="617,257,915,281,1084,296,1218,312,1218,318,1084,302,915,286,617,262"/>
+<area shape="poly" title=" " alt="" coords="617,258,866,282,1117,312,1116,317,866,288,616,263"/>
+<area shape="poly" title=" " alt="" coords="617,262,635,264,744,277,831,285,918,294,1029,312,1028,317,917,300,830,290,743,283,634,270,616,267"/>
+<area shape="rect" title=" " alt="" coords="619,315,690,341"/>
+<area shape="poly" title=" " alt="" coords="578,265,628,303,625,308,575,270"/>
+<area shape="rect" title=" " alt="" coords="715,315,858,341"/>
+<area shape="poly" title=" " alt="" coords="600,265,734,307,733,312,598,270"/>
+<area shape="rect" title=" " alt="" coords="882,315,1019,341"/>
+<area shape="poly" title=" " alt="" coords="617,263,869,309,868,314,616,268"/>
+<area shape="rect" title=" " alt="" coords="259,315,359,341"/>
+<area shape="poly" title=" " alt="" coords="519,270,367,313,366,308,518,265"/>
+<area shape="poly" title=" " alt="" coords="735,123,630,143,512,170,397,203,285,244,122,311,120,306,283,239,396,198,511,165,629,138,734,118"/>
+<area shape="poly" title=" " alt="" coords="832,118,911,158,909,163,829,123"/>
+<area shape="poly" title=" " alt="" coords="809,120,808,226,803,226,804,120"/>
+<area shape="poly" title=" " alt="" coords="780,123,686,170,591,234,588,229,684,165,778,118"/>
+<area shape="poly" title=" " alt="" coords="753,123,673,143,585,170,488,206,394,245,247,311,245,306,392,240,486,201,583,165,672,138,752,118"/>
+<area shape="poly" title=" " alt="" coords="923,110,1079,122,1254,145,1337,162,1409,183,1468,209,1490,223,1507,240,1514,255,1513,273,1497,304,1492,302,1508,271,1509,256,1503,243,1487,228,1465,213,1408,188,1335,167,1253,151,1079,128,922,116"/>
+<area shape="poly" title=" " alt="" coords="892,118,972,136,1054,165,1086,182,1108,199,1157,239,1245,304,1242,308,1154,243,1105,203,1083,187,1052,170,970,141,891,123"/>
+<area shape="poly" title=" " alt="" coords="794,122,765,150,735,188,725,209,720,229,721,248,731,265,758,284,799,297,848,304,904,307,1019,309,1117,312,1116,318,1019,314,904,313,848,309,797,302,756,289,727,269,716,249,714,228,720,207,731,185,761,147,790,118"/>
+<area shape="poly" title=" " alt="" coords="771,123,642,170,476,245,347,310,344,305,474,241,640,165,769,118"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -179,14 +205,11 @@ Namespaces</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1single__cell__experiment.html">takane::single_cell_experiment</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1single__cell__experiment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for single cell experiments. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:af6fc71516fc659a5fdb2348a4a65d801" id="r_af6fc71516fc659a5fdb2348a4a65d801"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1single__cell__experiment.html#af6fc71516fc659a5fdb2348a4a65d801">takane::single_cell_experiment::validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:af6fc71516fc659a5fdb2348a4a65d801"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0bd94a7dbb6656a3a70b036fcedd645e" id="r_a0bd94a7dbb6656a3a70b036fcedd645e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a0bd94a7dbb6656a3a70b036fcedd645e">takane::validate_single_cell_experiment</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a0bd94a7dbb6656a3a70b036fcedd645e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Validation for single cell experiments. </p>

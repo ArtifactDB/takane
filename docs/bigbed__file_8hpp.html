@@ -100,26 +100,35 @@ $(function(){ initResizable(false); });
 <p>Validation for bigBed files.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;utils_files.hpp&quot;</code><br />
+<code>#include &quot;utils_json.hpp&quot;</code><br />
 <code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;exception&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &lt;array&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for bigbed_file.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="bigbed__file_8hpp__incl.png" border="0" usemap="#atakane_2bigbed__file_8hpp" alt=""/></div>
 <map name="atakane_2bigbed__file_8hpp" id="atakane_2bigbed__file_8hpp">
-<area shape="rect" title="Validation for bigBed files." alt="" coords="246,5,395,31"/>
+<area shape="rect" title="Validation for bigBed files." alt="" coords="420,5,570,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,105,105"/>
-<area shape="poly" title=" " alt="" coords="276,34,115,77,114,72,275,29"/>
-<area shape="rect" title=" " alt="" coords="129,79,256,105"/>
-<area shape="poly" title=" " alt="" coords="300,34,229,73,226,69,297,29"/>
-<area shape="rect" title=" " alt="" coords="281,79,360,105"/>
-<area shape="poly" title=" " alt="" coords="323,31,323,63,318,63,318,31"/>
-<area shape="rect" title=" " alt="" coords="384,79,462,105"/>
-<area shape="poly" title=" " alt="" coords="339,29,395,68,392,72,336,34"/>
-<area shape="rect" title=" " alt="" coords="486,79,539,105"/>
-<area shape="poly" title=" " alt="" coords="354,29,472,73,470,78,352,34"/>
+<area shape="poly" title=" " alt="" coords="420,33,121,81,120,76,419,28"/>
+<area shape="rect" title=" " alt="" coords="129,79,229,105"/>
+<area shape="poly" title=" " alt="" coords="442,34,245,78,244,73,440,29"/>
+<area shape="rect" title=" " alt="" coords="253,79,380,105"/>
+<area shape="poly" title=" " alt="" coords="466,34,362,75,360,70,464,29"/>
+<area shape="rect" title=" " alt="" coords="405,79,484,105"/>
+<area shape="poly" title=" " alt="" coords="489,33,464,68,459,65,484,30"/>
+<area shape="rect" title=" " alt="" coords="508,79,586,105"/>
+<area shape="poly" title=" " alt="" coords="506,30,531,65,527,68,501,33"/>
+<area shape="rect" title=" " alt="" coords="610,79,686,105"/>
+<area shape="poly" title=" " alt="" coords="522,29,610,70,608,75,520,34"/>
+<area shape="rect" title=" " alt="" coords="711,79,764,105"/>
+<area shape="poly" title=" " alt="" coords="538,29,697,76,695,81,536,34"/>
+<area shape="rect" title=" " alt="" coords="789,79,838,105"/>
+<area shape="poly" title=" " alt="" coords="561,29,658,49,775,76,773,81,657,54,560,34"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -142,14 +151,11 @@ Namespaces</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1bigbed__file.html">takane::bigbed_file</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1bigbed__file"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for bigBed files. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aefc3d25d8e10993352d35f8801fb8df9" id="r_aefc3d25d8e10993352d35f8801fb8df9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1bigbed__file.html#aefc3d25d8e10993352d35f8801fb8df9">takane::bigbed_file::validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:aefc3d25d8e10993352d35f8801fb8df9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c29276d6e481aa08605149d73646cbf" id="r_a2c29276d6e481aa08605149d73646cbf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a2c29276d6e481aa08605149d73646cbf">takane::validate_bigbed_file</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a2c29276d6e481aa08605149d73646cbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Validation for bigBed files. </p>

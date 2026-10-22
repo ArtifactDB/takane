@@ -99,7 +99,8 @@ $(function(){ initResizable(false); });
 
 <p>Validation for spatial experiments.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;ritsuko/hdf5/hdf5.hpp&quot;</code><br />
+<div class="textblock"><code>#include &quot;ritsuko/ritsuko.hpp&quot;</code><br />
+<code>#include &quot;sanisizer/sanisizer.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="single__cell__experiment_8hpp_source.html">single_cell_experiment.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="image__file_8hpp_source.html">image_file.hpp</a>&quot;</code><br />
 <code>#include &quot;utils_factor.hpp&quot;</code><br />
@@ -108,84 +109,112 @@ $(function(){ initResizable(false); });
 <code>#include &quot;utils_files.hpp&quot;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
-<code>#include &lt;unordered_set&gt;</code><br />
+<code>#include &lt;exception&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;cmath&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for spatial_experiment.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="spatial__experiment_8hpp__incl.png" border="0" usemap="#atakane_2spatial__experiment_8hpp" alt=""/></div>
 <map name="atakane_2spatial__experiment_8hpp" id="atakane_2spatial__experiment_8hpp">
-<area shape="rect" title="Validation for spatial experiments." alt="" coords="1166,5,1362,31"/>
-<area shape="rect" title=" " alt="" coords="207,79,350,105"/>
-<area shape="poly" title=" " alt="" coords="1166,27,813,47,591,62,368,82,365,82,365,77,367,76,591,57,813,41,1165,21"/>
-<area shape="rect" href="single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="901,79,1077,105"/>
-<area shape="poly" title=" " alt="" coords="1218,34,1051,77,1049,72,1216,29"/>
-<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="290,300,400,326"/>
-<area shape="poly" title=" " alt="" coords="1165,23,968,27,735,36,530,54,459,66,435,73,420,81,399,102,382,127,370,154,360,183,350,239,347,285,342,285,345,239,355,182,365,152,378,124,395,99,417,77,433,68,458,61,529,48,734,31,968,22,1165,18"/>
-<area shape="rect" title=" " alt="" coords="789,374,842,399"/>
-<area shape="poly" title=" " alt="" coords="1165,22,1056,26,923,35,779,53,638,82,602,88,566,91,502,97,477,103,457,115,444,135,440,164,440,240,443,269,454,289,472,306,497,323,533,343,566,355,596,360,627,362,693,362,731,364,774,371,774,376,730,370,692,367,627,367,596,366,564,360,531,348,494,328,468,310,450,293,438,271,434,241,434,164,439,133,453,112,475,99,501,92,566,86,601,83,636,76,778,48,922,30,1055,21,1165,17"/>
-<area shape="rect" title=" " alt="" coords="1148,374,1227,399"/>
-<area shape="poly" title=" " alt="" coords="1273,30,1300,86,1312,124,1317,164,1317,241,1315,262,1308,281,1285,316,1255,345,1224,367,1221,363,1251,341,1281,313,1303,279,1309,260,1312,240,1312,164,1307,125,1295,88,1269,33"/>
-<area shape="rect" title=" " alt="" coords="968,300,1074,326"/>
-<area shape="poly" title=" " alt="" coords="1268,31,1269,60,1267,98,1259,140,1241,180,1205,220,1162,253,1116,278,1074,297,1072,292,1114,274,1159,249,1201,216,1236,177,1254,139,1262,98,1264,60,1262,32"/>
-<area shape="rect" title=" " alt="" coords="525,300,602,326"/>
-<area shape="poly" title=" " alt="" coords="1165,26,1008,37,827,59,741,76,665,97,605,123,582,138,566,154,551,185,547,220,550,255,557,285,552,286,545,256,541,220,546,184,562,151,579,134,602,119,663,92,740,71,826,54,1007,31,1165,20"/>
-<area shape="rect" title=" " alt="" coords="1123,153,1226,178"/>
-<area shape="poly" title=" " alt="" coords="1259,33,1192,141,1187,138,1254,30"/>
-<area shape="rect" href="image__file_8hpp.html" title="Validation for standard image files." alt="" coords="1352,226,1455,252"/>
-<area shape="poly" title=" " alt="" coords="1283,29,1309,50,1335,77,1357,111,1375,147,1398,210,1393,212,1370,149,1352,114,1331,81,1306,54,1280,33"/>
-<area shape="rect" title=" " alt="" coords="1477,300,1576,326"/>
-<area shape="poly" title=" " alt="" coords="1290,29,1325,50,1361,77,1411,130,1455,188,1515,285,1511,288,1451,191,1407,134,1358,81,1322,54,1287,34"/>
-<area shape="rect" title=" " alt="" coords="1486,79,1596,105"/>
-<area shape="poly" title=" " alt="" coords="1311,29,1480,72,1479,77,1310,34"/>
-<area shape="rect" title=" " alt="" coords="1620,79,1678,105"/>
-<area shape="poly" title=" " alt="" coords="1348,29,1466,48,1606,76,1605,81,1465,54,1347,34"/>
-<area shape="rect" title=" " alt="" coords="1702,79,1759,105"/>
-<area shape="poly" title=" " alt="" coords="1363,27,1512,45,1687,76,1686,81,1511,51,1362,32"/>
-<area shape="rect" title=" " alt="" coords="5,374,149,399"/>
-<area shape="poly" title=" " alt="" coords="901,103,743,122,653,137,564,155,503,172,457,188,351,229,258,260,219,276,172,302,132,333,100,364,96,360,129,329,169,298,217,271,256,255,349,224,455,183,502,167,563,150,652,131,742,117,900,98"/>
-<area shape="rect" href="summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="810,226,995,252"/>
-<area shape="poly" title=" " alt="" coords="984,106,919,214,915,212,980,104"/>
-<area shape="poly" title=" " alt="" coords="1004,103,1041,143,1082,201,1098,233,1106,266,1104,298,1088,327,1073,340,1049,351,988,367,919,378,858,385,858,380,918,373,987,362,1048,346,1070,336,1084,324,1098,296,1100,266,1093,235,1078,203,1037,146,1000,107"/>
-<area shape="poly" title=" " alt="" coords="1010,103,1039,124,1068,151,1109,204,1141,261,1166,315,1182,358,1177,360,1161,317,1136,264,1104,207,1064,154,1035,128,1007,107"/>
-<area shape="poly" title=" " alt="" coords="967,108,602,295,599,290,964,103"/>
-<area shape="rect" href="ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="576,153,807,178"/>
-<area shape="poly" title=" " alt="" coords="939,108,758,151,756,146,938,103"/>
-<area shape="poly" title=" " alt="" coords="1021,103,1130,144,1128,149,1019,108"/>
-<area shape="poly" title=" " alt="" coords="809,243,700,246,567,255,422,273,279,303,250,314,222,328,122,370,120,365,220,323,248,309,278,297,421,268,566,250,700,241,809,237"/>
-<area shape="poly" title=" " alt="" coords="809,255,416,305,415,300,809,250"/>
-<area shape="poly" title=" " alt="" coords="810,255,723,273,688,286,667,302,663,313,667,324,680,332,707,344,775,369,773,374,705,349,678,337,663,327,657,313,663,298,686,282,721,268,808,249"/>
-<area shape="poly" title=" " alt="" coords="909,251,927,288,941,307,959,324,1001,347,1046,364,1092,374,1133,380,1133,385,1091,379,1045,369,998,352,955,328,937,311,922,290,904,254"/>
-<area shape="poly" title=" " alt="" coords="924,250,989,289,987,294,921,255"/>
-<area shape="rect" title=" " alt="" coords="677,300,893,326"/>
-<area shape="poly" title=" " alt="" coords="884,255,819,294,816,289,881,250"/>
-<area shape="poly" title=" " alt="" coords="845,255,618,303,617,298,844,250"/>
-<area shape="poly" title=" " alt="" coords="300,329,138,372,137,367,299,324"/>
-<area shape="poly" title=" " alt="" coords="401,320,419,323,595,343,674,353,774,371,773,376,673,358,595,348,418,328,400,326"/>
-<area shape="poly" title=" " alt="" coords="401,316,1133,378,1132,383,400,321"/>
-<area shape="rect" title=" " alt="" coords="172,374,283,399"/>
-<area shape="poly" title=" " alt="" coords="326,328,262,368,259,363,324,324"/>
-<area shape="rect" title=" " alt="" coords="306,374,384,399"/>
-<area shape="poly" title=" " alt="" coords="348,326,348,358,342,358,342,326"/>
-<area shape="rect" title=" " alt="" coords="408,374,479,399"/>
-<area shape="poly" title=" " alt="" coords="363,324,417,362,413,367,360,328"/>
-<area shape="rect" title=" " alt="" coords="503,374,640,399"/>
-<area shape="poly" title=" " alt="" coords="384,324,519,366,518,371,383,329"/>
-<area shape="rect" title=" " alt="" coords="664,374,764,399"/>
-<area shape="poly" title=" " alt="" coords="401,322,649,370,648,375,400,327"/>
-<area shape="poly" title=" " alt="" coords="630,182,445,227,332,261,222,302,171,330,110,367,107,363,168,326,220,298,331,256,443,221,629,176"/>
-<area shape="poly" title=" " alt="" coords="728,176,853,218,851,223,727,181"/>
-<area shape="poly" title=" " alt="" coords="659,181,602,206,543,240,521,260,507,281,504,302,515,324,533,337,559,347,629,358,706,364,774,371,774,376,706,370,628,364,557,352,530,342,511,327,499,303,502,279,517,257,540,236,599,201,657,176"/>
-<area shape="poly" title=" " alt="" coords="808,171,908,189,960,204,1009,224,1059,254,1104,291,1171,360,1167,364,1101,295,1056,259,1006,229,958,209,907,194,807,176"/>
-<area shape="poly" title=" " alt="" coords="683,180,586,290,582,286,679,177"/>
-<area shape="poly" title=" " alt="" coords="1379,255,1292,291,1182,328,1092,349,1002,365,858,384,857,378,1002,360,1091,344,1180,323,1290,286,1376,250"/>
-<area shape="poly" title=" " alt="" coords="1413,252,1424,287,1424,308,1416,327,1388,346,1344,361,1243,381,1242,376,1343,356,1386,342,1412,324,1419,307,1419,288,1407,253"/>
-<area shape="poly" title=" " alt="" coords="1352,247,1060,269,665,303,618,308,617,302,665,297,1059,263,1351,241"/>
-<area shape="poly" title=" " alt="" coords="1426,250,1494,290,1491,294,1423,255"/>
-<area shape="rect" title=" " alt="" coords="1352,300,1402,326"/>
-<area shape="poly" title=" " alt="" coords="1402,253,1389,286,1384,284,1397,251"/>
+<area shape="rect" title="Validation for spatial experiments." alt="" coords="1602,5,1798,31"/>
+<area shape="rect" title=" " alt="" coords="398,300,525,326"/>
+<area shape="poly" title=" " alt="" coords="1602,21,1434,26,1330,33,1217,45,1098,62,978,85,858,116,744,155,670,188,600,226,492,293,489,289,598,221,668,183,742,150,857,111,977,80,1098,56,1216,39,1330,28,1434,21,1601,16"/>
+<area shape="rect" title=" " alt="" coords="31,374,182,399"/>
+<area shape="poly" title=" " alt="" coords="1602,25,1200,41,668,71,415,90,204,112,122,125,60,138,21,152,11,158,8,165,8,240,15,277,33,310,57,339,81,362,77,366,53,343,29,313,10,279,3,241,3,164,7,155,18,147,58,133,121,120,204,107,415,85,668,65,1199,36,1601,20"/>
+<area shape="rect" href="single__cell__experiment_8hpp.html" title="Validation for single cell experiments." alt="" coords="1062,79,1239,105"/>
+<area shape="poly" title=" " alt="" coords="1607,34,1255,80,1254,74,1606,29"/>
+<area shape="rect" href="utils__public_8hpp.html" title="Exported utilities." alt="" coords="1042,300,1152,326"/>
+<area shape="poly" title=" " alt="" coords="1679,34,1560,98,1397,181,1236,254,1141,296,1138,291,1234,250,1395,176,1557,93,1677,29"/>
+<area shape="rect" title=" " alt="" coords="1508,374,1561,399"/>
+<area shape="poly" title=" " alt="" coords="1697,33,1549,361,1544,359,1692,31"/>
+<area shape="rect" title=" " alt="" coords="371,374,450,399"/>
+<area shape="poly" title=" " alt="" coords="1601,25,1142,44,896,61,795,71,718,82,612,99,568,106,527,117,491,132,456,154,422,185,387,228,371,253,362,274,360,297,367,325,376,344,389,360,384,364,371,346,361,327,355,298,357,273,367,250,383,225,418,181,452,150,488,127,526,112,566,101,611,93,717,76,794,65,896,55,1141,39,1601,20"/>
+<area shape="rect" title=" " alt="" coords="624,374,701,399"/>
+<area shape="poly" title=" " alt="" coords="1602,22,1461,25,1283,34,1086,52,890,82,751,103,640,121,590,135,538,155,484,186,423,228,395,251,374,274,368,286,366,298,369,311,377,324,391,336,414,346,475,362,545,373,609,379,609,385,544,378,474,368,412,351,389,340,373,327,364,313,361,298,363,285,370,271,392,247,420,224,481,181,536,151,588,130,639,116,750,98,889,76,1086,47,1283,29,1461,20,1602,17"/>
+<area shape="rect" title=" " alt="" coords="1585,374,1663,399"/>
+<area shape="poly" title=" " alt="" coords="1704,31,1710,124,1707,188,1696,253,1672,313,1643,362,1639,359,1667,311,1691,251,1702,188,1704,124,1699,32"/>
+<area shape="rect" title=" " alt="" coords="1821,374,1886,399"/>
+<area shape="poly" title=" " alt="" coords="1784,29,1843,45,1898,72,1922,89,1941,110,1953,135,1957,164,1957,241,1950,279,1931,313,1907,343,1883,366,1879,362,1903,339,1927,310,1945,277,1952,240,1952,164,1948,137,1936,113,1918,93,1896,76,1841,50,1783,34"/>
+<area shape="rect" title=" " alt="" coords="1379,300,1485,326"/>
+<area shape="poly" title=" " alt="" coords="1692,33,1493,254,1457,290,1453,287,1489,250,1688,29"/>
+<area shape="rect" href="image__file_8hpp.html" title="Validation for standard image files." alt="" coords="1712,300,1816,326"/>
+<area shape="poly" title=" " alt="" coords="1714,30,1732,51,1746,78,1762,134,1769,191,1769,284,1764,284,1764,191,1756,135,1742,80,1727,54,1710,33"/>
+<area shape="rect" title=" " alt="" coords="1932,374,2031,399"/>
+<area shape="poly" title=" " alt="" coords="1799,23,1869,37,1904,48,1937,62,1965,81,1988,103,2003,131,2008,164,2008,241,2002,305,1991,359,1986,358,1997,304,2003,240,2003,164,1998,133,1983,107,1962,85,1934,67,1902,53,1868,42,1798,29"/>
+<area shape="rect" title=" " alt="" coords="2043,79,2152,105"/>
+<area shape="poly" title=" " alt="" coords="1768,29,2028,75,2027,81,1767,34"/>
+<area shape="rect" title=" " alt="" coords="2177,79,2234,105"/>
+<area shape="poly" title=" " alt="" coords="1799,25,1965,44,2162,76,2161,81,1964,49,1798,31"/>
+<area shape="rect" title=" " alt="" coords="2258,79,2315,105"/>
+<area shape="poly" title=" " alt="" coords="1799,22,2000,40,2121,56,2243,76,2242,81,2120,61,2000,46,1798,28"/>
+<area shape="rect" title=" " alt="" coords="2339,79,2400,105"/>
+<area shape="poly" title=" " alt="" coords="1799,21,2035,38,2178,54,2324,76,2323,81,2177,59,2034,43,1798,26"/>
+<area shape="poly" title=" " alt="" coords="1062,99,760,118,607,134,544,144,497,155,441,176,385,201,282,260,195,319,134,366,131,362,192,315,279,255,383,196,439,171,495,150,543,139,606,129,760,112,1062,94"/>
+<area shape="rect" href="summarized__experiment_8hpp.html" title="Validation for summarized experiments." alt="" coords="993,226,1178,252"/>
+<area shape="poly" title=" " alt="" coords="1151,106,1142,140,1128,179,1106,215,1102,212,1123,177,1137,138,1146,105"/>
+<area shape="poly" title=" " alt="" coords="1164,103,1187,131,1211,168,1219,190,1223,211,1222,233,1214,253,1191,279,1161,296,1158,292,1187,275,1210,251,1217,232,1218,212,1214,191,1206,171,1183,134,1160,107"/>
+<area shape="poly" title=" " alt="" coords="1240,97,1320,114,1360,129,1398,150,1424,172,1448,198,1486,255,1513,312,1530,358,1524,360,1508,314,1481,258,1444,201,1421,176,1394,155,1358,134,1318,119,1239,102"/>
+<area shape="poly" title=" " alt="" coords="1062,98,967,103,851,113,726,130,602,155,506,179,467,197,423,228,398,250,380,271,372,295,376,325,394,360,389,363,371,326,367,294,376,269,394,247,420,224,464,192,504,174,601,150,725,125,850,108,966,98,1062,92"/>
+<area shape="poly" title=" " alt="" coords="1063,102,912,121,827,136,743,155,684,169,631,177,538,192,498,205,460,225,423,256,388,301,383,313,387,324,401,335,423,345,481,361,548,372,610,379,609,384,547,378,480,367,421,350,398,340,383,327,378,313,383,299,419,253,457,221,496,200,537,187,630,172,683,164,742,150,826,130,911,115,1062,97"/>
+<area shape="poly" title=" " alt="" coords="1239,95,1285,102,1334,112,1383,128,1429,150,1462,172,1492,198,1544,256,1585,313,1613,359,1608,361,1581,316,1540,259,1488,202,1458,177,1427,155,1381,133,1333,117,1284,107,1239,100"/>
+<area shape="poly" title=" " alt="" coords="1236,103,1346,122,1465,150,1528,165,1586,173,1688,185,1734,197,1777,217,1818,250,1858,299,1865,313,1868,329,1864,359,1859,359,1862,329,1860,315,1854,301,1814,254,1774,222,1732,202,1687,190,1586,178,1527,170,1463,155,1345,127,1236,108"/>
+<area shape="rect" title=" " alt="" coords="549,300,766,326"/>
+<area shape="poly" title=" " alt="" coords="1062,102,903,122,830,136,780,155,743,184,713,219,689,256,671,287,667,285,684,253,708,216,740,180,777,150,829,131,902,116,1062,97"/>
+<area shape="rect" href="ranged__summarized__experiment_8hpp.html" title="Validation for ranged summarized experiments." alt="" coords="882,153,1113,178"/>
+<area shape="poly" title=" " alt="" coords="1126,108,1038,148,1036,143,1124,103"/>
+<area shape="rect" title=" " alt="" coords="1280,153,1384,178"/>
+<area shape="poly" title=" " alt="" coords="1182,103,1288,144,1286,149,1180,108"/>
+<area shape="rect" title=" " alt="" coords="791,153,857,178"/>
+<area shape="poly" title=" " alt="" coords="1091,108,873,155,872,149,1090,103"/>
+<area shape="poly" title=" " alt="" coords="992,252,790,273,541,302,540,297,789,268,992,247"/>
+<area shape="poly" title=" " alt="" coords="1043,255,778,328,619,352,460,369,198,385,198,380,459,363,618,347,777,323,1042,250"/>
+<area shape="poly" title=" " alt="" coords="1090,252,1095,284,1090,285,1085,253"/>
+<area shape="poly" title=" " alt="" coords="1102,250,1153,287,1187,307,1222,323,1294,345,1354,353,1416,358,1493,371,1493,376,1415,363,1353,358,1293,350,1220,328,1184,312,1150,292,1099,255"/>
+<area shape="poly" title=" " alt="" coords="1050,255,924,302,899,316,873,328,792,345,681,361,466,383,466,378,680,355,791,340,871,323,896,311,922,298,1048,250"/>
+<area shape="poly" title=" " alt="" coords="1068,255,1005,291,924,328,868,346,822,356,717,375,716,370,821,351,867,341,922,323,1003,286,1065,250"/>
+<area shape="poly" title=" " alt="" coords="1115,250,1207,286,1323,323,1391,339,1445,349,1570,370,1569,376,1444,354,1389,345,1322,328,1206,291,1114,255"/>
+<area shape="poly" title=" " alt="" coords="1178,239,1352,245,1555,255,1732,272,1794,284,1830,298,1841,311,1849,326,1856,358,1850,359,1844,328,1837,314,1826,302,1793,289,1732,277,1555,260,1352,250,1178,245"/>
+<area shape="poly" title=" " alt="" coords="1145,250,1365,295,1363,300,1144,255"/>
+<area shape="poly" title=" " alt="" coords="1013,255,746,300,745,294,1012,250"/>
+<area shape="poly" title=" " alt="" coords="1042,321,198,381,198,376,1041,316"/>
+<area shape="poly" title=" " alt="" coords="1153,320,1171,323,1331,343,1403,353,1494,371,1493,376,1402,358,1331,349,1170,328,1153,326"/>
+<area shape="poly" title=" " alt="" coords="1042,323,466,382,465,377,1041,317"/>
+<area shape="rect" title=" " alt="" coords="1273,374,1383,399"/>
+<area shape="poly" title=" " alt="" coords="1137,324,1275,366,1274,371,1136,329"/>
+<area shape="rect" title=" " alt="" coords="1407,374,1484,399"/>
+<area shape="poly" title=" " alt="" coords="1153,322,1392,370,1391,376,1152,327"/>
+<area shape="poly" title=" " alt="" coords="1042,326,1024,328,871,350,717,376,716,370,871,345,1024,323,1041,320"/>
+<area shape="poly" title=" " alt="" coords="1153,317,1335,337,1570,371,1570,376,1334,342,1153,322"/>
+<area shape="poly" title=" " alt="" coords="1153,314,1432,331,1616,347,1802,371,1807,372,1806,377,1801,376,1615,353,1432,336,1153,319"/>
+<area shape="rect" title=" " alt="" coords="848,374,920,399"/>
+<area shape="poly" title=" " alt="" coords="1062,329,935,371,933,366,1060,324"/>
+<area shape="rect" title=" " alt="" coords="944,374,1088,399"/>
+<area shape="poly" title=" " alt="" coords="1085,328,1043,365,1039,361,1082,324"/>
+<area shape="rect" title=" " alt="" coords="1111,374,1249,399"/>
+<area shape="poly" title=" " alt="" coords="1113,324,1156,361,1153,365,1110,328"/>
+<area shape="rect" title=" " alt="" coords="724,374,825,399"/>
+<area shape="poly" title=" " alt="" coords="1043,329,841,373,840,368,1042,324"/>
+<area shape="poly" title=" " alt="" coords="953,181,522,298,520,293,952,176"/>
+<area shape="poly" title=" " alt="" coords="882,181,681,203,588,216,521,229,412,261,307,300,146,369,144,364,305,295,411,256,519,224,587,211,681,198,881,175"/>
+<area shape="poly" title=" " alt="" coords="1014,177,1060,214,1057,219,1011,181"/>
+<area shape="poly" title=" " alt="" coords="1115,175,1158,194,1177,207,1193,225,1198,235,1199,246,1188,265,1168,282,1144,296,1141,291,1165,278,1184,262,1193,245,1193,237,1188,228,1173,211,1155,198,1113,180"/>
+<area shape="poly" title=" " alt="" coords="1074,176,1143,195,1213,224,1247,249,1269,274,1291,299,1324,323,1367,343,1404,353,1494,370,1493,376,1403,358,1365,348,1321,328,1287,303,1265,278,1244,253,1211,229,1142,200,1072,182"/>
+<area shape="poly" title=" " alt="" coords="915,182,770,205,603,236,460,269,412,286,387,302,382,315,382,330,395,360,390,362,377,331,376,314,383,298,410,281,459,264,602,230,769,200,914,176"/>
+<area shape="poly" title=" " alt="" coords="980,181,911,228,846,279,779,328,704,369,701,364,776,323,843,275,908,224,977,177"/>
+<area shape="poly" title=" " alt="" coords="1094,176,1171,194,1211,208,1249,224,1286,249,1310,274,1334,299,1369,323,1571,370,1570,375,1367,328,1330,304,1306,278,1282,253,1247,229,1209,213,1170,199,1093,182"/>
+<area shape="poly" title=" " alt="" coords="987,180,799,365,795,361,983,177"/>
+<area shape="poly" title=" " alt="" coords="1726,329,1577,375,1576,370,1724,324"/>
+<area shape="poly" title=" " alt="" coords="1712,319,612,376,466,385,466,379,612,371,1712,314"/>
+<area shape="poly" title=" " alt="" coords="1712,319,1198,345,908,362,717,376,716,371,907,356,1198,339,1712,314"/>
+<area shape="poly" title=" " alt="" coords="1741,329,1662,369,1660,364,1739,324"/>
+<area shape="poly" title=" " alt="" coords="1781,324,1828,362,1825,366,1777,328"/>
+<area shape="poly" title=" " alt="" coords="1802,324,1931,366,1929,371,1800,329"/>
+<area shape="rect" title=" " alt="" coords="1739,374,1789,399"/>
+<area shape="poly" title=" " alt="" coords="1767,326,1767,358,1761,358,1761,326"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -208,14 +237,11 @@ Namespaces</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1spatial__experiment.html">takane::spatial_experiment</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1spatial__experiment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for spatial experiments. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a5f4a6e2ad3d6d548b6d1af3161b87742" id="r_a5f4a6e2ad3d6d548b6d1af3161b87742"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1spatial__experiment.html#a5f4a6e2ad3d6d548b6d1af3161b87742">takane::spatial_experiment::validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a5f4a6e2ad3d6d548b6d1af3161b87742"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54ecb00911d30d6b8ee6cc0e369c0c4b" id="r_a54ecb00911d30d6b8ee6cc0e369c0c4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#a54ecb00911d30d6b8ee6cc0e369c0c4b">takane::validate_spatial_experiment</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:a54ecb00911d30d6b8ee6cc0e369c0c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Validation for spatial experiments. </p>

@@ -102,24 +102,30 @@ $(function(){ initResizable(false); });
 <div class="textblock"><code>#include &quot;utils_files.hpp&quot;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
+<code>#include &lt;exception&gt;</code><br />
 <code>#include &lt;array&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for image_file.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="image__file_8hpp__incl.png" border="0" usemap="#atakane_2image__file_8hpp" alt=""/></div>
 <map name="atakane_2image__file_8hpp" id="atakane_2image__file_8hpp">
-<area shape="rect" title="Validation for standard image files." alt="" coords="198,5,344,31"/>
+<area shape="rect" title="Validation for standard image files." alt="" coords="299,5,446,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,105,105"/>
-<area shape="poly" title=" " alt="" coords="235,34,107,76,105,71,234,29"/>
+<area shape="poly" title=" " alt="" coords="319,34,121,79,119,73,318,29"/>
 <area shape="rect" title=" " alt="" coords="129,79,208,105"/>
-<area shape="poly" title=" " alt="" coords="255,34,200,72,196,68,252,29"/>
+<area shape="poly" title=" " alt="" coords="339,34,218,76,216,71,337,29"/>
 <area shape="rect" title=" " alt="" coords="232,79,310,105"/>
-<area shape="poly" title=" " alt="" coords="274,31,274,63,268,63,268,31"/>
-<area shape="rect" title=" " alt="" coords="334,79,384,105"/>
-<area shape="poly" title=" " alt="" coords="288,29,334,67,331,71,284,34"/>
-<area shape="rect" title=" " alt="" coords="408,79,462,105"/>
-<area shape="poly" title=" " alt="" coords="300,29,395,70,393,75,298,34"/>
+<area shape="poly" title=" " alt="" coords="357,34,302,72,299,67,354,29"/>
+<area shape="rect" title=" " alt="" coords="334,79,410,105"/>
+<area shape="poly" title=" " alt="" coords="375,31,375,63,370,63,370,31"/>
+<area shape="rect" title=" " alt="" coords="434,79,484,105"/>
+<area shape="poly" title=" " alt="" coords="389,29,435,67,431,71,385,34"/>
+<area shape="rect" title=" " alt="" coords="508,79,562,105"/>
+<area shape="poly" title=" " alt="" coords="401,29,495,70,493,75,399,34"/>
+<area shape="rect" title=" " alt="" coords="586,79,650,105"/>
+<area shape="poly" title=" " alt="" coords="415,29,571,74,570,79,413,34"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -145,14 +151,11 @@ Namespaces</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html">takane</a></td></tr>
 <tr class="memdesc:namespacetakane"><td class="mdescLeft">&#160;</td><td class="mdescRight"><b>takane</b> validation functions. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1image__file.html">takane::image_file</a></td></tr>
-<tr class="memdesc:namespacetakane_1_1image__file"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definitions for standard image files. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a8687039e51462e5308726e149059c743" id="r_a8687039e51462e5308726e149059c743"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane_1_1image__file.html#a8687039e51462e5308726e149059c743">takane::image_file::validate</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
-<tr class="separator:a8687039e51462e5308726e149059c743"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec111fc1c0bf4e4c1b5530253311978e" id="r_aec111fc1c0bf4e4c1b5530253311978e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetakane.html#aec111fc1c0bf4e4c1b5530253311978e">takane::validate_image_file</a> (const std::filesystem::path &amp;path, const <a class="el" href="structtakane_1_1ObjectMetadata.html">ObjectMetadata</a> &amp;metadata, const <a class="el" href="structtakane_1_1Options.html">Options</a> &amp;options)</td></tr>
+<tr class="separator:aec111fc1c0bf4e4c1b5530253311978e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Validation for standard image files. </p>
