@@ -2,11 +2,13 @@
 #define TAKANE_BCF_FILE_HPP
 
 #include "utils_files.hpp"
+#include "utils_json.hpp"
 
 #include "ritsuko/ritsuko.hpp"
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <string>
 
 /**
@@ -17,12 +19,6 @@
 namespace takane {
 
 /**
- * @namespace takane::bcf_file
- * @brief Definitions for BCF files.
- */
-namespace bcf_file {
-
-/**
  * If `Options::bcf_file_strict_check` is provided, it is used to perform stricter checking of the BCF file contents and indices.
  * By default, we don't look past the magic number to verify the files as this requires a dependency on heavy-duty libraries like, e.g., HTSlib.
  *
@@ -30,41 +26,73 @@ namespace bcf_file {
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_bcf_file(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "bcf_file"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const std::string& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
+
+    try {
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const std::string& vstring = extract_json_version_string(type_meta);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/BCFv2_qref.pdf
     // We relax it a little to support both BCF1 and BCF2+ formats.
     auto ipath = path / "file.bcf";
-    internal_files::check_gzip_signature(ipath);
-    internal_files::check_gunzipped_signature(ipath, "BCF", 3, "BCF");
+    try {
+        check_gzip_file_signature(ipath);
+        std::array<char, 5> payload;
+        auto extracted = extract_gunzipped_file_signature(ipath, reinterpret_cast<unsigned char*>(payload.data()), payload.size());
+        if (extracted < 4) {
+            throw std::runtime_error("not enough bytes to extract a signature for a BCF file");
+        } else {
+            if (std::strncmp(payload.data(), "BCF\4", 4) == 0) {
+                // okay for the (obsolete) BCFv1.
+            } else if (extracted == 5 && std::strncmp(payload.data(), "BCF\2\1", 5) == 0) {
+                // okay for the widely-used BCFv2.
+            } else {
+                throw std::runtime_error("incorrect signature for a BCF file");
+            }
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + ipath.filename().string() + "'"));
+    }
 
     // Magic number taken from https://samtools.github.io/hts-specs/tabix.pdf
-    auto ixpath = ipath;
-    ixpath += ".tbi";
-    if (std::filesystem::exists(ixpath)) {
-        internal_files::check_gzip_signature(ixpath);
-        internal_files::check_gunzipped_signature(ixpath, "TBI\1", 4, "tabix");
+    auto tbixpath = ipath;
+    tbixpath += ".tbi";
+    if (std::filesystem::exists(tbixpath)) {
+        try {
+            check_gzip_file_signature(tbixpath);
+            check_gunzipped_file_signature(tbixpath, "TBI\1", 4, "a tabix file");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate '" + tbixpath.filename().string() + "'"));
+        }
     }
 
     // Magic number taken from https://samtools.github.io/hts-specs/CSIv1.pdf
-    ixpath = ipath;
-    ixpath += ".csi";
-    if (std::filesystem::exists(ixpath)) {
-        internal_files::check_gzip_signature(ixpath);
-        internal_files::check_gunzipped_signature(ixpath, "CSI\1", 4, "CSI index");
+    auto csixpath = ipath;
+    csixpath += ".csi";
+    if (std::filesystem::exists(csixpath)) {
+        try {
+            check_gzip_file_signature(csixpath);
+            check_gunzipped_file_signature(csixpath, "CSI\1", 4, "a CSI file");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate '" + csixpath.filename().string() + "'"));
+        }
     }
 
     if (options.bcf_file_strict_check) {
         options.bcf_file_strict_check(path, metadata, options);
     }
-}
-
 }
 
 }

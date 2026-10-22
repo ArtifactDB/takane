@@ -9,45 +9,51 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct GmtFileTest : public ::testing::Test {
-    GmtFileTest() {
-        dir = "TEST_gmt_file";
-        name = "gmt_file";
+TEST(GmtFile, Okay) {
+    auto dir = define_test_path("gmt_file");
+
+    {
+        initialize_directory_simple(dir, "gmt_file", "1.0");
+        quick_gzip_write(dir / "file.gmt.gz", "set\tmy set\ta\tb\tc\n");
     }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
-    }
-};
-
-TEST_F(GmtFileTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
-
-    initialize_directory_simple(dir, name, "1.0");
-    auto gmtpath = (dir / "file.gmt.gz").string();
-
-    quick_text_write(gmtpath, "WHEE");
-    expect_error("GZIP file signature");
-
-    quick_gzip_write(gmtpath, "set\tmy set\ta\tb\tc\n");
     test_validate(dir);
+
+    // Checking that the strict validation runs.
+    {
+        takane::Options opts;
+        opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) {};
+        test_validate(dir);
+    }
 }
 
-TEST_F(GmtFileTest, Strict) {
-    initialize_directory_simple(dir, name, "1.0");
+TEST(GmtFile, VersionError) {
+    auto dir = define_test_path("gmt_file");
 
-    auto gmtpath = (dir / "file.gmt.gz").string();
-    quick_gzip_write(gmtpath, "set\tmy set\ta\tb\tc\n");
+    {
+        initialize_directory_simple(dir, "gmt_file", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(GmtFile, GmtError) {
+    auto dir = define_test_path("gmt_file");
+
+    {
+        initialize_directory_simple(dir, "gmt_file", "1.0");
+        quick_text_write(dir / "file.gmt.gz", "WHEE");
+    }
+    expect_validation_error(dir, "GZIP file");
+}
+
+TEST(GmtFile, StrictError) {
+    auto dir = define_test_path("gmt_file");
+
+    {
+        initialize_directory_simple(dir, "gmt_file", "1.0");
+        quick_gzip_write(dir / "file.gmt.gz", "set\tmy set\ta\tb\tc\n");
+    }
 
     takane::Options opts;
-    opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) {};
-    test_validate(dir);
-
-    opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&) { throw std::runtime_error("ARGH"); };
-    expect_error("ARGH", opts);
+    opts.gmt_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&) { throw std::runtime_error("ARGH"); };
+    expect_validation_error(dir, "ARGH", opts);
 }

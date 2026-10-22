@@ -2,66 +2,76 @@
 #define TAKANE_UTILS_SUMMARIZED_EXPERIMENT_HPP
 
 #include "millijson/millijson.hpp"
+#include "sanisizer/sanisizer.hpp"
+
 #include "utils_json.hpp"
+#include "utils_other.hpp"
 
 #include <unordered_set>
 #include <string>
 #include <stdexcept>
 #include <filesystem>
 #include <cmath>
+#include <cstddef>
 
 namespace takane {
 
-namespace internal_summarized_experiment {
-
-inline std::pair<size_t, size_t> extract_dimensions_json(const internal_json::JsonObjectMap& semap, const std::string& type) {
-    size_t num_rows = 0, num_cols = 0;
+inline std::pair<std::size_t, std::size_t> extract_summarized_experiment_dimensions(const JsonObjectMap& semap) {
+    std::size_t num_rows = 0, num_cols = 0;
 
     auto dIt = semap.find("dimensions");
     if (dIt == semap.end()) {
-        throw std::runtime_error("expected a '" + type + ".dimensions' property");
+        throw std::runtime_error("expected a 'dimensions' property");
     }
     const auto& dims = dIt->second;
     if (dims->type() != millijson::ARRAY) {
-        throw std::runtime_error("expected '" + type + ".dimensions' to be an array");
+        throw std::runtime_error("expected 'dimensions' to be an array");
     }
 
     auto dptr = reinterpret_cast<const millijson::Array*>(dims.get());
     if (dptr->value().size() != 2) {
-        throw std::runtime_error("expected '" + type + ".dimensions' to be an array of length 2");
+        throw std::runtime_error("expected 'dimensions' to be an array of length 2");
     }
 
-    size_t counter = 0;
+    std::size_t counter = 0;
     for (const auto& x : dptr->value()) {
         if (x->type() != millijson::NUMBER) {
-            throw std::runtime_error("expected '" + type + ".dimensions' to be an array of numbers");
+            throw std::runtime_error("expected 'dimensions' to be an array of numbers");
         }
-        auto val = reinterpret_cast<const millijson::Number*>(x.get())->value();
-        if (val < 0 || std::floor(val) != val) {
-            throw std::runtime_error("expected '" + type + ".dimensions' to contain non-negative integers");
+
+        const auto raw_val = reinterpret_cast<const millijson::Number*>(x.get())->value();
+        if (raw_val < 0 || std::floor(raw_val) != raw_val) {
+            throw std::runtime_error("expected 'dimensions' to contain non-negative integers");
         }
+
+        const auto val = sanisizer::from_float<std::size_t>(raw_val);           
         if (counter == 0) {
             num_rows = val;
         } else {
             num_cols = val;
         }
+
         ++counter;
     }
 
     return std::make_pair(num_rows, num_cols);
 }
 
-inline void check_names_json(const std::filesystem::path& dir, std::unordered_set<std::string>& present) try {
-    auto parsed = internal_json::parse_file(dir / "names.json");
+inline std::vector<std::string> extract_summarized_experiment_names(const std::filesystem::path& path) {
+    auto parsed = parse_json_file(path);
     if (parsed->type() != millijson::ARRAY) {
         throw std::runtime_error("expected an array");
     }
 
     auto aptr = reinterpret_cast<const millijson::Array*>(parsed.get());
-    size_t number = aptr->value().size();
+    const auto number = aptr->value().size();
+
+    std::vector<std::string> contents;
+    contents.reserve(number);
+    std::unordered_set<std::string> present;
     present.reserve(number);
 
-    for (size_t i = 0; i < number; ++i) {
+    for (I<decltype(number)> i = 0; i < number; ++i) {
         auto eptr = aptr->value()[i];
         if (eptr->type() != millijson::STRING) {
             throw std::runtime_error("expected an array of strings");
@@ -75,19 +85,11 @@ inline void check_names_json(const std::filesystem::path& dir, std::unordered_se
         if (present.find(name) != present.end()) {
             throw std::runtime_error("detected duplicated name '" + name + "'");
         }
+        contents.push_back(name);
         present.insert(std::move(name));
     }
 
-} catch (std::exception& e) {
-    throw std::runtime_error("invalid '" + dir.string() + "/names.json' file; " + std::string(e.what()));
-}
-
-inline size_t check_names_json(const std::filesystem::path& dir) {
-    std::unordered_set<std::string> present;
-    check_names_json(dir, present);
-    return present.size();
-}
-
+    return contents;
 }
 
 }

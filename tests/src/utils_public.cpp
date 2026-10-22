@@ -7,26 +7,18 @@
 #include <string>
 #include <filesystem>
 
-struct ReadObjectTest : public::testing::Test {
-    ReadObjectTest() {
-        dir = "TEST_readobj";
-    }
+static void expect_read_object_error(const std::filesystem::path& dir, const std::string& msg) {
+    expect_error(
+        msg,
+        [&]() -> void {
+            takane::read_object_metadata(dir);
+        }
+    );
+}
 
-    std::filesystem::path dir;
+TEST(ReadObjectMetadata, Basic) {
+    auto dir = define_test_path("utils_public");
 
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::read_object_metadata(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(ReadObjectTest, Basic) {
     initialize_directory(dir);
     auto objpath = (dir / "OBJECT").string();
 
@@ -35,21 +27,35 @@ TEST_F(ReadObjectTest, Basic) {
 
     // Works across multiple lines.
     quick_text_write(objpath, "{ \"type\": \"baz-stuff\", \n \"foobar\": \"whee\" }\n");
-    auto meta = takane::read_object_metadata(dir);
-    EXPECT_EQ(meta.type, "baz-stuff");
-    EXPECT_EQ(meta.other.size(), 1);
+    {
+        auto meta = takane::read_object_metadata(dir);
+        EXPECT_EQ(meta.type, "baz-stuff");
+        EXPECT_EQ(meta.other.size(), 1);
+        EXPECT_TRUE(meta.other.find("foobar") != meta.other.end());
+    }
+
+    quick_text_write(objpath, "{ \"type\": \"baz-stuff\", \n \"foobar\": \"whee\", \"superblah\"\n:\n2 }\n");
+    {
+        auto meta = takane::read_object_metadata(dir);
+        EXPECT_EQ(meta.type, "baz-stuff");
+        EXPECT_EQ(meta.other.size(), 2);
+        EXPECT_TRUE(meta.other.find("foobar") != meta.other.end());
+        EXPECT_TRUE(meta.other.find("superblah") != meta.other.end());
+    }
 }
 
-TEST_F(ReadObjectTest, Fails) {
+TEST(ReadObjectMetadata, Error) {
+    auto dir = define_test_path("utils_public");
+
     initialize_directory(dir);
     auto objpath = (dir / "OBJECT").string();
 
     quick_text_write(objpath, "[]");
-    expect_error("JSON object");
+    expect_read_object_error(dir, "JSON object");
 
     quick_text_write(objpath, "{}");
-    expect_error("type");
+    expect_read_object_error(dir, "type");
 
     quick_text_write(objpath, "{ \"type\": 2 }");
-    expect_error("string");
+    expect_read_object_error(dir, "string");
 }

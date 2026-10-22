@@ -1,8 +1,8 @@
-#ifndef TAKANE_HDF5_SPARSE_MATRIX_HPP
-#define TAKANE_HDF5_SPARSE_MATRIX_HPP
+#ifndef TAKANE_COMPRESSED_SPARSE_MATRIX_HPP
+#define TAKANE_COMPRESSED_SPARSE_MATRIX_HPP
 
+#include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
-#include "ritsuko/hdf5/hdf5.hpp"
 
 #include "utils_public.hpp"
 #include "utils_array.hpp"
@@ -10,9 +10,10 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <string>
 #include <cstdint>
-#include <array>
+#include <cstddef>
 #include <vector>
 
 /**
@@ -23,174 +24,204 @@
 namespace takane {
 
 /**
- * @namespace takane::compressed_sparse_matrix
- * @brief Definitions for compressed sparse matrices.
- */
-namespace compressed_sparse_matrix {
-
-/**
- * @cond
- */
-namespace internal {
-
-inline std::array<uint64_t, 2> validate_shape(const H5::Group& handle, const Options&) try {
-    auto shandle = ritsuko::hdf5::open_dataset(handle, "shape");
-    if (ritsuko::hdf5::exceeds_integer_limit(shandle, 64, false)) {
-        throw std::runtime_error("expected the datatype to be a subset of a 64-bit unsigned integer");
-    }
-
-    size_t len = ritsuko::hdf5::get_1d_length(shandle, false);
-    if (len != 2) {
-        throw std::runtime_error("expected the dataset to be of length 2");
-    }
-
-    std::array<uint64_t, 2> output;
-    shandle.read(output.data(), H5::PredType::NATIVE_UINT64);
-    return output;
-
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate sparse matrix shape at '" + ritsuko::hdf5::get_name(handle) + "/shape'; " + std::string(e.what()));
-}
-
-inline size_t validate_data(const H5::Group& handle, const Options&) try {
-    auto dhandle = ritsuko::hdf5::open_dataset(handle, "data");
-
-    auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(handle, "type");
-    if (type == "integer") {
-        if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
-            throw std::runtime_error("expected an integer 'data' to fit inside a 32-bit signed integer");
-        }
-    } else if (type == "boolean") {
-        if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
-            throw std::runtime_error("expected a boolean 'data' to fit inside a 32-bit signed integer");
-        }
-    } else if (type == "number") {
-        if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
-            throw std::runtime_error("expected a number 'data' to fit inside a 64-bit float");
-        }
-    } else {
-        throw std::runtime_error("unknown matrix type '" + type + "'");
-    }
-
-    if (dhandle.attrExists("missing-value-placeholder")) {
-        auto attr = dhandle.openAttribute("missing-value-placeholder");
-        ritsuko::hdf5::check_numeric_missing_placeholder_attribute(dhandle, attr);
-    }
-
-    return ritsuko::hdf5::get_1d_length(dhandle, false);
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate sparse matrix data at '" + ritsuko::hdf5::get_name(handle) + "/data'; " + std::string(e.what()));
-}
-
-inline std::vector<uint64_t> validate_indptrs(const H5::Group& handle, size_t primary_dim, size_t num_nonzero) try {
-    auto dhandle = ritsuko::hdf5::open_dataset(handle, "indptr");
-    if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, false)) {
-        throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
-    }
-
-    size_t len = ritsuko::hdf5::get_1d_length(dhandle, false);
-    if (len != primary_dim + 1) {
-        throw std::runtime_error("dataset should have length equal to the primary dimension extent plus 1");
-    }
-
-    std::vector<uint64_t> indptrs(len);
-    dhandle.read(indptrs.data(), H5::PredType::NATIVE_UINT64);
-
-    if (indptrs[0] != 0) {
-        throw std::runtime_error("first entry should be zero");
-    }
-    if (indptrs.back() != num_nonzero) {
-        throw std::runtime_error("last entry should equal the number of non-zero elements");
-    }
-
-    for (size_t i = 1; i < len; ++i) {
-        if (indptrs[i] < indptrs[i-1]) {
-            throw std::runtime_error("pointers should be sorted in increasing order");
-        }
-    }
-
-    return indptrs;
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate sparse matrix pointers at '" + ritsuko::hdf5::get_name(handle) + "/indptr'; " + std::string(e.what()));
-}
-
-inline void validate_indices(const H5::Group& handle, const std::vector<uint64_t>& indptrs, uint64_t secondary_dim, const Options& options) try {
-    auto dhandle = ritsuko::hdf5::open_dataset(handle, "indices");
-    if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 64, false)) {
-        throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
-    }
-
-    auto len = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-    if (indptrs.back() != len) {
-        throw std::runtime_error("dataset length should be equal to the number of non-zero elements (expected " + std::to_string(indptrs.back()) + ", got " + std::to_string(len) + ")");
-    }
-
-    size_t which_ptr = 0;
-    uint64_t last_index = 0;
-    hsize_t limit = indptrs[0];
-    ritsuko::hdf5::Stream1dNumericDataset<uint64_t> stream(&dhandle, len, options.hdf5_buffer_size);
-
-    for (hsize_t i = 0; i < len; ++i, stream.next()) {
-        auto x = stream.get();
-        if (x >= secondary_dim) {
-            throw std::runtime_error("out-of-range index (" + std::to_string(x) + ")");
-        }
-
-        if (i == limit) {
-            // No need to check if there are more or fewer elements
-            // than expected, as we already know that indptr.back()
-            // is equal to the number of non-zero elements.
-            do {
-                ++which_ptr;
-                limit = indptrs[which_ptr];
-            } while (i == limit);
-        } else if (last_index >= x) {
-            throw std::runtime_error("indices should be strictly increasing");
-        }
-
-        last_index = x;
-    }
-
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate sparse matrix indices at '" + ritsuko::hdf5::get_name(handle) + "/indices'; " + std::string(e.what()));
-}
-
-}
-/**
- * @endcond
- */
-
-/**
  * @param path Path to a directory containing a compressed sparse matrix.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_compressed_sparse_matrix(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "compressed_sparse_matrix"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version '" + vstring + "'");
+
+    try {
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const auto& vstring = extract_json_version_string(type_meta);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
-    auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-    auto layout = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "layout");
-    size_t primary = 0;
-    if (layout == "CSC") {
-        primary = 1;
-    } else if (layout != "CSR") {
-        throw std::runtime_error("'layout' attribute must be one of 'CSC' or 'CSR'");
-    }
+    try {
+        H5::H5File handle(path / "matrix.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(type_name);
 
-    auto shape = internal::validate_shape(ghandle, options);
-    size_t num_nonzero = internal::validate_data(ghandle, options);
-    auto indptrs = internal::validate_indptrs(ghandle, shape[primary], num_nonzero);
-    internal::validate_indices(ghandle, indptrs, shape[1 - primary], options);
+        std::string type;
+        try {
+            auto thandle = ghandle.openAttribute("type");
+            type = open_and_load_scalar_string_attribute(thandle);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate the 'type' attribute"));
+        }
 
-    if (ghandle.exists("names")) {
-        std::vector<hsize_t> dims(shape.begin(), shape.end());
-        internal_array::check_dimnames(ghandle, "names", dims, options);
+        bool is_csr = true;
+        try {
+            auto lhandle = ghandle.openAttribute("layout");
+            auto layout = open_and_load_scalar_string_attribute(lhandle);
+            if (layout == "CSC") {
+                is_csr = false;
+            } else if (layout != "CSR") {
+                throw std::runtime_error("'layout' should be either 'CSC' or 'CSR'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate the 'layout' attribute"));
+        }
+
+        // Checking the shape.
+        std::vector<std::uint64_t> shape(2);
+        try {
+            auto shandle = ghandle.openDataSet("shape");
+            if (ritsuko::hdf5::exceeds_integer_limit(shandle, 64, false)) {
+                throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+            }
+
+            auto sspace = shandle.getSpace();
+            if (sspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t len;
+            sspace.getSimpleExtentDims(&len);
+            if (len != 2) {
+                throw std::runtime_error("expected a dataset of length 2");
+            }
+
+            shandle.read(shape.data(), H5::PredType::NATIVE_UINT64);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'shape'"));
+        }
+
+        // Checking data, and getting the number of structural non-zeros.
+        hsize_t num_nonzero;
+        try {
+            auto dhandle = ghandle.openDataSet("data");
+
+            auto dspace = dhandle.getSpace();
+            if (dspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            dspace.getSimpleExtentDims(&num_nonzero);
+
+            if (type == "integer") {
+                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                    throw std::runtime_error("expected datatype to fit inside a 32-bit signed integer");
+                }
+            } else if (type == "boolean") {
+                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                    throw std::runtime_error("expected datatype to fit inside a 32-bit signed integer");
+                }
+            } else if (type == "number") {
+                if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
+                    throw std::runtime_error("expected datatype to fit inside a 64-bit float");
+                }
+            } else {
+                throw std::runtime_error("unknown matrix type '" + type + "'");
+            }
+
+            validate_numeric_missing_placeholder(dhandle, "missing-value-placeholder");
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'data'"));
+        }
+
+        // Checking and extracting the indptrs.
+        const auto primary_dim = (is_csr ? shape[0] : shape[1]);
+        std::vector<std::uint64_t> indptrs(sanisizer::sum<typename std::vector<std::uint64_t>::size_type>(primary_dim, 1));
+        try {
+            auto phandle = ghandle.openDataSet("indptr");
+            if (ritsuko::hdf5::exceeds_integer_limit(phandle, 64, false)) {
+                throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+            }
+
+            auto pspace = phandle.getSpace();
+            if (pspace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t numptrs;
+            pspace.getSimpleExtentDims(&numptrs);
+            if (!sanisizer::is_equal(numptrs, indptrs.size())) {
+                auto dimname = (is_csr ? std::string("rows") : std::string("columns"));
+                throw std::runtime_error("dataset should have length equal to the number of " + dimname + " plus 1");
+            }
+
+            phandle.read(indptrs.data(), H5::PredType::NATIVE_UINT64);
+            if (indptrs[0] != 0) {
+                throw std::runtime_error("first entry should be zero");
+            }
+            if (!sanisizer::is_equal(indptrs.back(), num_nonzero)) {
+                throw std::runtime_error("last entry should equal the number of non-zero elements");
+            }
+
+            for (I<decltype(primary_dim)> i = 1; i < primary_dim; ++i) {
+                if (indptrs[i] < indptrs[i-1]) {
+                    throw std::runtime_error("pointers should be sorted in increasing order");
+                }
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'indptr'"));
+        }
+
+        // Finally checking the indices.
+        try {
+            auto ihandle = ghandle.openDataSet("indices");
+            if (ritsuko::hdf5::exceeds_integer_limit(ihandle, 64, false)) {
+                throw std::runtime_error("expected datatype to be a subset of a 64-bit unsigned integer");
+            }
+
+            auto ispace = ihandle.getSpace();
+            if (ispace.getSimpleExtentNdims() != 1) {
+                throw std::runtime_error("expected a 1-dimensional dataset");
+            }
+            hsize_t len;
+            ispace.getSimpleExtentDims(&len);
+            if (num_nonzero != len) {
+                throw std::runtime_error("length of dataset should be equal to the number of non-zero elements");
+            }
+
+            StreamIterator<std::uint64_t> indstream(
+                ritsuko::hdf5::Stream1dNumericDataset<std::uint64_t>(
+                    &ihandle,
+                    len,
+                    [&]{
+                        ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+                        opt.contiguous_chunk_size = options.hdf5_buffer_size;
+                        return opt;
+                    }()
+                )
+            );
+
+            const auto secondary_dim = (is_csr ? shape[1] : shape[0]);
+            for (I<decltype(primary_dim)> i = 0; i < primary_dim; ++i) {
+                const auto start = indptrs[i];
+                const auto end = indptrs[i + 1];
+                if (start == end) {
+                    continue;
+                }
+
+                auto previous = indstream.next();
+                for (I<decltype(start)> j = start + 1; j < end; ++j) {
+                    auto i = indstream.next();
+                    if (previous >= i) {
+                        auto dimname = (is_csr ? std::string("rows") : std::string("columns"));
+                        throw std::runtime_error("entries should be strictly increasing within each " + dimname);
+                    }
+                    previous = i;
+                }
+
+                if (sanisizer::is_greater_than_or_equal(previous, secondary_dim)) {
+                    auto dimname = (is_csr ? std::string("columns") : std::string("rows"));
+                    throw std::runtime_error("entries should be less than the number of " + dimname);
+                }
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'indices'"));
+        }
+
+        validate_array_dimnames(ghandle, "names", shape, options);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in 'matrix.h5'"));
     }
 }
 
@@ -200,13 +231,13 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Number of rows in the matrix.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "compressed_sparse_matrix");
-    auto shandle = ritsuko::hdf5::open_dataset(ghandle, "shape");
-    std::array<uint64_t, 2> output;
+inline std::size_t height_of_compressed_sparse_matrix(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+    H5::H5File handle(path / "matrix.h5", H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup("compressed_sparse_matrix");
+    auto shandle = ghandle.openDataSet("shape");
+    std::vector<std::uint64_t> output(2);
     shandle.read(output.data(), H5::PredType::NATIVE_UINT64);
-    return output.front();
+    return sanisizer::cast<std::size_t>(output.front());
 }
 
 /**
@@ -215,15 +246,13 @@ inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const O
  * @param options Validation options.
  * @return Dimensions of the matrix.
  */
-inline std::vector<size_t> dimensions(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    auto handle = ritsuko::hdf5::open_file(path / "matrix.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, "compressed_sparse_matrix");
-    auto shandle = ritsuko::hdf5::open_dataset(ghandle, "shape");
-    std::array<uint64_t, 2> output;
+inline std::vector<size_t> dimensions_of_compressed_sparse_matrix(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+    H5::H5File handle(path / "matrix.h5", H5F_ACC_RDONLY);
+    auto ghandle = handle.openGroup("compressed_sparse_matrix");
+    auto shandle = ghandle.openDataSet("shape");
+    std::vector<std::uint64_t> output(2);
     shandle.read(output.data(), H5::PredType::NATIVE_UINT64);
-    return std::vector<size_t>(output.begin(), output.end());
-}
-
+    return cast_array_dimensions<std::size_t>(output);
 }
 
 }

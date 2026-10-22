@@ -2,69 +2,38 @@
 #include <gmock/gmock.h>
 
 #include "utils.h"
-#include "atomic_vector.h"
-#include "data_frame.h"
-#include "simple_list.h"
+#include "mock_atomic_vector.h"
+#include "mock_compressed_list.h"
+
+#include "H5Cpp.h"
+#include "takane/atomic_vector_list.hpp"
 
 #include <string>
 #include <filesystem>
 #include <fstream>
 
-struct AtomicVectorListTest : public::testing::Test {
-    AtomicVectorListTest() {
-        dir = "TEST_atomic_vector_list";
-        name = "atomic_vector_list";
-    }
+// These tests are cursory and just check that the correct arguments are passed to validate_compressed_list().
+// Most of the heavy testing is actually performed in utils_compressed_list.cpp.
 
-    std::filesystem::path dir;
-    std::string name;
-
-    H5::H5File initialize() {
-        initialize_directory_simple(dir, name, "1.0");
-        return H5::H5File(dir / "partitions.h5", H5F_ACC_TRUNC);
-    }
-
-    H5::H5File reopen() {
-        return H5::H5File(dir / "partitions.h5", H5F_ACC_RDWR);
-    }
-
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(AtomicVectorListTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version string");
+TEST(AtomicVectorList, Okay) {
+    auto dir = define_test_path("atomic_vector_list");
 
     {
-        auto handle = initialize();
-        auto ghandle = handle.createGroup(name);
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "lengths", H5::PredType::NATIVE_UINT32, { 4, 3, 2, 1 });
-        initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
-    }
-    expect_error("should contain an 'atomic_vector'");
-
-    {
-        initialize_directory_simple(dir / "concatenated", "atomic_vector", "1.0");
-    }
-    expect_error("failed to validate the 'concatenated'");
-
-    {
-        atomic_vector::mock(dir / "concatenated", 7, atomic_vector::Type::INTEGER);
-    }
-    expect_error("sum of 'lengths'");
-
-    {
-        atomic_vector::mock(dir / "concatenated", 10, atomic_vector::Type::INTEGER);
+        initialize_directory_simple(dir, "atomic_vector_list", "1.0"); 
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 0, 4, 3, 2, 1 });
+        mock_atomic_vector(dir / "concatenated", AtomicVectorOptions(10, AtomicVectorType::INTEGER));
     }
     test_validate(dir);
-    EXPECT_EQ(test_height(dir), 4);
+    EXPECT_EQ(test_height(dir), 5);
+}
+
+TEST(AtomicVectorList, Error) {
+    auto dir = define_test_path("atomic_vector_list");
+
+    {
+        initialize_directory_simple(dir, "atomic_vector_list", "1.0"); 
+        mock_compressed_list_partitions(dir / "partitions.h5", "atomic_vector_list", { 4, 3, 2, 1 });
+        initialize_directory_simple(dir / "concatenated", "foobar", "1.0");
+    }
+    expect_validation_error(dir, "should be derived from the 'atomic_vector'");
 }

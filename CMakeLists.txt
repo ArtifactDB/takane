@@ -19,13 +19,14 @@ option(TAKANE_FETCH_EXTERN "Automatically fetch takane's external dependencies."
 if(TAKANE_FETCH_EXTERN)
     add_subdirectory(extern)
 else()
+    find_package(ltla_sanisizer 0.2.0 CONFIG REQUIRED)
     find_package(artifactdb_ritsuko 0.6.0 CONFIG REQUIRED)
     find_package(artifactdb_uzuki2 2.0.0 CONFIG REQUIRED)
     find_package(artifactdb_chihaya 1.1.0 CONFIG REQUIRED)
     find_package(ltla_byteme 2.1.1 CONFIG REQUIRED)
 endif()
 
-target_link_libraries(takane INTERFACE artifactdb::ritsuko artifactdb::chihaya artifactdb::uzuki2)
+target_link_libraries(takane INTERFACE artifactdb::ritsuko artifactdb::chihaya artifactdb::uzuki2 ltla::sanisizer ltla::byteme)
 
 option(TAKANE_FIND_HDF5 "Try to find and link to HDF5 for takane." ON)
 if(TAKANE_FIND_HDF5)

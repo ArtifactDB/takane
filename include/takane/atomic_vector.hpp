@@ -4,13 +4,19 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <exception>
+#include <cstdint>
+#include <cstddef>
 
-#include "ritsuko/hdf5/hdf5.hpp"
-#include "ritsuko/hdf5/vls/vls.hpp"
+#include "H5Cpp.h"
+#include "ritsuko/ritsuko.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include "utils_public.hpp"
 #include "utils_string.hpp"
 #include "utils_json.hpp"
+#include "utils_missing.hpp"
+#include "utils_other.hpp"
 
 /**
  * @file atomic_vector.hpp
@@ -20,84 +26,139 @@
 namespace takane {
 
 /**
- * @namespace takane::atomic_vector
- * @brief Definitions for atomic vectors.
- */
-namespace atomic_vector {
-
-/**
  * @param path Path to the directory containing the atomic vector.
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_atomic_vector(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "atomic_vector"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vstring = internal_json::extract_version_for_type(metadata.other, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
+
+    ritsuko::Version version;
+    try {
+        const auto& type_meta = extract_json_object(metadata.other, type_name);
+        try {
+            const auto& vstring = extract_json_version_string(type_meta);
+            version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to validate 'version'"));
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
-    auto ghandle = ritsuko::hdf5::open_group(handle, type_name.c_str());
-    auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
-    hsize_t vlen = 0;
+    try {
+        H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
+        auto ghandle = handle.openGroup(type_name);
+        hsize_t vlen = 0;
 
-    const char* missing_attr_name = "missing-value-placeholder";
+        const char* missing_attr_name = "missing-value-placeholder";
 
-    if (type == "vls") {
-        if (version.lt(1, 1, 0)) {
-            throw std::runtime_error("unsupported type '" + type + "'");
+        std::string type;
+        try {
+            auto thandle = ghandle.openAttribute("type");
+            type = open_and_load_scalar_string_attribute(thandle);
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to read the 'type' attribute"));
         }
 
-        auto phandle = ritsuko::hdf5::vls::open_pointers(ghandle, "pointers", 64, 64);
-        vlen = ritsuko::hdf5::get_1d_length(phandle.getSpace(), false);
-        auto hhandle = ritsuko::hdf5::vls::open_heap(ghandle, "heap");
-        auto hlen = ritsuko::hdf5::get_1d_length(hhandle.getSpace(), false);
-        ritsuko::hdf5::vls::validate_1d_array<uint64_t, uint64_t>(phandle, vlen, hlen, options.hdf5_buffer_size);
-
-        if (phandle.attrExists(missing_attr_name)) {
-            auto attr = phandle.openAttribute(missing_attr_name);
-            ritsuko::hdf5::check_string_missing_placeholder_attribute(attr);
-        }
-
-    } else {
-        auto dhandle = ritsuko::hdf5::open_dataset(ghandle, "values");
-        vlen = ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
-
-        if (type == "string") {
-            if (!ritsuko::hdf5::is_utf8_string(dhandle)) {
-                throw std::runtime_error("expected a datatype for 'values' that can be represented by a UTF-8 encoded string");
-            }
-            auto missingness = ritsuko::hdf5::open_and_load_optional_string_missing_placeholder(dhandle, missing_attr_name);
-            std::string format = internal_string::fetch_format_attribute(ghandle);
-            internal_string::validate_string_format(dhandle, vlen, format, missingness, options.hdf5_buffer_size);
-
-        } else {
-            if (type == "integer") {
-                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
-                    throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
-                }
-            } else if (type == "boolean") {
-                if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
-                    throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
-                }
-            } else if (type == "number") {
-                if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
-                    throw std::runtime_error("expected a datatype for 'values' that fits in a 64-bit float");
-                }
-            } else {
+        if (type == "vls") {
+            if (version.lt(1, 1, 0)) {
                 throw std::runtime_error("unsupported type '" + type + "'");
             }
 
-            if (dhandle.attrExists(missing_attr_name)) {
-                auto missing_attr = dhandle.openAttribute(missing_attr_name);
-                ritsuko::hdf5::check_numeric_missing_placeholder_attribute(dhandle, missing_attr);
+            enum Failure { HEAP, POINTERS };
+            Failure who_failed = HEAP;
+
+            try {
+                auto hhandle = ghandle.openDataSet("heap");
+                const auto hlen = ritsuko::cvls::validate_heap(hhandle);
+
+                who_failed = POINTERS;
+                auto phandle = ghandle.openDataSet("pointers");
+                auto pspace = phandle.getSpace();
+                if (pspace.getSimpleExtentNdims() != 1) {
+                    throw std::runtime_error("expected 'pointers' to be a 1-dimensional dataset");
+                }
+                pspace.getSimpleExtentDims(&vlen);
+
+                ritsuko::cvls::validate_1d_pointers<std::uint64_t, std::uint64_t>(
+                    phandle,
+                    vlen,
+                    hlen,
+                    [&]{
+                        ritsuko::cvls::Validate1dPointersOptions opt;
+                        opt.contiguous_chunk_size = options.hdf5_buffer_size;
+                        return opt;
+                    }()
+                );
+
+                validate_string_missing_placeholder(phandle, missing_attr_name);
+            } catch (...) {
+                std::string desc;
+                switch (who_failed) {
+                    case HEAP: desc = "heap"; break;
+                    case POINTERS: desc = "pointers"; break;
+                }
+                std::throw_with_nested(std::runtime_error("failed to validate '" + desc + "'")); 
+            }
+
+        } else {
+            enum Failure { VALUES, OTHER };
+            Failure who_failed = VALUES;
+
+            try {
+                auto dhandle = ghandle.openDataSet("values");
+                auto dspace = dhandle.getSpace();
+                if (dspace.getSimpleExtentNdims() != 1) {
+                    throw std::runtime_error("expected 'values' to be a 1-dimensional dataset");
+                }
+                dspace.getSimpleExtentDims(&vlen);
+
+                if (type == "string") {
+                    if (!ritsuko::hdf5::is_utf8_string(dhandle)) {
+                        throw std::runtime_error("expected a datatype for 'values' that can be represented by a UTF-8 encoded string");
+                    }
+                    auto missingness = read_string_missing_placeholder(dhandle, missing_attr_name);
+                    who_failed = OTHER;
+                    const auto format = open_and_load_string_format(ghandle);
+                    who_failed = VALUES;
+                    validate_string_format(dhandle, vlen, format, missingness, options.hdf5_buffer_size);
+
+                } else {
+                    if (type == "integer") {
+                        if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                            throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
+                        }
+                    } else if (type == "boolean") {
+                        if (ritsuko::hdf5::exceeds_integer_limit(dhandle, 32, true)) {
+                            throw std::runtime_error("expected a datatype for 'values' that fits in a 32-bit signed integer");
+                        }
+                    } else if (type == "number") {
+                        if (ritsuko::hdf5::exceeds_float_limit(dhandle, 64)) {
+                            throw std::runtime_error("expected a datatype for 'values' that fits in a 64-bit float");
+                        }
+                    } else {
+                        throw std::runtime_error("unsupported type '" + type + "'");
+                    }
+
+                    validate_numeric_missing_placeholder(dhandle, missing_attr_name);
+                }
+            } catch (...) {
+                if (who_failed == VALUES) {
+                    std::throw_with_nested(std::runtime_error("failed to validate 'values'"));
+                } else {
+                    throw;
+                }
             }
         }
-    }
 
-    internal_string::validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
+        validate_names(ghandle, "names", vlen, options.hdf5_buffer_size);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in 'contents.h5'"));
+    }
 }
 
 /**
@@ -106,20 +167,21 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Length of the vector.
  */
-inline size_t height(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
-    auto handle = ritsuko::hdf5::open_file(path / "contents.h5");
+inline std::size_t height_of_atomic_vector(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
+    H5::H5File handle(path / "contents.h5", H5F_ACC_RDONLY);
     auto ghandle = handle.openGroup("atomic_vector");
-    auto type = ritsuko::hdf5::open_and_load_scalar_string_attribute(ghandle, "type");
+    auto type = open_and_load_scalar_string_attribute(ghandle.openAttribute("type"));
 
+    hsize_t len;
     if (type == "vls") {
         auto phandle = ghandle.openDataSet("pointers");
-        return ritsuko::hdf5::get_1d_length(phandle.getSpace(), false);
+        phandle.getSpace().getSimpleExtentDims(&len);
     } else {
         auto dhandle = ghandle.openDataSet("values");
-        return ritsuko::hdf5::get_1d_length(dhandle.getSpace(), false);
+        dhandle.getSpace().getSimpleExtentDims(&len);
     }
-}
 
+    return sanisizer::cast<std::size_t>(len);
 }
 
 }

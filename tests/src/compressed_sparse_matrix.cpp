@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "compressed_sparse_matrix.h"
+#include "mock_compressed_sparse_matrix.h"
 #include "utils.h"
 
 #include <numeric>
@@ -9,287 +9,467 @@
 #include <vector>
 #include <random>
 
-struct SparseMatrixTest : public ::testing::Test {
-    SparseMatrixTest() {
-        path = "TEST_sparse_matrix";
-        name = "compressed_sparse_matrix";
+TEST(CompressedSparseMatrix, Okay) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    {
+        mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(299, 121));
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 299);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 299, 121 }));
     }
 
-    std::filesystem::path path;
-    std::string name;
-
-    H5::H5File reopen() {
-        return H5::H5File(path / "matrix.h5", H5F_ACC_RDWR);
+    // CSR.
+    {
+        CompressedSparseMatrixOptions opt(182, 107);
+        opt.column_sparse = false;
+        mock_compressed_sparse_matrix(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 182);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 182, 107 }));
     }
 
-public:
-    void expect_error(const std::string& msg) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(path);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
+    // Double-precision.
+    {
+        CompressedSparseMatrixOptions opt(82, 154);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        mock_compressed_sparse_matrix(dir, opt);
     }
-};
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 82);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 82, 154 }));
+    }
 
-TEST_F(SparseMatrixTest, Basic) {
-    initialize_directory_simple(path, name, "2.0");
-    expect_error("unsupported version");
-
-    // Success with lots of zero-length columns.
-    compressed_sparse_matrix::mock(path, 20, 30, 0.02);
-    test_validate(path);
-    EXPECT_EQ(test_height(path), 20);
-
-    std::vector<size_t> expected_dims { 20, 30 };
-    EXPECT_EQ(test_dimensions(path), expected_dims);
-
-    // Success with no zero-length columns.
-    compressed_sparse_matrix::mock(path, 20, 30, 0.5);
-    test_validate(path);
+    // Boolean.
+    {
+        CompressedSparseMatrixOptions opt(32, 321);
+        opt.type = CompressedSparseMatrixType::BOOLEAN;
+        mock_compressed_sparse_matrix(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 32);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 32, 321 }));
+    }
 }
 
-TEST_F(SparseMatrixTest, Layout) {
-    // Row-major layout:
-    compressed_sparse_matrix::Config config;
-    config.csc = false;
-    compressed_sparse_matrix::mock(path, 40, 50, 0.2, config);
-    test_validate(path);
-    EXPECT_EQ(test_height(path), 40);
+TEST(CompressedSparseMatrix, ExtremeOkay) {
+    auto dir = define_test_path("compressed_sparse_matrix");
 
-    // Fails with unknown layout: 
+    // All columns empty.
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("compressed_sparse_matrix");
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.density = 0;
+        mock_compressed_sparse_matrix(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 20);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 20, 30 }));
+    }
+
+    // All columns full.
+    {
+        CompressedSparseMatrixOptions opt(25, 35);
+        opt.density = 1;
+        mock_compressed_sparse_matrix(dir, opt);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 25);
+        EXPECT_EQ(test_dimensions(dir), (std::vector<std::size_t>{ 25, 35 }));
+    }
+}
+
+/**********************************/
+
+TEST(CompressedSparseMatrix, VersionError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    {
+        initialize_directory_simple(dir, "compressed_sparse_matrix", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(CompressedSparseMatrix, TypeError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    // Test that the type attribute's type/shape are actually validated.
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
+        ghandle.removeAttr("type");
+        ghandle.createAttribute("type", H5::PredType::NATIVE_INT, H5S_SCALAR); 
+    }
+    expect_validation_error(dir, "UTF-8 encoded string");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
+        ghandle.removeAttr("type");
+        add_hdf5_string_attribute(ghandle, "type", "foobar");
+    }
+    expect_validation_error(dir, "unknown matrix type");
+}
+
+TEST(CompressedSparseMatrix, LayoutError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    // Test that the layout attribute's type/shape are actually validated.
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.removeAttr("layout");
-        hdf5_utils::attach_attribute(ghandle, "layout", "fooobar");
+        ghandle.createAttribute("layout", H5::PredType::NATIVE_INT, H5S_SCALAR); 
     }
-    expect_error("'layout' attribute must be");
+    expect_validation_error(dir, "UTF-8 encoded string");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
+        ghandle.removeAttr("layout");
+        add_hdf5_string_attribute(ghandle, "layout", "fooobar");
+    }
+    expect_validation_error(dir, "'layout' should be either");
 }
 
-TEST_F(SparseMatrixTest, Shape) {
-    {
-        compressed_sparse_matrix::mock(path, 20, 30, 0.2);
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("shape");
-        hdf5_utils::spawn_data(ghandle, "shape", 2, H5::PredType::NATIVE_INT32);
-    }
-    expect_error("64-bit unsigned integer");
+TEST(CompressedSparseMatrix, ShapeError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        compressed_sparse_matrix::mock(path, 20, 30, 0.2);
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.unlink("shape");
-        hdf5_utils::spawn_data(ghandle, "shape", 3, H5::PredType::NATIVE_UINT32);
+        ghandle.createDataSet("shape", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(2));
     }
-    expect_error("length 2");
+    expect_validation_error(dir, "64-bit unsigned integer");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
+        ghandle.unlink("shape");
+        ghandle.createDataSet("shape", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional");
+
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
+        ghandle.unlink("shape");
+        ghandle.createDataSet("shape", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(3));
+    }
+    expect_validation_error(dir, "length 2");
 }
 
-TEST_F(SparseMatrixTest, Data) {
-    // Trying with integers.
-    {
-        compressed_sparse_matrix::Config config;
-        config.as_integer = true;
-        compressed_sparse_matrix::mock(path, 20, 30, 0.2, config);
-    }
-    test_validate(path);
+/**********************************/
 
-    // Still good for booleans.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "boolean");
-    }
-    test_validate(path);
-
-    // Now checking the various failures.
-    {
-        compressed_sparse_matrix::mock(path, 20, 30, 0.2);
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "integer");
-    }
-    expect_error("32-bit signed integer");
+TEST(CompressedSparseMatrix, DataError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "boolean");
-    }
-    expect_error("32-bit signed integer");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        size_t len = ritsuko::hdf5::get_1d_length(ghandle.openDataSet("data"), false);
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(20, 30));
         ghandle.unlink("data");
-        hdf5_utils::spawn_data(ghandle, "data", len, H5::PredType::NATIVE_INT64);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "number");
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
-    expect_error("64-bit float");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.removeAttr("type");
-        hdf5_utils::attach_attribute(ghandle, "type", "YAYYA");
-    }
-    expect_error("unknown matrix type");
+    expect_validation_error(dir, "1-dimensional");
 }
 
-TEST_F(SparseMatrixTest, MissingPlaceholder) {
-    {
-        compressed_sparse_matrix::Config config;
-        config.csc = false;
-        config.as_integer = true;
-        compressed_sparse_matrix::mock(path, 99, 20, 0.2, config);
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto dhandle = ghandle.openDataSet("data");
-        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_FLOAT, H5S_SCALAR);
-    }
-    expect_error("same type as");
+TEST(CompressedSparseMatrix, IntegerError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        auto ghandle = mock_compressed_sparse_matrix(dir, opt);
+        ghandle.removeAttr("type");
+        add_hdf5_string_attribute(ghandle, "type", "integer");
+    }
+    expect_validation_error(dir, "32-bit signed integer");
+}
+
+TEST(CompressedSparseMatrix, BooleanError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    {
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        auto ghandle = mock_compressed_sparse_matrix(dir, opt);
+        ghandle.removeAttr("type");
+        add_hdf5_string_attribute(ghandle, "type", "boolean");
+    }
+    expect_validation_error(dir, "32-bit signed integer");
+}
+
+TEST(CompressedSparseMatrix, NumberError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    {
+        CompressedSparseMatrixOptions opt(20, 30);
+        opt.type = CompressedSparseMatrixType::NUMBER;
+        auto ghandle = mock_compressed_sparse_matrix(dir, opt);
+
+        hsize_t len;
+        {
+            auto dhandle = ghandle.openDataSet("data");
+            dhandle.getSpace().getSimpleExtentDims(&len);
+        }
+        ghandle.unlink("data");
+        ghandle.createDataSet("data", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(len));
+    }
+    expect_validation_error(dir, "64-bit float");
+}
+
+TEST(CompressedSparseMatrix, MissingOkay) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(22, 35));
         auto dhandle = ghandle.openDataSet("data");
-        dhandle.removeAttr("missing-value-placeholder"); 
         dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT32, H5S_SCALAR);
     }
-    test_validate(path);
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 22);
+    std::vector<std::size_t> expected_dims { 22, 35 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
 }
 
-TEST_F(SparseMatrixTest, IndptrFails) {
-    std::vector<int> expected;
+TEST(CompressedSparseMatrix, MissingError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    // Test that the missing placeholder is actually validated.
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(22, 35));
+        auto dhandle = ghandle.openDataSet("data");
+        dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT8, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "same datatype");
+}
+
+/**********************************/
+
+TEST(CompressedSparseMatrix, IndptrSimpleError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        compressed_sparse_matrix::mock(path, 50, 30, 0.25);
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+        int NC = 35;
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, NC));
+        ghandle.unlink("indptr");
+        ghandle.createDataSet("indptr", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(NC + 1));
+    }
+    expect_validation_error(dir, "64-bit unsigned integer");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 14));
+        ghandle.unlink("indptr");
+        ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional");
+
+    {
+        int NC = 14;
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(121, NC));
+        ghandle.unlink("indptr");
+        ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(NC));
+    }
+    expect_validation_error(dir, "number of columns plus 1");
+
+    {
+        CompressedSparseMatrixOptions options(55, 23);
+        options.column_sparse = false;
+        auto ghandle = mock_compressed_sparse_matrix(dir, options);
+        ghandle.unlink("indptr");
+        ghandle.createDataSet("indptr", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(100));
+    }
+    expect_validation_error(dir, "number of rows plus 1");
+}
+
+class CompressedSparseMatrixIndptrErrorTest : public ::testing::TestWithParam<bool> {};
+
+TEST_P(CompressedSparseMatrixIndptrErrorTest, Hard) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    std::vector<std::size_t> dims{ 5, 8 };
+    std::vector<double> data(8, 1.2);
+    std::vector<int> indices{ 1, 1, 1, 4, 2, 1, 2, 3 };
+    std::vector<int> ptrs{ 0, 1, 3, 4, 5, 6, 8, 8, 8 };
+
+    CompressedSparseMatrixBasicOptions options;
+    options.column_sparse = GetParam();
+    if (!options.column_sparse) {
+        std::reverse(dims.begin(), dims.end());
+    }
+
+    {
+        initialize_directory_simple(dir, "compressed_sparse_matrix", "1.0");
+        H5::H5File handle(dir / "matrix.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("compressed_sparse_matrix");
+        auto ptrcopy = ptrs;
+        ptrcopy[0] = 1;
+        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, options);
+    }
+    expect_validation_error(dir, "should be zero");
+
+    {
+        initialize_directory_simple(dir, "compressed_sparse_matrix", "1.0");
+        H5::H5File handle(dir / "matrix.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("compressed_sparse_matrix");
+        auto ptrcopy = ptrs;
+        ptrcopy.back() += 1;
+        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, options);
+    }
+    expect_validation_error(dir, "equal the number of non-zero elements");
+
+    {
+        initialize_directory_simple(dir, "compressed_sparse_matrix", "1.0");
+        H5::H5File handle(dir / "matrix.h5", H5F_ACC_TRUNC);
+        auto ghandle = handle.createGroup("compressed_sparse_matrix");
+        auto ptrcopy = ptrs;
+        std::reverse(ptrcopy.begin() + 1, ptrcopy.end() - 1); 
+        mock_compressed_sparse_matrix(ghandle, dims, data, indices, ptrcopy, options);
+    }
+    expect_validation_error(dir, "should be sorted");
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    CompressedSparseMatrix,
+    CompressedSparseMatrixIndptrErrorTest,
+    ::testing::Values(true, false)
+);
+
+/**********************************/
+
+TEST(CompressedSparseMatrix, IndicesSimpleError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 74));
+        ghandle.unlink("indices");
+        ghandle.createDataSet("indices", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(100));
+    }
+    expect_validation_error(dir, "64-bit unsigned integer");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 74));
+        ghandle.unlink("indices");
+        ghandle.createDataSet("indices", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional");
+
+    {
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(51, 74));
+        hsize_t len;
         {
-            auto dhandle = ghandle.openDataSet("indptr");
-            expected.resize(31);
-            dhandle.read(expected.data(), H5::PredType::NATIVE_INT);
+            auto ihandle = ghandle.openDataSet("indices");
+            ihandle.getSpace().getSimpleExtentDims(&len);
         }
-        ghandle.unlink("indptr");
-        hdf5_utils::spawn_data(ghandle, "indptr", 31, H5::PredType::NATIVE_INT32);
+        ghandle.unlink("indices");
+        ghandle.createDataSet("indices", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(len + 1));
     }
-    expect_error("64-bit unsigned integer");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("indptr");
-        hdf5_utils::spawn_data(ghandle, "indptr", 30, H5::PredType::NATIVE_UINT32);
-    }
-    expect_error("should have length");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("indptr");
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "indptr", 31, H5::PredType::NATIVE_UINT32);
-        auto copy = expected;
-        copy[0] = 1;
-        dhandle.write(copy.data(), H5::PredType::NATIVE_INT);
-    }
-    expect_error("first entry should be zero");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto dhandle = ghandle.openDataSet("indptr");
-        auto copy = expected;
-        copy.back() -= 1;
-        dhandle.write(copy.data(), H5::PredType::NATIVE_INT);
-    }
-    expect_error("last entry");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto dhandle = ghandle.openDataSet("indptr");
-        auto copy = expected;
-        std::reverse(copy.begin(), copy.end());
-        std::swap(copy.front(), copy.back());
-        dhandle.write(copy.data(), H5::PredType::NATIVE_INT);
-    }
-    expect_error("should be sorted");
+    expect_validation_error(dir, "equal to the number of non-zero");
 }
-TEST_F(SparseMatrixTest, IndicesFails) {
-    std::vector<int> expected;
 
-    {
-        compressed_sparse_matrix::mock(path, 27, 43, 0.25);
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+class CompressedSparseMatrixIndicesErrorTest : public ::testing::TestWithParam<bool> {};
+
+TEST_P(CompressedSparseMatrixIndicesErrorTest, Hard) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
+    std::vector<std::size_t> dims{ 15, 6 };
+    std::vector<double> data(18, -2.2);
+    std::vector<int> indices{ 
+        0, 3, 11,
+        4, 5, 8, 10,
+        2, 5, 9, 13,
+        10, 13,
+        8,
+        0, 4, 10, 14
+    };
+    std::vector<int> ptrs{ 0, 3, 7, 11, 13, 14, 18 };
+
+    CompressedSparseMatrixBasicOptions options;
+    options.column_sparse = GetParam();
+    if (!options.column_sparse) {
+        std::reverse(dims.begin(), dims.end());
+    }
+
+    // Check what happens if we insert an unsorted value at the non-last position of each column/row.
+    for (auto pos : std::vector<int>{1, 5, 9, 11, 16}) {
         {
-            auto dhandle = ghandle.openDataSet("indices");
-            expected.resize(ritsuko::hdf5::get_1d_length(dhandle, false));
-            dhandle.read(expected.data(), H5::PredType::NATIVE_INT);
+            initialize_directory_simple(dir, "compressed_sparse_matrix", "1.0");
+            H5::H5File handle(dir / "matrix.h5", H5F_ACC_TRUNC);
+            auto ghandle = handle.createGroup("compressed_sparse_matrix");
+            auto icopy = indices;
+            icopy[pos] = 15;
+            mock_compressed_sparse_matrix(ghandle, dims, data, icopy, ptrs, options);
         }
-        ghandle.unlink("indices");
-        hdf5_utils::spawn_data(ghandle, "indices", expected.size(), H5::PredType::NATIVE_INT32);
-    }
-    expect_error("64-bit unsigned integer");
+        expect_validation_error(dir, "should be strictly increasing");
 
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("indices");
-        hdf5_utils::spawn_data(ghandle, "indices", expected.size() + 1, H5::PredType::NATIVE_UINT32);
+        takane::Options opt;
+        opt.hdf5_buffer_size = 2; // use a smaller buffer size to check correct iteration.
+        expect_error(
+            "should be strictly increasing",
+            [&]() -> void {
+                test_validate(dir, opt);
+            }
+        );
     }
-    expect_error("number of non-zero elements");
 
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("indices");
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "indices", expected.size(), H5::PredType::NATIVE_UINT32);
-        auto copy = expected;
-        copy[copy.size() / 2] = 27;
-        dhandle.write(copy.data(), H5::PredType::NATIVE_INT);
-    }
-    expect_error("out-of-range");
+    // Check what happens if we insert an out-of-range value at the last position of each column/row.
+    for (auto pos : std::vector<int>{2, 6, 10, 12, 13, 17}) {
+        {
+            initialize_directory_simple(dir, "compressed_sparse_matrix", "1.0");
+            H5::H5File handle(dir / "matrix.h5", H5F_ACC_TRUNC);
+            auto ghandle = handle.createGroup("compressed_sparse_matrix");
+            auto icopy = indices;
+            icopy[pos] = 15;
+            mock_compressed_sparse_matrix(ghandle, dims, data, icopy, ptrs, options);
+        }
+        expect_validation_error(dir, "less than the number of");
 
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        ghandle.unlink("indices");
-        auto dhandle = hdf5_utils::spawn_data(ghandle, "indices", expected.size(), H5::PredType::NATIVE_UINT32);
-        auto copy = expected;
-        std::reverse(copy.begin(), copy.end());
-        dhandle.write(copy.data(), H5::PredType::NATIVE_INT);
+        takane::Options opt;
+        opt.hdf5_buffer_size = 2; // use a smaller buffer size to check correct iteration.
+        expect_error(
+            "less than the number of",
+            [&]() -> void {
+                test_validate(dir, opt);
+            }
+        );
     }
-    expect_error("strictly increasing");
 }
 
-TEST_F(SparseMatrixTest, Names) {
+INSTANTIATE_TEST_SUITE_P(
+    CompressedSparseMatrix,
+    CompressedSparseMatrixIndicesErrorTest,
+    ::testing::Values(true, false)
+);
+
+/**********************************/
+
+TEST(CompressedSparseMatrix, NamesOkay) {
+    auto dir = define_test_path("compressed_sparse_matrix");
+
     {
-        compressed_sparse_matrix::mock(path, 55, 33, 0.25);
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(55, 33));
         auto nhandle = ghandle.createGroup("names");
-        hdf5_utils::spawn_data(nhandle, "0", 20, H5::StrType(0, 5));
+        nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(55));
+        nhandle.createDataSet("1", H5::StrType(0, 5), create_hdf5_dataspace(33));
     }
-    expect_error("same length as the extent");
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 55);
+    std::vector<std::size_t> expected_dims { 55, 33 };
+    EXPECT_EQ(test_dimensions(dir), expected_dims);
+}
+
+TEST(CompressedSparseMatrix, NamesError) {
+    auto dir = define_test_path("compressed_sparse_matrix");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup(name);
-        auto nhandle = ghandle.openGroup("names");
-        nhandle.unlink("0");
-        hdf5_utils::spawn_data(nhandle, "1", 33, H5::StrType(0, 5));
+        auto ghandle = mock_compressed_sparse_matrix(dir, CompressedSparseMatrixOptions(55, 33));
+        auto nhandle = ghandle.createGroup("names");
+        nhandle.createDataSet("0", H5::StrType(0, 5), create_hdf5_dataspace(33));
+        nhandle.createDataSet("1", H5::StrType(0, 5), create_hdf5_dataspace(55));
     }
-    test_validate(path);
+
+    expect_validation_error(dir, "same length as the extent");
 }

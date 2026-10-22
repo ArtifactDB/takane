@@ -1,530 +1,1028 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "takane/sequence_string_set.hpp"
 #include "utils.h"
-#include "sequence_string_set.h"
-#include "data_frame.h"
-#include "simple_list.h"
+#include "mock_sequence_string_set.h"
+#include "mock_data_frame.h"
+#include "mock_simple_list.h"
 
-#include <string>
+TEST(SequenceStringSet, VersionError) {
+    auto dir = define_test_path("sequence_string_set");
 
-struct SequenceStringSetTest : public ::testing::Test {
-    SequenceStringSetTest() {
-        dir = "TEST_sequence_string_set";
-        name = "sequence_string_set";
+    {
+        initialize_directory_simple(dir, "sequence_string_set", "2.0");
     }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir, std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(SequenceStringSetTest, MetadataRetrieval) {
-    initialize_directory(dir);
-    auto objpath = (dir / "OBJECT").string();
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"2.0\" } }"
-    );
-    expect_error("unsupported version");
-
-    // Checking the length.
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\" } }"
-    );
-    expect_error("expected a 'sequence_string_set.length' property");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": true } }"
-    );
-    expect_error("JSON number");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 1.5 } }"
-    );
-    expect_error("non-negative integer");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": -10 } }"
-    );
-    expect_error("non-negative integer");
-
-    // Checking the sequence type.
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10 } }"
-    );
-    expect_error("failed to extract 'sequence_string_set.sequence_type'");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"foobar\" } }"
-    );
-    expect_error("invalid string 'foobar'");
-
-    // Checking the quality type.
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": true } }"
-    );
-    expect_error("should be a JSON string");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"blah\" } }"
-    );
-    expect_error("invalid string 'blah'");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"phred\" } }"
-    );
-    expect_error("expected a 'sequence_string_set.quality_offset'");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", "
-        "\"quality_type\": \"phred\", \"quality_offset\": true } }"
-    );
-    expect_error("JSON number");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", "
-        "\"quality_type\": \"phred\", \"quality_offset\": 10 } }"
-    );
-    expect_error("33 or 64");
+    expect_validation_error(dir, "unsupported version");
 }
 
-TEST_F(SequenceStringSetTest, FastaParsing) {
-    sequence_string_set::Options options;
-    sequence_string_set::mock(dir, 200, options);
-    test_validate(dir); // OKAY.
+TEST(SequenceStringSet, LengthError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\" } }"
+        );
+    }
+    expect_validation_error(dir, "no such property");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": true } }"
+        );
+    }
+    expect_validation_error(dir, "number");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 1.5 } }"
+        );
+    }
+    expect_validation_error(dir, "non-negative integer");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": -10 } }"
+        );
+    }
+    expect_validation_error(dir, "non-negative integer");
+}
+
+TEST(SequenceStringSet, SequenceTypeError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10 } }"
+        );
+    }
+    expect_validation_error(dir, "not present");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"foobar\" } }"
+        );
+    }
+    expect_validation_error(dir, "unknown sequence type 'foobar'");
+}
+
+TEST(SequenceStringSet, QualityTypeError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": true } }"
+        );
+    }
+    expect_validation_error(dir, "expected a JSON string");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"blah\" } }"
+        );
+    }
+    expect_validation_error(dir, "unknown quality type 'blah'");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"phred\" } }"
+        );
+    }
+    expect_validation_error(dir, "no such property");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", "
+            "\"quality_type\": \"phred\", \"quality_offset\": true } }"
+        );
+    }
+    expect_validation_error(dir, "should be a JSON number");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", "
+            "\"quality_type\": \"phred\", \"quality_offset\": 10 } }"
+        );
+    }
+    expect_validation_error(dir, "33 or 64");
+}
+
+/****************************************/
+
+TEST(SequenceStringSet, FastaBasicOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        // Use enough sequences so we get multiple digits in the names.
+        SequenceStringSetOptions options(200);
+        mock_sequence_string_set(dir, options);
+    }
+
+    test_validate(dir);
     EXPECT_EQ(test_height(dir), 200);
 
-    // Non-parallelized.
-    {
-        takane::Options inopt;
-        inopt.parallel_reads = false;
-        auto meta = takane::read_object_metadata(dir);
-        takane::sequence_string_set::validate(dir, meta, inopt); 
-    }
-
-    // Name checks.
-    auto spath = dir / "sequences.fasta.gz";
-    {
-        quick_gzip_write(spath.string(), "foobar\n");
-        expect_error("sequence name should start with '>'");
-
-        quick_gzip_write(spath.string(), ">foobar\n");
-        expect_error("sequence name should be a non-negative integer");
-
-        quick_gzip_write(spath.string(), ">\n");
-        expect_error("sequence name should be its index");
-
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            for (size_t i = 0; i < 200; ++i) {
-                sequence_string_set::dump_fasta(writer, i % 10, "ACGT");
-            }
-        }
-        expect_error("sequence name should be its index");
-    }
-
-    // Structural checks for correct parsing.
-    {
-        sequence_string_set::mock(dir, 2, options);
-
-        // Zero length sequences are okay.
-        quick_gzip_write(spath.string(),
-            ">0\nACGT\n"
-            ">1\n\n"
-        );
-        test_validate(dir);
-
-        // But they must be newline-terminated.
-        quick_gzip_write(spath.string(),
-            ">0\nACGT\n"
-            ">1\n"
-        );
-        expect_error("premature end");
-    }
-
-    // Checking the count.
-    sequence_string_set::mock(dir, 5, options);
-    {
-        byteme::GzipFileWriter writer(spath.c_str(), {});
-        sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
-    }
-    expect_error("observed number of sequences");
-
-    // Simulating sequences with annoying newlines everywhere.
-    sequence_string_set::mock(dir, 5, options);
-    {
-        byteme::GzipFileWriter writer(spath.c_str(), {});
-        sequence_string_set::dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
-        sequence_string_set::dump_fasta(writer, 1, "\nAAAAAACCCCGGGGTTTT");
-        sequence_string_set::dump_fasta(writer, 2, "AAAAAACCCCGGGGTTTT\n");
-        sequence_string_set::dump_fasta(writer, 3, "AAAAAACCCC\nGGGGTTTT");
-        sequence_string_set::dump_fasta(writer, 4, "AAAAAA\nCCCC\nGGGG\nTTTT");
-    }
-    test_validate(dir); // OKAY.
+    // Repeating with parallelization.
+    takane::Options opt;
+    opt.parallel_reads = false;
+    test_validate(dir, opt);
 }
 
-TEST_F(SequenceStringSetTest, FastqParsing) {
-    sequence_string_set::Options options;
-    options.quality_type = sequence_string_set::QualityType::PHRED33;
-    sequence_string_set::mock(dir, 200, options);
-    test_validate(dir); // OKAY.
+TEST(SequenceStringSet, FastaNewlinesOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
+
+    // Simulate annoying newlines everywhere.
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
+        dump_fasta(writer, 1, "\nAAAAAACCCCGGGGTTTT");
+        dump_fasta(writer, 2, "AAAAAACCCCGGGGTTTT\n");
+        dump_fasta(writer, 3, "AAAAAACCCC\nGGGGTTTT");
+        dump_fasta(writer, 4, "AAAAAA\nCCCC\nGGGG\nTTTT");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 5);
+    }
+
+    // Check correct chomping.
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(4));
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        std::string newlines = "\n\n\n";
+        writer.write(reinterpret_cast<const unsigned char*>(newlines.c_str()), newlines.size());
+        dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
+        dump_fasta(writer, 1, "\n\nAAAAA\nACCCCGG\nGGTTTT");
+        dump_fasta(writer, 2, "AAAAA\n\nACCCCGG\n\nGGTTTT");
+        dump_fasta(writer, 3, "AAAAA\nACCCCGG\nGGTTTT");
+        writer.write(reinterpret_cast<const unsigned char*>(newlines.c_str()), newlines.size());
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 4);
+    }
+}
+
+TEST(SequenceStringSet, FastaEmptyOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
+
+    // Zero-length sequences are okay.
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(2));
+        quick_gzip_write(spath,
+            ">0\n\n"
+            ">1\n\n"
+        );
+    }
+    test_validate(dir);
+
+    // Empty file is okay.
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(0));
+        quick_gzip_write(spath, "");
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
+
+    // Newline-only file is okay.
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(0));
+        quick_gzip_write(spath, "\n\n\n");
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 0);
+}
+
+TEST(SequenceStringSet, FastaNameError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
+
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
+        quick_gzip_write(spath, "foobar\n");
+    }
+    expect_validation_error(dir, "sequence name should start with '>'");
+
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
+        quick_gzip_write(spath, ">foobar\n");
+    }
+    expect_validation_error(dir, "sequence name should be a non-negative integer");
+
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(50));
+        quick_gzip_write(spath, ">123\n");
+    }
+    expect_validation_error(dir, "out of bounds"); // fails the LHS condition of the out-of-bounds check.
+
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(52));
+        quick_gzip_write(spath, ">53\n");
+    }
+    expect_validation_error(dir, "out of bounds"); // fails the RHS condition of the out-of-bounds check.
+
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
+        quick_gzip_write(spath, ">\n"); // Empty name.
+    }
+    expect_validation_error(dir, "sequence name should be its index");
+
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(5));
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        for (std::size_t i = 0; i < 200; ++i) {
+            dump_fasta(writer, i % 10, "ACGT");
+        }
+    }
+    expect_validation_error(dir, "sequence name should be its index");
+}
+
+TEST(SequenceStringSet, FastaPrematureEndError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
+
+    std::vector<std::string> contents{ ">1", ">1\n", ">1\nACGT" };
+    for (const auto& x : contents) {
+        {
+            initialize_sequence_string_set(dir, SequenceStringSetOptions(2));
+            quick_gzip_write(spath, ">0\nACGT\n" + x);
+        }
+        expect_validation_error(dir, "premature end");
+    }
+}
+
+TEST(SequenceStringSet, FastaCountError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
+
+    // Checking the count.
+    {
+        initialize_sequence_string_set(dir, SequenceStringSetOptions(2));
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        dump_fasta(writer, 0, "AAAAAACCCCGGGGTTTT");
+    }
+    expect_validation_error(dir, "number of sequences");
+}
+
+/****************************************/
+
+TEST(SequenceStringSet, FastqBasicOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(300);
+        options.quality_type = QualityType::PHRED33;
+        mock_sequence_string_set(dir, options);
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 300);
 
     // Non-parallelized.
+    takane::Options inopt;
+    inopt.parallel_reads = false;
+    test_validate(dir, inopt); 
+}
+
+TEST(SequenceStringSet, FastqPlusOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    // Check that the validator ignores gunk on the + line.
     {
-        takane::Options inopt;
-        inopt.parallel_reads = false;
-        auto meta = takane::read_object_metadata(dir);
-        takane::validate(dir, meta, inopt); 
-    }
-
-    // Name checks.
-    auto spath = dir / "sequences.fastq.gz";
-    {
-        quick_gzip_write(spath.string(), "foobar\n");
-        expect_error("sequence name should start with '@'");
-
-        quick_gzip_write(spath.string(), "@foobar\n");
-        expect_error("sequence name should be a non-negative integer");
-
-        quick_gzip_write(spath.string(), "@\n");
-        expect_error("sequence name should be its index");
-
-        {
-            byteme::GzipFileWriter writer(spath.c_str(), {});
-            for (size_t i = 0; i < 200; ++i) {
-                sequence_string_set::dump_fastq(writer, i % 10, "ACGT", "FECD");
-            }
-        }
-        expect_error("sequence name should be its index");
-    }
-
-    // Structural checks for correct parsing.
-    {
-        sequence_string_set::mock(dir, 2, options);
-
-        // Ignores gunk on the + line.
-        quick_gzip_write(spath.string(),
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
             "@0\nACGT\n+123123123\nFECD\n"
             "@1\nACGT\n+ foo bar\nFECD\n"
         );
-        test_validate(dir);
+    }
 
-        // Works when you have '@' in the quality scores.
-        quick_gzip_write(spath.string(),
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+}
+
+TEST(SequenceStringSet, FastqAtOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    // Check that the validator handles '@' in the quality scores.
+    {
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
             "@0\nACGT\n+\n@@@@\n"
             "@1\nACGT\n+\n++++\n"
         );
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 2);
+}
+
+TEST(SequenceStringSet, FastqNewlinesOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+ 
+    // Simulate annoying newlines everywhere.
+    {
+        SequenceStringSetOptions options(12);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 1, "\nAAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 2, "AAAACCCCGGGGTTTT\n", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 3, "AAAACCCC\nGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 4, "AAAA\nCCCC\nGGGG\nTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 5, "AAAACCCC\n\nGGGGTTTT", "FFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 6, "AAAACCCCGGGGTTTT", "\nFFFFEEEEDDDDCCCC");
+        dump_fastq(writer, 7, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC\n");
+        dump_fastq(writer, 8, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDD\nCCCC");
+        dump_fastq(writer, 9, "AAAACCCCGGGGTTTT", "FFFFEEEE\nDDDDCCCC");
+        dump_fastq(writer, 10, "AAAACCCCGGGGTTTT", "FFFFEEEE\n\nDDDDCCCC");
+        dump_fastq(writer, 11, "AAAACCCCGGGGTTTT", "FFFF\nEEEE\nDDDD\nCCCC");
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 12);
+    }
 
-        // Fails with a mismatch in the lengths.
-        quick_gzip_write(spath.string(),
-            "@0\nACGT\n+\n@@@\n"
+    // Chomps work correctly.
+    {
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "\n\n\n"
+            "@0\nACGTACGTACGT\n+\n@@@@@@@@@@@@\n"
             "@1\nACGT\n+\n++++\n"
+            "\n\n"
         );
-        expect_error("unequal lengths");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 2);
+    }
+}
 
-        quick_gzip_write(spath.string(),
-            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@@@@\n"
-            "@1\nACGT\n+\n++++\n"
-        );
-        test_validate(dir); // OK!
+TEST(SequenceStringSet, FastqEmptyOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
 
-        // More complicated mismatch in the lengths.
-        quick_gzip_write(spath.string(),
-            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n"
-            "@1\nACGT\n+\n++++\n"
-        );
-        expect_error("unequal lengths");
-
-        // Zero length sequences are okay.
-        quick_gzip_write(spath.string(),
+    // Zero length sequences are okay.
+    {
+        SequenceStringSetOptions options(2);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
             "@0\n\n+\n\n"
             "@1\n\n+\n\n"
         );
+    }
+    {
         test_validate(dir);
-
-        // But they must be newline-terminated.
-        quick_gzip_write(spath.string(),
-            "@0\n\n+\n\n"
-            "@1\n\n+\n"
-        );
-        expect_error("premature end");
+        EXPECT_EQ(test_height(dir), 2);
     }
 
-    // Checking the count.
-    sequence_string_set::mock(dir, 5, options);
+    // Empty file is okay.
     {
-        byteme::GzipFileWriter writer(spath.c_str(), {});
-        sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "~~~~!!!!AAAAFFFF");
+        SequenceStringSetOptions options(0);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "");
     }
-    expect_error("observed number of sequences");
-
-    // Simulating sequences with annoying newlines everywhere.
-    sequence_string_set::mock(dir, 10, options);
     {
-        byteme::GzipFileWriter writer(spath.c_str(), {});
-        sequence_string_set::dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
-        sequence_string_set::dump_fastq(writer, 1, "\nAAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC");
-        sequence_string_set::dump_fastq(writer, 2, "AAAACCCCGGGGTTTT\n", "FFFFEEEEDDDDCCCC");
-        sequence_string_set::dump_fastq(writer, 3, "AAAACCCC\nGGGGTTTT", "FFFFEEEEDDDDCCCC");
-        sequence_string_set::dump_fastq(writer, 4, "AAAA\nCCCC\nGGGG\nTTTT", "FFFFEEEEDDDDCCCC");
-        sequence_string_set::dump_fastq(writer, 5, "AAAACCCCGGGGTTTT", "\nFFFFEEEEDDDDCCCC");
-        sequence_string_set::dump_fastq(writer, 6, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDDCCCC\n");
-        sequence_string_set::dump_fastq(writer, 7, "AAAACCCCGGGGTTTT", "FFFFEEEEDDDD\nCCCC");
-        sequence_string_set::dump_fastq(writer, 8, "AAAACCCCGGGGTTTT", "FFFFEEEE\nDDDDCCCC");
-        sequence_string_set::dump_fastq(writer, 9, "AAAACCCCGGGGTTTT", "FFFF\nEEEE\nDDDD\nCCCC");
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 0);
     }
-    test_validate(dir); // OKAY.
+
+    // Newline-only file is okay.
+    {
+        SequenceStringSetOptions options(0);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "\n\n\n");
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 0);
+    }
 }
 
-TEST_F(SequenceStringSetTest, SequenceTypes) {
-    sequence_string_set::Options options;
-    auto spath = (dir / "sequences.fasta.gz").string();
+TEST(SequenceStringSet, FastqNameError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
 
-    // DNA.
+    SequenceStringSetOptions options(2);
+    options.quality_type = QualityType::PHRED33;
+
     {
-        options.sequence_type = sequence_string_set::SequenceType::DNA;
-        sequence_string_set::mock(dir, 3, options);
-        test_validate(dir);
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "foobar\n");
+    }
+    expect_validation_error(dir, "sequence name should start with '@'");
 
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "@foobar\n");
+    }
+    expect_validation_error(dir, "sequence name should be a non-negative integer");
+
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath, "@\n");
+    }
+    expect_validation_error(dir, "sequence name should be its index");
+
+    {
+        SequenceStringSetOptions options(200);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        for (size_t i = 0; i < 200; ++i) {
+            dump_fastq(writer, i % 10, "ACGT", "FECD");
+        }
+    }
+    expect_validation_error(dir, "sequence name should be its index");
+}
+
+TEST(SequenceStringSet, FastqLengthMismatchError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    SequenceStringSetOptions options(2);
+    options.quality_type = QualityType::PHRED33;
+
+    // Fails with a mismatch in the lengths.
+    {
+        initialize_sequence_string_set(dir, options);
         quick_gzip_write(spath,
+            "@0\nACGT\n+\n@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
+    }
+    expect_validation_error(dir, "unequal lengths");
+
+    // More complicated mismatch in the lengths.
+    {
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(spath,
+            "@0\nACGTACGTACGT\n+\n@@@@\n@@@@\n@\n@@@@\n"
+            "@1\nACGT\n+\n++++\n"
+        );
+    }
+    expect_validation_error(dir, "unequal lengths");
+}
+
+TEST(SequenceStringSet, FastqPrematureEndError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    SequenceStringSetOptions options(1);
+    options.quality_type = QualityType::PHRED33;
+
+    std::vector<std::string> contents{
+        "@0",
+        "@0\n",
+        "@0\nACGT",
+        "@0\nACGT\n",
+        "@0\nACGT\n+",
+        "@0\nACGT\n+\n",
+        "@0\nACGT\n+\n++++"
+    };
+
+    for (const auto& x : contents) {
+        {
+            initialize_sequence_string_set(dir, options);
+            quick_gzip_write(spath, x);
+        }
+        expect_validation_error(dir, "premature end");
+    }
+}
+
+TEST(SequenceStringSet, FastqCountError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fastq.gz";
+
+    {
+        SequenceStringSetOptions options(0);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(spath.c_str(), {});
+        dump_fastq(writer, 0, "AAAACCCCGGGGTTTT", "~~~~!!!!AAAAFFFF");
+    }
+
+    expect_validation_error(dir, "number of sequences");
+}
+
+/****************************************/
+
+TEST(SequenceStringSet, DnaOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string spath = dir / "sequences.fasta.gz";
+
+    {
+        SequenceStringSetOptions options(150);
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 150);
+    }
+
+    // More exotic choices.
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::DNA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
             ">0\nacgt\n"
             ">1\na.c-g.tacgryswkmbdhvn.-\n"
             ">2\nTACGRYSWKMBDHVN.-\n"
         );
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
 
-        quick_gzip_write(spath,
+TEST(SequenceStringSet, DnaError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
             ">0\nacgt\n"
             ">1\nuuuu\n"
             ">2\nACGT\n"
         );
-        expect_error("forbidden character 'u'");
     }
+    expect_validation_error(dir, "forbidden character 'u'");
 
-    // FASTQ, for DNA.
+    // Repeat for FASTQ, just to ensure that the same checks are run.
     {
-        options.quality_type = sequence_string_set::QualityType::PHRED33;
-        sequence_string_set::mock(dir, 1, options);
-
-        quick_gzip_write((dir / "sequences.fastq.gz").string(), "@0\nacgu\n+\n;;;;\n");
-        expect_error("forbidden character 'u'");
-
-        options.quality_type = sequence_string_set::QualityType::NONE;
+        SequenceStringSetOptions options(1);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgx\n+\n;;;;\n"
+        );
     }
+    expect_validation_error(dir, "forbidden character 'x'");
+}
 
-    // RNA.
+TEST(SequenceStringSet, RnaOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
     {
-        options.sequence_type = sequence_string_set::SequenceType::RNA;
-        sequence_string_set::mock(dir, 3, options);
+        SequenceStringSetOptions options(201);
+        options.sequence_type = SequenceType::RNA;
+        mock_sequence_string_set(dir, options);
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 201);
+    }
 
-        quick_gzip_write(spath,
+    // Trying with some more exotic bases.
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::RNA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
             ">0\nacgU\n"
             ">1\na.c-g.uacgryswkmbdhvn.-\n"
             ">2\nUACGRYSWKMBDHVN.-\n"
         );
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
 
-        quick_gzip_write(spath,
+TEST(SequenceStringSet, RnaError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::RNA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
             ">0\nacgu\n"
             ">1\nTTTT\n"
             ">2\nACGU\n"
         );
-        expect_error("forbidden character 'T'");
+    }
+    expect_validation_error(dir, "forbidden character 'T'");
+}
+
+TEST(SequenceStringSet, ProteinOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(234);
+        options.sequence_type = SequenceType::AA;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 234);
     }
 
-    // Protein.
+    // Trying with some more exotic bases.
     {
-        options.sequence_type = sequence_string_set::SequenceType::AA;
-        sequence_string_set::mock(dir, 3, options);
-        test_validate(dir);
-
-        quick_gzip_write(spath,
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::AA;
+        mock_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
             ">0\nacgt\n"
             ">1\nACD.EFGHIKLMNP-QRSTVWY\n"
             ">2\nacd.efghiklmnp-qrstvwy\n"
         );
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
 
-        quick_gzip_write(spath,
+TEST(SequenceStringSet, ProteinError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::AA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
             ">0\nacgt\n"
             ">1\nxxxx\n"
             ">2\nACGU\n"
         );
-        expect_error("forbidden character 'x'");
+    }
+    expect_validation_error(dir, "forbidden character 'x'");
+}
+
+TEST(SequenceStringSet, CustomOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(99);
+        options.sequence_type = SequenceType::CUSTOM;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 99);
     }
 
-    // Custom.
     {
-        options.sequence_type = sequence_string_set::SequenceType::CUSTOM;
-        sequence_string_set::mock(dir, 3, options);
-        test_validate(dir);
-
-        quick_gzip_write(spath,
+        SequenceStringSetOptions options(3);
+        options.sequence_type = SequenceType::CUSTOM;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
             ">0\nxxxx\n"
             ">1\n!;;;*8acac~\n"
             ">2\nacd.efghiklmnp-qrstvwy\n"
         );
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
     }
 }
 
-TEST_F(SequenceStringSetTest, QualityType) {
-    sequence_string_set::Options options;
-    auto spath = (dir / "sequences.fastq.gz").string();
+TEST(SequenceStringSet, CustomError) {
+    auto dir = define_test_path("sequence_string_set");
 
-    // Phred+33.
     {
-        options.quality_type = sequence_string_set::QualityType::PHRED33;
-        sequence_string_set::mock(dir, 3, options);
-        test_validate(dir);
-
-        quick_gzip_write(spath,
-            "@0\nacgt\n+\n!!!!\n"
-            "@1\nacgt\n+\n!!!!\n"
-            "@2\nacgt\n+\n!!!!\n"
+        SequenceStringSetOptions options(2);
+        options.sequence_type = SequenceType::CUSTOM;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fasta.gz",
+            ">0\nabcd\1\n"
+            ">1\n\2cdsdf\n"
         );
-        test_validate(dir);
+    }
+    expect_validation_error(dir, "forbidden character");
+}
 
-        quick_gzip_write(spath,
+/****************************************/
+
+TEST(SequenceStringSet, Phred33Okay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(101);
+        options.quality_type = QualityType::PHRED33;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 101);
+    }
+
+    // Extremes of qualities are okay.
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n!~!~\n"
+            "@1\nacgt\n+\n~!~!\n"
+            "@2\nacgt\n+\n!~~!\n"
+        );
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
+
+TEST(SequenceStringSet, Phred33Error) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::PHRED33;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
             "@0\nacgt\n+\n\1\1\1\1\n"
             "@1\nacgt\n+\n!!!!\n"
             "@2\nacgt\n+\n!!!!\n"
         );
-        expect_error("out-of-range quality score");
+    }
+    expect_validation_error(dir, "out-of-range quality score");
+}
+
+TEST(SequenceStringSet, Phred64Okay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(59);
+        options.quality_type = QualityType::ILLUMINA64;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 59);
     }
 
-    // Phred+64.
+    // Checking extremes.
     {
-        options.quality_type = sequence_string_set::QualityType::ILLUMINA64;
-        sequence_string_set::mock(dir, 3, options);
-        test_validate(dir);
-
-        quick_gzip_write(spath,
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::ILLUMINA64;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
             "@0\nacgt\n+\n@@@@\n"
-            "@1\nacgt\n+\n@@@@\n"
-            "@2\nacgt\n+\n@@@@\n"
+            "@1\nacgt\n+\n@~~@\n"
+            "@2\nacgt\n+\n~@@~\n"
         );
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
 
-        quick_gzip_write(spath,
+TEST(SequenceStringSet, Phred64Error) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::ILLUMINA64;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
             "@0\nacgt\n+\n????\n"
             "@1\nacgt\n+\n@@@@\n"
             "@2\nacgt\n+\n@@@@\n"
         );
-        expect_error("out-of-range quality score");
+    }
+    expect_validation_error(dir, "out-of-range quality score");
+}
+
+TEST(SequenceStringSet, SolexaOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(24);
+        options.quality_type = QualityType::SOLEXA;
+        mock_sequence_string_set(dir, options);
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 24);
     }
 
-    // Solexa+64.
     {
-        options.quality_type = sequence_string_set::QualityType::SOLEXA;
-        sequence_string_set::mock(dir, 3, options);
-        test_validate(dir);
-
-        quick_gzip_write(spath,
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::SOLEXA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
             "@0\nacgt\n+\n;;;;\n"
             "@1\nacgt\n+\n@@@@\n"
             "@2\nacgt\n+\n@@@@\n"
         );
+    }
+    {
         test_validate(dir);
+        EXPECT_EQ(test_height(dir), 3);
+    }
+}
 
-        quick_gzip_write(spath,
+TEST(SequenceStringSet, SolexaError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::SOLEXA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
             "@0\nacgt\n+\n::::\n"
             "@1\nacgt\n+\n@@@@\n"
             "@2\nacgt\n+\n@@@@\n"
         );
-        expect_error("out-of-range quality score");
     }
-
-    // None.
-    {
-        options.quality_type = sequence_string_set::QualityType::NONE;
-        sequence_string_set::mock(dir, 10, options);
-        quick_text_write((dir / "OBJECT").string(),
-            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }"
-        );
-        test_validate(dir);
-    }
+    expect_validation_error(dir, "out-of-range quality score");
 }
 
-TEST_F(SequenceStringSetTest, Names) {
-    sequence_string_set::Options options;
-    options.quality_type = sequence_string_set::QualityType::PHRED33;
-    sequence_string_set::mock(dir, 10, options);
+TEST(SequenceStringSet, InvalidQualityError) {
+    auto dir = define_test_path("sequence_string_set");
 
-    auto npath = dir / "names.txt.gz";
     {
+        SequenceStringSetOptions options(3);
+        options.quality_type = QualityType::SOLEXA;
+        initialize_sequence_string_set(dir, options);
+        quick_gzip_write(
+            dir / "sequences.fastq.gz",
+            "@0\nacgt\n+\n\177\177\177\177\n" // i.e., octal 127.
+            "@1\nacgt\n+\n@@@@\n"
+            "@2\nacgt\n+\n@@@@\n"
+        );
+    }
+    expect_validation_error(dir, "out-of-range quality score");
+}
+
+TEST(SequenceStringSet, NoneOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(10);
+        options.quality_type = QualityType::NONE;
+        mock_sequence_string_set(dir, options);
+        // Manually inject 'none' in the OBJECT metadata.
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\", \"length\": 10, \"sequence_type\": \"RNA\", \"quality_type\": \"none\" } }"
+        );
+    }
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 10);
+}
+
+/****************************************/
+
+TEST(SequenceStringSet, NamesOkay) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string npath = dir / "names.txt.gz";
+
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
         byteme::GzipFileWriter writer(npath.c_str(), {});
-        for (size_t i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             std::string tmpname = "\"gene_" + std::to_string(i + 1) + "\"\n";
             writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
-    test_validate(dir);
-
-    // Non-parallelized.
     {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+
+        // Non-parallelized.
         takane::Options inopt;
         inopt.parallel_reads = false;
-        auto meta = takane::read_object_metadata(dir);
-        takane::validate(dir, meta, inopt); 
+        test_validate(dir, inopt); 
     }
 
-    // Works with newlines.
+    // Works with quotes in the names.
     {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
         byteme::GzipFileWriter writer(npath.c_str(), {});
-        for (size_t i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
+            std::string tmpname = "\"gene\"\"" + std::to_string(i + 1) + "\"\n";
+            writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
+        }
+    }
+    {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+    }
+
+    // Works with newlines in the names.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
+        byteme::GzipFileWriter writer(npath.c_str(), {});
+        for (int i = 0; i < 10; ++i) {
             std::string tmpname = "\"gene\n" + std::to_string(i + 1) + "\"\n";
             writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
-    test_validate(dir);
-
-    // Errors out with differences in counts.
     {
+        test_validate(dir);
+        EXPECT_EQ(test_height(dir), 10);
+    }
+}
+
+TEST(SequenceStringSet, NamesError) {
+    auto dir = define_test_path("sequence_string_set");
+    std::string npath = dir / "names.txt.gz";
+
+    // Difference in counts.
+    {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
         byteme::GzipFileWriter writer(npath.c_str(), {});
-        for (size_t i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; ++i) {
             std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"\n";
             writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
-    expect_error("number of names");
+    expect_validation_error(dir, "number of names");
 
-    // Errors out with quotes.
+    // No quotes.
     {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
         byteme::GzipFileWriter writer(npath.c_str(), {});
-        for (size_t i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             std::string tmpname = "gene-" + std::to_string(i + 1) + "\n";
             writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
-    expect_error("should start with a quote");
+    expect_validation_error(dir, "should start with a quote");
 
+    // Unescaped quotes.
     {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
             std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"a\n";
             writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
-    expect_error("present after end quote");
+    expect_validation_error(dir, "present after end quote");
 
-    // Errors out if there no terminating newline.
+    // No terminating newline.
     {
+        SequenceStringSetOptions options(10);
+        mock_sequence_string_set(dir, options);
         byteme::GzipFileWriter writer(npath.c_str(), {});
         for (size_t i = 0; i < 10; ++i) {
             std::string tmpname = "\"gene-" + std::to_string(i + 1) + "\"";
@@ -534,23 +1032,55 @@ TEST_F(SequenceStringSetTest, Names) {
             writer.write(reinterpret_cast<const unsigned char*>(tmpname.c_str()), tmpname.size());
         }
     }
-    expect_error("premature end");
+    expect_validation_error(dir, "premature end");
 }
 
-TEST_F(SequenceStringSetTest, Metadata) {
-    sequence_string_set::Options options;
-    sequence_string_set::mock(dir, 20, options);
+/****************************************/
 
-    auto odir = dir / "other_annotations";
-    auto rdir = dir / "sequence_annotations";
+TEST(SequenceStringSet, McolsOkay) {
+    auto dir = define_test_path("sequence_string_set");
 
-    initialize_directory_simple(rdir, "simple_list", "1.0");
-    expect_error("'DATA_FRAME'"); 
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        mock_data_frame(dir / "sequence_annotations", DataFrameOptions(20, {}));
+    }
 
-    data_frame::mock(rdir, 20, {});
-    initialize_directory_simple(odir, "data_frame", "1.0");
-    expect_error("'SIMPLE_LIST'");
-
-    simple_list::mock(odir);
     test_validate(dir);
+    EXPECT_EQ(test_height(dir), 20);
+}
+
+TEST(SequenceStringSet, McolsError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        mock_data_frame(dir / "sequence_annotations", DataFrameOptions(10, {}));
+    }
+    expect_validation_error(dir, "number of rows");
+}
+
+TEST(SequenceStringSet, MetadataOkay) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        mock_simple_list(dir / "other_annotations");
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 20);
+}
+
+TEST(SequenceStringSet, MetadataError) {
+    auto dir = define_test_path("sequence_string_set");
+
+    {
+        SequenceStringSetOptions options(20);
+        mock_sequence_string_set(dir, options);
+        initialize_directory_simple(dir / "other_annotations", "data_frame", "1.0");
+    }
+    expect_validation_error(dir, "SIMPLE_LIST");
 }

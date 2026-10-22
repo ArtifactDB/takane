@@ -4,65 +4,69 @@
 #include "takane/genomic_ranges.hpp"
 
 #include "utils.h"
-#include "sequence_information.h"
-#include "genomic_ranges.h"
-#include "simple_list.h"
-#include "data_frame.h"
+#include "mock_sequence_information.h"
+#include "mock_genomic_ranges.h"
+#include "mock_simple_list.h"
+#include "mock_data_frame.h"
 
 #include <fstream>
 #include <string>
 
-struct GenomicRangesTest : public ::testing::Test {
-    GenomicRangesTest() {
-        dir = "TEST_genomic_ranges";
-        name = "genomic_ranges";
-    }
+TEST(GenomicRanges, EndPositionExceedsInt64) {
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(0, 0));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(0, 100));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(1, 100));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(100, 200));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(-100, 200));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(-100, 20));
 
-    std::filesystem::path dir;
-    std::string name;
+    constexpr std::int64_t max_i64 = std::numeric_limits<std::int64_t>::max();
+    constexpr std::int64_t min_i64 = std::numeric_limits<std::int64_t>::lowest();
+    constexpr std::uint64_t max_u64 = std::numeric_limits<std::uint64_t>::max();
 
-    H5::H5File reopen() {
-        return H5::H5File(dir / "ranges.h5", H5F_ACC_RDWR);
-    }
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(1, max_i64 - 1));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(2, max_i64));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(-1, static_cast<std::uint64_t>(max_i64) + 1));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(-1, static_cast<std::uint64_t>(max_i64) + 2));
 
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                test_validate(dir, std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(1, max_u64));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(0, max_u64));
+    EXPECT_TRUE(takane::start_plus_width_exceeds_int64(-1, max_u64));
 
-TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
-    auto sidir = dir / "sequence_information";
-    takane::Options opts;
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(min_i64, max_i64));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(min_i64, max_i64 - 1));
+    EXPECT_FALSE(takane::start_plus_width_exceeds_int64(min_i64, max_u64));
+}
 
+TEST(GenomicRanges, FindSequenceLimits) {
+    auto dir = define_test_path("genomic_ranges");
+    initialize_directory(dir);
+
+    SequenceInformationOptions sopt({ SequenceInfo("chrA", 100, true, "mm10"), SequenceInfo("chrB", 20, false, "hg19") });
+
+    // No missing values.
     {
-        initialize_directory_simple(dir, "genomic_ranges", "1.0");
-        initialize_directory_simple(sidir, "sequence_information", "1.0");
-        H5::H5File handle(sidir / "info.h5", H5F_ACC_TRUNC);
-        auto ghandle = handle.createGroup("sequence_information");
-        sequence_information::mock(ghandle, { "chrA", "chrB" }, { 100, 20 }, { 1, 0 }, { "mm10", "mm10 "});
+        mock_sequence_information(dir, sopt);
     }
     {
-        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, opts);
-        EXPECT_EQ(out.has_circular, std::vector<unsigned char>(2, true));
-        EXPECT_EQ(out.has_seqlen, std::vector<unsigned char>(2, true));
-        std::vector<unsigned char> expected_circular{ 1, 0 };
-        EXPECT_EQ(out.circular, expected_circular);
-        std::vector<uint64_t> expected_seqlen { 100, 20 };
-        EXPECT_EQ(out.seqlen, expected_seqlen);
+        auto out = takane::find_sequence_limits(dir, {});
+        ASSERT_EQ(out.circular.size(), 2);
+        ASSERT_EQ(out.length.size(), 2);
+
+        ASSERT_TRUE(out.circular[0].has_value());
+        EXPECT_TRUE(*(out.circular[0]));
+        ASSERT_TRUE(out.circular[1].has_value());
+        EXPECT_FALSE(*(out.circular[1]));
+
+        ASSERT_TRUE(out.length[0].has_value());
+        EXPECT_EQ(*(out.length[0]), 100);
+        ASSERT_TRUE(out.length[1].has_value());
+        EXPECT_EQ(*(out.length[1]), 20);
     }
 
-    // Injecting some missing values.
+    // Injecting some missing placeholders.
     {
-        H5::H5File handle(sidir / "info.h5", H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("sequence_information");
+        auto ghandle = mock_sequence_information(dir, sopt);
         {
             auto dhandle = ghandle.openDataSet("length");
             auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
@@ -77,337 +81,397 @@ TEST_F(GenomicRangesTest, SeqInfoRetrieval) {
         }
     }
     {
-        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, opts);
-        std::vector<unsigned char> has_circular{0, 1};
-        EXPECT_EQ(out.has_circular, has_circular);
-        std::vector<unsigned char> has_seqlen{0, 1};
-        std::vector<unsigned char> expected_circular{ 1, 0 };
-        EXPECT_EQ(out.circular, expected_circular);
-        std::vector<uint64_t> expected_seqlen { 100, 20 };
-        EXPECT_EQ(out.seqlen, expected_seqlen);
+        auto out = takane::find_sequence_limits(dir, {});
+        ASSERT_EQ(out.circular.size(), 2);
+        ASSERT_EQ(out.length.size(), 2);
+
+        EXPECT_FALSE(out.circular[0].has_value());
+        ASSERT_TRUE(out.circular[1].has_value());
+        EXPECT_FALSE(*(out.circular[1]));
+
+        ASSERT_TRUE(out.length[0].has_value());
+        EXPECT_EQ(*(out.length[0]), 100);
+        EXPECT_FALSE(out.length[1].has_value());
+    }
+}
+
+/********************************/
+
+TEST(GenomicRanges, SimpleOkay) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions(
+            // Testing intervals around the start and end of each sequence.
+            {  
+                GenomicRange(2, 12, 20, 1),
+                GenomicRange(1, 1, 231, 0),
+                GenomicRange(0, 1, 20, -1),
+                GenomicRange(0, 52, 48, 0),
+                GenomicRange(2, 10, 3, -1),
+                GenomicRange(1, 2, 230, 1),
+                GenomicRange(0, 34, 66, 1)
+            },
+            {
+                SequenceInfo("akira", 99, false, "animation"),
+                SequenceInfo("ai", 231, false, "origination"),
+                SequenceInfo("alice", 31, false, "natural")
+            }
+        ));
     }
 
-    // Shifting the placeholders to be ineffective.
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 7);
+}
+
+TEST(GenomicRanges, MixedOkay) {
+    auto dir =  define_test_path("genomic_ranges");
+
     {
-        H5::H5File handle(sidir / "info.h5", H5F_ACC_RDWR);
+        mock_genomic_ranges(dir, GenomicRangesOptions( 
+            // Testing intervals around the start and end of each sequence.
+            {  
+                GenomicRange(2, 2000, 3000, 0),
+                GenomicRange(3, 1, 30, -1),
+                GenomicRange(1, -10, 2900, 0),
+                GenomicRange(2, -1000, 50, 1),
+                GenomicRange(0, 1, 20, 1),
+                GenomicRange(5, 1000, 6200, 0),
+                GenomicRange(1, 10000, 20, -1),
+                GenomicRange(4, 290, 3000, 0),
+                GenomicRange(0, 1000, 20000, 1),
+                GenomicRange(3, 71, 30, 0),
+                GenomicRange(5, -1000, 200, 0),
+                GenomicRange(4, -10, 200, -1)
+            },
+            // Testing every combination of circular/non-circular/unknown with known/unknown length.
+            // We'll use zero as a missing value placeholder for length.
+            {
+                SequenceInfo("athena", 0, false, "animation"),
+                SequenceInfo("aika", 0, true, "origination"),
+                SequenceInfo("alicia", 0, -1, "natural"),
+                SequenceInfo("akari", 100, false, "natural"),
+                SequenceInfo("alice", 300, true, "animation"),
+                SequenceInfo("akira", 200, -1, "origination")
+            }
+        ));
+
+        H5::H5File handle(dir / "sequence_information" / "info.h5", H5F_ACC_RDWR);
         auto ghandle = handle.openGroup("sequence_information");
+        auto lhandle = ghandle.openDataSet("length");
+        add_hdf5_numeric_attribute(lhandle, "missing-value-placeholder", H5::PredType::NATIVE_UINT32, 0);
+        auto chandle = ghandle.openDataSet("circular");
+        add_hdf5_numeric_attribute(chandle, "missing-value-placeholder", H5::PredType::NATIVE_INT8, -1);
+    }
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 12);
+}
+
+/********************************/
+
+TEST(GenomicRanges, VersionError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    {
+        initialize_directory_simple(dir, "genomic_ranges", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(GenomicRanges, SequenceError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, GenomicRangesOptions());
+        ghandle.unlink("sequence");
+        ghandle.createDataSet("sequence", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(0));
+    }
+    expect_validation_error(dir, "64-bit unsigned integer");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, GenomicRangesOptions());
+        ghandle.unlink("sequence");
+        ghandle.createDataSet("sequence", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional");
+}
+
+TEST(GenomicRanges, StartError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    GenomicRangesOptions opt({ GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("start");
+        ghandle.createDataSet("start", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(1));
+    }
+    expect_validation_error(dir, "64-bit signed integer");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("start");
+        ghandle.createDataSet("start", H5::PredType::NATIVE_INT32, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("start");
+        ghandle.createDataSet("start", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(2));
+    }
+    expect_validation_error(dir, "same as that of 'sequence'");
+}
+
+TEST(GenomicRanges, WidthError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    GenomicRangesOptions opt({ GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("width");
+        ghandle.createDataSet("width", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(1));
+    }
+    expect_validation_error(dir, "64-bit unsigned integer");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("width");
+        ghandle.createDataSet("width", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("width");
+        ghandle.createDataSet("width", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(0));
+    }
+    expect_validation_error(dir, "same as that of 'sequence'");
+}
+
+TEST(GenomicRanges, StrandError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    GenomicRangesOptions opt({ GenomicRange(0, 1, 20, 0) }, { SequenceInfo("foo", 30, 0, "mm10") });
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("strand");
+        ghandle.createDataSet("strand", H5::PredType::NATIVE_UINT32, create_hdf5_dataspace(1));
+    }
+    expect_validation_error(dir, "32-bit signed integer");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("strand");
+        ghandle.createDataSet("strand", H5::PredType::NATIVE_INT32, H5S_SCALAR);
+    }
+    expect_validation_error(dir, "1-dimensional");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, opt);
+        ghandle.unlink("strand");
+        ghandle.createDataSet("strand", H5::PredType::NATIVE_INT32, create_hdf5_dataspace(3));
+    }
+    expect_validation_error(dir, "same as that of 'sequence'");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions({ GenomicRange(0, 1, 20, 2), GenomicRange(0, 1, 20, -1), }, { SequenceInfo("foo", 30, 0, "mm10") }));
+    }
+    expect_validation_error(dir, "entries should be one of");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions({ GenomicRange(0, 1, 20, 0), GenomicRange(0, 1, 20, -2) }, { SequenceInfo("foo", 30, 0, "mm10") }));
+    }
+    expect_validation_error(dir, "entries should be one of");
+}
+
+/********************************/
+
+TEST(GenomicRanges, IntervalSequenceError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions(
+            {
+                GenomicRange(0, 1, 20, 0),
+                GenomicRange(1, 2, 30, -1),
+                GenomicRange(2, 3, 40, 1) // fail
+            },
+            {
+                SequenceInfo("foo", 40, false, "hg38"),
+                SequenceInfo("bar", 500, false, "hg38")
+            }
+        ));
+    }
+    expect_validation_error(dir, "less than the number of sequences");
+}
+
+TEST(GenomicRanges, IntervalStartError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions(
+            {
+                GenomicRange(0, 1, 20, 0),
+                GenomicRange(1, 0, 30, -1), // fail
+                GenomicRange(0, 3, 30, 1)
+            },
+            {
+                SequenceInfo("foo", 40, false, "hg38"),
+                SequenceInfo("bar", 500, false, "hg38")
+            }
+        ));
+    }
+    expect_validation_error(dir, "non-positive");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions(
+            {
+                GenomicRange(0, 1, 20, 0),
+                GenomicRange(1, 100, 30, -1),
+                GenomicRange(0, -20, 30, 1) // fail
+            },
+            {
+                SequenceInfo("foo", 40, false, "hg38"),
+                SequenceInfo("bar", 500, false, "hg38")
+            }
+        ));
+    }
+    expect_validation_error(dir, "non-positive");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions(
+            {
+                GenomicRange(0, 100, 20, 0), // fail
+                GenomicRange(1, 100, 30, -1),
+                GenomicRange(0, 10, 30, 1)
+            },
+            {
+                SequenceInfo("foo", 40, false, "hg38"),
+                SequenceInfo("bar", 500, false, "hg38")
+            }
+        ));
+    }
+    expect_validation_error(dir, "'start' position exceeds sequence length");
+}
+
+TEST(GenomicRanges, IntervalEndError) {
+    auto dir =  define_test_path("genomic_ranges");
+
+    {
+        mock_genomic_ranges(dir, GenomicRangesOptions(
+            {
+                GenomicRange(0, 15, 20, 0),
+                GenomicRange(1, 100, 30, -1),
+                GenomicRange(0, 10, 32, 1) // fail
+            },
+            {
+                SequenceInfo("foo", 40, false, "hg38"),
+                SequenceInfo("bar", 500, false, "hg38")
+            }
+        ));
+    }
+    expect_validation_error(dir, "end position");
+
+    {
         {
-            auto dhandle = ghandle.openDataSet("length");
-            dhandle.removeAttr("missing-value-placeholder");
-            auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR);
-            int val = 10;
-            ahandle.write(H5::PredType::NATIVE_INT, &val);
+            auto ghandle = mock_genomic_ranges(dir, GenomicRangesOptions(
+                {
+                    GenomicRange(1, 2, 20, 0),
+                    GenomicRange(0, 5, 30, -1),
+                    GenomicRange(1, 8, 32, 1)
+                },
+                {
+                    SequenceInfo("foo", 40, false, "hg38"),
+                    SequenceInfo("bar", 500, false, "hg38")
+                }
+            ));
+            ghandle.unlink("start");
+            auto dhandle = ghandle.createDataSet("start", H5::PredType::NATIVE_INT64, create_hdf5_dataspace(3));
+            std::vector<std::int64_t> content { std::numeric_limits<std::int64_t>::max(), std::int64_t(5), std::int64_t(8) };
+            dhandle.write(content.data(), H5::PredType::NATIVE_INT64);
         }
         {
-            auto dhandle = ghandle.openDataSet("circular");
-            dhandle.removeAttr("missing-value-placeholder");
-            auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR);
-            int val = -1;
-            ahandle.write(H5::PredType::NATIVE_INT, &val);
+            H5::H5File s_handle(dir / "sequence_information" / "info.h5", H5F_ACC_RDWR);
+            auto s_ghandle = s_handle.openGroup("sequence_information");
+            s_ghandle.unlink("length");
+            auto s_lhandle = s_ghandle.createDataSet("length", H5::PredType::NATIVE_UINT64, create_hdf5_dataspace(2));
+            std::vector<std::uint64_t> content { std::numeric_limits<std::uint64_t>::max(), std::numeric_limits<std::uint64_t>::max() };
+            s_lhandle.write(content.data(), H5::PredType::NATIVE_UINT64);
         }
     }
-    {
-        auto out = takane::genomic_ranges::internal::find_sequence_limits(sidir, opts);
-        EXPECT_EQ(out.has_circular, std::vector<unsigned char>(2, true));
-        EXPECT_EQ(out.has_seqlen, std::vector<unsigned char>(2, true));
-        std::vector<unsigned char> expected_circular{ 1, 0 };
-        EXPECT_EQ(out.circular, expected_circular);
-        std::vector<uint64_t> expected_seqlen { 100, 20 };
-        EXPECT_EQ(out.seqlen, expected_seqlen);
-    }
+    expect_validation_error(dir, "beyond the range");
 }
 
-TEST_F(GenomicRangesTest, BasicChecks) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
+/********************************/
 
-    genomic_ranges::mock(dir, 58, 13);
+TEST(GenomicRanges, NamesOkay) {
+    auto dir = define_test_path("genomic_ranges");
+
+    {
+        auto ghandle = mock_genomic_ranges(dir, 8, 3);
+        ghandle.createDataSet("name", H5::StrType(0, 5), create_hdf5_dataspace(8));
+    }
+
     test_validate(dir);
-    EXPECT_EQ(test_height(dir), 58);
-
-    auto sidir = dir / "sequence_information";
-    initialize_directory_simple(sidir, "FOOBAR", "1.0");
-    expect_error("'sequence_information' object");
+    EXPECT_EQ(test_height(dir), 8);
 }
 
-TEST_F(GenomicRangesTest, Sequence) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 1, 5, 10, 20 },
-        { 10, 5, 10, 50 },
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
+TEST(GenomicRanges, NamesError) {
+    auto dir = define_test_path("genomic_ranges");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("sequence");
-        hdf5_utils::spawn_data(ghandle, "sequence", 4, H5::PredType::NATIVE_INT32);
+        auto ghandle = mock_genomic_ranges(dir, 4, 2);
+        ghandle.createDataSet("name", H5::StrType(0, 5), create_hdf5_dataspace(3));
     }
-    expect_error("64-bit unsigned integer");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("sequence");
-        hdf5_utils::spawn_numeric_data<int>(ghandle, "sequence", H5::PredType::NATIVE_UINT32, { 0, 1, 2, 5 });
-    }
-    expect_error("less than the number of sequences");
+    expect_validation_error(dir, "number of names");
 }
 
-TEST_F(GenomicRangesTest, Start) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 1, 10, 20 },
-        { 10, 5, 10, 50 },
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
-    expect_error("same length");
+TEST(GenomicRanges, McolsOkay) {
+    auto dir = define_test_path("genomic_ranges");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("start");
-        hdf5_utils::spawn_data(ghandle, "start", 4, H5::PredType::NATIVE_UINT64);
+        mock_genomic_ranges(dir, 8, 4);
+        mock_data_frame(dir / "range_annotations", DataFrameOptions(8, { DataFrameColumn("year"), DataFrameColumn("height") }));
     }
-    expect_error("64-bit signed integer");
+
+    test_validate(dir);
+    EXPECT_EQ(test_height(dir), 8);
 }
 
-TEST_F(GenomicRangesTest, Width) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 1, 10, 20, 50 },
-        { 10, 5, 10 },
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
-    expect_error("same length");
+TEST(GenomicRanges, McolsError) {
+    auto dir = define_test_path("genomic_ranges");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("width");
-        hdf5_utils::spawn_data(ghandle, "width", 4, H5::PredType::NATIVE_INT64);
+        mock_genomic_ranges(dir, 10, 2);
+        mock_data_frame(dir / "range_annotations", DataFrameOptions(9, { DataFrameColumn("age"), DataFrameColumn("blood_type") }));
     }
-    expect_error("64-bit unsigned integer");
+
+    expect_validation_error(dir, "number of rows");
 }
 
-TEST_F(GenomicRangesTest, Int64Ends) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        {},
-        {},
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 1, 1, 1 }
-    );
+TEST(GenomicRanges, MetadataOkay) {
+    auto dir = define_test_path("genomic_ranges");
 
-    constexpr int64_t max_i64 = std::numeric_limits<int64_t>::max();
-    constexpr int64_t min_i64 = std::numeric_limits<int64_t>::min();
-    constexpr uint64_t max_u64 = std::numeric_limits<uint64_t>::max();
-
-    // Checking that all extremes pass.
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("start");
-        hdf5_utils::spawn_numeric_data<int64_t>(ghandle, "start", H5::PredType::NATIVE_INT64, { max_i64, -100, 0, min_i64 });
-        ghandle.unlink("width");
-        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 0, 1, static_cast<uint64_t>(max_i64), max_u64 });
+        mock_genomic_ranges(dir, 9, 1);
+        mock_simple_list(dir / "other_annotations");
     }
+
     test_validate(dir);
-
-    // Failing when start is positive.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("width");
-        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 1, 1, static_cast<uint64_t>(max_i64), max_u64 });
-    }
-    expect_error("beyond the range of a 64-bit");
-
-    // Failing when start is negative.
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("width");
-        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 0, max_u64, static_cast<uint64_t>(max_i64), max_u64 });
-    }
-    expect_error("beyond the range of a 64-bit");
+    EXPECT_EQ(test_height(dir), 9);
 }
 
-TEST_F(GenomicRangesTest, RestrictedStart) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 90, 100, 50, 100 },
-        { 11, 101, 51, 201 },
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
-    test_validate(dir);
+TEST(GenomicRanges, MetadataError) {
+    auto dir = define_test_path("genomic_ranges");
 
     {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("start");
-        hdf5_utils::spawn_numeric_data<int64_t>(ghandle, "start", H5::PredType::NATIVE_UINT32, { 90, 100, 0, 100 }); // The third interval now starts before position 1.
+        mock_genomic_ranges(dir, 8, 3);
+        mock_data_frame(dir / "other_annotations", DataFrameOptions(8, {}));
     }
-    expect_error("non-positive");
 
-    auto tmp_path = dir / "sequence_information" / "_temp.h5";
-    auto info_path = dir / "sequence_information" / "info.h5";
-    std::filesystem::copy(info_path, tmp_path);
-
-    {
-        H5::H5File handle(info_path, H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("sequence_information");
-        auto dhandle = ghandle.openDataSet("circular");
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR); // rescuing it by making all the circular flags missing.
-        int val = 0;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
-    }
-    test_validate(dir);
-
-    {
-        std::filesystem::copy(tmp_path, info_path, std::filesystem::copy_options::update_existing);
-        H5::H5File handle(info_path, H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("sequence_information");
-        ghandle.unlink("circular");
-        hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT32, { 1, 0, 0 }); // rescuing it by making the first sequence circular.
-    }
-    test_validate(dir);
-}
-
-TEST_F(GenomicRangesTest, RestrictedEnd) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 90, 100, 50, 100 },
-        { 11, 101, 51, 201 },
-        { 1, -1, 0, -1 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("width");
-        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 11, 101, 52, 201 }); // extending the third interval beyond the end.
-    }
-    expect_error("end position beyond sequence length");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("start");
-        ghandle.unlink("width");
-        hdf5_utils::spawn_numeric_data<uint64_t>(ghandle, "width", H5::PredType::NATIVE_UINT64, { 11, 101, 51, 201 }); // restoring the third interval's length.
-        hdf5_utils::spawn_numeric_data<int64_t>(ghandle, "start", H5::PredType::NATIVE_UINT32, {90, 300, 50, 100}); // shifting the second interval beyond the end.
-    }
-    expect_error("start position beyond sequence length");
-
-    auto tmp_path = dir / "sequence_information" / "_temp.h5";
-    auto info_path = dir / "sequence_information" / "info.h5";
-    std::filesystem::copy(info_path, tmp_path);
-
-    {
-        H5::H5File handle(info_path, H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("sequence_information");
-        ghandle.unlink("circular");
-        hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT32, { 0, 1, 0 }); // rescuing it by making the second sequence circular.
-    }
-    test_validate(dir);
-
-    {
-        std::filesystem::copy(tmp_path, info_path, std::filesystem::copy_options::update_existing);
-        H5::H5File handle(info_path, H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("sequence_information");
-        auto dhandle = ghandle.openDataSet("length");
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_UINT32, H5S_SCALAR); // rescuing it by making the second sequence length missing.
-        int val = 200;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
-    }
-    test_validate(dir);
-
-    {
-        std::filesystem::copy(tmp_path, info_path, std::filesystem::copy_options::update_existing);
-        H5::H5File handle(info_path, H5F_ACC_RDWR);
-        auto ghandle = handle.openGroup("sequence_information");
-        ghandle.unlink("circular");
-        auto dhandle = hdf5_utils::spawn_numeric_data<int32_t>(ghandle, "circular", H5::PredType::NATIVE_INT8, { 0, 0, 0 }); 
-        auto ahandle = dhandle.createAttribute("missing-value-placeholder", H5::PredType::NATIVE_INT8, H5S_SCALAR); // rescuing it by making all the circular flags missing.
-        int val = 0;
-        ahandle.write(H5::PredType::NATIVE_INT, &val);
-    }
-    test_validate(dir);
-}
-
-TEST_F(GenomicRangesTest, Strand) {
-    genomic_ranges::mock(dir, 
-        { 0, 1, 0, 2 },
-        { 90, 100, 50, 100 },
-        { 11, 101, 51, 201 },
-        { 1, -1, 0, 2 },
-        { 100, 200, 300 },
-        { 0, 0, 0 }
-    );
-    expect_error("0, -1, or 1");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("strand");
-        hdf5_utils::spawn_data(ghandle, "strand", 4, H5::PredType::NATIVE_UINT32);
-    }
-    expect_error("32-bit signed integer");
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("strand");
-        hdf5_utils::spawn_data(ghandle, "strand", 3, H5::PredType::NATIVE_INT32);
-    }
-    expect_error("same length");
-}
-
-TEST_F(GenomicRangesTest, Names) {
-    genomic_ranges::mock(dir, 6, 4); 
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        hdf5_utils::spawn_string_data(ghandle, "name", 2, { "A", "B", "C", "D", "E", "F" });
-    }
-    test_validate(dir);
-
-    {
-        auto handle = reopen();
-        auto ghandle = handle.openGroup("genomic_ranges");
-        ghandle.unlink("name");
-        hdf5_utils::spawn_string_data(ghandle, "name", 2, { "A", "B", "C" });
-    }
-    expect_error("same length as");
-}
-
-TEST_F(GenomicRangesTest, Metadata) {
-    genomic_ranges::mock(dir, 25, 11); 
-
-    auto odir = dir / "other_annotations";
-    auto rdir = dir / "range_annotations";
-
-    initialize_directory_simple(rdir, "simple_list", "1.0");
-    expect_error("'DATA_FRAME'"); 
-
-    data_frame::mock(rdir, 25, {});
-    initialize_directory_simple(odir, "data_frame", "1.0");
-    expect_error("'SIMPLE_LIST'");
-
-    simple_list::mock(odir);
-    test_validate(dir);
+    expect_validation_error(dir, "'SIMPLE_LIST'");
 }

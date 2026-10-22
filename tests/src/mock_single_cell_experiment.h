@@ -1,0 +1,83 @@
+#ifndef MOCK_SINGLE_CELL_EXPERIMENT_H
+#define MOCK_SINGLE_CELL_EXPERIMENT_H
+
+#include <vector>
+#include <string>
+#include <numeric>
+#include <cstddef>
+#include <optional>
+
+#include "H5Cpp.h"
+
+#include "utils.h"
+#include "mock_ranged_summarized_experiment.h"
+#include "mock_genomic_ranges.h"
+
+struct SingleCellExperimentOptions {
+    SingleCellExperimentOptions(std::size_t nr, std::size_t nc) : base(nr, nc), version("1.0") {}
+public:
+    RangedSummarizedExperimentOptions base;
+    std::size_t num_reduced_dims = 1;
+    std::size_t num_alt_exps = 1;
+    std::optional<std::string> main_exp_name;
+    std::string version;
+};
+
+inline void add_single_cell_experiment_metadata(millijson::Base* input, const std::string& version, const std::optional<std::string>& main_exp_name) {
+    auto& remap = reinterpret_cast<millijson::Object*>(input)->value();
+    auto optr = new millijson::Object({});
+    remap["single_cell_experiment"] = std::shared_ptr<millijson::Base>(optr);
+    optr->value()["version"] = std::make_shared<millijson::String>(version);
+    if (main_exp_name.has_value()) {
+        optr->value()["main_experiment_name"] = std::shared_ptr<millijson::Base>(new millijson::String(*main_exp_name));
+    }
+}
+
+inline void mock_single_cell_experiment(const std::filesystem::path& dir, const SingleCellExperimentOptions& options) {
+    mock_ranged_summarized_experiment(dir, options.base);
+
+    auto opath = dir / "OBJECT";
+    {
+        auto parsed = millijson::parse_file(opath.c_str(), {});
+        auto& remap = reinterpret_cast<millijson::Object*>(parsed.get())->value();
+        remap["type"] = std::shared_ptr<millijson::Base>(new millijson::String("single_cell_experiment"));
+        add_single_cell_experiment_metadata(parsed.get(), options.version, options.main_exp_name);
+        dump_json(parsed.get(), opath);
+    }
+
+    {
+        auto rddir = dir / "reduced_dimensions";
+        std::filesystem::create_directory(rddir);
+
+        std::ofstream handle(rddir / "names.json");
+        handle << "[";
+        for (std::size_t rd = 0; rd < options.num_reduced_dims; ++rd) {
+            if (rd != 0) {
+                handle << ", ";
+            }
+            auto rdname = std::to_string(rd);
+            handle << "\"reddim-" << rdname << "\"";
+            mock_dense_array(rddir / rdname, DenseArrayOptions({ options.base.base.num_cols, std::size_t(2 + rd) }, DenseArrayType::NUMBER));
+        }
+        handle << "]";
+    }
+
+    {
+        auto aedir = dir / "alternative_experiments";
+        std::filesystem::create_directory(aedir);
+
+        std::ofstream handle(aedir / "names.json");
+        handle << "[";
+        for (std::size_t ae = 0; ae < options.num_alt_exps; ++ae) {
+            if (ae != 0) {
+                handle << ", ";
+            }
+            auto aename = std::to_string(ae);
+            handle << "\"altexps-" << aename << "\"";
+            mock_summarized_experiment(aedir / aename, SummarizedExperimentOptions((ae + 1) * 10, options.base.base.num_cols));
+        }
+        handle << "]";
+    }
+}
+
+#endif

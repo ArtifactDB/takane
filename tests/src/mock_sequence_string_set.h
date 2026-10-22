@@ -1,5 +1,5 @@
-#ifndef SEQUENCE_STRING_SET_H 
-#define SEQUENCE_STRING_SET_H
+#ifndef MOCK_SEQUENCE_STRING_SET_H 
+#define MOCK_SEQUENCE_STRING_SET_H
 
 #include <vector>
 #include <string>
@@ -11,33 +11,35 @@
 
 #include "byteme/byteme.hpp"
 
-namespace sequence_string_set {
-
 enum class SequenceType : char { DNA, RNA, AA, CUSTOM };
 
 enum class QualityType : char { NONE, PHRED33, SOLEXA, ILLUMINA64 };
 
-struct Options {
+struct SequenceStringSetOptions {
+    SequenceStringSetOptions(std::size_t length_arg) : length(length_arg), version("1.0") {}
+    std::size_t length;
     SequenceType sequence_type = SequenceType::DNA;
     QualityType quality_type = QualityType::NONE;
+    std::string version;
 };
 
-inline void dump_fasta(byteme::GzipFileWriter& writer, size_t i, const std::string& seq) {
+inline void dump_fasta(byteme::GzipFileWriter& writer, std::size_t i, const std::string& seq) {
     std::string record = ">" + std::to_string(i) + "\n" + seq + "\n";
     writer.write(reinterpret_cast<const unsigned char*>(record.c_str()), record.size());
 }
 
-inline void dump_fastq(byteme::GzipFileWriter& writer, size_t i, const std::string& seq, const std::string& qual) {
+inline void dump_fastq(byteme::GzipFileWriter& writer, std::size_t i, const std::string& seq, const std::string& qual) {
     std::string record = "@" + std::to_string(i) + "\n" + seq + "\n+\n" + qual + "\n";
     writer.write(reinterpret_cast<const unsigned char*>(record.c_str()), record.size());
 }
 
-inline void mock(const std::filesystem::path& dir, size_t length, const Options& options) {
+inline void initialize_sequence_string_set(const std::filesystem::path& dir, const SequenceStringSetOptions& options) {
     initialize_directory(dir);
 
     std::ofstream handle(dir / "OBJECT");
-    handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": { \"version\": \"1.0\"";
-    handle << ", \"length\": " << length;
+    handle << "{ \"type\": \"sequence_string_set\", \"sequence_string_set\": ";
+    handle << "{ \"version\": \"" << options.version << "\"";
+    handle << ", \"length\": " << options.length;
 
     handle << ", \"sequence_type\": \"";
     switch (options.sequence_type) {
@@ -78,22 +80,24 @@ inline void mock(const std::filesystem::path& dir, size_t length, const Options&
         }
     }
     handle << " } }\n";
+}
+
+inline void mock_sequence_string_set(const std::filesystem::path& dir, const SequenceStringSetOptions& options) {
+    initialize_sequence_string_set(dir, options);
 
     if (options.quality_type != QualityType::NONE) {
         auto spath = dir / "sequences.fastq.gz";
         byteme::GzipFileWriter writer(spath.c_str(), {});
-        for (size_t i = 0; i < length; ++i) {
+        for (std::size_t i = 0; i < options.length; ++i) {
             dump_fastq(writer, i, "AAAAAA", "EEEEEE");
         }
     } else {
         auto spath = dir / "sequences.fasta.gz";
         byteme::GzipFileWriter writer(spath.c_str(), {});
-        for (size_t i = 0; i < length; ++i) {
+        for (std::size_t i = 0; i < options.length; ++i) {
             dump_fasta(writer, i, "AAAAAA");
         }
     }
-}
-
 }
 
 #endif

@@ -5,11 +5,15 @@
 #include <filesystem>
 #include <unordered_map>
 #include <functional>
+#include <exception>
+#include <stdexcept>
+#include <cstddef>
 
 #include "H5Cpp.h"
-
 #include "millijson/millijson.hpp"
 #include "chihaya/chihaya.hpp"
+#include "sanisizer/sanisizer.hpp"
+
 #include "utils_json.hpp"
 
 /**
@@ -70,11 +74,13 @@ inline ObjectMetadata reformat_object_metadata(millijson::Base* raw) {
  * @param path Path to a directory containing an object.
  * @return Object metadata, including the type and other fields.
  */
-inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) try {
-    std::shared_ptr<millijson::Base> obj = internal_json::parse_file(path / "OBJECT");
-    return reformat_object_metadata(obj.get());
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to read the OBJECT file at '" + path.string() + "'; " + std::string(e.what()));
+inline ObjectMetadata read_object_metadata(const std::filesystem::path& path) {
+    try {
+        std::shared_ptr<millijson::Base> obj = parse_json_file(path / "OBJECT");
+        return reformat_object_metadata(obj.get());
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to read the OBJECT file"));
+    }
 }
 
 /**
@@ -97,9 +103,10 @@ struct Options {
     bool parallel_reads = true;
     
     /**
-     * Buffer size to use when reading data from a HDF5 file.
+     * Size of the buffer (in terms of the number of elements) to use for reading contiguous HDF5 datasets.
+     * This is ignored for chunked datasets where the buffer size is automatically set to the size of each chunk. 
      */
-    hsize_t hdf5_buffer_size = 10000;
+    hsize_t hdf5_buffer_size = sanisizer::cap<hsize_t>(10000);
 
 public:
     /**
@@ -107,13 +114,13 @@ public:
      * Each key is an object type and each value is a function that accepts the same arguments as `validate()`.
      * If a type is specified here, the custom function replaces the default.
      */
-    std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> > custom_validate;
+    std::unordered_map<std::string, std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> > custom_validate;
 
     /**
      * Addtional validation function to run for all object types during a call to `validate()`, after running the (default or custom) type-specific validation function.
      * Arguments for this function are as described for `validate()`.
      */
-   std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> custom_global_validate;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> custom_global_validate;
 
 public:
     /**
@@ -121,14 +128,14 @@ public:
      * Each key is an object type and each value is a function that accepts the same arguments as `dimensions()`.
      * If a type is specified here, the custom function replaces the default. 
      */
-    std::unordered_map<std::string, std::function<std::vector<size_t>(const std::filesystem::path&, const ObjectMetadata&, Options&)> > custom_dimensions;
+    std::unordered_map<std::string, std::function<std::vector<std::size_t>(const std::filesystem::path&, const ObjectMetadata&, const Options&)> > custom_dimensions;
 
     /**
      * Custom registry of functions to be used by `height()`.
      * Each key is an object type and each value is a function that accepts the same arguments as `height()`.
      * If a type is specified here, the custom function replaces the default. 
      */
-    std::unordered_map<std::string, std::function<size_t(const std::filesystem::path&, const ObjectMetadata& m, Options&)> > custom_height;
+    std::unordered_map<std::string, std::function<size_t(const std::filesystem::path&, const ObjectMetadata& m, const Options&)> > custom_height;
 
 public:
     /**
@@ -151,14 +158,14 @@ public:
      * This should accept a path to the directory containing the BAM file and indices, the object metadata, and additional reading options.
      * It should throw an error if the BAM file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> bam_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> bam_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a BCF file and its indices in `bcf_file::validate()`.
      * This should accept a path to the directory containing the BCF file and indices, the object metadata, and additional reading options.
      * It should throw an error if the BCF file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> bcf_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> bcf_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a BED file and its indices in `bed_file::validate()`.
@@ -166,28 +173,28 @@ public:
      * and a boolean indicating whether indices are expected to be present in the directory.
      * It should throw an error if the BED file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&, bool)> bed_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&, bool)> bed_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a bigBed file in `bigbed_file::validate()`.
      * This should accept a path to the directory containing the bigBed file, the object metadata, and additional reading options.
      * It should throw an error if the bigBed file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> bigbed_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> bigbed_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a bigWig file in `bigwig_file::validate()`.
      * This should accept a path to the directory containing the bigWig file, the object metadata, and additional reading options.
      * It should throw an error if the bigWig file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> bigwig_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> bigwig_file_strict_check;
 
     /**
      * Application-specific function to determine whether there are duplicated rows in the data frame containing the levels of a data frame factor, to be used in `data_frame_factor::validate()`
      * This should accept a path to the directory containing the data frame, the object metadata, and additional reading options.
      * It should return a boolean indicating whether any duplicate rows were found. 
      */
-    std::function<bool(const std::filesystem::path&, const ObjectMetadata&, Options& options)> data_frame_factor_any_duplicated;
+    std::function<bool(const std::filesystem::path&, const ObjectMetadata&, const Options& options)> data_frame_factor_any_duplicated;
 
     /**
      * Application-specific function to check the validity of a FASTA file and its indices in `fasta_file::validate()`.
@@ -195,7 +202,7 @@ public:
      * and a boolean indicating whether indices are expected to be present in the directory.
      * It should throw an error if the FASTA file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&, bool)> fasta_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&, bool)> fasta_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a FASTQ file and its indices in `fastq_file::validate()`.
@@ -203,7 +210,7 @@ public:
      * and a boolean indicating whether or not indices are expected to be present in the directory.
      * It should throw an error if the FASTQ file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&, bool)> fastq_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&, bool)> fastq_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a GFF file and its indices in `gff_file::validate()`.
@@ -211,21 +218,21 @@ public:
      * and a boolean indicating whether indices are expected to be present in the directory.
      * It should throw an error if the GFF file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&, bool)> gff_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&, bool)> gff_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a GMT file and its indices in `gmt_file::validate()`.
      * This should accept a path to the directory containing the GMT file, the object metadata and additional reading options.
      * It should throw an error if the GMT file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> gmt_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> gmt_file_strict_check;
 
     /**
      * Application-specific function to check the validity of a RDS file and its indices in `rds_file::validate()`.
      * This should accept a path to the directory containing the RDS file, the object metadata and additional reading options.
      * It should throw an error if the RDS file is not valid, e.g., corrupted file, mismatched indices.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> rds_file_strict_check;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> rds_file_strict_check;
 
     /**
      * Options to use for validating **chihaya** specifications in `delayed_array::validate()`.
@@ -237,8 +244,7 @@ public:
      * This should accept a path to the directory containing the image file, the object metadata, and additional reading options.
      * It should throw an error if the image file is not valid.
      */
-    std::function<void(const std::filesystem::path&, const ObjectMetadata&, Options&)> image_file_strict_check;
-
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> image_file_strict_check;
 };
 
 }

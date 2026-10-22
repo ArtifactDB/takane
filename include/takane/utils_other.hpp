@@ -3,23 +3,71 @@
 
 #include <filesystem>
 #include <string>
+#include <type_traits>
+#include <vector>
+#include <exception>
+#include <cstddef>
+
+#include "ritsuko/ritsuko.hpp"
+#include "sanisizer/sanisizer.hpp"
+#include "byteme/byteme.hpp"
 
 #include "utils_public.hpp"
-#include "byteme/byteme.hpp"
 
 namespace takane {
 
-/**
- * @cond
- */
-void validate(const std::filesystem::path&, const ObjectMetadata&, Options&);
-size_t height(const std::filesystem::path&, const ObjectMetadata&, Options&);
+void validate(const std::filesystem::path&, const ObjectMetadata&, const Options&);
+std::size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options&);
 bool satisfies_interface(const std::string&, const std::string&, const Options&);
-/**
- * @endcond
- */
 
-namespace internal_other {
+template<typename Input_>
+using I = std::remove_cv_t<std::remove_reference_t<Input_> >;
+
+// Simple function for quickly iterating through one stream and applying an action to each element.
+template<typename Type_, class Stream_, class Action_>
+void iterate_stream(Stream_& stream, Action_ action) {
+    auto buffer = sanisizer::create<std::vector<Type_> >(stream.chunk_size());
+    while (true) {
+        auto available = stream.load(buffer.data());
+        if (available == 0) {
+            break;
+        }
+        for (I<decltype(available)> i = 0; i < available; ++i) {
+            action(i + stream.start(), std::move(buffer[i]));
+        }
+    }
+}
+
+// A more complicated class for returning each value of the stream.
+// This requires more boilerplate but allows simultaneous iteration through multiple streams.
+template<typename Type_, class Pointer_ = const H5::DataSet*>
+class StreamIterator {
+private:
+    hsize_t my_pos = 0, my_available = 0;
+
+    typedef typename std::conditional<
+        std::is_same<Type_, std::string>::value,
+        ritsuko::hdf5::Stream1dStringDataset<Pointer_>,
+        ritsuko::hdf5::Stream1dNumericDataset<Type_, Pointer_> 
+    >::type Stream;
+    Stream my_stream;
+
+    std::vector<Type_> my_buffer;
+
+public:
+    StreamIterator(Stream stream) : 
+        my_stream(std::move(stream)),
+        my_buffer(sanisizer::cast<I<decltype(my_buffer.size())> >(my_stream.chunk_size()))
+    {}
+
+    Type_& next() {
+        if (my_pos == my_available) {
+            my_available = my_stream.load(my_buffer.data());
+            my_pos = 0;
+        }
+        return my_buffer[my_pos++];
+    }
+};
 
 template<class Reader_, typename Path_, typename ... Args_>
 std::unique_ptr<byteme::Reader> open_reader(const Path_& path, Args_&& ... args) {
@@ -41,52 +89,55 @@ std::unique_ptr<byteme::BufferedReader<Type_> > wrap_reader_for_bytes(std::uniqu
     }
 }
 
-inline void validate_mcols(const std::filesystem::path& parent, const std::string& name, size_t expected, Options& options) try {
+template<typename NumExpected_>
+void validate_mcols(const std::filesystem::path& parent, const std::string& name, NumExpected_ num_expected, const Options& options) {
     auto path = parent / name;
     if (!std::filesystem::exists(path)) {
         return;
     }
 
-    auto xmeta = read_object_metadata(path);
-    if (!satisfies_interface(xmeta.type, "DATA_FRAME", options)) {
-        throw std::runtime_error("expected an object that satisfies the 'DATA_FRAME' interface");
-    }
-    ::takane::validate(path, xmeta, options);
+    try {
+        auto xmeta = read_object_metadata(path);
+        if (!satisfies_interface(xmeta.type, "DATA_FRAME", options)) {
+            throw std::runtime_error("expected an object that satisfies the 'DATA_FRAME' interface");
+        }
+        validate(path, xmeta, options);
 
-    if (::takane::height(path, xmeta, options) != expected) {
-        throw std::runtime_error("unexpected number of rows");
+        if (!sanisizer::is_equal(height(path, xmeta, options), num_expected)) {
+            throw std::runtime_error("unexpected number of rows");
+        }
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate the '" + name + "' object"));
     }
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate '" + name + "'; " + std::string(e.what()));
 }
 
-inline void validate_metadata(const std::filesystem::path& parent, const std::string& name, Options& options) try {
+inline void validate_metadata(const std::filesystem::path& parent, const std::string& name, const Options& options) {
     auto path = parent / name;
     if (!std::filesystem::exists(path)) {
         return;
     }
 
-    auto xmeta = read_object_metadata(path);
-    if (!satisfies_interface(xmeta.type, "SIMPLE_LIST", options)) {
-        throw std::runtime_error("expected an object that satisfies the 'SIMPLE_LIST' interface'");
+    try {
+        auto xmeta = read_object_metadata(path);
+        if (!satisfies_interface(xmeta.type, "SIMPLE_LIST", options)) {
+            throw std::runtime_error("expected an object that satisfies the 'SIMPLE_LIST' interface'");
+        }
+        validate(path, xmeta, options);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate the '" + name + "' object"));
     }
-    ::takane::validate(path, xmeta, options);
-} catch (std::exception& e) {
-    throw std::runtime_error("failed to validate '" + name + "'; " + std::string(e.what()));
 }
 
-inline size_t count_directory_entries(const std::filesystem::path& path) {
-    size_t num_dir_obj = 0;
+inline std::size_t count_directory_entries(const std::filesystem::path& path) {
+    std::size_t num_dir_obj = 0;
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         const auto& p = entry.path().filename().string();
         if (p.size() && (p[0] == '.' || p[0] == '_')) {
             continue;
         }
-        ++num_dir_obj;
+        num_dir_obj = sanisizer::sum<std::size_t>(num_dir_obj, 1);
     }
     return num_dir_obj;
-}
-
 }
 
 }

@@ -10,23 +10,23 @@ void test_validate(const std::filesystem::path& dir) {
     takane::validate(dir);
 }
 
-void test_validate(const std::filesystem::path& dir, takane::Options& opts) {
+void test_validate(const std::filesystem::path& dir, const takane::Options& opts) {
     takane::validate(dir, opts);
 }
 
-size_t test_height(const std::filesystem::path& dir) {
+std::size_t test_height(const std::filesystem::path& dir) {
     return takane::height(dir);
 }
 
-size_t test_height(const std::filesystem::path& dir, takane::Options& opts) {
+std::size_t test_height(const std::filesystem::path& dir, const takane::Options& opts) {
     return takane::height(dir, opts);
 }
 
-std::vector<size_t> test_dimensions(const std::filesystem::path& dir) {
+std::vector<std::size_t> test_dimensions(const std::filesystem::path& dir) {
     return takane::dimensions(dir);
 }
 
-std::vector<size_t> test_dimensions(const std::filesystem::path& dir, takane::Options& opts) {
+std::vector<std::size_t> test_dimensions(const std::filesystem::path& dir, const takane::Options& opts) {
     return takane::dimensions(dir, opts);
 }
 
@@ -44,7 +44,7 @@ TEST(JsonDump, BasicDumps) {
     atest->value().emplace_back(new millijson::Boolean(false));
 
     initialize_directory("TEST_json");
-    json_utils::dump(store.get(), "TEST_json/OBJECT");
+    dump_json(store.get(), "TEST_json/OBJECT");
     std::ifstream input("TEST_json/OBJECT");
     std::stringstream stream;
     stream << input.rdbuf();

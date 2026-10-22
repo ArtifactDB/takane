@@ -9,124 +9,184 @@
 #include <filesystem>
 #include <stdexcept>
 
-struct FastqFileTest : public ::testing::Test {
-    FastqFileTest() {
-        dir = "TEST_fastq_file";
-        name = "fastq_file";
+TEST(FastqFile, Okay) {
+    auto dir = define_test_path("fastq_file");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 33 } }"
+        );
+        quick_gzip_write(dir / "file.fastq.gz", "@asdasd\nACGT\n+\n!!!!\n");
     }
-
-    std::filesystem::path dir;
-    std::string name;
-
-    template<typename ... Args_>
-    void expect_error(const std::string& msg, Args_&& ... args) {
-        expect_validation_error(dir, msg, std::forward<Args_>(args)...);
-    }
-};
-
-TEST_F(FastqFileTest, Basic) {
-    initialize_directory_simple(dir, name, "2.0");
-    expect_error("unsupported version");
-
-    initialize_directory(dir);
-
-    auto objpath = (dir / "OBJECT").string();
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 33 } }"
-    );
-
-    auto fqpath = (dir / "file.fastq.gz").string();
-    quick_gzip_write(fqpath, "asdasd\nACGT\n+\n!!!!\n");
-    expect_error("start with '@'");
-
-    quick_gzip_write(fqpath, "@asdasd\nACGT\n+\n!!!!\n");
     test_validate(dir);
 
-    // Checking the metadata categories.
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\" } }"
-    );
-    expect_error("sequence_type");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
-    );
-    expect_error("quality_type");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": true } }"
-    );
-    expect_error("JSON string");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"foo\" } }"
-    );
-    expect_error("unknown value 'foo'");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }"
-    );
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }"
+        );
+        quick_gzip_write(dir / "file.fastq.bgz", "@asdasd\nACGT\n+\n!!!!\n");
+        quick_text_write(dir / "file.fastq.fai", "");
+        quick_text_write(dir / "file.fastq.bgz.gzi", "");
+    }
     test_validate(dir);
+
+    // Works with Phred+64.
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }"
+        );
+        quick_gzip_write(dir / "file.fastq.gz", "@asdasd\nACGT\n+\n!!!!\n");
+    }
+
+    // Works with Solexa.
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }"
+        );
+        quick_gzip_write(dir / "file.fastq.gz", "@asdasd\nACGT\n+\n!!!!\n");
+    }
+
+    // Works with the strict validator.
+    {
+        takane::Options opts;
+        opts.fastq_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&, bool) {};
+        test_validate(dir, opts);
+    }
+}
+
+TEST(FastqFile, VersionError) {
+    auto dir = define_test_path("fastq_file");
+
+    {
+        initialize_directory_simple(dir, "fastq_file", "2.0");
+    }
+    expect_validation_error(dir, "unsupported version");
+}
+
+TEST(FastqFile, SequenceTypeError) {
+    auto dir = define_test_path("fastq_file");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\" } }"
+        );
+        quick_gzip_write(dir / "file.fastq.gz", "@asdasd\nACGT\n+\n!!!!\n");
+    }
+    expect_validation_error(dir, "sequence_type");
+}
+
+TEST(FastqFile, QualityError) {
+    auto dir = define_test_path("fastq_file");
+
+    // Running through our checks for 'quality_type'.
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\" } }"
+        );
+        quick_gzip_write(dir / "file.fastq.gz", "@asdasd\nACGT\n+\n!!!!\n");
+    }
+    expect_validation_error(dir, "not present");
+
+    {
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": true } }"
+        );
+    }
+    expect_validation_error(dir, "JSON string");
+
+    {
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"foo\" } }"
+        );
+    }
+    expect_validation_error(dir, "unknown value 'foo'");
 
     // Checking the quality offset.
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\" } }"
-    );
-    expect_error("quality_offset");
+    {
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\" } }"
+        );
+    }
+    expect_validation_error(dir, "not present");
 
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": true } }"
-    );
-    expect_error("JSON number");
+    {
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": true } }"
+        );
+    }
+    expect_validation_error(dir, "JSON number");
 
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 20 } }"
-    );
-    expect_error("33 or 64");
-
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }"
-    );
-    test_validate(dir);
+    {
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 20 } }"
+        );
+    }
+    expect_validation_error(dir, "33 or 64");
 }
 
-TEST_F(FastqFileTest, Indexed) {
-    initialize_directory(dir);
+TEST(FastqFile, FastqError) {
+    auto dir = define_test_path("fastq_file");
 
-    auto objpath = (dir / "OBJECT").string();
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }"
-    );
-
-    auto fqpath = (dir / "file.fastq.bgz").string();
-    quick_gzip_write(fqpath, "asdasd\nACGT\n+\n!!!!\n");
-    expect_error("start with '@'");
-
-    quick_gzip_write(fqpath, "@asdasd\nACGT\n+\n!!!!\n");
-    expect_error("missing FASTQ index file");
-
-    quick_gzip_write((dir / "file.fastq.fai").string(), "");
-    expect_error("missing BGZF index file");
-
-    quick_gzip_write((dir / "file.fastq.bgz.gzi").string(), "");
-    test_validate(dir);
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }"
+        );
+        quick_gzip_write(dir / "file.fastq.gz", "asdasd\nACGT\n+\n!!!!\n");
+    }
+    expect_validation_error(dir, "does not start with '@'");
 }
 
-TEST_F(FastqFileTest, Strict) {
-    initialize_directory(dir);
+TEST(FastqFile, IndexedError) {
+    auto dir = define_test_path("fastq_file");
 
-    auto objpath = (dir / "OBJECT").string();
-    quick_text_write(objpath,
-        "{ \"type\": \"" + name + "\", \"" + name + "\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }"
-    );
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"indexed\": true, \"sequence_type\": \"DNA\", \"quality_type\": \"solexa\" } }"
+        );
+        quick_gzip_write(dir / "file.fastq.bgz", "@asdasd\nACGT\n+\n!!!!\n");
+    }
+    expect_validation_error(dir, "missing FASTQ index file");
 
-    auto fqpath = (dir / "file.fastq.gz").string();
-    quick_gzip_write(fqpath, "@asdasd\nACGT\n+\n!!!!\n");
+    {
+        quick_gzip_write(dir / "file.fastq.fai", "");
+    }
+    expect_validation_error(dir, "missing BGZF index file");
+}
+
+TEST(FastqFile, StrictError) {
+    auto dir = define_test_path("fastq_file");
+
+    {
+        initialize_directory(dir);
+        quick_text_write(
+            dir / "OBJECT",
+            "{ \"type\": \"fastq_file\", \"fastq_file\": { \"version\": \"1.0\", \"sequence_type\": \"DNA\", \"quality_type\": \"phred\", \"quality_offset\": 64 } }"
+        );
+        quick_gzip_write(dir / "file.fastq.gz", "@asdasd\nACGT\n+\n!!!!\n");
+    }
 
     takane::Options opts;
-    opts.fastq_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) {};
-    test_validate(dir);
-
-    opts.fastq_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, takane::Options&, bool) { throw std::runtime_error("ARGH"); };
-    expect_error("ARGH", opts);
+    opts.fastq_file_strict_check = [](const std::filesystem::path&, const takane::ObjectMetadata&, const takane::Options&, bool) { throw std::runtime_error("ARGH"); };
+    expect_validation_error(dir, "ARGH", opts);
 }

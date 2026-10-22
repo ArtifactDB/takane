@@ -5,87 +5,108 @@
 #include "takane/utils_public.hpp"
 #include "utils.h"
 
-struct ExtractJsonTest : public::testing::Test {
-    ExtractJsonTest() {
-        dir = "TEST_json";
-    }
-
-    std::filesystem::path dir;
-
-    template<typename ... Args_>
-    void expect_object_error(const std::string& msg, Args_&& ... args) {
-        auto parsed = takane::read_object_metadata(dir);
-        EXPECT_ANY_THROW({
-            try {
-                takane::internal_json::extract_typed_object_from_metadata(parsed.other, std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-
-    template<typename ... Args_>
-    void extract_version_error(const std::string& msg, Args_&& ... args) {
-        auto parsed = takane::read_object_metadata(dir);
-        EXPECT_ANY_THROW({
-            try {
-                takane::internal_json::extract_version_for_type(parsed.other, std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
-
-TEST_F(ExtractJsonTest, Object) {
+TEST(ParseJsonFile, Basic) {
+    auto dir = define_test_path("utils_json");
     initialize_directory(dir);
-
-    auto objpath = dir / "OBJECT";
-    {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"foob\", \"foobar\": \"1,2,3,4\" }";
-    }
-    expect_object_error("not present", "whee");
-    expect_object_error("JSON object", "foobar");
+    auto path = dir / "FOO.json";
 
     {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"foob\", \"foobar\": { \"foo\": 1, \"bar\": 2 } }";
+        std::ofstream ostream(path);
+        ostream << "{ \"abc\": true }";
     }
-    auto parsed = takane::read_object_metadata(dir);
-    auto extracted = takane::internal_json::extract_typed_object_from_metadata(parsed.other, "foobar");
-    EXPECT_EQ(extracted.size(), 2);
+
+    auto parsed = takane::parse_json_file(path);
+    EXPECT_EQ(parsed->type(), millijson::OBJECT);
 }
 
-TEST_F(ExtractJsonTest, String) {
+TEST(ExtractJsonObject, Basic) {
+    auto dir = define_test_path("utils_json");
     initialize_directory(dir);
-
-    auto objpath = dir / "OBJECT";
-    {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"foob\", \"foobar\": \"1,2,3,4\" }";
-    }
-    extract_version_error("not present", "whee");
-    extract_version_error("JSON object", "foobar");
+    auto path = dir / "OBJECT";
 
     {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"foob\", \"foobar\": { \"foo\": 1, \"bar\": 2 } }";
+        std::ofstream ostream(path);
+        ostream << "{ \"type\": \"foo\", \"foo\": { \"a\": 2, \"bc\": false }, \"bar\": 2 }";
     }
-    extract_version_error("not present", "foobar");
 
-    {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"foob\", \"foobar\": { \"version\": 1, \"bar\": 2 } }";
-    }
-    extract_version_error("JSON string", "foobar");
-
-    {
-        std::ofstream output(objpath);
-        output << "{ \"type\": \"foob\", \"foobar\": { \"version\": \"1.2\", \"bar\": 2 } }";
-    }
     auto parsed = takane::read_object_metadata(dir);
-    EXPECT_EQ(takane::internal_json::extract_version_for_type(parsed.other, "foobar"), "1.2");
+    const std::string propname = "foo";
+    const auto& res = takane::extract_json_object(parsed.other, propname);
+    EXPECT_EQ(res.size(), 2);
+    EXPECT_TRUE(res.find("a") != res.end());
+    EXPECT_TRUE(res.find("bc") != res.end());
+
+    expect_error(
+        "not present",
+        [&]() -> void {
+            takane::extract_json_object(parsed.other, "whee");
+        }
+    );
+
+    expect_error(
+        "JSON object",
+        [&]() -> void {
+            takane::extract_json_object(parsed.other, "bar");
+        }
+    );
+}
+
+TEST(ExtractJsonString, Basic) {
+    auto dir = define_test_path("utils_json");
+    initialize_directory(dir);
+    auto path = dir / "OBJECT";
+
+    {
+        std::ofstream ostream(path);
+        ostream << "{ \"type\": \"foo\", \"foo\": \"abc\", \"bar\": 2 }";
+    }
+
+    auto parsed = takane::read_object_metadata(dir);
+    EXPECT_EQ(takane::extract_json_string(parsed.other, "foo"), "abc");
+
+    expect_error(
+        "not present",
+        [&]() -> void {
+            takane::extract_json_string(parsed.other, "whee");
+        }
+    );
+
+    expect_error(
+        "JSON string",
+        [&]() -> void {
+            takane::extract_json_string(parsed.other, "bar");
+        }
+    );
+}
+
+TEST(ExtractJsonVersionString, Basic) {
+    auto dir = define_test_path("utils_json");
+    initialize_directory(dir);
+    auto path = dir / "OBJECT";
+
+    {
+        std::ofstream output(path);
+        output << "{ \"type\": \"foobar\", \"foobar\": { \"version\": \"2.1.0\" } }";
+    }
+    {
+        auto parsed = takane::read_object_metadata(dir);
+        auto extracted = takane::extract_json_object(parsed.other, "foobar");
+        EXPECT_EQ(takane::extract_json_version_string(extracted), "2.1.0");
+    }
+
+    // Rethrows an error correctly.
+    {
+        std::ofstream output(path);
+        output << "{ \"type\": \"foobar\", \"foobar\": { \"version\": 2 } }";
+    }
+    {
+        auto parsed = takane::read_object_metadata(dir);
+        auto extracted = takane::extract_json_object(parsed.other, "foobar");
+        expect_error(
+            "JSON string",
+            [&]() -> void {
+                takane::extract_json_version_string(extracted);
+            }
+        );
+    }
 }

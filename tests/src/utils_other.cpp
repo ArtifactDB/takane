@@ -1,75 +1,231 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "data_frame.h"
-#include "simple_list.h"
+#include <numeric>
+#include <vector>
+#include <cstdint>
+#include <cstddef>
+
 #include "takane/utils_other.hpp"
 
+#include "mock_data_frame.h"
+#include "mock_simple_list.h"
 #include "utils.h"
 
-struct ValidateMetadataTest : public::testing::Test {
-    static std::filesystem::path testdir() {
-        return "TEST_validate";
+class IterateStreamTest : public ::testing::TestWithParam<int> {};
+
+TEST_P(IterateStreamTest, IterateStream) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    std::vector<std::int32_t> values(100);
+    std::iota(values.begin(), values.end(), -50);
+
+    {
+        H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
+        add_hdf5_numeric_dataset(handle, "bar", H5::PredType::NATIVE_INT32, values);
     }
 
-    template<typename ... Args_>
-    static void expect_error_mcols(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::internal_other::validate_mcols(std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
+    H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
+    auto dhandle = handle.openDataSet("bar");
 
-    template<typename ... Args_>
-    static void expect_error_metadata(const std::string& msg, Args_&& ... args) {
-        EXPECT_ANY_THROW({
-            try {
-                takane::internal_other::validate_metadata(std::forward<Args_>(args)...);
-            } catch (std::exception& e) {
-                EXPECT_THAT(e.what(), ::testing::HasSubstr(msg));
-                throw;
-            }
-        });
-    }
-};
+    ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+    opt.contiguous_chunk_size = GetParam();
+    ritsuko::hdf5::Stream1dNumericDataset<std::int32_t> stream(&dhandle, values.size(), opt);
 
-TEST_F(ValidateMetadataTest, Mcols) {
-    auto path = testdir();
-    std::filesystem::create_directory(path);
-    auto subpath = path / "mcols";
-    data_frame::mock(subpath, 10, {});
+    std::vector<std::int32_t> output(values.size());
+    takane::iterate_stream<std::int32_t>(
+        stream,
+        [&](hsize_t i, std::int32_t payload) -> void {
+            output[i] = payload;
+        }
+    );
 
-    takane::Options opts;
-    takane::internal_other::validate_mcols(path, "mcols", 10, opts);
-    expect_error_mcols("unexpected number of rows", path, "mcols", 20, opts);
-
-    initialize_directory_simple(subpath, "simple_list", "1.0");
-    expect_error_mcols("'DATA_FRAME'", path, "mcols", 10, opts);
+    EXPECT_EQ(output, values);
 }
 
-TEST_F(ValidateMetadataTest, Metadata) {
-    auto path = testdir();
-    std::filesystem::create_directory(path);
-    auto subpath = path / "metadata";
-    simple_list::mock(subpath);
+TEST_P(IterateStreamTest, NumericStreamIterator) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    std::size_t num = 100;
+    std::vector<std::int32_t> values(num);
+    std::iota(values.begin(), values.end(), -50);
+
+    {
+        H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
+        add_hdf5_numeric_dataset(handle, "bar", H5::PredType::NATIVE_INT32, values);
+    }
+
+    H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
+    auto dhandle = handle.openDataSet("bar");
+
+    ritsuko::hdf5::Stream1dNumericDatasetOptions opt;
+    opt.contiguous_chunk_size = GetParam();
+    takane::StreamIterator<std::int32_t> it(ritsuko::hdf5::Stream1dNumericDataset<std::int32_t>(&dhandle, values.size(), opt));
+
+    std::vector<std::int32_t> output(values.size());
+    for (std::size_t i = 0; i < num; ++i) {
+        output[i] = it.next();
+    }
+
+    EXPECT_EQ(output, values);
+}
+
+TEST_P(IterateStreamTest, StringStreamIterator) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    std::size_t num = 50;
+    std::vector<std::string> values(num);
+    for (std::size_t i = 0; i < num; ++i) {
+        values[i] = "thing-" + std::to_string(i);
+    }
+
+    {
+        H5::H5File handle(dir / "foo.h5", H5F_ACC_TRUNC);
+        add_hdf5_string_dataset(handle, "bar", values);
+    }
+
+    H5::H5File handle(dir / "foo.h5", H5F_ACC_RDONLY);
+    auto dhandle = handle.openDataSet("bar");
+
+    ritsuko::hdf5::Stream1dStringDatasetOptions opt;
+    opt.contiguous_chunk_size = GetParam();
+    takane::StreamIterator<std::string> it(ritsuko::hdf5::Stream1dStringDataset<>(&dhandle, values.size(), opt));
+
+    std::vector<std::string> output(values.size());
+    for (std::size_t i = 0; i < num; ++i) {
+        output[i] = it.next();
+    }
+
+    EXPECT_EQ(output, values);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    IterateStream,
+    IterateStreamTest,
+    ::testing::Values(3, 30, 300) // chunk sizes
+); 
+
+/********************************************/
+
+TEST(ValidateMcols, Okay) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    // No-op if the directory doesn't exist.
+    takane::Options opts;
+    std::string name = "mcols";
+    takane::validate_mcols(dir, name, 10, opts);
+
+    // Alright, actually creating the directory.
+    {
+        mock_data_frame(dir / name, DataFrameOptions(10, {}));
+    }
+    takane::validate_mcols(dir, name, 10, opts);
+}
+
+TEST(ValidateMcols, Error) {
+    auto dir = define_test_path("utils_other");
+    std::string name = "mcols";
 
     takane::Options opts;
-    takane::internal_other::validate_metadata(path, "metadata", opts);
 
-    initialize_directory_simple(subpath, "data_frame", "1.0");
-    expect_error_metadata("'SIMPLE_LIST'", path, "metadata", opts);
+    {
+        initialize_directory(dir);
+        mock_data_frame(dir / name, DataFrameOptions(10, {}));
+    }
+    expect_error(
+        "unexpected number of rows",
+        [&]() -> void {
+            takane::validate_mcols(dir, name, 11, opts);
+        }
+    );
+
+    // Check that we actually validate the data_frame.
+    {
+        initialize_directory(dir);
+        auto ghandle = mock_data_frame(dir / name, DataFrameOptions(10, {}));
+        auto dhandle = ghandle.openGroup("data");
+        dhandle.createGroup("0");
+    }
+    expect_error(
+        "more objects",
+        [&]() -> void {
+            takane::validate_mcols(dir, name, 10, opts);
+        }
+    );
+
+    {
+        initialize_directory_simple(dir / name, "simple_list", "1.0");
+    }
+    expect_error(
+        "DATA_FRAME",
+        [&]() -> void {
+            takane::validate_mcols(dir, name, 10, opts);
+        }
+    );
+}
+
+TEST(ValidateMetadata, Okay) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    // No-op if the directory doesn't exist.
+    takane::Options opts;
+    std::string name = "metadata";
+    takane::validate_metadata(dir, name, opts);
+
+    {
+        mock_simple_list(dir / name);
+    }
+    takane::validate_metadata(dir, "metadata", opts);
+}
+
+TEST(ValidateMetadata, Error) {
+    auto dir = define_test_path("utils_other");
+    initialize_directory(dir);
+
+    takane::Options opts;
+    std::string name = "metadata";
+
+    // Check that we actually validate the simple_list.
+    {
+        initialize_simple_list_with_metadata(dir / name, "1.0", "json.gz");
+        dump_compressed_json(dir / name, "{ \"type\": \"integer\", \"values\": [] }");
+    }
+    expect_error(
+        "top-level",
+        [&]() -> void {
+            takane::validate_metadata(dir, name, opts);
+        }
+    );
+
+    {
+        mock_data_frame(dir / name, DataFrameOptions(10, {}));
+    }
+    expect_error(
+        "SIMPLE_LIST",
+        [&]() -> void {
+            takane::validate_metadata(dir, name, opts);
+        }
+    );
 }
 
 TEST(CountDirectoryEntries, Basic) {
-    std::filesystem::path path = "TEST_countdir";
-    std::filesystem::create_directory(path);
-    std::filesystem::create_directory(path / "_whee");
-    std::filesystem::create_directory(path / ".foo");
+    auto dir = define_test_path("utils_other");
+    auto path = dir / "counts";
+    initialize_directory(path);
+
+    EXPECT_EQ(takane::count_directory_entries(path), 0);
+
     std::filesystem::create_directory(path / "blah");
     std::filesystem::create_directory(path / "asdasd");
-    EXPECT_EQ(takane::internal_other::count_directory_entries(path), 2);
+    EXPECT_EQ(takane::count_directory_entries(path), 2);
+
+    // Ignores . and _ prefixes.
+    std::filesystem::create_directory(path / "_whee");
+    std::filesystem::create_directory(path / ".foo");
+    EXPECT_EQ(takane::count_directory_entries(path), 2);
 }

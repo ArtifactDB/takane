@@ -4,8 +4,10 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <exception>
+#include <cstddef>
 
-#include "ritsuko/hdf5/hdf5.hpp"
+#include "ritsuko/ritsuko.hpp"
 #include "byteme/byteme.hpp"
 
 #include "utils_public.hpp"
@@ -22,34 +24,26 @@
 namespace takane {
 
 /**
- * @namespace takane::vcf_experiment
- * @brief Definitions for VCF experiments.
- */
-namespace vcf_experiment {
-
-/**
  * @cond
  */
-namespace internal {
-
 // Format specification taken from https://samtools.github.io/hts-specs/VCFv4.1.pdf.
-inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path, bool expanded, bool parallel) {
-    internal_files::check_gzip_signature(path);
-    auto reader = internal_other::open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
-    auto pb = internal_other::wrap_reader_for_bytes<char>(std::move(reader), parallel);
+inline std::pair<std::size_t, std::size_t> scan_vcf_dimensions(const std::filesystem::path& path, bool expanded, bool parallel) {
+    check_gzip_file_signature(path);
+    auto reader = open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
+    auto pb = wrap_reader_for_bytes<char>(std::move(reader), parallel);
 
     // Checking the signature.
     {
         const std::string expected = "##fileformat=VCFv";
-        const size_t len = expected.size();
+        const auto len = expected.size();
         bool okay = pb->valid();
 
-        for (size_t i = 0; i < len; ++i) {
+        for (I<decltype(len)> i = 0; i < len; ++i) {
             if (!okay) {
-                throw std::runtime_error("incomplete VCF file signature");
+                throw std::runtime_error("not enough bytes to extract a signature for a VCF file");
             }
             if (pb->get() != expected[i]) {
-                throw std::runtime_error("incorrect VCF file signature");
+                throw std::runtime_error("incorrect signature for a VCF file");
             }
             okay = pb->advance();
         }
@@ -78,13 +72,13 @@ inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path
     }
 
     // Scanning the header line to count the number of samples.
-    size_t num_samples = 0;
+    std::size_t num_samples = 0;
     {
-        size_t num_indents = 0;
+        std::size_t num_indents = 0;
         while (true) {
             char current = pb->get();
             if (current == '\t') {
-                ++num_indents;
+                sanisizer::increment(num_indents);
             } else if (current == '\n') {
                 pb->advance(); // skip past the newline.
                 break;
@@ -100,18 +94,18 @@ inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path
         num_samples = num_indents - 8;
     }
 
-    size_t expected_rows = 0;
+    std::size_t expected_rows = 0;
     if (expanded) {
         while (pb->valid()) {
-            ++expected_rows;
+            sanisizer::increment(expected_rows);
 
             // Scanning up to the ALT field, which is the 5th one. We need this to
             // find the number of alternative alleles (and thus the expansion of rows).
-            size_t num_indents = 0;
+            std::size_t num_indents = 0;
             while (true) {
                 char current = pb->get();
                 if (current == '\t') {
-                    ++num_indents;
+                    sanisizer::increment(num_indents);
                     if (num_indents == 4) { 
                         if (!pb->advance()) { // get past this indent.
                             throw std::runtime_error("premature end of line for VCF record");
@@ -130,7 +124,7 @@ inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path
             while (true) {
                 char current = pb->get();
                 if (current == ',') {
-                    throw std::runtime_error("expected a 1:1 mapping of rows to alternative alleles when 'vcf_experiment.expanded = true'");
+                    throw std::runtime_error("expected a 1:1 mapping of rows to alternative alleles for an expanded VCF");
                 } else if (current == '\t') {
                     break;
                 } else if (current == '\n') {
@@ -158,7 +152,7 @@ inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path
         if (pb->valid()) {
             while (true) {
                 if (pb->get() == '\n') {
-                    ++expected_rows; // assume all files are newline-terminated.
+                    sanisizer::increment(expected_rows); // assume all files are newline-terminated.
                     if (!pb->advance()) {
                         break;
                     }
@@ -173,8 +167,6 @@ inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path
 
     return std::make_pair(expected_rows, num_samples);
 }
-
-}
 /**
  * @endcond
  */
@@ -184,46 +176,51 @@ inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path
  * @param metadata Metadata for the object, typically read from its `OBJECT` file.
  * @param options Validation options.
  */
-inline void validate(const std::filesystem::path& path, const ObjectMetadata& metadata, Options& options) {
+inline void validate_vcf_experiment(const std::filesystem::path& path, const ObjectMetadata& metadata, const Options& options) {
     const std::string type_name = "vcf_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
 
-    const std::string version_name = "version"; // again, avoid dangling reference warnings.
-    const std::string& vstring = internal_json::extract_string_from_typed_object(vcfmap, version_name, type_name);
-    auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
-    if (version.major != 1) {
-        throw std::runtime_error("unsupported version string '" + vstring + "'");
-    }
-
-    // Other bits and pieces of the metadata to check.
-    auto dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, "vcf_experiment");
-
+    std::pair<std::size_t, std::size_t> dims;
     bool exp = false;
-    {
+    try {
+        const auto& vcfmap = extract_json_object(metadata.other, type_name);
+        try {
+            const std::string& vstring = extract_json_version_string(vcfmap);
+            auto version = ritsuko::parse_version_string(vstring.c_str(), vstring.size(), /* skip_patch = */ true);
+            if (version.major != 1) {
+                throw std::runtime_error("unsupported version string '" + vstring + "'");
+            }
+        } catch (...) {
+            std::throw_with_nested(std::runtime_error("failed to read 'version'"));
+        }
+
+        dims = extract_summarized_experiment_dimensions(vcfmap);
+
         auto eIt = vcfmap.find("expanded");
         if (eIt == vcfmap.end()) {
-            throw std::runtime_error("expected a 'vcf_experiment.expanded' property");
+            throw std::runtime_error("expected a 'expanded' property");
         }
         const auto& val = eIt->second;
         if (val->type() != millijson::BOOLEAN) {
-            throw std::runtime_error("'vcf_experiment.expanded' property should be a JSON boolean");
+            throw std::runtime_error("'expanded' property should be a JSON boolean");
         }
         exp = reinterpret_cast<const millijson::Boolean*>(val.get())->value();
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to validate '" + type_name + "' in the object metadata"));
     }
 
     auto ipath = path / "file.vcf.gz";
-    std::pair<size_t, size_t> obs_dims;
+    std::pair<std::size_t, std::size_t> obs_dims;
     try {
-        obs_dims = internal::scan_vcf_dimensions(ipath, exp, options.parallel_reads);
-    } catch (std::exception& e) {
-        throw std::runtime_error("failed to parse '" + ipath.string() + "'; " + std::string(e.what()));
+        obs_dims = scan_vcf_dimensions(ipath, exp, options.parallel_reads);
+    } catch (...) {
+        std::throw_with_nested(std::runtime_error("failed to parse '" + ipath.filename().string() + "'"));
     }
 
     if (obs_dims.first != dims.first) {
-        throw std::runtime_error("reported 'vcf_experiment.dimensions[0]' does not match the number of records in '" + ipath.string() + "'");
+        throw std::runtime_error("first dimension in object metadata does not match the number of records in '" + ipath.filename().string() + "'");
     }
     if (obs_dims.second != dims.second) {
-        throw std::runtime_error("reported 'vcf_experiment.dimensions[1]' does not match the number of samples in '" + ipath.string() + "'");
+        throw std::runtime_error("second dimension in object metadata does not match the number of samples in '" + ipath.filename().string() + "'");
     }
 }
 
@@ -233,10 +230,10 @@ inline void validate(const std::filesystem::path& path, const ObjectMetadata& me
  * @param options Validation options.
  * @return Number of rows in the VCF experiment.
  */
-inline size_t height([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+inline std::size_t height_of_vcf_experiment([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     const std::string type_name = "vcf_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
-    auto dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);
+    const auto& vcfmap = extract_json_object(metadata.other, type_name);
+    auto dims = extract_summarized_experiment_dimensions(vcfmap);
     return dims.first;
 }
 
@@ -246,13 +243,11 @@ inline size_t height([[maybe_unused]] const std::filesystem::path& path, const O
  * @param options Validation options.
  * @return A vector of length 2 containing the dimensions of the VCF experiment.
  */
-inline std::vector<size_t> dimensions([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] Options& options) {
+inline std::vector<std::size_t> dimensions_of_vcf_experiment([[maybe_unused]] const std::filesystem::path& path, const ObjectMetadata& metadata, [[maybe_unused]] const Options& options) {
     const std::string type_name = "vcf_experiment"; // use a separate variable to avoid dangling reference warnings from GCC.
-    const auto& vcfmap = internal_json::extract_typed_object_from_metadata(metadata.other, type_name);
-    auto dims = internal_summarized_experiment::extract_dimensions_json(vcfmap, type_name);
-    return std::vector<size_t>{ dims.first, dims.second };
-}
-
+    const auto& vcfmap = extract_json_object(metadata.other, type_name);
+    auto dims = extract_summarized_experiment_dimensions(vcfmap);
+    return std::vector<std::size_t>{ dims.first, dims.second };
 }
 
 }
