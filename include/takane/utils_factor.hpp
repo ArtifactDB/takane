@@ -1,16 +1,17 @@
 #ifndef TAKANE_UTILS_FACTOR_HPP
 #define TAKANE_UTILS_FACTOR_HPP
 
+#include "H5Cpp.h"
+#include "ritsuko/ritsuko.hpp"
+#include "sanisizer/sanisizer.hpp"
+
 #include <unordered_set>
 #include <string>
 #include <cstdint>
 #include <vector>
 #include <stdexcept>
 #include <optional>
-
-#include "H5Cpp.h"
-#include "ritsuko/ritsuko.hpp"
-#include "sanisizer/sanisizer.hpp"
+#include <exception>
 
 #include "utils_other.hpp"
 #include "utils_missing.hpp"

@@ -4,6 +4,8 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <exception>
+#include <cstddef>
 
 #include "ritsuko/ritsuko.hpp"
 #include "byteme/byteme.hpp"
@@ -25,7 +27,7 @@ namespace takane {
  * @cond
  */
 // Format specification taken from https://samtools.github.io/hts-specs/VCFv4.1.pdf.
-inline std::pair<size_t, size_t> scan_vcf_dimensions(const std::filesystem::path& path, bool expanded, bool parallel) {
+inline std::pair<std::size_t, std::size_t> scan_vcf_dimensions(const std::filesystem::path& path, bool expanded, bool parallel) {
     check_gzip_file_signature(path);
     auto reader = open_reader<byteme::GzipFileReader>(path, byteme::GzipFileReaderOptions());
     auto pb = wrap_reader_for_bytes<char>(std::move(reader), parallel);

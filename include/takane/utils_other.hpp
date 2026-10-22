@@ -5,6 +5,8 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <exception>
+#include <cstddef>
 
 #include "ritsuko/ritsuko.hpp"
 #include "sanisizer/sanisizer.hpp"

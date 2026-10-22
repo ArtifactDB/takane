@@ -7,6 +7,7 @@
 #include <functional>
 #include <exception>
 #include <stdexcept>
+#include <cstddef>
 
 #include "H5Cpp.h"
 #include "millijson/millijson.hpp"
@@ -119,7 +120,7 @@ public:
      * Addtional validation function to run for all object types during a call to `validate()`, after running the (default or custom) type-specific validation function.
      * Arguments for this function are as described for `validate()`.
      */
-   std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> custom_global_validate;
+    std::function<void(const std::filesystem::path&, const ObjectMetadata&, const Options&)> custom_global_validate;
 
 public:
     /**
@@ -127,7 +128,7 @@ public:
      * Each key is an object type and each value is a function that accepts the same arguments as `dimensions()`.
      * If a type is specified here, the custom function replaces the default. 
      */
-    std::unordered_map<std::string, std::function<std::vector<size_t>(const std::filesystem::path&, const ObjectMetadata&, const Options&)> > custom_dimensions;
+    std::unordered_map<std::string, std::function<std::vector<std::size_t>(const std::filesystem::path&, const ObjectMetadata&, const Options&)> > custom_dimensions;
 
     /**
      * Custom registry of functions to be used by `height()`.

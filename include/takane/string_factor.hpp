@@ -4,9 +4,12 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <exception>
+#include <cstddef>
 
 #include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include "utils_public.hpp"
 #include "utils_string.hpp"

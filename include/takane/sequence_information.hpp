@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <unordered_set>
 #include <string>
 

@@ -1,16 +1,18 @@
 #ifndef TAKANE_SIMPLE_LIST_HPP
 #define TAKANE_SIMPLE_LIST_HPP
 
+#include "H5Cpp.h"
+#include "uzuki2/uzuki2.hpp"
+#include "byteme/byteme.hpp"
+#include "sanisizer/sanisizer.hpp"
+
 #include <string>
 #include <stdexcept>
 #include <filesystem>
 #include <cstddef>
 #include <optional>
 #include <cmath>
-
-#include "H5Cpp.h"
-#include "uzuki2/uzuki2.hpp"
-#include "byteme/byteme.hpp"
+#include <exception>
 
 #include "utils_public.hpp"
 #include "utils_other.hpp"
@@ -171,7 +173,7 @@ inline std::size_t height_of_simple_list(const std::filesystem::path& path, cons
         H5::H5File handle(path / "list_contents.h5", H5F_ACC_RDONLY);
         auto lhandle = handle.openGroup("simple_list");
         auto vhandle = lhandle.openGroup("data");
-        return vhandle.getNumObjs();
+        return sanisizer::cast<std::size_t>(vhandle.getNumObjs());
 
     } else {
         // Not much choice but to parse the entire list here. We do so using the
@@ -186,7 +188,7 @@ inline std::size_t height_of_simple_list(const std::filesystem::path& path, cons
         opt.parallel = options.parallel_reads;
         auto gzreader = open_reader<byteme::GzipFileReader>(path / "list_contents.json.gz", byteme::GzipFileReaderOptions());
         auto ptr = uzuki2::json::parse<uzuki2::DummyProvisioner>(*gzreader, uzuki2::DummyExternals(num_external), opt);
-        return reinterpret_cast<const uzuki2::List*>(ptr.get())->size();
+        return sanisizer::cast<std::size_t>(reinterpret_cast<const uzuki2::List*>(ptr.get())->size());
     }
 }
 

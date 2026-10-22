@@ -13,9 +13,12 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <string>
 #include <vector>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 
 /**
  * @file spatial_experiment.hpp

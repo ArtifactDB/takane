@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <filesystem>
+#include <memory>
 
 #include "millijson/millijson.hpp"
 

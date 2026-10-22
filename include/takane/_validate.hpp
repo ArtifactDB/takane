@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <exception>
 
 #include "utils_public.hpp"
 

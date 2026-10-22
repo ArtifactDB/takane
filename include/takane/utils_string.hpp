@@ -2,10 +2,9 @@
 #define TAKANE_UTILS_STRING_HPP
 
 #include <string>
-#include <cstddef>
-#include <vector>
 #include <stdexcept>
 #include <optional>
+#include <exception>
 
 #include "ritsuko/ritsuko.hpp"
 #include "sanisizer/sanisizer.hpp"

@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
+#include <cstddef>
 
 #include "utils_public.hpp"
 #include "utils_bumpy_array.hpp"

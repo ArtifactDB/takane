@@ -1,10 +1,16 @@
 #ifndef TAKANE_MULTI_SAMPLE_DATASET_HPP
 #define TAKANE_MULTI_SAMPLE_DATASET_HPP
 
+#include "H5Cpp.h"
+#include "ritsuko/ritsuko.hpp"
+#include "sanisizer/sanisizer.hpp"
+
 #include <filesystem>
 #include <string>
 #include <cstdint>
 #include <stdexcept>
+#include <exception>
+#include <cstddef>
 
 #include "utils_public.hpp"
 #include "utils_other.hpp"
@@ -89,7 +95,7 @@ inline void validate_multi_sample_dataset(const std::filesystem::path& path, con
                     validate(epath, emeta, options);
                     auto dims = dimensions(epath, emeta, options);
                     num_columns.push_back(dims[1]);
-                } catch (std::exception& e) {
+                } catch (...) {
                     std::throw_with_nested(std::runtime_error("failed to validate experiment " + ename));
                 }
             }
@@ -154,7 +160,7 @@ inline void validate_multi_sample_dataset(const std::filesystem::path& path, con
             if (!sanisizer::is_equal(num_columns.size(), ghandle.getNumObjs())) {
                 throw std::runtime_error("more objects present in the 'multi_sample_dataset' group than expected");
             }
-        } catch (std::exception& e) {
+        } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate the sample mapping in 'sample_map.h5'"));
         }
     }

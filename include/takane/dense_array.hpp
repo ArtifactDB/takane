@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <filesystem>
 #include <cstdint>
+#include <cstddef>
 
 /**
  * @file dense_array.hpp

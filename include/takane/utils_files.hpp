@@ -1,6 +1,8 @@
 #ifndef TAKANE_UTILS_FILES_HPP
 #define TAKANE_UTILS_FILES_HPP
 
+#include "byteme/byteme.hpp"
+
 #include <string>
 #include <stdexcept>
 #include <filesystem>
@@ -10,7 +12,6 @@
 
 #include "utils_other.hpp"
 #include "utils_json.hpp"
-#include "byteme/byteme.hpp"
 
 namespace takane {
 

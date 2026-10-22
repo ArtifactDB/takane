@@ -2,9 +2,8 @@
 #define TAKANE_SEQUENCE_STRING_SET_HPP
 
 #include "byteme/byteme.hpp"
-
 #include "ritsuko/ritsuko.hpp"
-#include "utils_other.hpp"
+#include "sanisizer/sanisizer.hpp"
 
 #include <array>
 #include <algorithm>
@@ -12,6 +11,9 @@
 #include <limits>
 #include <cstddef>
 #include <filesystem>
+#include <exception>
+
+#include "utils_other.hpp"
 
 /**
  * @file sequence_string_set.hpp

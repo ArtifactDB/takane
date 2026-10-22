@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
+#include <exception>
 
 /**
  * @file bigwig_file.hpp

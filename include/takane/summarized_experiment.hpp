@@ -25,7 +25,7 @@ namespace takane {
  * @cond
  */
 void validate(const std::filesystem::path&, const ObjectMetadata&, const Options& options);
-size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options& options);
+std::size_t height(const std::filesystem::path&, const ObjectMetadata&, const Options& options);
 std::vector<std::size_t> dimensions(const std::filesystem::path&, const ObjectMetadata&, const Options& options);
 bool satisfies_interface(const std::string&, const std::string&, const Options&);
 /**

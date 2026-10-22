@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <vector>
 #include <filesystem>
+#include <exception>
 
 #include "utils_public.hpp"
 #include "utils_string.hpp"

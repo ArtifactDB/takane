@@ -8,7 +8,9 @@
 #include <string>
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <cstdint>
+#include <cstddef>
 #include <type_traits>
 #include <limits>
 #include <optional>

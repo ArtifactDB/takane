@@ -8,6 +8,7 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <string>
 
 /**

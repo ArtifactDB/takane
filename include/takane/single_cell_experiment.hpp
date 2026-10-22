@@ -1,10 +1,10 @@
 #ifndef TAKANE_SINGLE_CELL_EXPERIMENT_HPP
 #define TAKANE_SINGLE_CELL_EXPERIMENT_HPP
 
+#include "sanisizer/sanisizer.hpp"
 
 #include "summarized_experiment.hpp"
 #include "ranged_summarized_experiment.hpp"
-
 #include "utils_public.hpp"
 #include "utils_summarized_experiment.hpp"
 
@@ -14,6 +14,7 @@
 #include <unordered_set>
 #include <string>
 #include <cstddef>
+#include <optional>
 
 /**
  * @file single_cell_experiment.hpp

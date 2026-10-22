@@ -5,8 +5,10 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <array>
 #include <string>
+#include <cstddef>
 
 /**
  * @file image_file.hpp

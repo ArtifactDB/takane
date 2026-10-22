@@ -6,10 +6,12 @@
 #include "sanisizer/sanisizer.hpp"
 
 #include <cstdint>
+#include <cstddef>
 #include <string>
 #include <stdexcept>
 #include <vector>
 #include <filesystem>
+#include <exception>
 
 #include "utils_public.hpp"
 #include "utils_array.hpp"

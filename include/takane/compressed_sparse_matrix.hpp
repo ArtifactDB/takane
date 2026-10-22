@@ -10,6 +10,7 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <string>
 #include <cstdint>
 #include <cstddef>

@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <string>
 #include <stdexcept>
+#include <exception>
 #include <vector>
 #include <filesystem>
 #include <unordered_set>

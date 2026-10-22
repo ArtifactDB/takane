@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <exception>
 #include <filesystem>
 #include <cstdint>
 #include <cstddef>
@@ -136,7 +137,7 @@ inline void validate_delayed_array(const std::filesystem::path& path, const Obje
  * @param options Validation options.
  * @return Extent of the first dimension.
  */
-inline size_t height_of_delayed_array(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, const Options& options) {
+inline std::size_t height_of_delayed_array(const std::filesystem::path& path, [[maybe_unused]] const ObjectMetadata& metadata, const Options& options) {
     auto chihaya_options = options.delayed_array_options;
     chihaya_options.details_only = true;
 

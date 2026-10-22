@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <exception>
 
 #include "H5Cpp.h"
 #include "ritsuko/ritsuko.hpp"

@@ -1,12 +1,14 @@
 #ifndef TAKANE_RDS_FILE_HPP
 #define TAKANE_RDS_FILE_HPP
 
-#include "utils_files.hpp"
 #include "ritsuko/ritsuko.hpp"
 
 #include <filesystem>
 #include <stdexcept>
+#include <exception>
 #include <string>
+
+#include "utils_files.hpp"
 
 /**
  * @file rds_file.hpp
