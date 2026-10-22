@@ -77,7 +77,7 @@ inline void validate_summarized_experiment(const std::filesystem::path& path, co
             }();
 
             for (I<decltype(num_assays)> i = 0; i < num_assays; ++i) {
-                auto aname = std::to_string(i);
+                auto aname = ritsuko::itoa(i);
                 auto apath = adir / aname;
                 try {
                     auto ameta = read_object_metadata(apath);

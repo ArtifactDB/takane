@@ -41,7 +41,7 @@ void validate_array_dimnames(const H5::Group& handle, const std::string& name, c
         auto found = ndim;
 
         for (I<decltype(ndim)> d = 0; d < ndim; ++d) {
-            std::string dname = std::to_string(d);
+            std::string dname = ritsuko::itoa(d);
             if (!nhandle.exists(dname)) {
                 --found;
                 continue;

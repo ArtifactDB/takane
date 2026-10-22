@@ -110,7 +110,7 @@ inline void validate_simple_list(const std::filesystem::path& path, const Object
 
         num_external = count_directory_entries(other_dir);
         for (I<decltype(num_external)> e = 0; e < num_external; ++e) {
-            auto epath = other_dir / std::to_string(e);
+            auto epath = other_dir / ritsuko::itoa(e);
             if (!std::filesystem::exists(epath)) {
                 throw std::runtime_error("expected an external list object at '" + std::filesystem::relative(epath, path).string() + "'");
             }

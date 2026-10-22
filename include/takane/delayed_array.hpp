@@ -81,7 +81,7 @@ inline void validate_delayed_array(const std::filesystem::path& path, const Obje
                 std::throw_with_nested(std::runtime_error("failed to read 'index'")); 
             }
 
-            auto seed_path = path / "seeds" / std::to_string(index);
+            auto seed_path = path / "seeds" / ritsuko::itoa(index);
             try {
                 auto seed_meta = read_object_metadata(seed_path);
                 validate(seed_path, seed_meta, options);
@@ -98,7 +98,7 @@ inline void validate_delayed_array(const std::filesystem::path& path, const Obje
                     }
                 }
             } catch (...) {
-                std::throw_with_nested(std::runtime_error("failed to validate seed " + std::to_string(index)));
+                std::throw_with_nested(std::runtime_error("failed to validate seed " + ritsuko::itoa(index)));
             }
 
             if (index >= max) {

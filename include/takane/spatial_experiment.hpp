@@ -181,7 +181,7 @@ inline void validate_spatial_images(const std::filesystem::path& image_dir, std:
             for (hsize_t i = 1; i < num_images; ++i) {
                 const auto& current = sample_and_ids[i];
                 if (current == sample_and_ids[i - 1]) {
-                    throw std::runtime_error("detected duplicated image ID '" + current.second + "' for sample " + std::to_string(current.first));
+                    throw std::runtime_error("detected duplicated image ID '" + current.second + "' for sample " + ritsuko::itoa(current.first));
                 }
             }
         } catch (...) {
@@ -275,7 +275,7 @@ inline void validate_spatial_images(const std::filesystem::path& image_dir, std:
     // Now validating the images themselves. 
     const auto num_images = image_formats.size();
     for (I<decltype(num_images)> i = 0; i < num_images; ++i) {
-        auto ipath = image_dir / std::to_string(i);
+        auto ipath = image_dir / ritsuko::itoa(i);
         const auto& format = image_formats[i];
         try {
             if (format == "PNG") {
@@ -294,7 +294,7 @@ inline void validate_spatial_images(const std::filesystem::path& image_dir, std:
                 throw std::runtime_error("image format '" + format + "' is not currently supported");
             }
         } catch (...) {
-            std::throw_with_nested(std::runtime_error("failed to validate image " + std::to_string(i)));
+            std::throw_with_nested(std::runtime_error("failed to validate image " + ritsuko::itoa(i)));
         }
     }
 

@@ -38,7 +38,7 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
     unsigned long long line_count = 1;
     auto advance_and_check = [&]() -> char {
         if (!pb->advance()) {
-            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count));
+            throw std::runtime_error("premature end of the file at line " + ritsuko::itoa(line_count));
         }
         return pb->get();
     };
@@ -59,11 +59,11 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
         {
             if constexpr(!has_quality_) {
                 if (pb->get() != '>') {
-                    throw std::runtime_error("sequence name should start with '>' at line " + std::to_string(line_count));
+                    throw std::runtime_error("sequence name should start with '>' at line " + ritsuko::itoa(line_count));
                 }
             } else {
                 if (pb->get() != '@') {
-                    throw std::runtime_error("sequence name should start with '@' at line " + std::to_string(line_count));
+                    throw std::runtime_error("sequence name should start with '@' at line " + ritsuko::itoa(line_count));
                 }
             }
 
@@ -79,7 +79,7 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
 
                 empty = false;
                 if (val < '0' || val > '9') {
-                    throw std::runtime_error("sequence name should be a non-negative integer at line " + std::to_string(line_count));
+                    throw std::runtime_error("sequence name should be a non-negative integer at line " + ritsuko::itoa(line_count));
                 }
                 
                 const auto delta = val - '0';
@@ -87,11 +87,11 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
                     proposed *= 10;
                     proposed += delta;
                 } else {
-                    throw std::runtime_error("sequence name is out of bounds at line " + std::to_string(line_count));
+                    throw std::runtime_error("sequence name is out of bounds at line " + ritsuko::itoa(line_count));
                 }
             }
             if (empty || proposed != nseq) {
-                throw std::runtime_error("sequence name should be its index at line " + std::to_string(line_count));
+                throw std::runtime_error("sequence name should be its index at line " + ritsuko::itoa(line_count));
             }
             ++line_count;
         }
@@ -112,7 +112,7 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
                 } else if (allowed[char2int(val)]) {
                     val = advance_and_check();
                 } else {
-                    throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count));
+                    throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + ritsuko::itoa(line_count));
                 }
             }
 
@@ -132,7 +132,7 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
                         seq_length = sanisizer::sum<std::size_t>(seq_length, 1); // Protect against overflow as this is important for the quality string checks.
                         val = advance_and_check();
                     } else {
-                        throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + std::to_string(line_count));
+                        throw std::runtime_error("forbidden character '" + std::string(1, val) + "' in sequence at line " + ritsuko::itoa(line_count));
                     }
                 }
             }
@@ -160,12 +160,12 @@ std::size_t parse_sequence_contents(const std::filesystem::path& path, AllowedCh
                 } else if (val >= lowest_quality && val <= '~') {
                     qual_length = sanisizer::sum<std::size_t>(qual_length, 1);
                 } else {
-                    throw std::runtime_error("out-of-range quality score '" + std::string(1, val) + "' detected at line " + std::to_string(line_count));
+                    throw std::runtime_error("out-of-range quality score '" + std::string(1, val) + "' detected at line " + ritsuko::itoa(line_count));
                 }
             }
 
             if (qual_length != seq_length) {
-                throw std::runtime_error("unequal lengths for quality and sequence strings at line " + std::to_string(line_count));
+                throw std::runtime_error("unequal lengths for quality and sequence strings at line " + ritsuko::itoa(line_count));
             }
         }
 
@@ -183,7 +183,7 @@ inline std::size_t parse_sequence_names(const std::filesystem::path& path, bool 
     unsigned long long line_count = 1;
     auto advance_and_check = [&]() -> char {
         if (!pb->advance()) {
-            throw std::runtime_error("premature end of the file at line " + std::to_string(line_count));
+            throw std::runtime_error("premature end of the file at line " + ritsuko::itoa(line_count));
         }
         return pb->get();
     };
@@ -191,7 +191,7 @@ inline std::size_t parse_sequence_names(const std::filesystem::path& path, bool 
     while (pb->valid()) {
         char val = pb->get();
         if (val != '"') {
-            throw std::runtime_error("name should start with a quote at line " + std::to_string(line_count));
+            throw std::runtime_error("name should start with a quote at line " + ritsuko::itoa(line_count));
         }
 
         while (true) {
@@ -204,7 +204,7 @@ inline std::size_t parse_sequence_names(const std::filesystem::path& path, bool 
                     pb->advance();
                     break;
                 } else if (val != '"') {
-                    throw std::runtime_error("characters present after end quote at line " + std::to_string(line_count));
+                    throw std::runtime_error("characters present after end quote at line " + ritsuko::itoa(line_count));
                 }
             } else if (val == '\n') {
                 ++line_count;
@@ -363,7 +363,7 @@ inline void validate_sequence_string_set(const std::filesystem::path& path, cons
             nseq = parse_sequence_contents<false>(path / fname, allowed, lowest_quality, options.parallel_reads);
         }
         if (nseq != expected_nseq) {
-            throw std::runtime_error("number of sequences is different from the expected length (" + std::to_string(nseq) + " versus " + std::to_string(expected_nseq) + ")");
+            throw std::runtime_error("number of sequences is different from the expected length (" + ritsuko::itoa(nseq) + " versus " + ritsuko::itoa(expected_nseq) + ")");
         }
     } catch (...) {
         std::throw_with_nested(std::runtime_error("failed to validate '" + fname + "'"));
@@ -374,7 +374,7 @@ inline void validate_sequence_string_set(const std::filesystem::path& path, cons
         try {
             std::size_t nnames = parse_sequence_names(npath, options.parallel_reads);
             if (nnames != expected_nseq) {
-                throw std::runtime_error("number of names is different from the number of sequences (" + std::to_string(nnames) + " versus " + std::to_string(expected_nseq) + ")");
+                throw std::runtime_error("number of names is different from the number of sequences (" + ritsuko::itoa(nnames) + " versus " + ritsuko::itoa(expected_nseq) + ")");
             }
         } catch (...) {
             std::throw_with_nested(std::runtime_error("failed to validate '" + npath.filename().string() + "'"));

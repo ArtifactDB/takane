@@ -89,7 +89,7 @@ inline void validate_single_cell_experiment(const std::filesystem::path& path, c
             }();
 
             for (I<decltype(num_rd)> i = 0; i < num_rd; ++i) {
-                auto rdname = std::to_string(i);
+                auto rdname = ritsuko::itoa(i);
                 auto rdpath = rddir / rdname;
 
                 try {
@@ -138,7 +138,7 @@ inline void validate_single_cell_experiment(const std::filesystem::path& path, c
             }();
 
             for (I<decltype(num_ae)> i = 0; i < num_ae; ++i) {
-                auto aename = std::to_string(i);
+                auto aename = ritsuko::itoa(i);
                 auto aepath = aedir / aename;
 
                 try {

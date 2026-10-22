@@ -288,7 +288,7 @@ inline void validate_data_frame(const std::filesystem::path& path, const ObjectM
         try {
             auto dhandle = ghandle.openGroup("data");
             for (I<decltype(NC)> c = 0; c < NC; ++c) {
-                std::string dset_name = std::to_string(c);
+                std::string dset_name = ritsuko::itoa(c);
 
                 if (!dhandle.exists(dset_name)) {
                     auto opath = other_dir / dset_name;
