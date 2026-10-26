@@ -54,7 +54,7 @@ The length of this dataset defines the number of structural non-zero elements.
 The set of acceptable HDF5 datatypes of this dataset depends on `type`:
 
 - For `type = "integer"` or `"boolean"`, the datatype should be representable by a 32-bit signed integer.
-- For `type = "number"`, the datatype should be representable by a 64-bit IEEE-754 float.
+- For `type = "number"`, the datatype should be representable by a 64-bit float.
 
 Note that structural non-zero elements are allowed to have a value of zero, i.e., non-structural zeros may still be present.
 
