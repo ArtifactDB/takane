@@ -215,5 +215,11 @@ For example, a file path at `/foo/{x}/bar` will resolve to `/foo/1/bar` for $x =
 All indices in all specifications are zero-based unless explicitly specified otherwise.
 For example, when discussing the $i$-th entry of an array, the first entry would be $i = 0$.
 
-We use bold to highlight the object type in plain (i.e., non-code) text, just to make it clear that we're referring to a specific type.
-For example, we would write **summarized experiment** in English but `summarized_experiment` in code (e.g., in the object metadata).
+In many **takane** specifications, the name of an object type is used as the basis for HDF5 names, JSON properties or file paths.
+For example:
+
+> Each entry of the `atomic_vector/values` dataset represents an entry of the **atomic vector**.
+
+Note how we use bold to highlight the object type in plain (i.e., non-code) text.
+This clarifies to the reader that we're referring to a specific type, and distinguishes the mention of the object type from the `atomic_vector` HDF5 group.
+By contrast, describing an **atomic vector** as an "`atomic_vector` type instance" is more prone to confusion with the use of `atomic_vector` in the inline code.
