@@ -16,10 +16,9 @@ It is based on the `MultiAssayExperiment` class from the [**MultiAssayExperiment
 
 Briefly, a **multi-sample dataset** consists of multiple "samples" along with zero, one or more experiments.
 Each experiment is an object that satisfies the `SUMMARIZED_EXPERIMENT` interface and thus has a concept of "columns".
-Each sample maps to any number of columns in any number of experiments; conversely, each column in each experiment maps to a single sample.
-
+Each column of each experiment maps to a single sample.
 This object type is mainly intended for large studies where one sample (e.g., patient) is subjected to multiple experiments.
-Note that the definition of a "sample" here is unrelated to the concept of a sample in other specifications.
+Note that the definition of a "sample" here is unrelated to the concept of a sample in other specifications, e.g., [`spatial_experiment`](../spatial_experiment).
 
 ## Object metadata
 

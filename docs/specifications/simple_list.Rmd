@@ -96,4 +96,4 @@ if (.version >= package_version("1.1")) {
 
 ## Interfaces
 
-The **simple list** satisfies the `SIMPLE_LIST` interface. 
+The `simple_list` specification satisfies the `SIMPLE_LIST` interface. 

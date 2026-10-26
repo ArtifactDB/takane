@@ -188,4 +188,4 @@ The dimensions of the **data frame** is defined as the number of rows (`row-coun
 
 ## Interfaces
 
-The `data_frame` object satisfies the `DATA_FRAME` interface.
+The `data_frame` specification satisfies the `DATA_FRAME` interface.

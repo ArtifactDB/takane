@@ -11,8 +11,11 @@ cat("# Single cell experiment (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `single_cell_experiment` format provides an on-disk representation of a single cell experiment. 
-It is based on the `SingleCellExperiment` class from the [**SingleCellExperiment** bioconductor package](https://bioconductor.org/packages/SingleCellExperiment).
+The `single_cell_experiment` specification describes an on-disk representation of a **single cell experiment**. 
+This is a **ranged summarized experiment** with some extensions for single-cell datasets.
+In particular, it stores dimensionality reduction results for the columns (usually corresponding to cells).
+It also stores alternative experiments that contain data for the same set of cells as the "main" experiment but from different modalities.
+This data structure is based on the `SingleCellExperiment` class from the [**SingleCellExperiment** bioconductor package](https://bioconductor.org/packages/SingleCellExperiment).
 
 The `single_cell_experiment` format is derived from the [`ranged_summarized_experiment` format](../ranged_summarized_experiment).
 It can be used anywhere that a `ranged_summarized_experiment` is expected.
@@ -46,50 +49,48 @@ Optionally, it may also contain:
 
 ### `reduced_dimensions/`
 
-The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
-Each string is the name of a dimensionality reduction result in the single cell experiment.
+The `reduced_dimensions/` subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
+The $i$-th entry of this array is the name of the $i$-th dimensionality reduction result in the **single cell experiment**.
 Each string should be non-empty and unique.
 
-Each dimensionality reduction result should be represented by a subdirectory of `reduced_dimensions/`, named after its position in the array of names in `reduced_dimensions/names.json`.
-That is, the `i`-th dimensionality reduction result should be represented by the subdirectory `reduced_dimensions/i/`.
+The `i`-th dimensionality reduction result should be represented by the subdirectory `reduced_dimensions/{i}/`.
 Each subdirectory should be a child object that has some concept of dimensions, most typically a `dense_array` object.
-The extent of the first dimension should be equal to the [number of columns of the single cell experiment](#dimensions).
+The extent of the first dimension should be equal to the [number of columns of the **single cell experiment**](#dimensions).
 
 Aside from `names.json` and the dimensionality result subdirectories, no other files or directories should be present in the `reduced_dimensions/` subdirectory.
 The exception is that of files/directories prefixed with `.` or `_`, which are ignored.
 
-Note that any row names in any subdirectory of `reduced_dimensions/` should not be used as the column names of the ranged summarized experiment, 
-as this is determined from the `summarized_experiment`-based files instead.
+Note that any row names in any subdirectory of `reduced_dimensions/` should not be used as the column names of the **single cell experiment**.
+The column names are instead determined from the `column_data/` subdirectory, as described by the [`summarized_experiment`](../summarized_experiment) specification.
 
-If no `reduced_dimensions/` subdirectory is present, it is assumed that the single cell experiment contains no reduced dimensions.
+If no `reduced_dimensions/` subdirectory is present, the **single cell experiment** contains no reduced dimensions.
 
 ### `alternative_experiments/`
 
-The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
-Each string is the name of an alternative experiment of the single cell experiment.
+The `alternative_experiments/` subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
+The $i$-th entry of this array is the name of the $i$-th alternative experiment of the **single cell experiment**.
 Each string should be non-empty and unique.
 
-Each alternative experiment should be represented by a subdirectory of `alternative_experiments/`, named after its position in the array of names in `alternative_experiments/names.json`.
-That is, the `i`-th alternative experiment should be represented by the subdirectory `alternative_experiments/x/`.
+The `i`-th alternative experiment should be represented by the subdirectory `alternative_experiments/{i}/`.
 Each subdirectory should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface.
-The number of columns of each alternative experiment should equal to the [number of columns of the single cell experiment](#dimensions).
-
-Note that any column names in any subdirectory of `alternative_experiments/` should not be used as the column names of the ranged summarized experiment, 
-as this is determined from the `summarized_experiment`-based files instead.
+The number of columns of each alternative experiment's child object should equal to the [number of columns of the **single cell experiment**](#dimensions).
 
 Aside from `names.json` and the alternative experiment subdirectories, no other files or directories should be present in the `alternative_experiments/` subdirectory.
 The exception is that of files/directories prefixed with `.` or `_`, which are ignored.
 
-If no `alternative_experiments/` subdirectory is present, it is assumed that the single cell experiment contains no alternative experiments.
+Note that any column names in any subdirectory of `alternative_experiments/` should not be used as the column names of the **single cell experiment**.
+as this is determined from the `summarized_experiment`-based files instead.
+
+If no `alternative_experiments/` subdirectory is present, the **single cell experiment** contains no alternative experiments.
 
 ## Height
 
-The height of the single cell experiment is defined in the same manner as that of its base [summarized experiment](../summarized_experiment).
+The height of the **single cell experiment** is defined in the same manner as its base [`summarized_experiment`](../summarized_experiment) specification.
 
 ## Dimensions
 
-The dimensions of the single cell experiment is defined in the same manner as that of its base [summarized experiment](../summarized_experiment).
+The dimensions of the **single cell experiment** is defined in the same manner as its base [`summarized_experiment`](../summarized_experiment) specification.
 
 ## Interfaces
 
-The `single_cell_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface.
+The `single_cell_experiment` specification satisfies the `SUMMARIZED_EXPERIMENT` interface.
