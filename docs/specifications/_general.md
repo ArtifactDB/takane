@@ -133,7 +133,7 @@ Some of **takane**'s specifications may refer to externally-defined specificatio
 e.g., [**uzuki2**](https://github.com/ArtifactDB/uzuki2) for [`simple_list`](simple_list).
 In contexts where an external specification is used, **takane** defers to that external specification for its HDF5 policies.
 
-## Datatypes
+### Datatypes
 
 Each object specification should declare the largest HDF5 datatype that can be used for a particular dataset/attribute.
 The aim is to guarantee that implementations can safely use the declared type to represent the contents of the dataset/attribute without any overflow or loss of precision.
