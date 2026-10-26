@@ -53,7 +53,7 @@ The `reduced_dimensions/` subdirectory should contain a `names.json` file, which
 The $i$-th entry of this array is the name of the $i$-th dimensionality reduction result in the **single cell experiment**.
 Each string should be non-empty and unique.
 
-The `i`-th dimensionality reduction result should be represented by the subdirectory `reduced_dimensions/{i}/`.
+The $i$-th dimensionality reduction result should be represented by the subdirectory `reduced_dimensions/{i}/`.
 Each subdirectory should be a child object that has some concept of dimensions, most typically a `dense_array` object.
 The extent of the first dimension should be equal to the [number of columns of the **single cell experiment**](#dimensions).
 
@@ -71,7 +71,7 @@ The `alternative_experiments/` subdirectory should contain a `names.json` file, 
 The $i$-th entry of this array is the name of the $i$-th alternative experiment of the **single cell experiment**.
 Each string should be non-empty and unique.
 
-The `i`-th alternative experiment should be represented by the subdirectory `alternative_experiments/{i}/`.
+The $i$-th alternative experiment should be represented by the subdirectory `alternative_experiments/{i}/`.
 Each subdirectory should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface.
 The number of columns of each alternative experiment's child object should equal to the [number of columns of the **single cell experiment**](#dimensions).
 

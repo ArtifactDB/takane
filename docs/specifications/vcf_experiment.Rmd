@@ -11,7 +11,8 @@ cat("# VCF experiment (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `vcf_experiment` format provides an on-disk representation of a VCF-derived summarized experiment. 
+The `vcf_experiment` format provides an on-disk representation of a **VCF experiment**.
+This is analogous to a **summarized experiment** but all of the assays, row annotations and column annotations are populated from a VCF file.
 It is based on the `VCF` subclasses from the [**VariantAnnotation** bioconductor package](https://bioconductor.org/packages/VariantAnnotation).
 
 ## Metadata
@@ -22,7 +23,7 @@ The `OBJECT` file should contain an `vcf_experiment` property, which is itself a
 ```{r, results="asis", echo=FALSE}
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
-- `dimensions`, an array of the dimensions of the VCF experiment.
+- `dimensions`, an array of the dimensions of the **VCF experiment**.
   This should contain two non-negative integers specifying the number of rows and columns, respectively.
 - (optional) `expanded`, a boolean indicating whether loci with multiple alternative alleles are expanded into multiple records in the VCF file.
   If missing, this defaults to `false`.
@@ -38,10 +39,10 @@ The directory should contain:
 
 ### `file.vcf.gz`
 
-The `file.vcf.gz` file should follow the VCF specification.
+The `file.vcf.gz` file should follow the [VCF specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
 
-The number of records should be equal to the number of rows in the `dimensions` property of the object metadata.
-The number of samples should be equal to the number of columns in the `dimensions` property of the object metadata.
+The number of records should be equal to the number of rows in the `vcf_experiment/dimensions` property of the object metadata.
+The number of samples should be equal to the number of columns in the `vcf_experiment/dimensions` property of the object metadata.
 
 If `expanded = true`, each record should contain no more than one alternative allele.
 
@@ -49,15 +50,15 @@ The VCF file should be newline-terminated.
 
 ## Height
 
-The height of the VCF experiment is defined as the number of rows, as declared in the `dimensions` property in the object metadata.
+The height of the **VCF experiment** is defined as the number of rows, as declared in the `vcf_experiment/dimensions` property in the object metadata.
 
 ## Dimensions
 
-The dimensions of the VCF experiment is taken from the `dimensions` property in the object metadata.
+The dimensions of the **VCF experiment** is taken from the `vcf_experiment/dimensions` property in the object metadata.
 
 ## Interfaces
 
-The VCF experiment satisfies the `SUMMARIZED_EXPERIMENT` interface.
+The `vcf_experiment` specification satisfies the `SUMMARIZED_EXPERIMENT` interface.
 It is expected that:
 
 - The fixed and `INFO` fields are stored as columns in the row data.
