@@ -73,8 +73,7 @@ This defines the mappings between experimental samples, the available images, an
 
 The `images/mapping.h5` should contain a `spatial_experiment` group.
 
-The `spatial_experiment` group should contain a `sample_names` dataset.
-This should be 1-dimensional and its datatype should be representable by a UTF-8 encoded string.
+The `spatial_experiment` group should contain `sample_names, a 1-dimensional string dataset.
 The $i$-th entry of this dataset is the name of the $i$-th sample in the **spatial experiment**.
 Sample names should be unique.
 

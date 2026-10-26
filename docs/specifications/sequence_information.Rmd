@@ -60,6 +60,5 @@ Optionally, the `sequence_information/circular` dataset may have a `missing-valu
 The attribute should be scalar and should have the same datatype as its dataset.
 All entries in the dataset equal to the placeholder value should be treated as missing.
 
-Optionally, the `sequence_information/genome` dataset may have a `missing-value-placeholder` attribute.
-The attribute should be scalar and should use a datatype that is representable by a UTF-8 encoded string.
+Optionally, the `sequence_information/genome` dataset may have a `missing-value-placeholder` scalar string attribute.
 All entries in the dataset equal to the placeholder value should be treated as missing.
