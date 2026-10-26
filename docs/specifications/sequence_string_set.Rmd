@@ -11,10 +11,11 @@ cat("# Sequence string set (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `sequence_string_set` format specifies the on-disk representation of a set of sequence strings.
-This is based on the `XStringSet` class from the [**Biostrings** Bioconductor package](https://bioconductor.org/packages/Biostrings).
+The `sequence_string_set` specification describes the on-disk representation of a **sequence string set**.
+This is a set of biological sequences (e.g., DNA), possibly with associated quality scores.
+It is based on the `XStringSet` class from the [**Biostrings** Bioconductor package](https://bioconductor.org/packages/Biostrings).
 
-## Metadata
+## Object metadata
 
 The `OBJECT` file should contain a `sequence_string_set` property, itself a JSON object with the following properties:
 
@@ -23,6 +24,7 @@ The `OBJECT` file should contain a `sequence_string_set` property, itself a JSON
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 - `length`, a non-negative integer specifying the number of sequences in the set.
+  This property is provided for convenience so that readers do not need to parse the entire FASTA/FASTQ file to determine the size of the string set.
 - `sequence_type`, a string specifying the sequence type.
   This should be one of `"DNA"`, `"RNA"`, `"AA"` or `"custom"`.
 - (optional) `quality_type`, a string specifying the quality encoding type.
@@ -32,12 +34,38 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
   This should be one of 33 or 64.
   It is only required and used when `quality_type = "phred"`.
 
-## Files
+## Directory structure
 
-If `quality_type = "none"`, the directory should contain a `sequences.fasta.gz` file.
-This is a Gzip-compressed FASTA file where each entry is named after its positional index in the file, e.g., `"0"` for the first sequence, `"1"` for the second sequence, and so on.
+### Contents
+
+The directory should contain:
+
+- `OBJECT`, a JSON file as described above.
+
+If `quality_type = "none"`, the directory should contain:
+
+- `sequences.fasta.gz`, a Gzip-compressed FASTA file.
+
+If `quality_type != "none"`, the directory should contain:
+
+- `sequences.fastq.gz`, a Gzip-compressed FASTQ file.
+
+Optionally, the directory may also contain:
+
+- `element_annotations/`, a subdirectory.
+- `other_annotations/`, a subdirectory.
+
+### `sequences.fasta.gz`
+
+The `sequences.fasta.gz` file should follow the [FASTA format](http://ncbi.nlm.nih.gov/genbank/fastaformat/).
+The identifier for each sequence should be set to the positional index of that sequence in the file,
+e.g., `"0"` for the first sequence, `"1"` for the second sequence, and so on.
+The $i$-th sequence in this file represents the $i$-th sequence in the **sequence string set**.
+
 Each sequence should only contain characters from the appropriate alphabet, according to `type`:
 
+```{r, echo=FALSE, results="asis"}
+payload <-'
 - For `"DNA"`, all IUPAC nucleotide codes except U may be used.
   Lower case characters are also supported.
   Gaps may be encoded with `.` or `-`.
@@ -48,31 +76,56 @@ Each sequence should only contain characters from the appropriate alphabet, acco
   Lower case characters are also supported.
   Gaps may be encoded with `.` or `-`.
 - For `"custom"`, any ASCII characters may be used.
+'
+cat(payload)
+```
 
-If `quality_type` is not `"none"`, the directory should contain a `sequences.fastq.gz` file.
-This is a Gzip-compressed FASTQ file where each entry is named after its positional index in the file, e.g., `"0"` for the first sequence, `"1"` for the second sequence, and so on.
-Each sequence should only contain characters from the appropriate alphabet as described above.
-In addition, each quality string should only contain ASCII characters within a certain range:
+Sequence strings may contain any number of newlines.
+The file must be newline-terminated.
+Note that `type = "custom"` should avoid internal newlines in the sequence strings that are followed by `>`, to avoid premature termination of the sequence string. 
+
+The number of sequences should be equal to the `sequence_string_set/length` property in the object metadata.
+
+### `sequences.fastq.gz`
+
+The `sequences.fastq.gz` file should follow the [FASTQ format](https://pmc.ncbi.nlm.nih.gov/articles/PMC2847217/).
+The identifier for each sequence should be set to the positional index of that sequence in the file,
+e.g., `"0"` for the first sequence, `"1"` for the second sequence, and so on.
+The $i$-th sequence in this file represents the $i$-th sequence in the **sequence string set**.
+
+Each sequence string should only contain characters from the appropriate alphabet, according to `type`:
+
+```{r, echo=FALSE, results="asis"}
+cat(payload)
+```
+
+Each quality string should only contain ASCII characters within a certain range:
 
 - For `"phred"` with `quality_offset = 33`, the range is `!` to `~` inclusive.
 - For `"phred"` with `quality_offset = 64`, the range is `@` to `~` inclusive.
 - For `"solexa"`, the range is `;` to `~` inclusive.
 
-For both FASTA and FASTQ files, sequence and quality strings may contain any number of newlines.
-Both files must be newline-terminated.
-Note that `type = "custom"` should avoid internal newlines in the sequence strings that are followed by `>` (for FASTA) or `+` (for FASTQ).
-This avoids the premature termination of the sequence string. 
+Sequence and quality strings may contain any number of newlines.
+The file must be newline-terminated.
+Note that `type = "custom"` should avoid internal newlines in the sequence strings that are followed by `+`, to avoid premature termination of the sequence string. 
 
-The number of sequences in both FASTA and FASTQ files should be equal to the `sequence_string_set.length` property in the object metadata.
-This property is provided as a convenience so that readers do not need to parse the entire FASTA/FASTQ file to determine the size of the string set.
+The number of sequences should be equal to the `sequence_string_set/length` property in the object metadata.
 
-The directory may contain a `sequence_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
-This child object should have number of rows equal to the number of sequences in the FASTA/FASTQ file.
-Each row of this child object corresponds to an interval and contains additional annotations for that interval.
+### `sequence_annotations/`
 
-The directory may contain an `other_annotations` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
-This holds extra annotations for the entire sequence string set.
+The `sequence_annotations/` file contains a child object that satisfies the `DATA_FRAME` interface.
+The child object should have number of rows equal to the number of sequences in the FASTA/FASTQ file.
+The $i$-th row corresponds to the $i$-th entry of the **sequence string set** and contains additional annotations for that string.
+
+If this subdirectory is absent, no additional annotations are available for entries of the **sequence string set**.
+
+### `other_annotations/`
+
+The `other_annotations/` file contains a child object that satisfies the `SIMPLE_LIST` interface.
+The child object contains extra annotations for the entire **sequence string set**.
+
+If this subdirectory is absent, no extra additions are available for the **sequence string set**.
 
 ## Height
 
-The height of the sequence string set is defined as the number of sequences in the set, i.e., the `sequence_string_set.length` property in the object metadata.
+The height of the **sequence string set** is defined as its number of sequences, i.e., the `sequence_string_set/length` property in the object metadata.

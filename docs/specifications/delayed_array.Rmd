@@ -11,8 +11,9 @@ cat("# Delayed array (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `delayed_array` format provides an on-disk representation of a delayed array,
+The `delayed_array` specification describes an on-disk representation of a delayed array,
 using the [**chihaya**](https://github.com/ArtifactDB/chihaya) specification to capture delayed operations.
+This is based on the `DelayedArray` framework in the [Bioconductor package of the same name](https://bioconductor.org/packages/DelayedArray).
 
 ## Object metadata
 
@@ -25,24 +26,48 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 
 ## Directory structure
 
-The directory should contain an `array.h5` HDF5 file, which in turn should contain a `delayed_array` group.
-The group is formatted according to the [**chihaya**](https://github.com/ArtifactDB/chihaya) specification (version 1.1 or higher),
-storing the operations associated with a delayed object.
+### Contents
 
-Delayed objects may contain a custom **chihaya** array of type `"custom takane seed array"`.
-This has an `index` scalar dataset, which should be of a datatype that can be represented by a 64-bit unsigned integer.
-The value of this dataset holds an index to an external array in `seeds` (see below).
+The directory should contain the following:
 
-The directory may contain a `seeds` subdirectory, containing any number of subdirectories named from `0` to `N-1` for `N` subdirectories.
-Each subdirectory of `assays` should be a child object that has some concept of "dimensions".
-Each child object should be referenced at least once by an `index` dataset of a custom **chihaya** array of the aforementioned type in `array.h5`,
-e.g., an `index` of 1 refers to the subdirectory `seeds/1`. 
-The `dimensions` of the referencing custom array should have be consistent with the dimensions of the child object.
+- `OBJECT`, a JSON file as described above.
+- `array.h5`, a HDF5 file.
+
+Optionally, it may also contain:
+
+- `seeds/`, a subdirectory.
+
+### `array.h5`
+
+The `array.h5` file should contain a `delayed_array` group that contains the operations associated with the **delayed array**.
+The contents of this group should be formatted according to the [**chihaya**](https://github.com/ArtifactDB/chihaya) specification (version 1.1 or higher).
+That is, the `delayed_array` group represents a single **chihaya** "delayed object".
+
+The delayed object may contain any number of custom **chihaya** arrays of type `"custom takane seed array"`.
+This should contain an `index` dataset, which should be scalar and use a datatype that can be represented by a 64-bit unsigned integer.
+The value of this dataset is an index to an external array in the [`seeds/` subdirectory](#seeds).
+The sorted set of all `index` values should consist of consecutive numbers starting from zero.
+That is, each number in $(0, 1, ..., M)$ should be occur at least once in any number of `index` datasets, where $M$ is the largest value of `index` in the delayed object.
+
+### `seeds/`
+
+The `seeds/` subdirectory contains any number of subdirectories.
+Each subdirectory of `seeds/` represents an external array that is referenced by one or more `index` datasets of the `"custom takane seed array"` type in `array.h5`.
+Specifically, an `index` value of $i$ references the external array in the subdirectory `seeds/{i}/`.
+
+Each subdirectory should contain a child object that has some concept of "dimensions".
+This is typically an object of the `dense_array` or `compressed_sparse_matrix` types.
+The dimensions of the referencing `"custom takane seed array"` instance in the `array.h5` file should be consistent with the dimensions of the child object.
+
+Aside from the subdirectories corresponding to external arrays, no other files or directories should be present in the `seeds/` subdirectory.
+The exception is that of files/directories prefixed with `.` or `_`, which are ignored.
+
+Optionally, the `seeds/` subdirectory may be absent, in which case the `array.h5` file should have no instances of the `"custom takane seed array"` type.
 
 ## Height
 
-The height of the delayed array is defined as the extent of the first dimension of the delayed object represneted by the `delayed_array` group of `array.h5`.
+The height of the **delayed array** is defined as the extent of the first dimension of the delayed object represented by the `delayed_array` group of `array.h5`.
 
 ## Dimensions
 
-The dimensions of the delayed array are defined as the dimensions of the delayed object represneted by the `delayed_array` group of `array.h5`.
+The dimensions of the **delayed array** are defined as the dimensions of the delayed object represented by the `delayed_array` group of `array.h5`.

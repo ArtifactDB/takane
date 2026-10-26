@@ -11,8 +11,14 @@ cat("# Multi-sample dataset (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `multi_sample_dataset` format provides an on-disk representation of a multi-sample dataset.
+The `multi_sample_dataset` specification describes an on-disk representation of a **multi-sample dataset**.
 It is based on the `MultiAssayExperiment` class from the [**MultiAssayExperiment** bioconductor package](https://bioconductor.org/packages/MultiAssayExperiment).
+
+Briefly, a **multi-sample dataset** consists of multiple "samples" along with zero, one or more experiments.
+Each experiment is an object that satisfies the `SUMMARIZED_EXPERIMENT` interface and thus has a concept of "columns".
+Each column of each experiment maps to a single sample.
+This object type is mainly intended for large studies where one sample (e.g., patient) is subjected to multiple experiments.
+Note that the definition of a "sample" here is unrelated to the concept of a sample in other specifications, e.g., [`spatial_experiment`](../spatial_experiment).
 
 ## Object metadata
 
@@ -25,24 +31,59 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 
 ## Directory structure
 
-The directory should contain a `sample_data` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
-The number of rows in the `sample_data` data frame defines the number of samples in the multi-sample dataset.
+### Contents
 
-The directory may contain an `experiments` subdirectory.
-The subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
-Each string is the name of an experiment and should be non-empty and unique.
-The `experiments` subdirectory should contain one subdirectory for each experiment, named after the positional index in the JSON array, e.g., `0` for the first experiment, `1` for the second experiment, and so on.
-Each subdirectory of `experiments` should be a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface.
-If no `experiments` subdirectory is present, it is assumed that the multi-sample dataset contains no experiments.
+The directory should contain the following:
 
-The directory may contain a `sample_map.h5` HDF5 file.
-This should contain a `multi_sample_dataset` group, which further contains one 1-dimensional integer dataset per experiment in `experiments`.
-Each integer dataset is named after the positional index of the corresponding experiment (e.g., `0`, `1`, as described above) and should have length equal to the number of columns of its experiment.
-The datatype should be exactly representable by a 64-bit unsigned integer.
-The values in each dataset are indices into the rows of the `sample_data` data frame, and thus should be less than the number of samples.
+- `OBJECT`, a JSON file as described above.
+- `sample_data/`, a subdirectory.
 
-If the directory contains an `experiments` subdirectory that contains at least one experiment,
-it should also contain a `sample_map.h5` file.
+Optionally, the directory may contain:
 
-The directory may contain an `other_data` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
-This holds extra annotations for the entire multi-sample dataset.
+- `experiments/`, a subdirectory.
+- `sample_map.h5`, a HDF5 file.
+- `other_data/`, a subdirectory.
+
+### `sample_data/`
+
+The `sample_data/` subdirectory contains a child object that satisfies the `DATA_FRAME` interface.
+The $i$-th row of this object describes the $i$-th sample of the **multi-sample dataset**.
+Similarly, the number of rows in this object defines the number of samples. 
+
+### `experiments/`
+
+The `experiments/` subdirectory should contain a `names.json` file, which contains a JSON-formatted array of strings.
+The $i$-th entry of this array contains the name of the $i$-th experiment of the **multi-sample dataset**.
+The length of this array defines the number of experiments in the **multi-sample dataset**.
+Strings should be non-empty and unique.
+
+The $i$-th experiment experiment should be represented by the `experiments/{i}/` subdirectory.
+Each subdirectory should contain a child object that satisfies the `SUMMARIZED_EXPERIMENT` interface.
+The child object may have any number of columns, including zero.
+
+Aside from `names.json` and the experiment subdirectories, no other files or directories should be present in the `experiments/` subdirectory.
+The exception is that of files/directories prefixed with `.` or `_`, which are ignored.
+
+If no `experiments/` subdirectory is present, the **multi-sample dataset** contains no experiments.
+
+### `sample_map.h5`
+
+The `sample_map.h5` file should contain a `multi_sample_dataset` group.
+
+The $i$-th experiment in `experiments/` should be represented by a HDF5 dataset at `multi_sample_dataset/{i}`.
+This dataset should have length equal to the number of columns of its experiment. 
+The datatype should be representable by a 64-bit unsigned integer.
+
+The $j$-th entry of the `multi_sample_dataset/{i}` dataset specifies the assigned sample for the $j$-th column of the $i$-th experiment. 
+Each entry is a row index into the `sample_data/` object.
+Thus, each entry should be less than the number of rows in the `sample_data/` object.
+
+The `sample_map.h5` file may be missing if the `experiments/` directory is missing or contains no experiments.
+However, if the `experiments/` subdirectory contains at least one experiment, a `sample_map.h5` file should also be present.
+
+### `other_data/`
+
+The `other_data/` subdirectory should contain a child object that satisfies the `SIMPLE_LIST` interface.
+This holds extra annotations for the entire **multi-sample dataset**.
+
+If this subdirectory is missing, no extra annotations are present in the **multi-sample dataset**.

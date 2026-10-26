@@ -11,8 +11,18 @@ cat("# Spatial experiment (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `spatial_experiment` format provides an on-disk representation of a spatial experiment. 
+The `spatial_experiment` format provides an on-disk representation of a **spatial experiment**.
+This extends the **single cell experiment** to any number of images and coordinates of each column on each image.
 It is based on the `SpatialExperiment` class from the [**SpatialExperiment** bioconductor package](https://bioconductor.org/packages/SpatialExperiment).
+
+Briefly, a **spatial experiment** considers multiple "samples", each of which is associated with one or more images.
+Images for a given sample may be captured under different settings (resolution, staining, etc.) as long as they use the same coordinates (or some scaling thereof).
+Each image is associated with zero, one or more columns of the **spatial experiment**.
+Each column of the **spatial experiment** may map to a sample; if it does, it also has spatial coordinates for its location on the image(s).
+Note that the definition of a "sample" here is unrelated to the concept of a sample in other specifications, e.g., [`multi_sample_dataset`](../multi_sample_dataset).
+
+The `spatial_experiment` format is derived from the [`single_cell_experiment` format](../single_cell_experiment).
+It can be used anywhere that a `single_cell_experiment` is expected.
 
 ## Object metadata
 
@@ -23,107 +33,155 @@ The `OBJECT` file should contain a `spatial_experiment` property, which is itsel
 cat("  This should be set to \"", as.character(.version), "\".", sep="")
 ```
 
-In addition, the `OBJECT` file should contain all properties expected for the [`single_cell_experiment`](../single_cell_experiment) format, i.e., a `single_cell_experiment` property.
-This transitively includes the properties that are expected of the [`summarized_experiment`](../summarized_experiment) and [`ranged_summarized_experiment`](../ranged_summarized_experiment) formats. 
+In addition, the `OBJECT` file should contain all properties expected for the [`single_cell_experiment`](../single_cell_experiment) format.
 
 ## Files
 
-The directory should contain all files expected for the [`single_cell_experiment`](../single_cell_experiment) format.
-This includes the transitive expectations of files that should be present in the [`summarized_experiment`](../summarized_experiment) and [`ranged_summarized_experiment`](../ranged_summarized_experiment) formats.
-The dimensions of the spatial experiment are determined from the `summarized_experiment`-based files.
+### Contents
 
-The directory should contain a `coordinates` subdirectory, which contains a [`dense_array`](../dense_array) object.
-The array should be two-dimensional and the extent of the first dimension should be equal to the number of columns in the spatial experiment.
-The extent of the second dimension should be either 2 or 3.
-Each row of the dense array contains the spatial x/y(/z) coordinates of the corresponding sample in the spatial experiment.
+The directory should contain:
 
-The directory may contain an `images` subdirectory, which in turn contains a `mapping.h5` HDF5 file.
-This file should contain a `spatial_experiment` group, which contains the following children:
+- `OBJECT`, a JSON file as described above.
+- All files expected of the [`single_cell_experiment`](../single_cell_experiment) format.
+- `coordinates/`, a subdirectory.
+```{r, results="asis", echo=FALSE}
+if (.version < package_version("1.2")) {
+    cat("- `images/`, a subdirectory")
+} else {
+    cat("
+Optionally, it may also contain:
 
-- `sample_names`, a 1-dimensional string dataset containing sample names.
-  Names should be unique.
-  The datatype should be representable by a UTF-8 encoded string.
-- `column_samples`, a 1-dimensional integer dataset containing the mapping of spatial experiment columns to samples.
-  The length of this dataset should be equal to the number of columns of the spatial experiment.
-  The datatype of this dataset is representable by a 64-bit unsigned integer.
-  Each value should be less than the length of `sample_names`.
-  - Optionally, this dataset may contain a `missing-value-placeholder` attribute.
-    This attribute should be a scalar and of the same datatype as the dataset.
-    Entries of the dataset that compare equal to the placeholder value are considered to be missing, i.e., not assigned to any sample.
-    See the "Missing value placeholder" section of the [**ritsuko** documentation](https://artifactdb.github.io/ritsuko/) for more details.
-- `image_samples`, a 1-dimensional integer dataset containing the mapping of images to samples.
-  The datatype of this dataset is representable by a 64-bit unsigned integer.
-  Each value should be less than the length of `sample_names`.
-  Every sample should be indexed at least once in `image_samples`, i.e., every sample should have at least one associated image.
-- `image_ids`, a 1-dimensional string dataset containing the image identifiers.
-  This should have the same length as `image_samples`.
-  The datatype should be representable by a UTF-8 encoded string.
-  Image identifiers should be unique within the set of images associated with a given sample (as defined by `image_samples`).
+- `images/`, a subdirectory.
+")
+}
+```
+
+### `coordinates/`
+
+The `coordinates/` subdirectory should contain a child object of the [`dense_array`](../dense_array) type.
+The dense array should be two-dimensional and the number of rows should be equal to the [number of columns in the **spatial experiment**](#dimensions).
+The number of columns of the dense array should be either 2 or 3.
+The dense array should be of an integer or numeric type, as specified in the `type` attribute.
+The $i$-th row of the `coordinates/` array contains the spatial x/y or x/y/z coordinates of the $i$-th column in the **spatial experiment**.
+
+### `images/`
+
+#### Sample-image-column mappings
+
+The `images/` subdirectory should contain a `mapping.h5` HDF5 file.
+This defines the mappings between experimental samples, the available images, and the columns of the **spatial experiment**.
+
+The `images/mapping.h5` should contain a `spatial_experiment` group.
+
+The `spatial_experiment` group should contain `sample_names, a 1-dimensional string dataset.
+The $i$-th entry of this dataset is the name of the $i$-th sample in the **spatial experiment**.
+Sample names should be unique.
+
+The `spatial_experiment` group should contain a `column_samples` dataset.
+This should be 1-dimensional and its length should be equal to the [number of columns of the **spatial experiment**](#dimensions).
+Its should be representable by a 64-bit unsigned integer.
+The $i$-th entry specifies the sample of origin for the $i$-th column of the spatial experiment.
+Thus, each entry should be less than the length of the `spatial_experiment/sample_names` dataset, or equal to the missing placeholder if a `missing-value-placeholder` attribute is present.
+
+Optionally, the `spatial_experiment/column_samples` dataset may contain a `missing-value-placeholder` attribute.
+This attribute should be a scalar and of the same datatype as its dataset.
+Any entry of the dataset that compares equal to the placeholder value is considered to be missing,
+i.e., the corresponding column of the spatial experiment is not assigned to any sample.
+
+The `spatial_experiment` group should contain an `image_samples` dataset.
+This should be 1-dimensional and its length should be equal to that of the [number of images in `images/`](#image-files).
+Its datatype should be representable by a 64-bit unsigned integer.
+The $i$-th entry specifies the sample of origin for the $i$-th image in `images/`.
+Thus, each entry should be less than the length of the `spatial_experiment/sample_names` dataset (denoted here as $N$).
+The set of unique entries in the `spatial_experiment/image_samples` dataset should consist of all integers in $[0, N)$,
+i.e., every sample should have at least one associated image.
+
+The `spatial_experiment` group should contain an `image_ids` string dataset.
+This should be 1-dimensional and its length should be equal to that of the `spatial_experiment/image_samples` dataset.
+The $i$-th entry is an identifier (e.g., `"highres"`, `"lowres"`) for the $i$-th image in `images/`, to differentiate between images assigned to the same sample.
+As such, each identifier should be unique among the subset of images assigned to a particular sample,
+i.e., no two entries of the `spatial_experiment/image_ids` dataset should contain the same string if they are assigned to the same sample in the `spatial_experiment/image_samples` dataset.
+
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.3")) {
-    cat('- `image_formats` (optional),')
+    cat('Optionally, the `spatial_experiment` group may contain an `image_formats` string dataset.')
 } else {
-    cat("- `image_formats`,")
+    cat("The `spatial_experiment` group should contain an `image_formats` string dataset.")
 }
 ```
-  a 1-dimensional string dataset specifying the format for each image.
-  This should have the same length as `image_samples`.
-  The datatype should be representable by a UTF-8 encoded string.
+This should be 1-dimensional, and its length should be equal to that of the `spatial_experiment/image_samples` dataset.
+The $i$-th entry specifies the format of the $i$-th image in `images/`.
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
-    cat('  Values should be either `"PNG"`, `"TIFF"` or `"OTHER"`.')
+    cat('Each entry should be either `"PNG"`, `"TIFF"` or `"OTHER"`.')
 } else {
-    cat('  Values should be either `"PNG"` or `"TIFF"`.')
+    cat('Each entry should be either `"PNG"` or `"TIFF"`.')
 }
-```
-```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.3")) {
-    cat('  If `image_formats` is not present, all images are treated as if they had an `"OTHER"` format.')
+    cat('If `image_formats` is not present, all images are treated as if they had an `"OTHER"` format.')
 }
 ```
-- `image_scale_factors`, a 1-dimensional dataset containing the scaling factor for each image.
-  This should have the same length as `image_samples`.
-  The datatype of this dataset is representable by a 64-bit float.
-  Each value should be positive; multiplying the coordinates in `coordinates` by the scaling factor converts them into pixel coordinates in the corresponding image.
 
-The number of images is determined from the length of `image_samples` in the `images/mapping.h5` file.
+The `spatial_experiment` group should contain an `image_scale_factors` dataset.
+This should be 1-dimensional and its length should be equal to that of the `spatial_experiment/image_samples` dataset.
+Its datatype should be representable by a 64-bit float, and each entry should be positive and finite.
+The $i$-th entry specifies the scaling factor of the $i$-th image in `images/`.
+More specifically, for a **spatial experiment** column $j$ that maps to the same sample as image $i$,
+the pixel coordinates of $j$ on image $i$ are obtained by multiplying the $j$-th row of the `coordinates/` object by the $i$-th entry of the `spatial_experiments/image_scale_factors` dataset.
+
+#### Image files
+
+The number of images in `images/` is determined from the length of the `spatial_experiment/image_samples` dataset in the `images/mapping.h5` file.
+
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
-    cat("Each image should be represented by a file or directory inside the `images` subdirectory, named after its positional index, e.g., `0` for the first image, `1` for the second image.
+    cat("Each image should be represented by a file or directory inside the `images/` subdirectory.
+The prefix of the file or directory for the $i$-th image is defined as `images/{i}`.
+The exact name is determined from `image_formats`:
+
+- For `PNG`-format images, a `.png` file extension should be added to define the name of a PNG file.
+  Thus, the full path to the file would be `images/0.png` for the first image, `images/1.png` for the second image, and so on.
+  Each file named in this manner should follow the [PNG specification](https://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html).
+- For `TIFF`-format images, a `.tif` file extension should be added to define the name of a TIFF file.
+  Thus, the full path to the file would be `images/0.tif` for the first image, `images/1.tif` for the second image, and so on.
+  Each file named in this manner should follow the [TIFF specification](https://www.itu.int/itudoc/itu-t/com16/tiff-fx/docs/tiff6.pdf).
+- For `OTHER`-format images, no file extension is added and `images/{i}/` is directly used as the name of a subdirectory.
+  This directory should contain a child object that satisfies the `IMAGE` interface, typically an [`image_file`](../image_file) type.
+")
+} else {
+    cat("Each image should be represented by a file inside the `images/` subdirectory. 
+The prefix of the file or directory for the $i$-th image is defined as `images/{i}`.
 The exact name is determined from `image_formats`:
 
 - For PNG images, a `.png` file extension should be added.
-  Thus, the full name of the file would look like `0.png` for the first image, `1.png` for the second image, and so on.
+  Thus, the full path to the file would be `images/0.png` for the first image, `images/1.png` for the second image, and so on.
+  Each file named in this manner should follow the [PNG specification](https://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html).
 - For TIFF images, a `.tif` file extension should be added.
-  Thus, the full name of the file would look like `0.tif` for the first image, `1.tif` for the second image, and so on.
-- For OTHER images, the positional index is directly used as the directory name inside `images`.
-  This directory should contain a child object that satisfies the `IMAGE` interface.")
-} else {
-    cat("Each image should be represented by a file inside the `images` subdirectory, named after its positional index, e.g., `0` for the first image, `1` for the second image.
-The exact name is determined from `image_formats`:
-
-- For PNG images, a `.png` file extension should be added.
-- For TIFF images, a `.tif` file extension should be added.
-
-Thus, the full name of the files would look like `0.png` for the first image, `1.tif` for the second image, and so on depending on the format.
-Each image file should start with the magic numbers for its expected format.")
+  Thus, the full path to the file would be `images/0.tif` for the first image, `images/1.tif` for the second image, and so on.
+  Each file named in this manner should follow the [TIFF specification](https://www.itu.int/itudoc/itu-t/com16/tiff-fx/docs/tiff6.pdf).
+")
 }
 ```
+
+#### Further comments
+
+Aside from `mapping.h5` and the image files/directories, no other files or directories should be present in the `seeds/` subdirectory.
+The exception is that of files/directories prefixed with `.` or `_`, which are ignored.
 
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.2")) {
-cat("Alternatively, the `images` directory may be absent, in which case the `spatial_experiment` is assumed to have no images.")
+cat("If the `images/` subdirectory is absent, the **spatial experiment** has no images.")
 }
 ```
 
 ## Height
 
-The height of the `spatial_experiment` is defined in the same manner as that of the underlying [`summarized_experiment`](../summarized_experiment).
+The height of the **spatial experiment** is defined in the same manner as its base [`summarized_experiment`](../summarized_experiment) specification.
 
 ## Dimensions
 
-The dimensions of the `spatial_experiment` is defined in the same manner as that of the [`summarized_experiment`](../summarized_experiment).
+The dimensions of the **spatial experiment** are defined in the same manner as its base [`summarized experiment`](../summarized_experiment) specification.
 
 ## Interfaces
 
-The `spatial_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface.
+The `spatial_experiment` specification satisfies the `SUMMARIZED_EXPERIMENT` interface.

@@ -11,7 +11,8 @@ cat("# bigBed file (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `bigbed_file` format specifies the expected representation of a bigBed file.
+The `bigbed_file` specification describes the on-disk representation of a bigBed file.
+This allows more complex objects to portably store a reference to a bigBed file, e.g., a [`simple_list`](../simple_list) object of multiple files.
 
 ## Object metadata
 
@@ -24,4 +25,13 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 
 ## Directory structure
 
-The directory should contain `file.bb`, the bigBed file.
+### Contents
+
+The directory should contain:
+
+- `OBJECT`, a JSON file as described above.
+- `file.bb`, the bigBed file.
+
+### `file.bb`
+
+The `file.bb` file should follow the [bigBed format](https://doi.org/10.1093/bioinformatics/btq351).

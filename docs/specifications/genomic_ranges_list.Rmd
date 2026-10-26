@@ -11,8 +11,12 @@ cat("# Genomic ranges list (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `genomic_ranges_list` format provides an on-disk representation of a list of genomic ranges of the same type.
+The `genomic_ranges_list` format provides an on-disk representation of a list of **genomic ranges**.
 This is based on the `GRangesList` from the [**GenomicRanges** Bioconductor package](https://bioconductor.org/packages/GenomicRanges).
+
+Here, the central idea is to store a single **genomic ranges** consisting of the concatenation of all entries of the **genomic ranges list**.
+Each entry of the **genomic ranges list** is defined as a contiguous slice into this concatenated **genomic ranges**.
+This avoids the storage overhead of multiple **genomic ranges** objects, which may be significant if each object is very small.
 
 ## Metadata
 
@@ -25,28 +29,53 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 
 ## Directory structure
 
-The directory should contain a `partitions.h5` HDF5 file.
-This file should contain an `genomic_ranges_list` group, inside of which should be a `lengths` dataset.
-The `lengths` dataset should be 1-dimensional and have a datatype that is representable by a 64-bit unsigned integer.
-Each entry corresponds to an element of the genomic ranges list - that is, a genomic ranges object -
-and defines the number of consecutive elements in the `concatenated` object (see below) that can be used to construct each genomic ranges object.
+### Contents
 
-The directory should also contain a `concatenated` subdirectory, which contains a child object of the [`genomic_ranges`](../genomic_ranges) type.
+The directory should contain:
+
+- `OBJECT`, a JSON file as described above.
+- `partitions.h5`, a HDF5 file.
+- `concatenated/`, a subdirectory.
+
+Optionally, it may also contain:
+
+- `element_annotations/`, a subdirectory.
+- `other_annotations/`, a subdirectory.
+
+### `partitions.h5`
+
+```{r, results="asis", echo=FALSE}
+payload <- readLines("compressed_list_partitions.md")
+payload <- gsub("**atomic vector**", "**genomic ranges** object", payload, fixed=TRUE)
+payload <- gsub("atomic_vector_list", "genomic_ranges_list", payload)
+cat(payload, sep="\n")
+```
+
+### `concatenated/`
+
+The `concatenated` directory should contain a child object of the [`genomic_ranges`](../genomic_ranges) type.
 The height of this child object should be equal to the sum of lengths in the `genomic_ranges_list/lengths` dataset of the `partitions.h5` file.
-In effect, this child object represents the concatenation of all of the genomic ranges in the list;
-reconstructing the vector for a particular list element involves taking a contiguous slice at an offset defined by the sum of the preceding `lengths`.
+This child object represents the concatenation of all of the **genomic ranges** objects in the list.
 
-Optionally, the `genomic_ranges_list` group may contain `names`, a 1-dimensional string dataset of the same dimensions as `genomic_ranges_list/lengths`.
-This contains the name for each element of the genomic ranges list.
-The datatype should be representable by a UTF-8 encoded string.
+The $i$-th entry of the **genomic ranges list** is constructed by taking the slice $[s_i, s_i + l_i)$ from the `concatenated/` object.  
+$l_i$ is defined as the $i$-th entry of the `atomic_vector_list/lengths` dataset in the `partitions.h5` file.
+$s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
-The directory may contain an `element_annotations` subdirectory, which contains a child object that satisfies the `DATA_FRAME` interface.
-This child object should have number of rows equal to the extent of the `genomic_ranges_list/lengths` dataset.
-Each row corresponds to a list element and contains additional annotations for that element.
+### `element_annotations/`
 
-The directory may contain an `other_annotations` subdirectory, which contains a child object that satisfies the `SIMPLE_LIST` interface.
+The `element_annotations/` subdirectory should contain a child object that satisfies the `DATA_FRAME` interface.
+This child object should have numberThis  of rows equal to the extent of the `genomic_ranges_list/lengths` dataset in the `partitions.h5` file.
+The $i$-th row corresponds to the $i$-th entry of the **genomic ranges list** and contains additional annotations for that entry.
+
+If this subdirectory is absent, no additional additions are available for entries of the **genomic ranges list**.
+
+### `other_annotations/`
+
+The `other_annotations/` subdirectory should contain a child object that satisfies the `SIMPLE_LIST` interface.
 This holds extra annotations for the entire list.
+
+If this subdirectory is absent, no extra additions are available for the **genomic ranges list**.
 
 ## Height
 
-The height of the genomic ranges list is defined as the extent of the sole dimension of the `genomic_ranges_list/lengths` dataset in `partitions.h5`.
+The height of the **genomic ranges list** is defined as the extent of the sole dimension of the `genomic_ranges_list/lengths` dataset in `partitions.h5`.
