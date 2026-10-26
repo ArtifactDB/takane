@@ -11,7 +11,8 @@ cat("# GFF file (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `gff_file` format specifies the expected representation for a GFF file.
+The `gff_file` specification describes the on-disk representation of a GFF file.
+This allows more complex objects to portably store a reference to a GFF file, e.g., a [`simple_list`](../simple_list) object of multiple files.
 
 ## Object metadata
 
@@ -26,10 +27,64 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 
 ## Directory structure
 
-If `indexed = false` and `format = "GFF2"`, the directory should contain `file.gff2.gz`, a Gzip-compressed GFF file.
-The file should be formatted as described in the [GFF2 specification](http://gmod.org/wiki/GFF2).
-If `format = "GFF3"`, the directory should instead contain `file.gff3.gz`, which is a Gzip-compressed file following the [GFF3 specification](http://gmod.org/wiki/GFF3).
+### Contents
 
-If `indexed = true` and `format = "GFF2"`, the directory should contain `file.gff2.bgz`, a BGZF-compressed file following the GFF2 format.
-The directory should also contain `file.gff2.bgz.tbi`, a [Tabix file ](https://samtools.github.io/hts-specs/tabix.pdf) that indexes into `file.gff3.bgz`.
-If `format = "GFF3"`, the directory should instead contain `file.gff3.bgz` and `file.gff3.bgz.tbi`.
+The directory should contain:
+
+- `OBJECT`, a JSON file as described above.
+
+If `format = "GFF2"` and `indexed = false`, the directory should contain:
+
+- `file.gff2.gz`, a Gzip-compressed GFF2 file.
+
+If `format = "GFF3"` and `indexed = false`, the directory should contain:
+
+- `file.gff3.gz`, a Gzip-compressed GFF3 file.
+
+If `format = "GFF3"` and `indexed = false`, the directory should contain:
+
+- `file.gff2.bgz`, a BGZF-compressed GFF2 file.
+- `file.gff2.bgz.tbi`, a Tabix file.
+
+If `format = "GFF3"` and `indexed = false`, the directory should contain:
+
+- `file.gff3.bgz`, a Gzip-compressed GFF3 file.
+- `file.gff3.bgz.tbi`, a Tabix file.
+
+### `file.gff2.gz`
+
+```{r, results="asis", echo=FALSE}
+payload2 <-"The `file.gff2.gz` file should be formatted as described in the [GFF2 specification](http://gmod.org/wiki/GFF2)."
+cat(payload2)
+```
+
+### `file.gff3.gz`
+
+```{r, results="asis", echo=FALSE}
+payload3 <-"The `file.gff3.gz` file should be formatted as described in the [GFF3 specification](http://gmod.org/wiki/GFF3)."
+cat(payload3)
+```
+
+### `file.gff2.bgz`
+
+```{r, results="asis", echo=FALSE}
+cat(sub("\\.gz", ".bgz", payload2))
+```
+
+This file should be compressed using the [blocked GNU Zip format](https://www.htslib.org/doc/bgzip.html).
+
+### `file.gff3.bgz`
+
+```{r, results="asis", echo=FALSE}
+cat(sub("\\.gz", ".bgz", payload3))
+```
+
+This file should be compressed using the [blocked GNU Zip format](https://www.htslib.org/doc/bgzip.html).
+
+### `file.gff2.bgz.tbi`
+
+The `file.gff2.bgz.tbi` file should index into `file.gff2.bgz`, following the [Tabix specification](https://samtools.github.io/hts-specs/tabix.pdf).
+
+### `file.gff3.bgz.tbi`
+
+The `file.gff3.bgz.tbi` file should index into `file.gff3.bgz`, following the [Tabix specification](https://samtools.github.io/hts-specs/tabix.pdf).

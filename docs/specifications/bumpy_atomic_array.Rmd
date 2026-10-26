@@ -11,8 +11,13 @@ cat("# Bumpy atomic array (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `bumpy_atomic_array` format provides an on-disk representation of an array where each entry is an atomic vector of the same type.
-This is based on the `BumpyMatrix` subclasses for atomic vectors, as implemented in the [**BumpyMatrix** Bioconductor package](https://bioconductor.org/packages/BumpyMatrix).
+The `bumpy_atomic_array` specification describes an on-disk representation of a **bumpy atomic array**.
+This is a N-dimensional array where each entry is an atomic vector of the same type.
+It is based on the `BumpyMatrix` subclasses for atomic vectors, as implemented in the [**BumpyMatrix** Bioconductor package](https://bioconductor.org/packages/BumpyMatrix).
+
+Here, the central idea is to store a single **atomic vector** consisting of the concatenation of all entries of the **bumpy atomic array**.
+Each entry of the **bumpy atomic array** is defined as a contiguous slice into this concatenated **atomic vector**.
+This avoids the storage overhead of multiple **atomic vector** objects, which may be significant if each object is very small.
 
 ## Object metadata
 
@@ -25,41 +30,37 @@ cat("  This should be set to \"", as.character(.version), "\".", sep="")
 
 ## Directory structure
 
-The directory should contain a `partitions.h5` HDF5 file.
-This file should contain an `bumpy_atomic_array` group.
-The group should contain `dimensions`, a 1-dimensional dataset of any type that is representable by a 64-bit unsigned integer.
-`bumpy_atomic_array/dimensions` contains the extents of the dimensions of the bumpy array.
+### Contents
 
-The `bumpy_atomic_array` group also should contain `lengths`, a 1-dimensional dataset of any type that is representable by a 64-bit unsigned integer.
-Each entry corresponds to an entry of the bumpy atomic array - that is, an atomic vector -
-and defines the number of consecutive elements in the `concatenated` object (see below) that can be used to construct each atomic vector.
+The directory should contain:
 
-The directory should also contain a `concatenated` subdirectory, which contains a child object of the [`atomic_vector`](../atomic_vector) type.
+- `OBJECT`, a JSON file as described above.
+- `partitions.h5`, a HDF5 file.
+- `concatenated/`, a subdirectory.
+
+### `partitions.h5`
+
+```{r, results="asis", echo=FALSE}
+payload <- readLines("bumpy_array_partitions.md")
+cat(payload, sep="\n")
+```
+
+### `concatenated/`
+
+The `concatenated/` subdirectory contains a child object of the [`atomic_vector`](../atomic_vector) type.
 The height of this child object should be equal to the sum of lengths in the `bumpy_atomic_array/lengths` dataset of the `partitions.h5` file.
-In effect, this child object represents the concatenation of all of the atomic vectors in the array;
-reconstructing the vector for a particular array entry involves taking a contiguous slice at an offset defined by the sum of the preceding `lengths`.
+This child object represents the concatenation of all of the **atomic vector** objects in the **bumpy atomic array**.
 
-If the `bumpy_atomic_array` group does not contain an `indices` subgroup, it is assumed that the bumpy array is dense.
-The `bumpy_atomic_array/lengths` dataset should have length equal to the product of `bumpy_atomic_array/dimensions`.
-Each entry of `bumpy_atomic_array/lengths` maps to an array entry by flattening the array to a 1-dimensional vector where the first dimension is the fastest-changing, then the second, and so on.
-
-If the `bumpy_atomic_array` group does contain an `indices` subgroup, it is assumed that the bumpy array is sparse.
-The `bumpy_atomic_array/indices` subgroup should contain one dataset per dimension, named after the index of the dimension, e.g., `0` for the first dimension, `1` for the second dimension, and so on.
-Each `bumpy_atomic_array/indices/X` dataset should be 1-dimensional with length equal to `bumpy_atomic_array/lengths`, and should have a datatype that is representable by a 64-bit unsigned integer.
-These datasets define the array coordinates for the corresponding entry of `bumpy_atomic_array/lengths`.
-Entries in each dataset should be less than the extent of the corresponding dimension.
-Coordinates should also be non-duplicated and sorted in increasing order where the first dimension is the fastest-changing, then the second, and so on.
-
-Optionally, the `bumpy_atomic_array` group may contain a `names` subgroup.
-This may contain any number of 1-dimensional string datasets named after the corresponding dimension, e.g., `0`, `1`.
-Each dataset contains the names for its dimension and should have a length equal to the extent of that dimension.
-The datatype for each dataset should be compatible with a UTF-8 encoded string.
+Recall that each entry of the **bumpy atomic array** is represented by an entry of the `bumpy_atomic_array/lengths` dataset in `partitions.h5`.
+To construct the **atomic vector** corresponding to the $i$-th entry of the `bumpy_atomic_array/lengths` dataset,
+we take the slice $[s_i, s_i + l_i)$ of the `concatenated/` object.  
+$l_i$ is defined as the $i$-th entry of the `bumpy_atomic_array/lengths` dataset.
+$s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
 ## Height
 
-The height of the bumpy atomic array is defined as the extent of the first dimension, as specified in the `bumpy_atomic_array/dimensions` dataset of `partitions.h5`.
+The height of the **bumpy atomic array** is defined as the extent of the first dimension, as specified in the `bumpy_atomic_array/dimensions` dataset of `partitions.h5`.
 
 ## Dimensions
 
-The dimensions of the bumpy atomic array are taken from the `bumpy_atomic_array/dimensions` dataset of `partitions.h5`.
-
+The dimensions of the **bumpy atomic array** are taken from the `bumpy_atomic_array/dimensions` dataset of `partitions.h5`.
