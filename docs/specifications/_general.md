@@ -1,22 +1,32 @@
 # General concepts
 
-## Object directories
+## Overview
 
-Every object is represented by a directory on disk.
-All files related to the object are stored within this directory.
-This allows each object to be represented by any number of arbitrarily named files without interfering with other objects in different directories. 
+The **takane** specifications describe the on-disk representation of different object types.
+Each object type is a data structure that is commonly used in data analyses - historically for bioinformatics, but possibly generalizable to other fields. 
+The aim is to provide a well-defined representation for each object that enables portable reading/writing across different programming environments. 
 
-An object directory may contain any number of files and subdirectories. 
-The specification may assign different semantics to the presence or absence of certain files/subdirectories.
+## File organization
+
+### Object directories
+
+Each instance of an object type should be represented on-disk by a directory. 
+All files related to this instance should be stored within this directory.
+This ensures that each object can be represented by any number of arbitrarily named files without conflicting with the files of other objects.
+
+An object's directory may contain any number of files and subdirectories. 
+The object type's specification may assign different semantics to the presence or absence of certain files/subdirectories.
 However, if a subdirectory is present, it should not be empty, as some storage systems cannot easily represent an empty directory (e.g., S3).
 
-## Object metadata
+### Object metadata
 
 All object directories should contain an `OBJECT` file.
-This is a JSON-formatted file that contains a JSON object with the `type` property.
-The `type` is a string that specifies the type of the object, e.g., `atomic_vector`, `dense_array`.
-In addition, the `OBJECT` file typically includes extra object-specific metadata in another property named after the object type.
-For example, for the [`summarized_experiment` type](summarized_experiment):
+This is a JSON-formatted file that contains a JSON object with the `type` property, 
+The `type` property should be a string that specifies the type of the object, e.g., `atomic_vector`, `dense_array`.
+
+In addition, the `OBJECT` file will typically have another property named after the object type.
+This property should be a JSON object containing extra metadata that don't easily fit into other files.
+For example, an instance of the [`summarized_experiment` type](summarized_experiment) might use the following object metadata:
 
 ```json
 {
@@ -28,9 +38,8 @@ For example, for the [`summarized_experiment` type](summarized_experiment):
 }
 ```
 
-This allows object types to store small pieces of information that don't easily fit into other files.
-By nesting it inside a `summarized_experiment` property, we ensure that these properties do not conflict with those of other derived types.
-For example, the [`ranged_summarized_experiment` type](ranged_summarized_experiment) is built on top of the `summarized_experiment`, but has its own version string:
+We use a nested JSON object ensure that each object type's properties do not conflict with those of derived types. 
+For example, the [`ranged_summarized_experiment` type](ranged_summarized_experiment) is derived from the `summarized_experiment` type, but has its own version string:
 
 ```json
 {
@@ -45,30 +54,51 @@ For example, the [`ranged_summarized_experiment` type](ranged_summarized_experim
 }
 ```
 
-## Child objects
+### Child objects
 
-Some objects are composed of other objects, e.g., a summarized experiment is composed of several data frames and assays.
-The file representation for a composed object type should hold these "child" objects in subdirectories of the composed object's directory;
-these subdirectories will then be inspected recursively by readers and validators.
-By mandating that the child object is of a certain type, developers can effectively re-use child specifications in the specification for a complex object.
+Some complex objects are composed of other objects,
+e.g., a [**summarized experiment**](summarized_experiment) might be composed of [**data frame**](data_frame) and [**dense array**](dense_array) objects.
+The specification for a complex object type should store these "child" objects in subdirectories of the composed object's directory,
+consistent with the policy descibed in ["Object directories"](#object-directories).
+If a complex object type expects certain types of child objects, the specification for the former should declare the expected type of the latter,
+either directly or via an [object interface](#object-interfaces).
 
-## Height and dimensions
+### Other files
 
-Some objects may have a concept of "height" (i.e., vertical length) and "dimensions".
+The names of files described in any **takane** object specification should never start with a `_` or `.`.
+Such names are reserved for application-specific files, to guarantee that there will be no conflicts with each object's files.
+Some examples of these files are listed below:
+
+- `_environment.json`: a JSON file describing the compute environment in which an object was generated.
+  This is expected to contain a JSON object with a `type` string property that specifies the type of environment (e.g., R, Python).
+  Further properties may be present depending on the environment type and the application that was used to generate the object.
+  This is typically stored in the top-level object directory, i.e., not in directories corresponding to child objects.
+- `_metadata.json`: a JSON file containing application-specific metadata about the object.
+  For example, objects generated by Bioconductor packages may include [Bioconductor-relavant metadata](https://github.com/ArtifactDB/bioconductor-metadata-index) for each object.
+  This is typically stored in the top-level object directory.
+
+The description of the files above should not be considered part of the formal **takane** specification.
+While they represent the convention across multiple applications, the final intepretation (and indeed, whether they are present at all) is left to the discretion of each implementation.
+
+## Generic concepts 
+
+### Height and dimensions
+
+Some object types may have a concept of "height" (i.e., vertical length) and "dimensions".
 These concepts are typically used in complex object specifications to ensure that the child objects have the correct shape.
-For example, a summarized experiment expects that all assays have the same first two dimensions, 
-and that the data frames for the row and column annotations are equal to the number of rows and columns, respectively.
-These expectations are enforced by comparing each child object's height/dimensions to that of the summarized experiment.
+For example, the `summarized_experiment` specification expects that all assays have the same first two dimensions, 
+and that the number of **data frame** rows for the row and column annotations are equal to the number of rows and columns, respectively, in the **summarized experiment**.
+These expectations are enforced by comparing each child object's height/dimensions to that of the **summarized experiment**.
 
-## Derived types
+### Derived types
 
 An object type is derived from another object type if the former satisfies all of the file requirements of the latter.
 For example, the `ranged_summarized_experiment` type is derived from the `summarized_experiment` type,
-storing its assays, row data and column data in the same files as specified in the `summarized_experiment` specification.
-A derived type can be used in any place where an instance of the base type is expected.
-This provides some flexibility in the specification of composed types, by allowing child objects to be derived from a certain base type.
+as the former stores its assays, row data and column data in the same files as specified in the latter's specification.
+A derived object type can be used in any place where an instance of the base object type is expected.
+This provides some flexibility in the specification of complex types, by allowing child objects to be derived from a certain base type.
 
-## Object interfaces
+### Object interfaces
 
 An object interface describe an abstract concept of an object, relating to how the object behaves in an application rather than how it is represented on disk.
 Known interfaces are listed below:
@@ -84,23 +114,112 @@ Known interfaces are listed below:
   The row and column data should satisfy the `DATA_FRAME` interface, and should have number of rows equal to the number of rows or columns, respectively, of the object itself.
 - `IMAGE`: an image of arbitrary format.
 
-Different object types that satisfy the same object interface may not have the same on-disk representation.
-For example, a `vcf_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface but has a completely different on-disk representation from a `summarized_experiment`. 
+Different object types may satisfy the same object interface but use different on-disk representation.
+For example, `vcf_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface but has a completely different on-disk representation from a `summarized_experiment`. 
 The "satisfies interface" concept is effectively a more relaxed concept of the derived-base relationship,
-and allows the specification for a composed object to consider a wider range of types for its child objects.
+and allows the specification for a complex object to consider a wider range of types for its child objects.
 
-## Other files
+## HDF5 principles
 
-The names of files described in any **takane** object specification should never start with a `_` or `.`.
-Such names are reserved for application-specific files, to guarantee that there will be no conflicts with each object's files.
-Common application-specific files include:
+### Background
 
-- `_environment.json`: a JSON file describing the compute environment in which an object was generated.
-  This is usually located in the same directory as the `OBJECT` file and is expected to contain a JSON object with a `type` string property that specifies the type of environment (e.g., R, Python).
-  Further properties may be present depending on the environment type and the application that was used to generate the object.
-- `_metadata.json`: a JSON file containing application-specific metadata about the object.
-  For example, objects generated by Bioconductor packages may include [Bioconductor-relavant metadata](https://github.com/ArtifactDB/bioconductor-metadata-index) for each object.
-  This is usually located in the same directory as the `OBJECT` file.
+Many **takane** object specifications will include a [HDF5](https://www.hdfgroup.org/) file.
+To avoid redundancy, this section describes some common principles for the use of HDF5 in all specifications.
 
-The description of the files above should not be considered part of the formal **takane** specification.
-While they represent the convention across multiple applications, the final intepretation (and indeed, whether they are present at all) is left to the discretion of each application developer.
+Unless explicitly mentioned here or in any of the individual specifications, the parametrization of HDF5 properties is left to the implementation.
+This includes dataset properties like chunking and compression, or file properties like page size and fill time and value. 
+
+Some of **takane**'s specifications may refer to externally-defined specifications based on HDF5,
+e.g., [**uzuki2**](https://github.com/ArtifactDB/uzuki2) for [`simple_list`](simple_list).
+In contexts where an external specification is used, **takane** defers to that external specification for its HDF5 policies.
+
+### Datatypes
+
+Each object specification should declare the largest HDF5 datatype that can be used for a particular dataset/attribute.
+The aim is to guarantee that implementations can safely use the declared type to represent the contents of the dataset/attribute without any overflow or loss of precision.
+This avoids the need to implement multiple code paths for different types when reading the data from the HDF5 file.
+Writers are still free to choose a smaller type to reduce the size of the dataset/attribute on disk.
+
+If a dataset/attribute contains integers, the specification should declare the bit width and signedness of the largest acceptable integer datatype. 
+We assume a two's complement representation for signed integers.
+For example, most objects containing integers will specify that the corresponding HDF5 dataset/attribute's datatype is no larger than a 32-bit signed integer. 
+Readers can thus safely assume that an `int32_t` is sufficient to represent all possible values.
+Writers may create HDF5 datasets with any integer datatype that can be fully represented by an `int32_t`, e.g., `H5T_NATIVE_INT8`, `H5T_NATIVE_UINT16`.
+
+If a dataset/attribute contains floating-point numbers, the specification should declare the bit width of the largest acceptable float datatype. 
+We assume that all representations are IEEE754-compliant, to ensure the faithful propagation of special values like infinity and NaN.
+For example, most objects containing floats will specify that the corresponding HDF5 dataset/attribute's datatype is no larger than a 64-bit IEEE754-compliant float.
+Readers can thus safely assume that an `double` is sufficient to represent all values in memory.
+Writers may create HDF5 datasets with any floating-point or integer datatype that can be exactly represented by a `double`, e.g., `H5T_NATIVE_FLOAT`, `H5T_NATIVE_UINT32`.
+
+If a dataset/attribute contains strings, any string datatype may be used subject to the following considerations:
+
+- The datatype uses a UTF-8 encoding.
+  This implicitly supports ASCII, which is a subset of UTF-8.
+- Both variable and fixed length datatypes may be used.
+  For fixed-length datatypes, the length of each string is defined as the number of bytes to the first null character, or as the fixed length if no null character is present.
+  For variable-length datatypes, each entry of the dataset/attribute should refer to a null-terminated string, i.e., readers should never encounter a `NULL` pointer.
+- Both null termination and null padding may be used, as both are considered to yield appropriate C-style strings when the length is unknown.
+  Fortran-style blank-padded strings should not be used as it is unclear whether the trailing blanks are meant to be discarded.
+
+### Compressed variable length strings
+
+Some HDF5-based object specifications support the compressed variable length string (CVLS) format, e.g., [`atomic_vector`](atomic_vector).
+This format addresses HDF5's inability to efficiently handle arrays of variable-length strings.
+Using a fixed-length datatype requires padding all strings to the longest string, causing an increase in disk usage that cannot be completely offset by compression;
+while HDF5's own variable-length string datatype does not compress the strings themselves, only the pointers to those strings.
+CVLS stores variable-length strings directly without any padding, and the heap dataset can be chunked and compressed to improve storage efficiency.
+
+Some care is required to avoid inadvertent casts to/from a `char` of platform-specific signedness to the heap's unsigned integer type.
+Recall that both ASCII and UTF-8 define a character in terms of its binary representation, e.g., `0b01000001` for `A`.
+Thus, implementations should ensure that the binary representation of each character is preserved when reading or writing to the heap. 
+We recommend following these procedures:
+
+- For reading, we first read the bytes into an `uint8_t` array via `H5::DataSet::read()` with `NATIVE_UINT8`.
+  We then access those bytes via an aliased `char*` to extract each VLS.
+- For writing, we create an aliased `char*` pointer to a `uint8_t` array and copy each VLS into this array via the aliased pointer.
+  We then use `H5::DataSet::write()` with `NATIVE_UINT8` to write the `uint8_t` array. 
+
+This approach ensures that each byte is faithfully transferred between the HDF5 file and memory as a `uint8_t` with a well-defined and portable binary representation.
+The aliasing pointer then interprets the byte as a `char` with the same sequence of bits, regardless of the platform's `char` signedness.
+
+When writing a CVLS array, we recommend that entries in the same chunk of the pointer dataset refer to neighboring parts of the heap dataset.
+This allows readers to efficiently extract bytes from the latter when iterating through chunks of the former.
+
+### Missing placeholders
+
+Some object specifications support missing values in their HDF5 datasets.
+This is represented by an attribute on the dataset, typically named `missing-value-placeholder`.
+Dataset entries equal to the placeholder value are considered to be missing.
+This approach avoids the need to store a separate mask dataset and is more flexible than a fixed sentinel that might conflict with the dataset contents. 
+
+The `missing-value-placeholder` attribute should be a scalar of the same exact datatype as the dataset.
+This avoids the risk of changing values upon casting between types prior to the equality comparison.
+The only exception is for a string dataset, in which case the placeholder may be of any valid string datatype (i.e., representable by a UTF-8-encoded C-style string).
+All strings in the dataset with the same sequence of bytes (as defined by, e.g., `strcmp`) as the placeholder value should be treated as missing.
+
+Floating-point missingness should be identified by comparing the placeholder and data values at the same or higher precision as its storage datatype.
+No casting should be performed to a lower-precision type prior to comparison, as this may cause a non-missing value to become equal to the placeholder.
+If the placeholder is not NaN, the comparison can be done with the usual `==` operator.
+If the placeholder is NaN, all NaNs in the dataset should be considered missing, regardless of the exact bit representation in the NaN payload.
+We do not consider the NaN payload during placeholder comparisons as this may not be handled reliably across machines.
+
+If a dataset does not have a placeholder attribute, it can be assumed that there are no missing values.
+If the object specification does not explicitly mention that a placeholder attribute might be present, the dataset should never contain missing values. 
+
+## Notation policies
+
+We use `{x}` to describe a substitutable variable $x$ inside a code chunk.
+For example, a file path at `/foo/{x}/bar` will resolve to `/foo/1/bar` for $x = 1$.
+
+All indices in all specifications are zero-based unless explicitly specified otherwise.
+For example, when discussing the $i$-th entry of an array, the first entry would be $i = 0$.
+
+In many **takane** specifications, the name of an object type is used as the basis for HDF5 names, JSON properties or file paths.
+For example:
+
+> Each entry of the `atomic_vector/values` dataset represents an entry of the **atomic vector**.
+
+Note how we use bold to highlight the object type in plain (i.e., non-code) text.
+This clarifies to the reader that we're referring to a specific type, and distinguishes the mention of the object type from the `atomic_vector` HDF5 group.
+By contrast, describing an **atomic vector** as an "`atomic_vector` type instance" is more prone to confusion with the use of `atomic_vector` in the inline code.
