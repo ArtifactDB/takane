@@ -57,8 +57,8 @@ For example, the [`ranged_summarized_experiment` type](ranged_summarized_experim
 ### Child objects
 
 Some complex objects are composed of other objects,
-e.g., a [**summarized experiment**](summarized_experiment) might be composed of [**data frame**](data_frame) and [**dense array**](dense_array) objects.
-The specification for a complex object type should store these "child" objects in subdirectories of the composed object's directory,
+e.g., a [_summarized experiment_](summarized_experiment) might be composed of [_data frame_](data_frame) and [_dense array_](dense_array) objects.
+The specification for a complex object type should store each of these "child" objects in its own subdirectory of the complex object's directory,
 consistent with the policy descibed in ["Object directories"](#object-directories).
 If a complex object type expects certain types of child objects, the specification for the former should declare the expected type of the latter,
 either directly or via an [object interface](#object-interfaces).
@@ -86,9 +86,9 @@ While they represent the convention across multiple applications, the final inte
 
 Some object types may have a concept of "height" (i.e., vertical length) and "dimensions".
 These concepts are typically used in complex object specifications to ensure that the child objects have the correct shape.
-For example, the `summarized_experiment` specification expects that all assays have the same first two dimensions, 
-and that the number of **data frame** rows for the row and column annotations are equal to the number of rows and columns, respectively, in the **summarized experiment**.
-These expectations are enforced by comparing each child object's height/dimensions to that of the **summarized experiment**.
+For example, the `summarized_experiment` specification expects that all assay objects have the same first two dimensions, 
+and that the number of _data frame_ rows for the row and column annotations are equal to the number of rows and columns, respectively, in the _summarized experiment_.
+These expectations are enforced by comparing each child object's height/dimensions to that of the _summarized experiment_.
 
 ### Derived types
 
@@ -115,9 +115,9 @@ Known interfaces are listed below:
 - `IMAGE`: an image of arbitrary format.
 
 Different object types may satisfy the same object interface but use different on-disk representation.
-For example, `vcf_experiment` satisfies the `SUMMARIZED_EXPERIMENT` interface but has a completely different on-disk representation from a `summarized_experiment`. 
+For example, the `vcf_experiment` specification satisfies the `SUMMARIZED_EXPERIMENT` interface but has a completely different on-disk representation from a `summarized_experiment`. 
 The "satisfies interface" concept is effectively a more relaxed concept of the derived-base relationship,
-and allows the specification for a complex object to consider a wider range of types for its child objects.
+and allows a specification for a complex object to accept a wider range of types for its child objects.
 
 ## HDF5 principles
 
@@ -195,11 +195,6 @@ For example, a file path at `/foo/{x}/bar` will resolve to `/foo/1/bar` for $x =
 All indices in all specifications are zero-based unless explicitly specified otherwise.
 For example, when discussing the $i$-th entry of an array, the first entry would be $i = 0$.
 
-In many **takane** specifications, the name of an object type is used as the basis for HDF5 names, JSON properties or file paths.
-For example:
-
-> Each entry of the `atomic_vector/values` dataset represents an entry of the **atomic vector**.
-
-Note how we use bold to highlight the object type in plain (i.e., non-code) text.
-This clarifies to the reader that we're referring to a specific type, and distinguishes the mention of the object type from the `atomic_vector` HDF5 group.
-By contrast, describing an **atomic vector** as an "`atomic_vector` type instance" is more prone to confusion with the use of `atomic_vector` in the inline code.
+When referring to object types in plain text, we italicize the words to make it clear that we're talking about a specific type.
+The italicized text "_data frame_" is a placeholder for "object of the `data_frame` type".
+This also distinguishes the plain-text mention of the object type from its use in code, e.g., the `data_frame` HDF5 group.

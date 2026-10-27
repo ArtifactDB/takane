@@ -11,12 +11,12 @@ cat("# Bumpy data frame array (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `bumpy_data_frame_array` specification describes an on-disk representation of a **bumpy data frame array**.
+The `bumpy_data_frame_array` specification describes an on-disk representation of a _bumpy data frame array_.
 This is an N-dimensional array where each entry is a `DATA_FRAME`-compatible object with the same type and order of columns.
 This is based on the `BumpyMatrix` subclasses for data frames, as implemented in the [**BumpyMatrix** Bioconductor package](https://bioconductor.org/packages/BumpyMatrix).
 
-Here, the central idea is to store a single `DATA_FRAME`-compatible object consisting of the row-wise concatenation of all entries of the **bumpy data frame array**.
-Each entry of the **bumpy data frame array** is defined as a contiguous row-wise slice into this concatenated object.
+Here, the central idea is to store a single `DATA_FRAME`-compatible object consisting of the row-wise concatenation of all entries of the _bumpy data frame array_.
+Each entry of the _bumpy data frame array_ is defined as a contiguous row-wise slice into this concatenated object.
 This avoids the storage overhead of multiple `DATA_FRAME`-compatible objects, which may be significant if each object is very small.
 
 ## Object metadata
@@ -42,7 +42,7 @@ The directory should contain:
 
 ```{r, results="asis", echo=FALSE}
 payload <- readLines("bumpy_array_partitions.md")
-payload <- gsub("**atomic vector**", "`DATA_FRAME`-compatible object", payload, fixed=TRUE)
+payload <- gsub("_atomic vector_", "`DATA_FRAME`-compatible object", payload, fixed=TRUE)
 payload <- gsub("atomic_array", "data_frame_array", payload)
 payload <- gsub("atomic array", "data frame array", payload)
 cat(payload, sep="\n")
@@ -52,9 +52,9 @@ cat(payload, sep="\n")
 
 The `concatenated/` subdirectory contains a child object that satisfies the `DATA_FRAME` interface.
 The height of this child object should be equal to the sum of lengths in the `bumpy_data_frame_array/lengths` dataset of the `partitions.h5` file.
-This child object represents the concatenation of all entries of the **bumpy data frame array**.
+This child object represents the concatenation of all entries of the _bumpy data frame array_.
 
-Recall that each entry of the **bumpy data frame array** is represented by an entry of the `bumpy_data_frame_array/lengths` dataset in `partitions.h5`.
+Recall that each entry of the _bumpy data frame array_ is represented by an entry of the `bumpy_data_frame_array/lengths` dataset in `partitions.h5`.
 To construct the `DATA_FRAME`-compatible object corresponding to the $i$-th entry of the `bumpy_data_frame_array/lengths` dataset,
 we take the slice of rows $[s_i, s_i + l_i)$ from the `concatenated/` object.  
 $l_i$ is defined as the $i$-th entry of the `bumpy_atomic_array/lengths` dataset.
@@ -62,8 +62,8 @@ $s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
 ## Height
 
-The height of the **bumpy data frame array** is defined as the extent of the first dimension, as specified in the `bumpy_data_frame_array/dimensions` dataset of `partitions.h5`.
+The height of a _bumpy data frame array_ is defined as the extent of the first dimension, as specified in the `bumpy_data_frame_array/dimensions` dataset of the `partitions.h5` file.
 
 ## Dimensions
 
-The dimensions of the **bumpy data frame array** are taken from the `bumpy_data_frame_array/dimensions` dataset of `partitions.h5`.
+The dimensions of a _bumpy data frame array_ are taken from the `bumpy_data_frame_array/dimensions` dataset of the `partitions.h5` file.

@@ -11,8 +11,8 @@ cat("# Genomic ranges (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `genomic_ranges` specification describes an on-disk representation of a **genomic ranges** object.
-Each entry of the **genomic ranges** object defines the reference sequence, start, width and strandedness of a region of the genome, i.e., a genomic range.
+The `genomic_ranges` specification describes an on-disk representation of a _genomic ranges_.
+Each entry of the _genomic ranges_ defines the reference sequence, start coordinate, width and strandedness of an interval on a genome, i.e., a genomic range.
 It is based on the `GRanges` class from the [**GenomicRanges** Bioconductor package](https://bioconductor.org/packages/GenomicRanges).
 
 ## Object metadata
@@ -41,16 +41,16 @@ Optionally, it may also contain:
 
 ### `sequence_information/`
 
-The `sequence_information/` subdirectory contains a child object of type [`sequence_information`](../sequence_information).
-The number of reference sequences in the **genomic ranges** object is defined as the number of sequences in the `sequence_information` child object.
-A reference sequence is considered to be circular if the `sequence_information/circular` dataset in `info.h5` is non-missing and falsey.
-The length of each reference sequence is similarly taken from the `sequence_information/length` dataset.
+The `sequence_information/` subdirectory contains a child object that is a [_sequence information_](../sequence_information).
+The number of reference sequences in the _genomic ranges_ is defined as the number of sequences in the child _sequence information_.
+A reference sequence is considered to be circular if the `sequence_information/circular` dataset in the `sequence_information/info.h5` file is non-missing and falsey.
+The length of each reference sequence is similarly taken from the `sequence_information/length` dataset in the `sequence_information/info.h5` file.
 
 ### `ranges.h5`
 
 The `ranges.h5` file should contain a `genomic_ranges` group.
 
-The `genomic_ranges` group should contain the following datasets to define each genomic range:
+The `genomic_ranges` group should contain the following datasets:
 
 - `sequence`, an 1-dimensional dataset of any datatype that is representable by a 64-bit unsigned integer.
   Each entry is an index specifying the reference sequence (`sequence_information`) to which a genomic range is assigned.
@@ -63,7 +63,7 @@ The `genomic_ranges` group should contain the following datasets to define each 
   Each entry specifies the strandedness of the genomic range and should be one of -1 (reverse), 0 (unstranded) or 1 (forward).
 
 The `genomic_ranges/sequence`, `genomic_ranges/start`, `genomic_ranges/width` and `genomic_ranges/strand` datasets should be of the same length.
-The length of each dataset defines the number of genomic ranges in the **genomic ranges** object, where the $i$-th entry from each dataset describes the $i$-th genomic range.
+The length of each dataset defines the number of genomic intervals in the _genomic ranges_, where the $i$-th entry from each dataset describes the $i$-th genomic range.
 
 For each genomic range, the value of `start + width` should fit in a 64-bit signed integer.
 This supports alternative representations that store the one-past-the-end position of each genomic range.
@@ -82,15 +82,15 @@ The `range_annotations/` subdirectory should contain a child object that satisfi
 This child object should have number of rows equal to the number of genomic ranges in the `ranges.h5` file.
 The $i$-th row corresponds to the $i$-th genomic range and contains additional annotations for that genomic range.
 
-If this subdirectory is absent, no additional annotations are available for the genomic ranges in the **genomic ranges** object.
+If this subdirectory is absent, no additional annotations are available for the genomic ranges in this _genomic ranges_.
 
 ### `other_annotations/`
 
 The `other_annotations/` subdirectory should contain a child object that satisfies the `SIMPLE_LIST` interface.
-This holds extra annotations for the entire collection of **genomic ranges** object. 
+This holds extra annotations for the entire _genomic ranges_. 
 
-If this subdirectory is absent, no extra additions are available for the **genomic ranges** object.
+If this subdirectory is absent, no extra additions are available for this _genomic ranges_.
 
 ## Height
 
-The height of the **genomic ranges** object is defined as the number of genomic ranges, as determined by the length of the datasets in the `genomic_ranges` group of `ranges.h5`.
+The height of a _genomic ranges_ is defined as the number of genomic ranges, as determined by the length of the datasets in the `genomic_ranges` group of the `ranges.h5` file.

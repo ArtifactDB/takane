@@ -11,7 +11,7 @@ cat("# Data frame factor (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `data_frame_factor` specification describes an on-disk representation of a **data frame factor**,
+The `data_frame_factor` specification describes an on-disk representation of a _data frame factor_,
 i.e., a factor-like object where the levels are the rows of a `DATA_FRAME`-compatible object.
 This is based on the `DataFrameFactor` class from the [**S4Vectors** Bioconductor package](https://bioconductor.org/packages/S4Vectors).
 
@@ -45,18 +45,18 @@ This should contain an `data_frame_factor` group.
 
 The `data_frame_factor` group should contain `codes`, a 1-dimensional dataset containing the factor codes. 
 The datatype of this dataset should be representable by a 64-bit unsigned integer.
-Each entry corresponds to an element of the **data frame factor** and contains a row index into the `levels/` object.
+Each entry corresponds to an element of the _data frame factor_ and contains a row index into the `levels/` object.
 Values of this dataset should be less than the number of levels, i.e., height of the `levels/` object.
 
 Unlike the codes for [`string_factor`](../string_factor), missing values are not currently supported for `data_frame_factor/codes`.
 
 Optionally, the `data_frame_factor` group may contain `names`, a 1-dimensional string dataset of the same length as `codes`.
-This contains the name for each element of the **data frame factor**.
+This contains the name for each element of the _data frame factor_.
 
 ### `levels/`
 
 The `concatenated/` subdirectory contains a child object that satisfies the `DATA_FRAME` interface.
-The height (i.e., number of rows) in this child object defines the number of levels in the **data frame factor**.
+The height (i.e., number of rows) in this child object defines the number of levels in the _data frame factor_.
 
 It is recommended that the rows of the `levels/` object are not duplicated. 
 This is not strictly required but downstream applications may assume unique levels in a factor-like object.
@@ -65,17 +65,17 @@ This is not strictly required but downstream applications may assume unique leve
 
 The `element_annotations/` subdirectory contains a child object that satisfies the `DATA_FRAME` interface.
 The child object should have number of rows equal to the length of the `data_frame_factor/codes` dataset.
-Each row corresponds to an entry of the **data frame factor** and contains additional annotations for that entry.
+Each row corresponds to an entry of the _data frame factor_ and contains additional annotations for that entry.
 
-If this subdirectory is absent, no additional annotations are available for elements of the **data frame factor**.
+If this subdirectory is absent, no additional annotations are available for elements of the _data frame factor_.
 
 ### `other_annotations/`
 
 The `other_annotations/` subdirectory contains a child object that satisfies the `SIMPLE_LIST` interface.
-The child object holds extra annotations for the entire **data frame factor**.
+The child object holds extra annotations for the entire _data frame factor_.
 
-If this subdirectory is absent, no extra annotations are available for the **data frame factor**.
+If this subdirectory is absent, no extra annotations are available for the _data frame factor_.
 
 ## Height
 
-The height of the data frame factor is defined as the length of the `data_frame_factor/codes` dataset in `contents.h5`.
+The height of a _data frame factor_ is defined as the length of the `data_frame_factor/codes` dataset in `contents.h5`.

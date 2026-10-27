@@ -11,9 +11,9 @@ cat("# Sequence information (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `sequence_information` specification describes an on-disk representation of a **sequence information** object. 
-This contains a set of reference sequences and describes the name, length, circularity, and genome of origin for each reference sequence.
-It is based on the `Seqinfo` class from the [**GenomeInfoDb** Bioconductor package](https://bioconductor.org/packages/GenomeInfoDb).
+The `sequence_information` specification describes an on-disk representation of a _sequence information_. 
+This contains a set of reference sequences and describes the name, length, circularity, and genome of origin of each reference sequence.
+It is based on the `Seqinfo` class from the [**Seqinfo** Bioconductor package](https://bioconductor.org/packages/Seqinfo).
 
 ## Object metadata
 
@@ -50,7 +50,8 @@ The `sequence_information` group should contain:
   Each entry specifies the genome of origin for each reference sequence.
 
 The `sequence_information/name`, `sequence_information/length`, `sequence_information/circular` and `sequence_information/genome` datasets should be of the same length.
-The length of each dataset represents the number of reference sequences, where the $i$-th entry from each dataset describes the $i$-th reference sequence.
+The length of each dataset represents the number of reference sequences in the _sequence information_.
+The $i$-th entry from each dataset describes the $i$-th reference sequence.
 
 Optionally, the `sequence_information/length` dataset may have a `missing-value-placeholder` attribute.
 The attribute should be scalar and should have the same datatype as its dataset.
