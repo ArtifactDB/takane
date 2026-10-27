@@ -50,11 +50,11 @@ cat('  This should be one of `"integer"`, `"boolean"`, `"string"`, `"vls"` or `"
 
 ```{r, results="asis", echo=FALSE}
 if (.version < package_version("1.1")) {
-cat('### Vector representation
+cat('#### Vector representation
 
 The `dense_array` group should contain `data`, an $N$-dimensional dataset where $N > 0$.')
 } else {
-cat('### Non-compressed VLS representation
+cat('#### Non-compressed VLS representation
 
 For all `type != "vls"`, the `dense_array` group should contain `data`, an $N$-dimensional dataset where $N > 0$.')
 }
@@ -73,14 +73,12 @@ The datatype of the attribute should be the same as `dense_array/data` if `type 
 
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
-    header <- '#### Compressed VLS representation
+    cat('#### Compressed VLS representation
     
-For `type = "vls"`, the **dense array** consists of strings stored in the compressed variable length string (CVLS) format.'
-
-    vls.extra <- readLines("compressed_vls.md")
-    vls.extra <- sub("SOME-DIMENSIONAL", "an $N$-dimensional", vls.extra)
-    vls.extra <- gsub("atomic_vector", "dense_array/data", vls.extra)
-    cat(header, vls.extra, sep='\n')
+For `type = "vls"`, the **dense array** consists of strings stored in the compressed variable length string (CVLS) format.
+See ["Compressed variable-length strings"](../compressed_vls.md) for the specification of the CVLS format.
+The CVLS datasets should be stored in the `dense_array` group, and the `dense_array/pointers` dataset should be $N$-dimensional where $N > 0$.
+')
 }
 ```
 

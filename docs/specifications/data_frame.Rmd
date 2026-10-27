@@ -128,15 +128,13 @@ Otherwise, the levels are treated as unordered.
 
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
-    header <- '#### Compressed VLS column
+    cat('#### Compressed VLS column
 
 If the $i$-th column in the **data frame** uses the compressed variable length string format, it should be represented by a HDF5 group at `data_frame/data/{i}`.
 This group should have a `type` scalar string attribute that contains the `"vls"` value.
-'
-    vls.extra <- readLines("compressed_vls.md")
-    vls.extra <- sub("SOME-DIMENSIONAL", "a 1-dimensional", vls.extra)
-    vls.extra <- gsub("atomic_vector", "data_frame/data/{i}", vls.extra)
-    cat(header, vls.extra, sep='\n')
+See ["Compressed variable-length strings"](../compressed_vls.md) for the specification of the CVLS format.
+The CVLS datasets should be stored in the `data_frame/data/{i}` group, and the `data_frame/data/{i}/pointers` dataset should be 1-dimensional.
+')
 }
 ```
 

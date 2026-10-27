@@ -55,7 +55,7 @@ cat('#### Vector representation
 
 The `atomic_vector` group should contain `values`, a 1-dimensional dataset.')
 } else {
-cat('#### Non-VLS representations
+cat('#### Non-compressed VLS representations
 
 For all `type != "vls"`, the `atomic_vector` group should contain `values`, a 1-dimensional dataset.')
 }
@@ -82,12 +82,12 @@ The attribute itself should contain one of the following values:
 
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
-    header <- '#### Compressed VLS representation
+    cat('#### Compressed VLS representation
     
-For `type = "vls"`, the **atomic vector** consists of strings stored in a compressed variable length string (CVLS) array.'
-    vls.extra <- readLines("compressed_vls.md")
-    vls.extra <- sub("SOME-DIMENSIONAL", "a 1-dimensional", vls.extra)
-    cat(header, vls.extra, sep='\n')
+For `type = "vls"`, the **atomic vector** consists of strings stored in a compressed variable length string (CVLS) array.
+See ["Compressed variable-length strings"](../compressed_vls.md) for the specification of the CVLS format.
+The CVLS datasets should be stored in the `atomic_vector` group, and the `atomic_vector/pointers` dataset should be 1-dimensional.
+')
 }
 ```
 

@@ -26,3 +26,4 @@ for (n in listings) {
 }
 
 file.copy("_general.md", dest)
+file.copy("compressed_vls.md", dest)
