@@ -43,9 +43,10 @@ TEST(JsonDump, BasicDumps) {
     atest->value().emplace_back(new millijson::Nothing);
     atest->value().emplace_back(new millijson::Boolean(false));
 
-    initialize_directory("TEST_json");
-    dump_json(store.get(), "TEST_json/OBJECT");
-    std::ifstream input("TEST_json/OBJECT");
+    auto dir = define_test_path("json");
+    initialize_directory(dir);
+    dump_json(store.get(), dir / "OBJECT");
+    std::ifstream input(dir / "OBJECT");
     std::stringstream stream;
     stream << input.rdbuf();
 
