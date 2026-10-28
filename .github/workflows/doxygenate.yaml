@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Compile markdown
       run: |
@@ -24,7 +24,7 @@ jobs:
         R -f _build.R
 
     - name: Upload markdown
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: built-spec
         path: docs/specifications/compiled
@@ -33,12 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-spec
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Add Pretty CSS
-      uses: wei/wget@v1
-      with:
-        args: -O docs/doxygen-awesome.css https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/main/doxygen-awesome.css
+      run: curl -L https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/main/doxygen-awesome.css -o docs/doxygen-awesome.css 
 
     - name: Doxygen Action
       uses: mattnotmitt/doxygen-action@v1
@@ -49,7 +47,7 @@ jobs:
       run: sudo chmod 777 docs/html
 
     - name: Download markdown
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: built-spec
         path: docs/html/specifications
