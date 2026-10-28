@@ -1,13 +1,21 @@
 var searchData=
 [
-  ['derived_5ffrom_0',['derived_from',['../namespacetakane.html#abf51161213924a21c2488c9c4559ebcd',1,'takane']]],
-  ['dimensions_1',['dimensions',['../namespacetakane.html#a4b5e3bc140ebf9dbc95912cd88fbd837',1,'takane::dimensions(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)'],['../namespacetakane.html#a502c043e19ea8a2469dd2e623c7bfbf8',1,'takane::dimensions(const std::filesystem::path &amp;path, const Options &amp;options)'],['../namespacetakane.html#a75c436fa62cca35c131e5e35384e8819',1,'takane::dimensions(const std::filesystem::path &amp;path)']]],
-  ['dimensions_5fof_5fbumpy_5fatomic_5farray_2',['dimensions_of_bumpy_atomic_array',['../namespacetakane.html#a181c0efe084a0ff76b67b544743c793d',1,'takane']]],
-  ['dimensions_5fof_5fbumpy_5fdata_5fframe_5farray_3',['dimensions_of_bumpy_data_frame_array',['../namespacetakane.html#a26945ad493ddf9419f874f0830840e81',1,'takane']]],
-  ['dimensions_5fof_5fcompressed_5fsparse_5fmatrix_4',['dimensions_of_compressed_sparse_matrix',['../namespacetakane.html#a303f0f78838935f4eb8a2d76087eca1a',1,'takane']]],
-  ['dimensions_5fof_5fdata_5fframe_5',['dimensions_of_data_frame',['../namespacetakane.html#aa15aac56e696b4483a12992407173924',1,'takane']]],
-  ['dimensions_5fof_5fdelayed_5farray_6',['dimensions_of_delayed_array',['../namespacetakane.html#a8fca1af2ab6dd95aa762fc655bd8dda9',1,'takane']]],
-  ['dimensions_5fof_5fdense_5farray_7',['dimensions_of_dense_array',['../namespacetakane.html#ab518cd77ec7c722d8e64dd5f5ebeae16',1,'takane']]],
-  ['dimensions_5fof_5fsummarized_5fexperiment_8',['dimensions_of_summarized_experiment',['../namespacetakane.html#a8cc120e709fa5a79d7da8ad2ba07dfae',1,'takane']]],
-  ['dimensions_5fof_5fvcf_5fexperiment_9',['dimensions_of_vcf_experiment',['../namespacetakane.html#a69cd7cb39d69b7560056f9f26b6735d9',1,'takane']]]
+  ['height_0',['height',['../namespacetakane.html#ab33b84839f510833848b2fad3ea2c266',1,'takane::height(const std::filesystem::path &amp;path, const ObjectMetadata &amp;metadata, const Options &amp;options)'],['../namespacetakane.html#af0b1d3cca9edaf9c2427afba00885a64',1,'takane::height(const std::filesystem::path &amp;path, const Options &amp;options)'],['../namespacetakane.html#a274ff504b1d2c8a279f87b8d4dd913ef',1,'takane::height(const std::filesystem::path &amp;path)']]],
+  ['height_5fof_5fatomic_5fvector_1',['height_of_atomic_vector',['../namespacetakane.html#aff08dea5b5303bbda678d69229be21bc',1,'takane']]],
+  ['height_5fof_5fatomic_5fvector_5flist_2',['height_of_atomic_vector_list',['../namespacetakane.html#ad5922c50832f6456c34aa8f700e17ae2',1,'takane']]],
+  ['height_5fof_5fbumpy_5fatomic_5farray_3',['height_of_bumpy_atomic_array',['../namespacetakane.html#a1700033d599b538d7b7c0c06b1440914',1,'takane']]],
+  ['height_5fof_5fbumpy_5fdata_5fframe_5farray_4',['height_of_bumpy_data_frame_array',['../namespacetakane.html#a92cb70944c79c575bd3a0ea77012a351',1,'takane']]],
+  ['height_5fof_5fcompressed_5fsparse_5fmatrix_5',['height_of_compressed_sparse_matrix',['../namespacetakane.html#a9995cf32d3b9bcb71230756f14cb5a2e',1,'takane']]],
+  ['height_5fof_5fdata_5fframe_6',['height_of_data_frame',['../namespacetakane.html#a59a9ab43a17d18ca6d1cda169b7772d7',1,'takane']]],
+  ['height_5fof_5fdata_5fframe_5ffactor_7',['height_of_data_frame_factor',['../namespacetakane.html#a1096a9c4187b9f416730e699c1139b1e',1,'takane']]],
+  ['height_5fof_5fdata_5fframe_5flist_8',['height_of_data_frame_list',['../namespacetakane.html#a5396d09d09d9fc6b7b637cc6be07e45b',1,'takane']]],
+  ['height_5fof_5fdelayed_5farray_9',['height_of_delayed_array',['../namespacetakane.html#aca8b9adf5f69f8ab38c1bb5b5173d5b8',1,'takane']]],
+  ['height_5fof_5fdense_5farray_10',['height_of_dense_array',['../namespacetakane.html#a3e1b8667b846fce10f691c5d353b1891',1,'takane']]],
+  ['height_5fof_5fgenomic_5franges_11',['height_of_genomic_ranges',['../namespacetakane.html#a476102b52b04628d6084f0c6d6130a18',1,'takane']]],
+  ['height_5fof_5fgenomic_5franges_5flist_12',['height_of_genomic_ranges_list',['../namespacetakane.html#aa17c786b1968c1ed0bafa166c22db95d',1,'takane']]],
+  ['height_5fof_5fsequence_5fstring_5fset_13',['height_of_sequence_string_set',['../namespacetakane.html#adb49080e2c8c9a8fd38a07787caa4c1f',1,'takane']]],
+  ['height_5fof_5fsimple_5flist_14',['height_of_simple_list',['../namespacetakane.html#a54712b3bca4114e7077a4971ac570454',1,'takane']]],
+  ['height_5fof_5fstring_5ffactor_15',['height_of_string_factor',['../namespacetakane.html#a8f430af2b3099de4897439daaddd8d7d',1,'takane']]],
+  ['height_5fof_5fsummarized_5fexperiment_16',['height_of_summarized_experiment',['../namespacetakane.html#a2ca167e5fda3b162468cffec0a6563d5',1,'takane']]],
+  ['height_5fof_5fvcf_5fexperiment_17',['height_of_vcf_experiment',['../namespacetakane.html#ab3e58ff173e6f3872c1872dfe444464f',1,'takane']]]
 ];

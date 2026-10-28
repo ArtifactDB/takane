@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['integer_0',['integer',['../structtakane_1_1CsvFieldCreator.html#aa304a5c33a1b393bd35330dd8e0cfabc',1,'takane::CsvFieldCreator']]]
+  ['satisfies_5finterface_0',['satisfies_interface',['../namespacetakane.html#a2190a85cc82ba126b3a834ed1a1b0516',1,'takane']]]
 ];

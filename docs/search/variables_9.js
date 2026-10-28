@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['parallel_0',['parallel',['../structtakane_1_1csv__data__frame_1_1Parameters.html#adf4fc1f417a915b197af6bb7bee043fa',1,'takane::csv_data_frame::Parameters']]],
-  ['parallel_5freads_1',['parallel_reads',['../structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e',1,'takane::Options']]]
+  ['rds_5ffile_5fstrict_5fcheck_0',['rds_file_strict_check',['../structtakane_1_1Options.html#a07bf89ec1fb17885b2ef0db3f4e3f567',1,'takane::Options']]]
 ];

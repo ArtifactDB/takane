@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['parallel_0',['parallel',['../structtakane_1_1csv__data__frame_1_1Parameters.html#adf4fc1f417a915b197af6bb7bee043fa',1,'takane::csv_data_frame::Parameters']]],
-  ['parallel_5freads_1',['parallel_reads',['../structtakane_1_1Options.html#a19ff776508adc6592f8db07a3c75865e',1,'takane::Options']]],
-  ['parameters_2',['Parameters',['../structtakane_1_1csv__data__frame_1_1Parameters.html',1,'takane::csv_data_frame']]]
+  ['ranged_5fsummarized_5fexperiment_2ehpp_0',['ranged_summarized_experiment.hpp',['../ranged__summarized__experiment_8hpp.html',1,'']]],
+  ['rds_5ffile_2ehpp_1',['rds_file.hpp',['../rds__file_8hpp.html',1,'']]],
+  ['rds_5ffile_5fstrict_5fcheck_2',['rds_file_strict_check',['../structtakane_1_1Options.html#a07bf89ec1fb17885b2ef0db3f4e3f567',1,'takane::Options']]],
+  ['read_5fobject_5fmetadata_3',['read_object_metadata',['../namespacetakane.html#a4202d62d10c0d3d6ad07085f01736372',1,'takane']]],
+  ['reformat_5fobject_5fmetadata_4',['reformat_object_metadata',['../namespacetakane.html#aeb6711d9cf4ba4e408c1890914ad84b2',1,'takane']]]
 ];

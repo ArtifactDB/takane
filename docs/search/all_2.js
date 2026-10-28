@@ -11,7 +11,6 @@ var searchData=
   ['bigwig_5ffile_2ehpp_8',['bigwig_file.hpp',['../bigwig__file_8hpp.html',1,'']]],
   ['bigwig_5ffile_5fstrict_5fcheck_9',['bigwig_file_strict_check',['../structtakane_1_1Options.html#a00fa2c347604905244398ea2fd44c0a1',1,'takane::Options']]],
   ['bioconductor_20objects_10',['File validators for Bioconductor objects',['../index.html',1,'']]],
-  ['boolean_11',['boolean',['../structtakane_1_1CsvFieldCreator.html#ae2ac21c8d2d3e4740b43a6458ea5ee61',1,'takane::CsvFieldCreator::boolean()'],['../structtakane_1_1DummyCsvFieldCreator.html#ae978c7a2dc7d5483133da211859361a9',1,'takane::DummyCsvFieldCreator::boolean()']]],
-  ['bumpy_5fatomic_5farray_2ehpp_12',['bumpy_atomic_array.hpp',['../bumpy__atomic__array_8hpp.html',1,'']]],
-  ['bumpy_5fdata_5fframe_5farray_2ehpp_13',['bumpy_data_frame_array.hpp',['../bumpy__data__frame__array_8hpp.html',1,'']]]
+  ['bumpy_5fatomic_5farray_2ehpp_11',['bumpy_atomic_array.hpp',['../bumpy__atomic__array_8hpp.html',1,'']]],
+  ['bumpy_5fdata_5fframe_5farray_2ehpp_12',['bumpy_data_frame_array.hpp',['../bumpy__data__frame__array_8hpp.html',1,'']]]
 ];

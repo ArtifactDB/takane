@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['csvcontents_0',['CsvContents',['../structtakane_1_1CsvContents.html',1,'takane']]],
-  ['csvfieldcreator_1',['CsvFieldCreator',['../structtakane_1_1CsvFieldCreator.html',1,'takane']]]
+  ['objectmetadata_0',['ObjectMetadata',['../structtakane_1_1ObjectMetadata.html',1,'takane']]],
+  ['options_1',['Options',['../structtakane_1_1Options.html',1,'takane']]]
 ];
