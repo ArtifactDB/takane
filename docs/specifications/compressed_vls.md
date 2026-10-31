@@ -14,14 +14,14 @@ The CVLS format consists of a HDF5 group, denoted here as a `**/` placeholder.
 (Each specification should replace `**/` below with the actual name of the group containing the CVLS-formatted data.)
 This group should contain: 
 
-- `pointers`, a dataset using a compound datatype consisting of 2 members, `"offset"` and `"length"`.
+- `pointers`, a dataset using a compound datatype consisting of 2 members named `offset` and `length`.
   Each member should be of a datatype that can be represented by an unsigned 64-bit integer.
   The expected dimensionality of this dataset should be declared by each specification.
 - `heap`, a 1-dimensional dataset of unsigned 8-bit integers.
   This contains bytes from all of the strings in the array, e.g., by concatenating all strings.
 
 The $i$-th entry of the `**/pointers` dataset refers to a slice $[o_i, o_i + l_i)$ of the `**/heap` dataset,
-where $o_i$ and $l_i$ are the values of the offset and length members, respectively.
+where $o_i$ is the zero-based offset and $l_i$ is the length in bytes from the `offset` and `length` members, respectively.
 This slice defines a variable-length UTF-8-encoded string, terminated at the first null in the slice.
 If no null character is present within the slice, the string consists of the entire slice. 
 
