@@ -11,9 +11,9 @@ cat("# Data frame (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `data_frame` format provides an on-disk representation of a _data frame_.
-This is a columnar data structure where each column is of the same length (or height, for more complex columns),
-and the $i$-th row of the _data frame_ consists of the $i$-th entry of each column.
+The `data_frame` format provides an on-disk representation of a data frame.
+This is a columnar data structure where each column is of the same length (or height, for [non-basic columns](#non-basic-columns)),
+and the $i$-th row of the data frame consists of the $i$-th entry of each column.
 It is based on the `DataFrame` class from the [**S4Vectors** Bioconductor package](https://bioconductor.org/packages/S4Vectors).
 
 ## Object metadata
@@ -48,19 +48,19 @@ The `basic_columns.h5` file should contain an `data_frame` group.
 
 The `data_frame` group should have a `row-count` attribute.
 This should be scalar and its datatype should be representable by a 64-bit unsigned integer.
-The value of this attribute specifies the number of rows in the _data frame_.
+The value of this attribute specifies the number of rows in the data frame.
 
-The `data_frame` group should contain `column_names`, a 1-dimensional string dataset containing the column names of the _data frame_.
-The length of this dataset defines the number of columns of the _data frame_.
+The `data_frame` group should contain `column_names`, a 1-dimensional string dataset containing the column names of the data frame.
+The length of this dataset defines the number of columns of the data frame.
 Column names should not be empty or duplicated.
 
-Optionally, the `data_frame` group may optionally contain `row_names`, a 1-dimensional string dataset containing the row names of the _data frame_ if any are present.
-The length of this dataset should be equal to the number of rows in the _data frame_.
+Optionally, the `data_frame` group may optionally contain `row_names`, a 1-dimensional string dataset containing the row names of the data frame if any are present.
+The length of this dataset should be equal to the number of rows in the data frame.
 The dataset may contain empty or duplicated strings.
-(This is more relaxed than the column names as the row names are considered to be descriptive rather than structural aspects of the _data frame_.)
+(This is more relaxed than the column names as the row names are considered to be descriptive rather than structural aspects of the data frame.)
 
 The `data_frame` group should contain the `data` group that stores all "basic" columns.
-Each basic column is represented by a HDF5 group or dataset that is named after the positional index of the column in the _data frame_,
+Each basic column is represented by a HDF5 group or dataset that is named after the positional index of the column in the data frame,
 i.e., the $i$-th column is represented by a group/dataset at `data_frame/data/{i}`.
 See the following sections on the supported representations of each basic column.
 
@@ -72,7 +72,7 @@ cat("#### Non-factor, non-compressed VLS column")
 }
 ```
 
-If the $i$-th column in the _data frame_ is not a
+If the $i$-th column in the data frame is not a
 ```{r, results="asis", echo=FALSE}
 if (.version < package_version("1.1")) {
 cat('factor,')
@@ -81,7 +81,7 @@ cat('factor or compressed VLS type,')
 }
 ```
 it should represented by a HDF5 dataset at `data_frame/data/{i}`.
-This dataset should be a 1-dimensional and of length equal to the number of rows in the _data frame_.
+This dataset should be a 1-dimensional and of length equal to the number of rows in the data frame.
 
 The `data_frame/data/{i}` dataset should have a `type` scalar string attribute.
 The value of the `type` attribute can be one of `"integer"`, `"boolean"`, `"number"` or `"string"`.
@@ -105,7 +105,7 @@ The datatype of the attribute should be the same as the dataset if `type != "str
 
 ### Factor column
 
-If the $i$-th column in the _data frame_ is a factor, it should be represented by a HDF5 group at `data_frame/data/{i}`.
+If the $i$-th column in the data frame is a factor, it should be represented by a HDF5 group at `data_frame/data/{i}`.
 This group should have a `type` scalar string attribute containing the `"factor"` value.
 
 The `data_frame/data/{i}` group should contain `levels`, a 1-dimensional string dataset containing the factor levels.
@@ -113,7 +113,7 @@ All levels should be unique, so the length of this dataset determines the number
 Missing values are not supported.
 
 The `data_frame/data/{i}` group should contain `codes`, a 1-dimensional dataset containing the 0-indexed factor codes. 
-The length of this dataset should be equal to the number of rows in the _data frame_.
+The length of this dataset should be equal to the number of rows in the data frame.
 The datatype should be representable by a 64-bit unsigned integer.
 Entries of this dataset should be less than the number of levels, or equal to the missing placeholder value if a `missing-value-placeholder` attribute is present. 
 
@@ -130,7 +130,7 @@ Otherwise, the levels are treated as unordered.
 if (.version >= package_version("1.1")) {
     cat('#### Compressed VLS column
 
-If the $i$-th column in the _data frame_ uses the compressed variable length string format, it should be represented by a HDF5 group at `data_frame/data/{i}`.
+If the $i$-th column in the data frame uses the compressed variable length string format, it should be represented by a HDF5 group at `data_frame/data/{i}`.
 This group should have a `type` scalar string attribute that contains the `"vls"` value.
 See ["Compressed variable-length strings"](../compressed_vls.md) for the specification of the CVLS format.
 The CVLS datasets should be stored in the `data_frame/data/{i}` group, and the `data_frame/data/{i}/pointers` dataset should be 1-dimensional.
@@ -142,7 +142,7 @@ The CVLS datasets should be stored in the `data_frame/data/{i}` group, and the `
 
 If the $i$-th column is not a basic column, it should not be present in the `data_frame/data` group, i.e., `data_frame/data/{i}` should not exist.
 Rather, the contents of this column will be stored in the [`other_columns/{i}/` subdirectory](#other_columns).
-This is typically used for columns consisting of more complex data structures, e.g., nested _data frame_ objects.
+This is typically used for columns consisting of more complex data structures, e.g., nested data frame objects.
 
 ### `other_columns/`
 
@@ -150,40 +150,40 @@ The `other_column/` subdirectory stores all "non-basic" columns that cannot be s
 
 If the $i$-th column is a non-basic column, it is represented by a subdirectory named after its positional index, i.e., `other_columns/{i}/`.
 This subdirectory should contain a child object that has a concept of "height".
-The height of this child object should be equal to the number of rows in the _data frame_.
-For example, a non-basic column might be a nested _data frame_ that has the same number of rows as the enclosing _data frame_.
+The height of this child object should be equal to the number of rows in the data frame.
+For example, a non-basic column might be a nested data frame that has the same number of rows as the enclosing data frame.
 
-Each column in the _data frame_ should be represented exactly once across `basic_columns.h5` and `other_columns`.
+Each column in the data frame should be represented exactly once across `basic_columns.h5` and `other_columns`.
 Thus, if a HDF5 dataset or group is present at `data_frame/data/{i}`, there should not be a `other_columns/{i}/` subdirectory, and vice versa.
 
 Aside from the subdirectories corresponding to non-basic columns, no other files or directories should be present in the `other_columns/` subdirectory.
 The exception is that of files/directories prefixed with `.` or `_`, which are ignored.
 
-If no `other_columns/` directory is present, it can be assumed that there are no non-basic columns in the _data frame_.
+If no `other_columns/` directory is present, it can be assumed that there are no non-basic columns in the data frame.
 
 ### `element_annotations/`
 
 The `element_annotations/` subdirectory should contain a child object that satisfies the `DATA_FRAME` interface.
 This child object should have number of rows equal to the number of columns, i.e., the length of the `data_frame/column_names` dataset in `basic_columns.h5`.
-Each row of this child object corresponds to a column of the _data frame_ and contains additional annotations for that column.
+Each row of this child object corresponds to a column of the data frame and contains additional annotations for that column.
 
-If this subdirectory is absent, no additional additions are available for columns of the _data frame_.
+If this subdirectory is absent, no additional additions are available for columns of the data frame.
 
 ### `other_annotations/`
 
 The `other_annotations/` subdirectory should contain a child object that satisfies the `SIMPLE_LIST` interface.
-This child object holds extra annotations for the entire _data frame_.
+This child object holds extra annotations for the entire data frame.
 
-If this subdirectory is absent, no extra additions are available for the _data frame_.
+If this subdirectory is absent, no extra additions are available for the data frame.
 
 ## Height
 
-The height of a _data frame_ is defined as the number of rows, as specified in the `row-count` attribute of the `basic_columns.h5` file.
+The height of a data frame is defined as the number of rows, as specified in the `row-count` attribute of the `basic_columns.h5` file.
 
 ## Dimensions
 
-The dimensions of a _data frame_ is defined as the number of rows (the `row-count` attribute) and columns (the length of the `data_frame/column_names` dataset) from the `basic_columns.h5` file.
+The dimensions of a data frame is defined as the number of rows (the `row-count` attribute) and columns (the length of the `data_frame/column_names` dataset) from the `basic_columns.h5` file.
 
 ## Interfaces
 
-A _data frame_ satisfies the `DATA_FRAME` interface.
+A data frame satisfies the `DATA_FRAME` interface.

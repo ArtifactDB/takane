@@ -11,12 +11,12 @@ cat("# Atomic vector list (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `atomic_vector_list` specification describes the on-disk representation of an _atomic vector list_, i.e., a list of _atomic vector_ objects of the same type.
+The `atomic_vector_list` specification describes the on-disk representation of an atomic vector list, i.e., a list of atomic vectors of the same type.
 This is based on the `CompressedList` subclasses for atomic vectors, as implemented in the [**IRanges** Bioconductor package](https://bioconductor.org/packages/IRanges).
 
-Here, the central idea is to store a single _atomic vector_ consisting of the concatenation of all entries of the _atomic vector list_.
-Each entry of the _atomic vector list_ is defined as a contiguous slice into this concatenated _atomic vector_.
-This avoids the storage overhead of multiple _atomic vector_ objects, which may be significant if each object is very small.
+Here, the central idea is to store a single atomic vector consisting of the concatenation of all entries of the atomic vector list.
+Each entry of the atomic vector list is an atomic vector created from a contiguous slice of this concatenated object.
+This approach avoids the storage overhead of multiple atomic vectors, which may be significant if each object is very small.
 
 ## Object metadata
 
@@ -51,11 +51,11 @@ cat(payload, sep="\n")
 
 ### `concatenated/`
 
-The `concatenated/` subdirectory should contain a child object that is an [_atomic_vector_](../atomic_vector).
+The `concatenated/` subdirectory should contain a child object that is an [atomic vector](../atomic_vector).
 The height of this child object should be equal to the sum of lengths in the `atomic_vector_list/lengths` dataset of the `partitions.h5` file.
-This child object represents the concatenation of all of the _atomic vector_ objects in the _atomic vector list_.
+This child object represents the concatenation of all of the atomic vector objects in the atomic vector list.
 
-The $i$-th entry of the _atomic vector list_ is constructed by taking the slice $[s_i, s_i + l_i)$ from the `concatenated/` child object.  
+The $i$-th entry of the atomic vector list is constructed by taking the slice $[s_i, s_i + l_i)$ from the `concatenated/` child object.  
 $l_i$ is defined as the $i$-th entry of the `atomic_vector_list/lengths` dataset in the `partitions.h5` file.
 $s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
@@ -63,17 +63,17 @@ $s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
 The `element_annotations/` subdirectory should contain a child object that satisfies the `DATA_FRAME` interface.
 This child object should have number of rows equal to the extent of the `atomic_vector_list/lengths` dataset in the `partitions.h5` file.
-The $i$-th row corresponds to the $i$-th entry of the _atomic vector list_ and contains additional annotations for that entry.
+The $i$-th row corresponds to the $i$-th entry of the atomic vector list and contains additional annotations for that entry.
 
-If this subdirectory is absent, no additional annotations are available for entries of the _atomic vector list_.
+If this subdirectory is absent, no additional annotations are available for entries of the atomic vector list.
 
 ### `other_annotations/`
 
 The `other_annotations/` subdirectory should contain a child object that satisfies the `SIMPLE_LIST` interface.
-This holds extra annotations for the entire _atomic vector list_.
+This holds extra annotations for the entire atomic vector list.
 
-If this subdirectory is absent, no extra additions are available for the _atomic vector list_.
+If this subdirectory is absent, no extra additions are available for the atomic vector list.
 
 ## Height
 
-The height of an _atomic vector list_ is defined as the extent of the sole dimension of the `atomic_vector_list/lengths` dataset in `partitions.h5`.
+The height of an atomic vector list is defined as the extent of the sole dimension of the `atomic_vector_list/lengths` dataset in `partitions.h5`.

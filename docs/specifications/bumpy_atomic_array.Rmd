@@ -11,13 +11,13 @@ cat("# Bumpy atomic array (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `bumpy_atomic_array` specification describes an on-disk representation of a _bumpy atomic array_.
+The `bumpy_atomic_array` specification describes an on-disk representation of a bumpy atomic array.
 This is a N-dimensional array where each entry is an atomic vector of the same type.
 It is based on the `BumpyMatrix` subclasses for atomic vectors, as implemented in the [**BumpyMatrix** Bioconductor package](https://bioconductor.org/packages/BumpyMatrix).
 
-Here, the central idea is to store a single _atomic vector_ consisting of the concatenation of all entries of the _bumpy atomic array_.
-Each entry of the _bumpy atomic array_ is defined as a contiguous slice into this concatenated _atomic vector_.
-This avoids the storage overhead of multiple _atomic vector_ objects, which may be significant if each object is very small.
+Here, the central idea is to store a single atomic vector consisting of the concatenation of all entries of the bumpy atomic array.
+Each entry of the bumpy atomic array is defined as a contiguous slice into this concatenated atomic vector.
+This avoids the storage overhead of multiple atomic vectors, which may be significant if each object is very small.
 
 ## Object metadata
 
@@ -49,18 +49,18 @@ cat(payload, sep="\n")
 
 The `concatenated/` subdirectory contains a child object that is an [_atomic_vector_](../atomic_vector).
 The height of this child object should be equal to the sum of lengths in the `bumpy_atomic_array/lengths` dataset of the `partitions.h5` file.
-This child object represents the concatenation of all of the _atomic vector_ objects in the _bumpy atomic array_.
+This child object represents the concatenation of all of the atomic vectors in the bumpy atomic array.
 
-Recall that each entry of the _bumpy atomic array_ is represented by an entry of the `bumpy_atomic_array/lengths` dataset in `partitions.h5`.
-To construct the _atomic vector_ corresponding to the $i$-th entry of the `bumpy_atomic_array/lengths` dataset,
+Recall that each entry of the bumpy atomic array is represented by an entry of the `bumpy_atomic_array/lengths` dataset in `partitions.h5`.
+To construct the atomic vector corresponding to the $i$-th entry of the `bumpy_atomic_array/lengths` dataset,
 we take the slice $[s_i, s_i + l_i)$ of the `concatenated/` object.  
 $l_i$ is defined as the $i$-th entry of the `bumpy_atomic_array/lengths` dataset.
 $s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
 ## Height
 
-The height of a _bumpy atomic array_ is defined as the extent of the first dimension, as specified in the `bumpy_atomic_array/dimensions` dataset of the `partitions.h5` file.
+The height of a bumpy atomic array is defined as the extent of the first dimension, as specified in the `bumpy_atomic_array/dimensions` dataset of the `partitions.h5` file.
 
 ## Dimensions
 
-The dimensions of a _bumpy atomic array_ are taken from the `bumpy_atomic_array/dimensions` dataset of the `partitions.h5` file.
+The dimensions of a bumpy atomic array are taken from the `bumpy_atomic_array/dimensions` dataset of the `partitions.h5` file.

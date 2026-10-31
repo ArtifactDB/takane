@@ -3,25 +3,25 @@
 The `partitions.h5` file should contain a `bumpy_atomic_array` group.
 
 The `bumpy_atomic_array` group should contain `dimensions`, a 1-dimensional dataset of any type that is representable by a 64-bit unsigned integer.
-This contains the extents of the dimensions of the _bumpy atomic array_.
+This contains the extents of the dimensions of the bumpy atomic array.
 
 The `bumpy_atomic_array` group should contain `lengths`, a 1-dimensional dataset of any type that is representable by a 64-bit unsigned integer.
-Each entry of this dataset corresponds to an entry of the _bumpy atomic array_ (i.e., a single _atomic vector_),
-and defines the number of consecutive elements in the `concatenated` object that should be used to construct each _atomic vector_.
+Each entry of this dataset corresponds to an entry of the bumpy atomic array (i.e., a single atomic vector),
+and defines the number of consecutive elements in the `concatenated` object that should be used to construct each atomic vector.
 
 #### Dense array 
 
-If the `bumpy_atomic_array` group does not contain an `indices` group, it is assumed that the _bumpy atomic array_ is dense.
+If the `bumpy_atomic_array` group does not contain an `indices` group, it is assumed that the bumpy atomic array is dense.
 
 The `bumpy_atomic_array/lengths` dataset should have length equal to the product of the entries of the `bumpy_atomic_array/dimensions` dataset.
 
-Each entry of the _bumpy atomic array_ maps to an entry of the `bumpy_atomic_array/lengths` dataset by flattening the former to a 1-dimensional vector.
-The first dimension of the _bumpy atomic array_ is the fastest-changing, then the second, and so on.
-For example, given a _bumpy atomic array_ of dimensions $(X, Y, Z)$, array entry $(x, y, z)$ would map to entry $x + X(y + Yz)$ of the `bumpy_atomic_array/lengths` dataset. 
+Each entry of the bumpy atomic array maps to an entry of the `bumpy_atomic_array/lengths` dataset by flattening the former to a 1-dimensional vector.
+The first dimension of the bumpy atomic array is the fastest-changing, then the second, and so on.
+For example, given a bumpy atomic array of dimensions $(X, Y, Z)$, array entry $(x, y, z)$ would map to entry $x + X(y + Yz)$ of the `bumpy_atomic_array/lengths` dataset. 
 
 #### Sparse array
 
-If the `bumpy_atomic_array` group contains an `indices` group, it is assumed that the _bumpy atomic array_ is sparse.
+If the `bumpy_atomic_array` group contains an `indices` group, it is assumed that the bumpy atomic array is sparse.
 
 The `bumpy_atomic_array/indices` group should contain one dataset per dimension.
 Specifically, the $d$-th dimension should be represented by the `bumpy_atomic_array/indices/{d}` dataset.

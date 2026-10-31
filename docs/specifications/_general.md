@@ -26,7 +26,7 @@ The `type` property should be a string that specifies the type of the object, e.
 
 In addition, the `OBJECT` file will typically have another property named after the object type.
 This property should be a JSON object containing extra metadata that don't easily fit into other files.
-For example, an instance of the [`summarized_experiment` type](summarized_experiment) might use the following object metadata:
+For example, a [summarized experiment](summarized_experiment) might use the following object metadata:
 
 ```json
 {
@@ -39,7 +39,7 @@ For example, an instance of the [`summarized_experiment` type](summarized_experi
 ```
 
 We use a nested JSON object ensure that each object type's properties do not conflict with those of derived types. 
-For example, the [`ranged_summarized_experiment` type](ranged_summarized_experiment) is derived from the `summarized_experiment` type, but has its own version string:
+For example, a [ranged summarized experiment](ranged_summarized_experiment) is derived from a summarized experiment, but has its own version string:
 
 ```json
 {
@@ -57,7 +57,7 @@ For example, the [`ranged_summarized_experiment` type](ranged_summarized_experim
 ### Child objects
 
 Some complex objects are composed of other objects,
-e.g., a [_summarized experiment_](summarized_experiment) might be composed of [_data frame_](data_frame) and [_dense array_](dense_array) objects.
+e.g., a [summarized experiment](summarized_experiment) might be composed of [data frame](data_frame) and [dense array](dense_array) objects.
 The specification for a complex object type should store each of these "child" objects in its own subdirectory of the complex object's directory,
 consistent with the policy descibed in ["Object directories"](#object-directories).
 If a complex object type expects certain types of child objects, the specification for the former should declare the expected type of the latter,
@@ -87,8 +87,8 @@ While they represent the convention across multiple applications, the final inte
 Some object types may have a concept of "height" (i.e., vertical length) and "dimensions".
 These concepts are typically used in complex object specifications to ensure that the child objects have the correct shape.
 For example, the `summarized_experiment` specification expects that all assay objects have the same first two dimensions, 
-and that the number of _data frame_ rows for the row and column annotations are equal to the number of rows and columns, respectively, in the _summarized experiment_.
-These expectations are enforced by comparing each child object's height/dimensions to that of the _summarized experiment_.
+and that the number of data frame rows for the row and column annotations are equal to the number of rows and columns, respectively, in the summarized experiment.
+These expectations are enforced by comparing each child object's height/dimensions to that of the summarized experiment.
 
 ### Derived types
 
@@ -194,7 +194,3 @@ For example, a file path at `/foo/{x}/bar` will resolve to `/foo/1/bar` for $x =
 
 All indices in all specifications are zero-based unless explicitly specified otherwise.
 For example, when discussing the $i$-th entry of an array, the first entry would be $i = 0$.
-
-When referring to object types in plain text, we italicize the words to make it clear that we're talking about a specific type.
-The italicized text "_data frame_" is a placeholder for "object of the `data_frame` type".
-This also distinguishes the plain-text mention of the object type from its use in code, e.g., the `data_frame` HDF5 group.

@@ -11,13 +11,13 @@ cat("# Data frame list (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `data_frame_list` specification describes an on-disk representation of a list of `DATA_FRAME`-compatible objects,
-where each object contains the same type and order of columns.
+The `data_frame_list` specification describes an on-disk representation of a list of data frames (or data frame-like objects),
+where each data frame contains the same type and order of columns.
 This is based on the `CompressedSplitDataFrameList` from the [**IRanges** Bioconductor package](https://bioconductor.org/packages/IRanges).
 
-Here, the central idea is to store a single `DATA_FRAME`-compatible object consisting of the concatenation of all entries of the _data frame list_.
-Each entry of the _data frame list_ is defined as a contiguous slice into this concatenated object.
-This avoids the storage overhead of multiple `DATA_FRAME`-compatible objects, which may be significant if each object is very small.
+Here, the central idea is to store a single data frame (or data frame-like object) consisting of the concatenation of all entries of the data frame list.
+Each entry of the data frame list is a data frame created from a contiguous slice of this concatenated object.
+This approach avoids the storage overhead of multiple data frames, which may be significant if each object is very small.
 
 ## Object metadata
 
@@ -56,9 +56,9 @@ cat(payload, sep="\n")
 
 The `concatenated/` subdirectory should contain a child object that satisfies the `DATA_FRAME` interface.
 The height of this child object (i.e., number of rows) should be equal to the sum of lengths in the `data_frame_list/lengths` dataset of the `partitions.h5` file.
-This child object represents the concatenation of all entries of the _data frame list_.
+This child object represents the concatenation of all entries of the data frame list.
 
-The $i$-th entry of the _data frame list_ is constructed by taking the slice $[s_i, s_i + l_i)$ from the `concatenated/` object.  
+The $i$-th entry of the data frame list is constructed by taking the slice $[s_i, s_i + l_i)$ from the `concatenated/` object.  
 $l_i$ is defined as the $i$-th entry of the `data_frame_list/lengths` dataset in the `partitions.h5` file.
 $s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
@@ -66,17 +66,17 @@ $s_i$ is defined as the sum of $l_j$ for all $j < i$, or zero if $i = 0$.
 
 The `element_annotations/` subdirectory should contain a child object that satisfies the `DATA_FRAME` interface.
 This child object should have number of rows equal to the extent of the `data_frame_list/lengths` dataset in the `partitions.h5` file.
-The $i$-th row corresponds to the $i$-th entry of the _data frame list_ and contains additional annotations for that entry.
+The $i$-th row corresponds to the $i$-th entry of the data frame list and contains additional annotations for that entry.
 
-If this subdirectory is absent, no additional additions are available for entries of the _data frame list_.
+If this subdirectory is absent, no additional additions are available for entries of the data frame list.
 
 ### `other_annotations/`
 
 The `other_annotations/` subdirectory should contain a child object that satisfies the `SIMPLE_LIST` interface.
-This holds extra annotations for the entire _data frame list_.
+This holds extra annotations for the entire data frame list.
 
-If this subdirectory is absent, no extra additions are available for the _data frame list_.
+If this subdirectory is absent, no extra additions are available for the data frame list.
 
 ## Height
 
-The height of a _data frame list_ is defined as the extent of the sole dimension of the `data_frame_list/lengths` dataset in the `partitions.h5` file.
+The height of a data frame list is defined as the extent of the sole dimension of the `data_frame_list/lengths` dataset in the `partitions.h5` file.

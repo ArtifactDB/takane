@@ -11,7 +11,7 @@ cat("# Dense array (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `dense_array` specification describes an on-disk representation of a _dense array_.
+The `dense_array` specification describes an on-disk representation of a dense array.
 This should have any positive number of dimensions and its type is either integer, boolean, floating-point or string.
 It is based on the base arrays of the R programming language.
 
@@ -75,7 +75,7 @@ The datatype of the attribute should be the same as `dense_array/data` if `type 
 if (.version >= package_version("1.1")) {
     cat('#### Compressed VLS representation
     
-For `type = "vls"`, the _dense array_ consists of strings stored in the compressed variable length string (CVLS) format.
+For `type = "vls"`, the dense array consists of strings stored in the compressed variable length string (CVLS) format.
 See ["Compressed variable-length strings"](../compressed_vls.md) for the specification of the CVLS format.
 The CVLS datasets should be stored in the `dense_array` group, and the `dense_array/pointers` dataset should be $N$-dimensional where $N > 0$.
 ')
@@ -95,14 +95,14 @@ Aside from the aforementioned datasets, no other objects should be present in th
 
 Optionally, the `dense_array` group may have a `transposed` attribute.
 This should be scalar and its datatype should be representable by a 32-bit signed integer.
-Any non-zero value indicates that the _dense array_ is stored in a transposed format, i.e., the $d$-th HDF5 dimension is actually the $N-d-1$-th dimension of the _dense array_.
+Any non-zero value indicates that the dense array is stored in a transposed format, i.e., the $d$-th HDF5 dimension is actually the $N-d-1$-th dimension of the dense array.
 This is sometimes desirable for efficiently reading/writing from frameworks that use a different dimension ordering, e.g., column-major matrices versus HDF5's row-major layout.
 
 If no `transposed` attribute is present, it is assumed to be false, i.e., no transposition. 
 
 ## Height
 
-The height of the _dense array_ is defined as the extent of the first dimension of the
+The height of the dense array is defined as the extent of the first dimension of the
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
     cat('`dense_array/data` dataset (for `type != "vls"`) or `dense_array/pointers` dataset (for `type == "vls"`)')
@@ -111,11 +111,11 @@ if (.version >= package_version("1.1")) {
 }
 ```
 in the `array.h5` file.
-If the _dense array_ is stored in a transposed format, the extent of the last dimension is used instead.
+If the dense array is stored in a transposed format, the extent of the last dimension is used instead.
 
 ## Dimensions
 
-The dimensions of the _dense array_ are defined as the dimensions of the 
+The dimensions of the dense array are defined as the dimensions of the 
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
     cat('`dense_array/data` dataset (for `type != "vls"`) or `dense_array/pointers` dataset (for `type == "vls"`)')
@@ -124,4 +124,4 @@ if (.version >= package_version("1.1")) {
 }
 ```
 in the `array.h5` file.
-If the _dense array_ is stored in a transposed format, the dimensions are reversed.
+If the dense array is stored in a transposed format, the dimensions are reversed.

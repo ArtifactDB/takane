@@ -11,8 +11,8 @@ cat("# Atomic vector (", as.character(.version), ")", sep="")
 
 ## Overview
 
-The `atomic_vector` specification describes an on-disk representation of an _atomic vector_ from the R programming language.
-An _atomic vector_ is an array of values of the same "atomic" type, equivalent to a typed array in other languages.
+The `atomic_vector` specification describes an on-disk representation of an atomic vector from the R programming language.
+An atomic vector is an array of values of the same "atomic" type, equivalent to a typed array in other languages.
 This specification suppports 4 atomic types - integer, boolean, floating-point and string.
 (Strings are included here as they are immutable in R.)
 
@@ -40,7 +40,7 @@ The directory should contain the following:
 
 This file should contain an `atomic_vector` group with the following attributes:
 
-- `type`, a scalar string attribute specifying the type of the _atomic vector_.
+- `type`, a scalar string attribute specifying the type of the atomic vector.
 ```{r, results="asis", echo=FALSE}
 if (.version < package_version("1.1")) {
 cat('  The attribute value should be one of `"integer"`, `"boolean"`, `"string"` or `"number"`.')
@@ -60,7 +60,7 @@ cat('#### Non-compressed VLS representations
 For all `type != "vls"`, the `atomic_vector` group should contain `values`, a 1-dimensional dataset.')
 }
 ```
-Each entry of this dataset represents an entry of the _atomic vector_.
+Each entry of this dataset represents an entry of the atomic vector.
 The set of acceptable HDF5 datatypes of this dataset is determined by the value of the `type` attribute:
 
 - For `type = "integer"` or `"boolean"`, the datatype should be representable by a 32-bit signed integer.
@@ -84,7 +84,7 @@ The attribute itself should contain one of the following values:
 if (.version >= package_version("1.1")) {
     cat('#### Compressed VLS representation
     
-For `type = "vls"`, the _atomic vector_ consists of strings stored in a compressed variable length string (CVLS) array.
+For `type = "vls"`, the atomic vector consists of strings stored in a compressed variable length string (CVLS) array.
 See ["Compressed variable-length strings"](../compressed_vls.md) for the specification of the CVLS format.
 The CVLS datasets should be stored in the `atomic_vector` group, and the `atomic_vector/pointers` dataset should be 1-dimensional.
 ')
@@ -101,11 +101,11 @@ if (.version >= package_version("1.1")) {
     cat("`atomic_vector/values`.")
 }
 ```
-The $i$-th entry of this dataset contains the name of the $i$-th element in the _atomic vector_.
+The $i$-th entry of this dataset contains the name of the $i$-th element in the atomic vector.
 
 ## Height
 
-The height of an _atomic vector_ is defined as the extent of the sole dimension of the 
+The height of an atomic vector is defined as the extent of the sole dimension of the 
 ```{r, results="asis", echo=FALSE}
 if (.version >= package_version("1.1")) {
     cat('`atomic_vector/values` dataset (for `type != "vls"`) or `atomic_vector/pointers` dataset (for `type == "vls"`)')
