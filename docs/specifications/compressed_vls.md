@@ -10,8 +10,7 @@ CVLS stores variable-length strings directly without any padding, and the datase
 
 ## Specification
 
-The CVLS format consists of a HDF5 group, denoted here as a `**/` placeholder.
-(Each specification should replace `**/` below with the actual name of the group containing the CVLS-formatted data.)
+The CVLS format consists of a HDF5 group containing:
 This group should contain: 
 
 - `pointers`, a dataset using a compound datatype consisting of 2 members named `offset` and `length`.
@@ -20,19 +19,19 @@ This group should contain:
 - `heap`, a 1-dimensional dataset of unsigned 8-bit integers.
   This contains bytes from all of the strings in the array, e.g., by concatenating all strings.
 
-The $i$-th entry of the `**/pointers` dataset refers to a slice $[o_i, o_i + l_i)$ of the `**/heap` dataset,
+The $i$-th entry of the `pointers` dataset refers to a slice $[o_i, o_i + l_i)$ of the `heap` dataset,
 where $o_i$ is the zero-based offset and $l_i$ is the length in bytes from the `offset` and `length` members, respectively.
 This slice defines a variable-length UTF-8-encoded string, terminated at the first null in the slice.
 If no null character is present within the slice, the string consists of the entire slice. 
 
-Entries of the `**/pointers` dataset may be sorted in any order and may refer to overlapping or non-contiguous slices.
+Entries of the `pointers` dataset may be sorted in any order and may refer to overlapping or non-contiguous slices.
 The only requirement is that each $[o_i, o_i + l_i)$ slice lies within the boundaries of the heap dataset.
 
-No restrictions are placed on the contents of the `**/heap` dataset, as long as the strings can be recovered from slices as described above.
-Writers of the `**/heap` dataset may concatenate strings in arbitrary order, merge duplicate strings, add padding between strings, etc.
-The heap may contain unused bytes, i.e., not referenced by any slice in the `**/pointers` dataset.
+No restrictions are placed on the contents of the `heap` dataset, as long as the strings can be recovered from slices as described above.
+Writers of the `heap` dataset may concatenate strings in arbitrary order, merge duplicate strings, add padding between strings, etc.
+The heap may contain unused bytes, i.e., not referenced by any slice in the `pointers` dataset.
 
-Optionally, the `**/pointers` dataset may contain a `missing-value-placeholder` scalar string attribute.
+Optionally, the `pointers` dataset may contain a `missing-value-placeholder` scalar string attribute.
 If this attribute is present, any strings in the CVLS array that are equal to the placeholder should be treated as missing.
 
 ## Usage instructions
